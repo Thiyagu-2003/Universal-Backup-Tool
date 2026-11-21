@@ -27,6 +27,14 @@ public partial class JobCardViewModel : ObservableObject
     public bool Pinned => Model.Pinned;
     public bool UseVss => Model.UseVss;
     public List<string> Destinations => Model.Destinations;
+    public bool IsSqlServer => Model.IsSqlServer;
+    public string Kind => Model.Kind;
+
+    public string KindBadge => Model.IsSqlServer
+        ? "SQL SERVER"
+        : (Model.SourceFolder.StartsWith("IIS:", StringComparison.OrdinalIgnoreCase) ? "IIS SITE" : "FOLDER");
+
+    public string KindBadgeColor => Model.IsSqlServer ? "#38BDF8" : "#818CF8";
 
     public string StatusText => Model.LastRunStatus ?? "NEVER RUN";
 

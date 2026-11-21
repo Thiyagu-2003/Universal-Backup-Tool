@@ -286,6 +286,11 @@
                                                     <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
                                                         <TextBlock Text="{Binding Name}" FontWeight="Bold" FontSize="15" Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,10,0"/>
 
+                                                        <!-- Kind Badge (SQL Server cyan / Folder blue) -->
+                                                        <Border Background="#132742" BorderBrush="#0284C7" BorderThickness="1" CornerRadius="5" Padding="7,2" Margin="0,0,6,0">
+                                                            <TextBlock Text="{Binding KindBadge}" FontSize="10.5" Foreground="{Binding KindBadgeColor}" FontWeight="Bold"/>
+                                                        </Border>
+
                                                         <!-- Schedule Badge (Purple) -->
                                                         <Border Background="#F5F3FF" BorderBrush="#DDD6FE" BorderThickness="1" CornerRadius="5" Padding="7,2" Margin="0,0,6,0">
                                                             <StackPanel Orientation="Horizontal">

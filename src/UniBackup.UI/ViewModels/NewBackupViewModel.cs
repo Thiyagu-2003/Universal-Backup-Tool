@@ -5,6 +5,8 @@ using UniBackup.Core.Common;
 using UniBackup.Core.Interfaces;
 using UniBackup.Core.Models;
 using UniBackup.Engine.Services;
+using UniBackup.Infrastructure.Security;
+using UniBackup.Infrastructure.Sql;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
@@ -16,6 +18,30 @@ public partial class NewBackupViewModel : ObservableObject
     private readonly IIisDiscoveryService _iisService;
     private readonly ISchedulerService _schedulerService;
 
+    // Stepped Wizard (1: Source, 2: Schedule, 3: Destinations, 4: Options)
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(CanGoPrevious))]
+    [NotifyPropertyChangedFor(nameof(IsStep1))]
+    [NotifyPropertyChangedFor(nameof(IsStep2))]
+    [NotifyPropertyChangedFor(nameof(IsStep3))]
+    [NotifyPropertyChangedFor(nameof(IsStep4))]
+    private int _currentStep = 1;
+
+    public bool CanGoPrevious => CurrentStep > 1;
+    public bool IsStep1 => CurrentStep == 1;
+    public bool IsStep2 => CurrentStep == 2;
+    public bool IsStep3 => CurrentStep == 3;
+    public bool IsStep4 => CurrentStep == 4;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsSqlServer))]
+    [NotifyPropertyChangedFor(nameof(IsFolder))]
+    private string _kind = "folder"; // "folder" | "sqlserver"
+
+    public bool IsSqlServer => Kind.Equals("sqlserver", StringComparison.OrdinalIgnoreCase);
+    public bool IsFolder => !IsSqlServer;
+
+    // Job Common Details
     [ObservableProperty]
     private string _jobName = "";
 
@@ -25,6 +51,53 @@ public partial class NewBackupViewModel : ObservableObject
     [ObservableProperty]
     private string _subfolder = "";
 
+    // SQL Server Settings
+    [ObservableProperty]
+    private string _sqlServer = "localhost";
+
+    [ObservableProperty]
+    private bool _sqlUseWindowsAuth = true;
+
+    [ObservableProperty]
+    private string _sqlUsername = "";
+
+    [ObservableProperty]
+    private string _sqlPassword = "";
+
+    [ObservableProperty]
+    private bool _sqlTrustServerCert = true;
+
+    [ObservableProperty]
+    private bool _sqlAllDatabases = true;
+
+    [ObservableProperty]
+    private string _sqlExcludePatterns = "";
+
+    [ObservableProperty]
+    private bool _sqlNativeCompression = true;
+
+    [ObservableProperty]
+    private bool _sqlChecksum = true;
+
+    [ObservableProperty]
+    private bool _sqlVerify = true;
+
+    [ObservableProperty]
+    private bool _sqlRunCheckDb = false;
+
+    [ObservableProperty]
+    private bool _sqlDirectToUrl = false;
+
+    [ObservableProperty]
+    private string _sqlConnectionStatus = "";
+
+    [ObservableProperty]
+    private bool _isTestingConnection = false;
+
+    [ObservableProperty]
+    private ObservableCollection<string> _availableDatabases = [];
+
+    // Destinations
     [ObservableProperty]
     private bool _enableS3 = true;
 
@@ -40,6 +113,7 @@ public partial class NewBackupViewModel : ObservableObject
     [ObservableProperty]
     private bool _includeInRunAll = true;
 
+    // Schedule Settings (Schedule v2)
     [ObservableProperty]
     private string _selectedFrequency = "daily";
 
@@ -68,6 +142,55 @@ public partial class NewBackupViewModel : ObservableObject
     private bool _sunday = false;
 
     [ObservableProperty]
+    private bool _diffEnabled = false;
+
+    [ObservableProperty]
+    private int _diffMinutes = 240; // Every 4 hours
+
+    [ObservableProperty]
+    private bool _logEnabled = false;
+
+    [ObservableProperty]
+    private int _logMinutes = 15; // Every 15 minutes
+
+    [ObservableProperty]
+    private bool _windowEnabled = false;
+
+    [ObservableProperty]
+    private string _windowStart = "08:00";
+
+    [ObservableProperty]
+    private string _windowEnd = "20:00";
+
+    // Options (Retention, Encryption, Object Lock)
+    [ObservableProperty]
+    private int _retentionDays = 30;
+
+    [ObservableProperty]
+    private bool _gfsEnabled = false;
+
+    [ObservableProperty]
+    private int _gfsDailies = 7;
+
+    [ObservableProperty]
+    private int _gfsWeeklies = 4;
+
+    [ObservableProperty]
+    private int _gfsMonthlies = 12;
+
+    [ObservableProperty]
+    private bool _encryptionEnabled = false;
+
+    [ObservableProperty]
+    private string _encryptionPassphrase = "";
+
+    [ObservableProperty]
+    private bool _objectLockEnabled = false;
+
+    [ObservableProperty]
+    private int _objectLockDays = 30;
+
+    [ObservableProperty]
     private ObservableCollection<IisSiteInfo> _iisSites = [];
 
     [ObservableProperty]
@@ -87,6 +210,80 @@ public partial class NewBackupViewModel : ObservableObject
         _configService = configService;
         _iisService = iisService;
         _schedulerService = schedulerService;
+    }
+
+    [RelayCommand]
+    public void NextStep()
+    {
+        if (CurrentStep < 4)
+        {
+            CurrentStep++;
+        }
+    }
+
+    [RelayCommand]
+    public void PreviousStep()
+    {
+        if (CurrentStep > 1)
+        {
+            CurrentStep--;
+        }
+    }
+
+    [RelayCommand]
+    public void SetStep(int step)
+    {
+        if (step >= 1 && step <= 4)
+        {
+            CurrentStep = step;
+        }
+    }
+
+    [RelayCommand]
+    public async Task TestSqlConnectionAsync()
+    {
+        IsTestingConnection = true;
+        SqlConnectionStatus = "Testing connection to " + SqlServer + "...";
+        try
+        {
+            var crypto = new CredentialProtector();
+            var sqlService = new SqlServerBackupService(crypto);
+            var source = new SqlServerSource
+            {
+                Server = SqlServer,
+                UseWindowsAuth = SqlUseWindowsAuth,
+                Username = SqlUseWindowsAuth ? null : SqlUsername,
+                PasswordSealed = SqlUseWindowsAuth ? null : crypto.Seal(SqlPassword),
+                TrustServerCertificate = SqlTrustServerCert
+            };
+
+            var dbs = await sqlService.ListDatabasesAsync(source, CancellationToken.None);
+            if (dbs.IsSuccess)
+            {
+                AvailableDatabases.Clear();
+                foreach (var db in dbs.Value)
+                {
+                    AvailableDatabases.Add(db.Name);
+                }
+                SqlConnectionStatus = $"Connected! Found {dbs.Value.Count} database(s).";
+                if (string.IsNullOrWhiteSpace(JobName))
+                {
+                    JobName = $"SQL_{SqlServer.Replace('\\', '_')}";
+                }
+            }
+            else
+            {
+                SqlConnectionStatus = "Connection failed: " + dbs.Error;
+            }
+        }
+        catch (Exception ex)
+        {
+            SqlConnectionStatus = "Error: " + ex.Message;
+        }
+        finally
+        {
+            IsTestingConnection = false;
+        }
     }
 
     [RelayCommand]
@@ -139,17 +336,28 @@ public partial class NewBackupViewModel : ObservableObject
     [RelayCommand]
     public async Task SaveJobAsync()
     {
-        if (string.IsNullOrWhiteSpace(SourceFolder))
+        if (IsFolder)
         {
-            MessageBox.Show("Please select a valid source folder.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
-            return;
-        }
+            if (string.IsNullOrWhiteSpace(SourceFolder))
+            {
+                MessageBox.Show("Please select a valid source folder.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
 
-        if (!Directory.Exists(SourceFolder))
+            if (!Directory.Exists(SourceFolder))
+            {
+                var res = MessageBox.Show($"Source folder does not exist on disk:\n{SourceFolder}\n\nDo you still want to save this job?",
+                    "Missing Folder", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                if (res != MessageBoxResult.Yes) return;
+            }
+        }
+        else
         {
-            var res = MessageBox.Show($"Source folder does not exist on disk:\n{SourceFolder}\n\nDo you still want to save this job?",
-                "Missing Folder", MessageBoxButton.YesNo, MessageBoxImage.Question);
-            if (res != MessageBoxResult.Yes) return;
+            if (string.IsNullOrWhiteSpace(SqlServer))
+            {
+                MessageBox.Show("Please specify a valid SQL Server instance.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
         }
 
         var destinations = new List<string>();
@@ -171,24 +379,72 @@ public partial class NewBackupViewModel : ObservableObject
         if (Saturday) days.Add("SAT");
         if (Sunday) days.Add("SUN");
 
+        var crypto = new CredentialProtector();
+        var schedule = new JobSchedule
+        {
+            Freq = SelectedFrequency,
+            Time = ScheduledTime,
+            Days = days,
+            Full = new FullBackupSchedule
+            {
+                Freq = SelectedFrequency,
+                Time = ScheduledTime,
+                Days = days
+            },
+            Diff = DiffEnabled ? new IntervalBackupSchedule { Enabled = true, EveryMinutes = DiffMinutes } : null,
+            Log = LogEnabled ? new IntervalBackupSchedule { Enabled = true, EveryMinutes = LogMinutes } : null,
+            Window = WindowEnabled ? new ScheduleRunWindow { Enabled = true, Start = WindowStart, End = WindowEnd } : null
+        };
+
+        var retentionPolicy = new RetentionPolicy
+        {
+            KeepDays = RetentionDays,
+            GfsEnabled = GfsEnabled,
+            GfsKeepDailies = GfsDailies,
+            GfsKeepWeeklies = GfsWeeklies,
+            GfsKeepMonthlies = GfsMonthlies,
+            ObjectLockEnabled = ObjectLockEnabled,
+            ObjectLockDays = ObjectLockDays
+        };
+
         var job = new BackupJob
         {
             Id = Guid.NewGuid().ToString("N")[..8],
-            Name = string.IsNullOrWhiteSpace(JobName) ? Path.GetFileName(SourceFolder) : JobName,
-            SourceFolder = SourceFolder,
-            Subfolder = string.IsNullOrWhiteSpace(Subfolder) ? null : Subfolder,
+            Name = string.IsNullOrWhiteSpace(JobName) ? (IsSqlServer ? $"SQL_{SqlServer}" : Path.GetFileName(SourceFolder)) : JobName,
+            Kind = Kind,
+            SourceFolder = IsFolder ? SourceFolder : "",
+            Subfolder = IsFolder && !string.IsNullOrWhiteSpace(Subfolder) ? Subfolder : null,
             Destinations = destinations,
             CloudFolder = string.IsNullOrWhiteSpace(CloudFolder) ? null : CloudFolder,
             UseVss = UseVss,
             IncludeInRunAll = IncludeInRunAll,
             Enabled = true,
-            Schedule = new JobSchedule
-            {
-                Freq = SelectedFrequency,
-                Time = ScheduledTime,
-                Days = days
-            }
+            Schedule = schedule,
+            Retention = retentionPolicy,
+            RetentionDaysOverride = RetentionDays,
+            EncryptionPassphrase = EncryptionEnabled && !string.IsNullOrWhiteSpace(EncryptionPassphrase) ? EncryptionPassphrase : null
         };
+
+        if (IsSqlServer)
+        {
+            job.Sql = new SqlServerSource
+            {
+                Server = SqlServer,
+                UseWindowsAuth = SqlUseWindowsAuth,
+                Username = SqlUseWindowsAuth ? null : SqlUsername,
+                PasswordSealed = SqlUseWindowsAuth ? null : crypto.Seal(SqlPassword),
+                TrustServerCertificate = SqlTrustServerCert,
+                AllUserDatabases = SqlAllDatabases,
+                ExcludePatterns = string.IsNullOrWhiteSpace(SqlExcludePatterns)
+                    ? []
+                    : SqlExcludePatterns.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries).ToList(),
+                NativeCompression = SqlNativeCompression,
+                Checksum = SqlChecksum,
+                Verify = SqlVerify,
+                RunCheckDb = SqlRunCheckDb,
+                DirectToUrl = SqlDirectToUrl
+            };
+        }
 
         var jobs = await _configService.LoadJobsAsync();
         jobs.Add(job);
