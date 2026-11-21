@@ -37,6 +37,9 @@ public partial class MainViewModel : ObservableObject
     private string _activeTab = "Backups";
 
     [ObservableProperty]
+    private NewBackupViewModel? _newJob;
+
+    [ObservableProperty]
     private LogsViewModel _logs = new();
 
     [ObservableProperty]
@@ -253,6 +256,33 @@ public partial class MainViewModel : ObservableObject
         _sqlRestoreOrchestrator = sqlRestoreOrchestrator;
         _restoreDrillService = restoreDrillService;
         UpdateFreeSpaceIndicators();
+        InitNewJob();
+    }
+
+    private void InitNewJob()
+    {
+        NewJob = new NewBackupViewModel(_configService, _iisService, _schedulerService)
+        {
+            CloseAction = () =>
+            {
+                ActiveTab = "Backups";
+                _ = RefreshJobsAsync();
+            }
+        };
+    }
+
+    [RelayCommand]
+    public void OpenNewJob()
+    {
+        NewJob = new NewBackupViewModel(_configService, _iisService, _schedulerService)
+        {
+            CloseAction = () =>
+            {
+                ActiveTab = "Backups";
+                _ = RefreshJobsAsync();
+            }
+        };
+        ActiveTab = "NewJob";
     }
 
     public async Task InitializeAsync()

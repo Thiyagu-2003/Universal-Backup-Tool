@@ -416,6 +416,13 @@ public partial class NewBackupViewModel : ObservableObject
     }
 
     [RelayCommand]
+    public void Cancel()
+    {
+        DialogResult = false;
+        CloseAction?.Invoke();
+    }
+
+    [RelayCommand]
     public async Task SaveJobAsync()
     {
         if (IsFolder)

@@ -72,6 +72,13 @@ public partial class MainWindow : Window
             restoreDrill);
 
         DataContext = _viewModel;
+        _viewModel.PropertyChanged += (s, e) =>
+        {
+            if (e.PropertyName == nameof(MainViewModel.ActiveTab))
+            {
+                Dispatcher.InvokeAsync(() => SwitchToTab(_viewModel.ActiveTab));
+            }
+        };
         _viewModel.Logs.ScrollRequested += (_, line) =>
         {
             Dispatcher.InvokeAsync(() =>
@@ -178,14 +185,15 @@ public partial class MainWindow : Window
         }
     }
 
-    private void NavTab_Checked(object sender, RoutedEventArgs e)
+    public void SwitchToTab(string tag)
     {
-        if (sender is not RadioButton rb || rb.Tag is not string tag) return;
-
         if (BackupsTabContent == null || SummaryTabContent == null ||
-            RecoveryTabContent == null || LogsTabContent == null || NotificationsTabContent == null || SettingsTabContent == null) return;
+            RecoveryTabContent == null || LogsTabContent == null || 
+            NotificationsTabContent == null || SettingsTabContent == null ||
+            NewJobTabContent == null) return;
 
         BackupsTabContent.Visibility = tag == "Backups" ? Visibility.Visible : Visibility.Collapsed;
+        NewJobTabContent.Visibility = tag == "NewJob" ? Visibility.Visible : Visibility.Collapsed;
         SummaryTabContent.Visibility = tag == "Summary" ? Visibility.Visible : Visibility.Collapsed;
         RecoveryTabContent.Visibility = tag == "Recovery" ? Visibility.Visible : Visibility.Collapsed;
         LogsTabContent.Visibility = tag == "Logs" ? Visibility.Visible : Visibility.Collapsed;
@@ -194,7 +202,26 @@ public partial class MainWindow : Window
 
         _viewModel.ActiveTab = tag;
 
-        if (tag == "Recovery" && _viewModel.CloudArchives.Count == 0)
+        if (NavBackupsRadio != null && tag == "Backups") NavBackupsRadio.IsChecked = true;
+        if (NavNewJobRadio != null && tag == "NewJob") NavNewJobRadio.IsChecked = true;
+        if (NavSummaryRadio != null && tag == "Summary") NavSummaryRadio.IsChecked = true;
+        if (NavRecoveryRadio != null && tag == "Recovery") NavRecoveryRadio.IsChecked = true;
+        if (NavLogsRadio != null && tag == "Logs") NavLogsRadio.IsChecked = true;
+        if (NavNotificationsRadio != null && tag == "Notifications") NavNotificationsRadio.IsChecked = true;
+        if (NavSettingsRadio != null && tag == "Settings") NavSettingsRadio.IsChecked = true;
+
+        if (tag == "NewJob")
+        {
+            if (_viewModel.NewJob == null)
+            {
+                _viewModel.OpenNewJob();
+            }
+            if (_viewModel.NewJob != null)
+            {
+                _viewModel.NewJob.CloseAction = () => SwitchToTab("Backups");
+            }
+        }
+        else if (tag == "Recovery" && _viewModel.CloudArchives.Count == 0)
         {
             _ = _viewModel.RefreshRecoveryCommand.ExecuteAsync(null);
         }
@@ -202,6 +229,12 @@ public partial class MainWindow : Window
         {
             _ = _viewModel.Logs.RefreshLogsCommand.ExecuteAsync(null);
         }
+    }
+
+    private void NavTab_Checked(object sender, RoutedEventArgs e)
+    {
+        if (sender is not RadioButton rb || rb.Tag is not string tag) return;
+        SwitchToTab(tag);
     }
 
     private void SearchBox_TextChanged(object sender, TextChangedEventArgs e)
@@ -213,19 +246,17 @@ public partial class MainWindow : Window
     {
         try
         {
-            var newVm = new NewBackupViewModel(_configService, _iisService, _schedulerService);
-            var dlg = new NewBackupDialog(newVm) { Owner = this };
-            dlg.ShowDialog();
-
-            if (newVm.DialogResult)
+            _viewModel.OpenNewJob();
+            if (_viewModel.NewJob != null)
             {
-                _ = _viewModel.RefreshJobsCommand.ExecuteAsync(null);
+                _viewModel.NewJob.CloseAction = () => SwitchToTab("Backups");
             }
+            SwitchToTab("NewJob");
         }
         catch (Exception ex)
         {
-            Serilog.Log.Error(ex, "Failed to display New Backup dialog: {Message}", ex.Message);
-            MessageBox.Show($"Unable to open New Backup dialog:\n\n{ex.Message}", "UniBackup Pro", MessageBoxButton.OK, MessageBoxImage.Error);
+            Serilog.Log.Error(ex, "Failed to navigate to Create Backup Job screen: {Message}", ex.Message);
+            MessageBox.Show($"Unable to open Create Backup Job screen:\n\n{ex.Message}", "UniBackup Pro", MessageBoxButton.OK, MessageBoxImage.Error);
         }
     }
 

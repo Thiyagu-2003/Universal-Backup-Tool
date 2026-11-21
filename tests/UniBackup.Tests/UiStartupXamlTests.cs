@@ -73,6 +73,19 @@ public class UiStartupXamlTests
             Assert.NotNull(window.FindName("LogViewerList"));
             Assert.NotNull(window.FindName("NotificationsTabContent"));
             Assert.NotNull(window.FindName("SettingsTabContent"));
+            Assert.NotNull(window.FindName("NewJobTabContent"));
+
+            // Test navigating to the embedded New Job screen
+            window.SwitchToTab("NewJob");
+            System.Windows.Threading.Dispatcher.CurrentDispatcher.Invoke(() => { }, System.Windows.Threading.DispatcherPriority.ApplicationIdle);
+            Assert.Equal(Visibility.Visible, ((UIElement)window.FindName("NewJobTabContent")).Visibility);
+            Assert.Equal(Visibility.Collapsed, ((UIElement)window.FindName("BackupsTabContent")).Visibility);
+
+            // Test navigating back to Backups screen
+            window.SwitchToTab("Backups");
+            System.Windows.Threading.Dispatcher.CurrentDispatcher.Invoke(() => { }, System.Windows.Threading.DispatcherPriority.ApplicationIdle);
+            Assert.Equal(Visibility.Visible, ((UIElement)window.FindName("BackupsTabContent")).Visibility);
+            Assert.Equal(Visibility.Collapsed, ((UIElement)window.FindName("NewJobTabContent")).Visibility);
         });
     }
 

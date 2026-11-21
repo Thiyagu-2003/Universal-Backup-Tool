@@ -68,7 +68,7 @@
                 <!-- 2. Nav Menu Buttons with Dedicated Color Chips -->
                 <StackPanel Grid.Row="1">
                     <!-- Backups Tab (Blue Chip) -->
-                    <RadioButton IsChecked="True" GroupName="NavTabs" Style="{StaticResource NavTabStyle}"
+                    <RadioButton x:Name="NavBackupsRadio" IsChecked="True" GroupName="NavTabs" Style="{StaticResource NavTabStyle}"
                                  Checked="NavTab_Checked" Tag="Backups">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                             <Border Width="28" Height="28" CornerRadius="7" Background="#1E3A8A" Margin="0,0,10,0" VerticalAlignment="Center">
@@ -78,8 +78,19 @@
                         </StackPanel>
                     </RadioButton>
 
+                    <!-- Create Backup Job Tab (Sky Chip) -->
+                    <RadioButton x:Name="NavNewJobRadio" GroupName="NavTabs" Style="{StaticResource NavTabStyle}"
+                                 Checked="NavTab_Checked" Tag="NewJob">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <Border Width="28" Height="28" CornerRadius="7" Background="#0C4A6E" Margin="0,0,10,0" VerticalAlignment="Center">
+                                <Path Data="{StaticResource IconPlus}" Fill="#38BDF8" Width="14" Height="14" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <TextBlock Text="＋ Create Backup Job" FontSize="13.5" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </RadioButton>
+
                     <!-- Summary & Analytics Tab (Purple Chip) -->
-                    <RadioButton GroupName="NavTabs" Style="{StaticResource NavTabStyle}"
+                    <RadioButton x:Name="NavSummaryRadio" GroupName="NavTabs" Style="{StaticResource NavTabStyle}"
                                  Checked="NavTab_Checked" Tag="Summary">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                             <Border Width="28" Height="28" CornerRadius="7" Background="#3B0764" Margin="0,0,10,0" VerticalAlignment="Center">
@@ -90,7 +101,7 @@
                     </RadioButton>
 
                     <!-- Recovery Tab (Cyan Chip) -->
-                    <RadioButton GroupName="NavTabs" Style="{StaticResource NavTabStyle}"
+                    <RadioButton x:Name="NavRecoveryRadio" GroupName="NavTabs" Style="{StaticResource NavTabStyle}"
                                  Checked="NavTab_Checked" Tag="Recovery">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                             <Border Width="28" Height="28" CornerRadius="7" Background="#0E7490" Margin="0,0,10,0" VerticalAlignment="Center">
@@ -101,7 +112,7 @@
                     </RadioButton>
 
                     <!-- Logs Tab (Amber Chip) - Matching S3BackupTool Reference Design! -->
-                    <RadioButton GroupName="NavTabs" Style="{StaticResource NavTabStyle}"
+                    <RadioButton x:Name="NavLogsRadio" GroupName="NavTabs" Style="{StaticResource NavTabStyle}"
                                  Checked="NavTab_Checked" Tag="Logs">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                             <Border Width="28" Height="28" CornerRadius="7" Background="#78350F" Margin="0,0,10,0" VerticalAlignment="Center">
@@ -112,7 +123,7 @@
                     </RadioButton>
 
                     <!-- Notifications Tab (Rose/Pink Chip) -->
-                    <RadioButton GroupName="NavTabs" Style="{StaticResource NavTabStyle}"
+                    <RadioButton x:Name="NavNotificationsRadio" GroupName="NavTabs" Style="{StaticResource NavTabStyle}"
                                  Checked="NavTab_Checked" Tag="Notifications">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                             <Border Width="28" Height="28" CornerRadius="7" Background="#881337" Margin="0,0,10,0" VerticalAlignment="Center">
@@ -123,7 +134,7 @@
                     </RadioButton>
 
                     <!-- Settings Tab (Slate Chip) -->
-                    <RadioButton GroupName="NavTabs" Style="{StaticResource NavTabStyle}"
+                    <RadioButton x:Name="NavSettingsRadio" GroupName="NavTabs" Style="{StaticResource NavTabStyle}"
                                  Checked="NavTab_Checked" Tag="Settings">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                             <Border Width="28" Height="28" CornerRadius="7" Background="#334155" Margin="0,0,10,0" VerticalAlignment="Center">
@@ -3486,6 +3497,421 @@
                             </Grid>
                         </Border>
                     </Grid>
+                </ScrollViewer>
+
+                <!-- ============================================== -->
+                <!-- 7. NEW / EDIT BACKUP JOB SCREEN               -->
+                <!-- ============================================== -->
+                <ScrollViewer x:Name="NewJobTabContent" Style="{StaticResource AnimatedTabContent}" Visibility="Collapsed" VerticalScrollBarVisibility="Auto" DataContext="{Binding NewJob}">
+                    <StackPanel Margin="0,0,0,32">
+                        <!-- Top Navigation & Actions Bar -->
+                        <Border Style="{StaticResource ModernCard}" Margin="0,0,0,18" Padding="18,14">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                                    <Button Style="{StaticResource SecondaryButton}" Padding="14,8" Margin="0,0,16,0" Command="{Binding CancelCommand}">
+                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                            <Path Data="{StaticResource IconBackups}" Fill="{StaticResource PrimaryBrush}" Width="13" Height="13" Stretch="Uniform" Margin="0,0,6,0"/>
+                                            <TextBlock Text="« Back to Backup Jobs" FontWeight="Bold"/>
+                                        </StackPanel>
+                                    </Button>
+                                    <Border Background="#0C4A6E" CornerRadius="10" Width="38" Height="38" Margin="0,0,12,0" VerticalAlignment="Center">
+                                        <Path Data="{StaticResource IconPlus}" Fill="#38BDF8" Width="16" Height="16" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                    <StackPanel VerticalAlignment="Center">
+                                        <TextBlock Text="Create New Backup Job" FontSize="18" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}"/>
+                                        <TextBlock Text="Full-Screen Stepped Wizard: Source → Schedule → Destinations → Encryption &amp; Options" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                    </StackPanel>
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                                    <Button Content="Cancel" Style="{StaticResource SecondaryButton}" Width="90" Margin="0,0,10,0" Command="{Binding CancelCommand}"/>
+                                    <Button Content="Save Job" Style="{StaticResource PrimaryButton}" Width="130" Command="{Binding SaveJobCommand}"/>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+
+                        <!-- Stepped Wizard Navigation Bar -->
+                        <Border Background="{StaticResource SurfaceBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="10" Padding="12,8" Margin="0,0,0,18">
+                            <UniformGrid Columns="4">
+                                <Button Command="{Binding SetStepCommand}" CommandParameter="1" Background="Transparent" BorderThickness="0" Cursor="Hand">
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                        <Border CornerRadius="12" Width="24" Height="24" Margin="0,0,8,0">
+                                            <Border.Style>
+                                                <Style TargetType="Border">
+                                                    <Setter Property="Background" Value="#E2E8F0"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsStep1}" Value="True">
+                                                            <Setter Property="Background" Value="#0284C7"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Border.Style>
+                                            <TextBlock Text="1" FontWeight="Bold" FontSize="11" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                                <TextBlock.Style>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="Foreground" Value="#64748B"/>
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding IsStep1}" Value="True">
+                                                                <Setter Property="Foreground" Value="White"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </TextBlock.Style>
+                                            </TextBlock>
+                                        </Border>
+                                        <TextBlock Text="1. Source" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </Button>
+
+                                <Button Command="{Binding SetStepCommand}" CommandParameter="2" Background="Transparent" BorderThickness="0" Cursor="Hand">
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                        <Border CornerRadius="12" Width="24" Height="24" Margin="0,0,8,0">
+                                            <Border.Style>
+                                                <Style TargetType="Border">
+                                                    <Setter Property="Background" Value="#E2E8F0"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsStep2}" Value="True">
+                                                            <Setter Property="Background" Value="#0284C7"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Border.Style>
+                                            <TextBlock Text="2" FontWeight="Bold" FontSize="11" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                                <TextBlock.Style>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="Foreground" Value="#64748B"/>
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding IsStep2}" Value="True">
+                                                                <Setter Property="Foreground" Value="White"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </TextBlock.Style>
+                                            </TextBlock>
+                                        </Border>
+                                        <TextBlock Text="2. Schedule" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </Button>
+
+                                <Button Command="{Binding SetStepCommand}" CommandParameter="3" Background="Transparent" BorderThickness="0" Cursor="Hand">
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                        <Border CornerRadius="12" Width="24" Height="24" Margin="0,0,8,0">
+                                            <Border.Style>
+                                                <Style TargetType="Border">
+                                                    <Setter Property="Background" Value="#E2E8F0"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsStep3}" Value="True">
+                                                            <Setter Property="Background" Value="#0284C7"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Border.Style>
+                                            <TextBlock Text="3" FontWeight="Bold" FontSize="11" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                                <TextBlock.Style>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="Foreground" Value="#64748B"/>
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding IsStep3}" Value="True">
+                                                                <Setter Property="Foreground" Value="White"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </TextBlock.Style>
+                                            </TextBlock>
+                                        </Border>
+                                        <TextBlock Text="3. Destinations" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </Button>
+
+                                <Button Command="{Binding SetStepCommand}" CommandParameter="4" Background="Transparent" BorderThickness="0" Cursor="Hand">
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                        <Border CornerRadius="12" Width="24" Height="24" Margin="0,0,8,0">
+                                            <Border.Style>
+                                                <Style TargetType="Border">
+                                                    <Setter Property="Background" Value="#E2E8F0"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsStep4}" Value="True">
+                                                            <Setter Property="Background" Value="#0284C7"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Border.Style>
+                                            <TextBlock Text="4" FontWeight="Bold" FontSize="11" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                                <TextBlock.Style>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="Foreground" Value="#64748B"/>
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding IsStep4}" Value="True">
+                                                                <Setter Property="Foreground" Value="White"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </TextBlock.Style>
+                                            </TextBlock>
+                                        </Border>
+                                        <TextBlock Text="4. Options" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </Button>
+                            </UniformGrid>
+                        </Border>
+
+                        <!-- STEP 1: SOURCE -->
+                        <StackPanel Visibility="{Binding IsStep1, Converter={StaticResource BoolToVis}}">
+                            <Border Style="{StaticResource ModernCard}" Margin="0,0,0,16">
+                                <StackPanel>
+                                    <TextBlock Text="Select Backup Source Type" FontWeight="Bold" FontSize="14" Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,10"/>
+                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,14">
+                                        <RadioButton Content="Folder / File System / IIS" GroupName="NewJobSourceType" IsChecked="{Binding IsFolder}" Margin="0,0,24,0" FontWeight="SemiBold"/>
+                                        <RadioButton Content="SQL Server Database Engine" GroupName="NewJobSourceType" IsChecked="{Binding IsSqlServer}" FontWeight="SemiBold"/>
+                                    </StackPanel>
+
+                                    <TextBlock Text="Job Name (Identifier / Archive Base Name)" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                                    <TextBox Text="{Binding JobName, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,12"/>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Folder / IIS Sub-Panel -->
+                            <Border Style="{StaticResource ModernCard}" Visibility="{Binding IsFolder, Converter={StaticResource BoolToVis}}">
+                                <StackPanel>
+                                    <TextBlock Text="Source Folder Path on Disk" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                                    <Grid Margin="0,0,0,12">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBox Grid.Column="0" Text="{Binding SourceFolder, UpdateSourceTrigger=PropertyChanged}"/>
+                                        <Button Grid.Column="1" Content="Browse..." Style="{StaticResource SecondaryButton}" Margin="8,0,0,0" Padding="14,0" Command="{Binding BrowseSourceFolderCommand}"/>
+                                    </Grid>
+
+                                    <TextBlock Text="Subfolder Filter (Optional)" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                                    <TextBox Text="{Binding Subfolder, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,14"/>
+
+                                    <CheckBox Content="Use Volume Shadow Copy (VSS) for open / locked files" IsChecked="{Binding UseVss}" FontWeight="SemiBold"/>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- SQL Server Sub-Panel -->
+                            <Border Style="{StaticResource ModernCard}" Visibility="{Binding IsSqlServer, Converter={StaticResource BoolToVis}}">
+                                <StackPanel>
+                                    <Grid Margin="0,0,0,12">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="2*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Grid.Column="0" Margin="0,0,10,0">
+                                            <TextBlock Text="SQL Server Instance (e.g. localhost, .\SQL2022)" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                                            <TextBox Text="{Binding SqlServer, UpdateSourceTrigger=PropertyChanged}"/>
+                                        </StackPanel>
+                                        <Button Grid.Column="1" Content="Test Connection" Style="{StaticResource SecondaryButton}" VerticalAlignment="Bottom" Padding="16,8" Command="{Binding TestSqlConnectionCommand}"/>
+                                    </Grid>
+
+                                    <TextBlock Text="{Binding SqlConnectionStatus}" FontSize="12" Foreground="#38BDF8" Margin="0,0,0,12"/>
+
+                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                                        <RadioButton Content="Windows Authentication" GroupName="NewJobSqlAuth" IsChecked="{Binding SqlUseWindowsAuth}" Margin="0,0,20,0" FontWeight="SemiBold"/>
+                                        <RadioButton Content="SQL Server Authentication" GroupName="NewJobSqlAuth" IsChecked="{Binding SqlUseSqlAuth}" FontWeight="SemiBold"/>
+                                    </StackPanel>
+
+                                    <StackPanel Visibility="{Binding SqlUseSqlAuth, Converter={StaticResource BoolToVis}}" Margin="0,0,0,12">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel Grid.Column="0" Margin="0,0,10,0">
+                                                <TextBlock Text="SQL Username (e.g. sa)" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                                                <TextBox Text="{Binding SqlUsername, UpdateSourceTrigger=PropertyChanged}"/>
+                                            </StackPanel>
+                                            <StackPanel Grid.Column="1" Margin="10,0,0,0">
+                                                <TextBlock Text="SQL Password" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                                                <TextBox Text="{Binding SqlPassword, UpdateSourceTrigger=PropertyChanged}"/>
+                                            </StackPanel>
+                                        </Grid>
+                                    </StackPanel>
+
+                                    <CheckBox Content="Backup all user databases" IsChecked="{Binding SqlAllDatabases}" FontWeight="SemiBold" Margin="0,0,0,8"/>
+
+                                    <TextBlock Text="Exclude Wildcards (comma-separated, e.g. *test*, report_*)" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                                    <TextBox Text="{Binding SqlExcludePatterns, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,12"/>
+
+                                    <WrapPanel Margin="0,0,0,6">
+                                        <CheckBox Content="Native Compression" IsChecked="{Binding SqlNativeCompression}" Margin="0,0,16,6" FontWeight="SemiBold"/>
+                                        <CheckBox Content="CHECKSUM" IsChecked="{Binding SqlChecksum}" Margin="0,0,16,6" FontWeight="SemiBold"/>
+                                        <CheckBox Content="RESTORE VERIFYONLY" IsChecked="{Binding SqlVerify}" Margin="0,0,16,6" FontWeight="SemiBold"/>
+                                        <CheckBox Content="Run DBCC CHECKDB" IsChecked="{Binding SqlRunCheckDb}" Margin="0,0,16,6" FontWeight="SemiBold"/>
+                                        <CheckBox Content="Direct-to-URL (S3 Only)" IsChecked="{Binding SqlDirectToUrl}" FontWeight="SemiBold"/>
+                                    </WrapPanel>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+
+                        <!-- STEP 2: SCHEDULE -->
+                        <StackPanel Visibility="{Binding IsStep2, Converter={StaticResource BoolToVis}}">
+                            <Border Style="{StaticResource ModernCard}" Margin="0,0,0,16">
+                                <StackPanel>
+                                    <TextBlock Text="Full Backup Cadence" FontWeight="Bold" FontSize="14" Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,12"/>
+                                    <Grid Margin="0,0,0,14">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Grid.Column="0" Margin="0,0,10,0">
+                                            <TextBlock Text="Frequency" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                                            <ComboBox SelectedValuePath="Tag" SelectedValue="{Binding SelectedFrequency}" Height="34">
+                                                <ComboBoxItem Content="Daily" Tag="daily"/>
+                                                <ComboBoxItem Content="Weekly" Tag="weekly"/>
+                                                <ComboBoxItem Content="Monthly" Tag="monthly"/>
+                                                <ComboBoxItem Content="Manual Only" Tag="manual"/>
+                                            </ComboBox>
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="1">
+                                            <TextBlock Text="Full Run Time (HH:mm 24hr)" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                                            <TextBox Text="{Binding ScheduledTime, UpdateSourceTrigger=PropertyChanged}"/>
+                                        </StackPanel>
+                                    </Grid>
+
+                                    <TextBlock Text="Active Days for Full Backup" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,8"/>
+                                    <WrapPanel Margin="0,0,0,14">
+                                        <CheckBox Content="Mon" IsChecked="{Binding Monday}" Margin="0,0,12,0"/>
+                                        <CheckBox Content="Tue" IsChecked="{Binding Tuesday}" Margin="0,0,12,0"/>
+                                        <CheckBox Content="Wed" IsChecked="{Binding Wednesday}" Margin="0,0,12,0"/>
+                                        <CheckBox Content="Thu" IsChecked="{Binding Thursday}" Margin="0,0,12,0"/>
+                                        <CheckBox Content="Fri" IsChecked="{Binding Friday}" Margin="0,0,12,0"/>
+                                        <CheckBox Content="Sat" IsChecked="{Binding Saturday}" Margin="0,0,12,0"/>
+                                        <CheckBox Content="Sun" IsChecked="{Binding Sunday}"/>
+                                    </WrapPanel>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- SQL Server Differential & Log Schedules -->
+                            <Border Style="{StaticResource ModernCard}" Visibility="{Binding IsSqlServer, Converter={StaticResource BoolToVis}}">
+                                <StackPanel>
+                                    <TextBlock Text="High-Frequency Interval Backups (DIFF &amp; LOG)" FontWeight="Bold" FontSize="14" Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,12"/>
+
+                                    <Grid Margin="0,0,0,12">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <CheckBox Grid.Column="0" Content="Enable Differential Backups every" IsChecked="{Binding DiffEnabled}" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                                        <TextBox Grid.Column="1" Text="{Binding DiffMinutes, UpdateSourceTrigger=PropertyChanged}" Width="80" HorizontalAlignment="Left" ToolTip="Minutes between differential runs (e.g. 240)"/>
+                                    </Grid>
+
+                                    <Grid Margin="0,0,0,14">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <CheckBox Grid.Column="0" Content="Enable Transaction Log Backups every" IsChecked="{Binding LogEnabled}" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                                        <TextBox Grid.Column="1" Text="{Binding LogMinutes, UpdateSourceTrigger=PropertyChanged}" Width="80" HorizontalAlignment="Left" ToolTip="Minutes between transaction log runs (e.g. 15)"/>
+                                    </Grid>
+
+                                    <CheckBox Content="Constrain interval backups to daily business hours window" IsChecked="{Binding WindowEnabled}" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                                    <StackPanel Orientation="Horizontal" Visibility="{Binding WindowEnabled, Converter={StaticResource BoolToVis}}">
+                                        <TextBlock Text="From:" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                        <TextBox Text="{Binding WindowStart, UpdateSourceTrigger=PropertyChanged}" Width="65" Margin="0,0,14,0"/>
+                                        <TextBlock Text="To:" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                        <TextBox Text="{Binding WindowEnd, UpdateSourceTrigger=PropertyChanged}" Width="65"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+
+                        <!-- STEP 3: DESTINATIONS -->
+                        <StackPanel Visibility="{Binding IsStep3, Converter={StaticResource BoolToVis}}">
+                            <Border Style="{StaticResource ModernCard}" Margin="0,0,0,16">
+                                <StackPanel>
+                                    <TextBlock Text="S3 Compatible Cloud Providers" FontWeight="Bold" FontSize="14" Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,6"/>
+                                    <TextBlock Text="Direct streaming to any S3-compliant object store (Amazon S3, Cloudflare R2, Backblaze B2, Wasabi, MinIO, DigitalOcean Spaces, Oracle Cloud, Google Cloud)."
+                                               FontSize="11.5" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,10" TextWrapping="Wrap"/>
+                                    <CheckBox Content="Amazon Web Services (AWS S3) / Cloudflare R2 / Wasabi / MinIO / S3-Compatible" IsChecked="{Binding EnableS3}" FontWeight="SemiBold" Margin="0,0,0,14"/>
+
+                                    <Separator Margin="0,4,0,14" Background="{StaticResource BorderBrush}"/>
+
+                                    <TextBlock Text="General &amp; Enterprise Storage Providers" FontWeight="Bold" FontSize="14" Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,6"/>
+                                    <TextBlock Text="All destination storage providers are 100% unlocked with zero license restrictions in UniBackup Pro."
+                                               FontSize="11.5" Foreground="#059669" FontWeight="SemiBold" Margin="0,0,0,10"/>
+
+                                    <UniformGrid Columns="2" Margin="0,0,0,14">
+                                        <CheckBox Content="Google Drive" IsChecked="{Binding EnableGDrive}" FontWeight="SemiBold" Margin="0,0,10,8"/>
+                                        <CheckBox Content="Microsoft Azure Blob Storage" IsChecked="{Binding EnableAzure}" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                                        <CheckBox Content="Dropbox" IsChecked="{Binding EnableDropbox}" FontWeight="SemiBold" Margin="0,0,10,8"/>
+                                        <CheckBox Content="Microsoft OneDrive (Personal &amp; Business)" IsChecked="{Binding EnableOneDrive}" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                                        <CheckBox Content="Box Cloud Storage" IsChecked="{Binding EnableBox}" FontWeight="SemiBold" Margin="0,0,10,8"/>
+                                        <CheckBox Content="WebDAV Server (Nextcloud / ownCloud)" IsChecked="{Binding EnableWebDav}" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                                        <CheckBox Content="FTP / FTPS Server (TLS/SSL)" IsChecked="{Binding EnableFtp}" FontWeight="SemiBold" Margin="0,0,10,8"/>
+                                        <CheckBox Content="SFTP Server (SSH File Transfer)" IsChecked="{Binding EnableSftp}" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                                        <CheckBox Content="Local or Network Folder (UNC / NAS)" IsChecked="{Binding EnableLocal}" FontWeight="SemiBold" Margin="0,0,10,8"/>
+                                    </UniformGrid>
+
+                                    <TextBlock Text="Target Cloud Folder / Prefix Override (Optional)" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                                    <TextBox Text="{Binding CloudFolder, UpdateSourceTrigger=PropertyChanged}" ToolTip="Leave blank to use host machine default"/>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+
+                        <!-- STEP 4: OPTIONS & ENCRYPTION -->
+                        <StackPanel Visibility="{Binding IsStep4, Converter={StaticResource BoolToVis}}">
+                            <Border Style="{StaticResource ModernCard}" Margin="0,0,0,16">
+                                <StackPanel>
+                                    <TextBlock Text="Retention &amp; GFS Archival" FontWeight="Bold" FontSize="14" Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,12"/>
+                                    <Grid Margin="0,0,0,12">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="Standard Retention Days:" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                        <TextBox Grid.Column="1" Text="{Binding RetentionDays, UpdateSourceTrigger=PropertyChanged}" Width="80" HorizontalAlignment="Left"/>
+                                    </Grid>
+
+                                    <CheckBox Content="Enable Grandfather-Father-Son (GFS) Long-Term Retention" IsChecked="{Binding GfsEnabled}" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                                    <WrapPanel Visibility="{Binding GfsEnabled, Converter={StaticResource BoolToVis}}" Margin="0,0,0,12">
+                                        <TextBlock Text="Dailies:" VerticalAlignment="Center" Margin="0,0,4,0"/>
+                                        <TextBox Text="{Binding GfsDailies, UpdateSourceTrigger=PropertyChanged}" Width="50" Margin="0,0,12,0"/>
+                                        <TextBlock Text="Weeklies:" VerticalAlignment="Center" Margin="0,0,4,0"/>
+                                        <TextBox Text="{Binding GfsWeeklies, UpdateSourceTrigger=PropertyChanged}" Width="50" Margin="0,0,12,0"/>
+                                        <TextBlock Text="Monthlies:" VerticalAlignment="Center" Margin="0,0,4,0"/>
+                                        <TextBox Text="{Binding GfsMonthlies, UpdateSourceTrigger=PropertyChanged}" Width="50"/>
+                                    </WrapPanel>
+                                </StackPanel>
+                            </Border>
+
+                            <Border Style="{StaticResource ModernCard}">
+                                <StackPanel>
+                                    <TextBlock Text="AES-256-GCM Streaming Encryption &amp; Immutability" FontWeight="Bold" FontSize="14" Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,12"/>
+                                    <CheckBox Content="Encrypt backup archives with AES-256-GCM (.ubenc)" IsChecked="{Binding EncryptionEnabled}" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                                    <StackPanel Visibility="{Binding EncryptionEnabled, Converter={StaticResource BoolToVis}}" Margin="0,0,0,14">
+                                        <TextBlock Text="Master Passphrase (PBKDF2-SHA256, keep safely for DR):" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                                        <TextBox Text="{Binding EncryptionPassphrase, UpdateSourceTrigger=PropertyChanged}"/>
+                                    </StackPanel>
+
+                                    <CheckBox Content="Enable S3 Object Lock (WORM Immutability)" IsChecked="{Binding ObjectLockEnabled}" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                                    <StackPanel Orientation="Horizontal" Visibility="{Binding ObjectLockEnabled, Converter={StaticResource BoolToVis}}">
+                                        <TextBlock Text="Lock Retention Days:" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                        <TextBox Text="{Binding ObjectLockDays, UpdateSourceTrigger=PropertyChanged}" Width="70"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+
+                        <!-- Bottom Footer Actions Bar -->
+                        <Border Style="{StaticResource ModernCard}" Margin="0,16,0,0" Padding="16,14">
+                            <Grid>
+                                <Button Content="Cancel" Style="{StaticResource SecondaryButton}" Width="90" HorizontalAlignment="Left" Command="{Binding CancelCommand}"/>
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                    <Button Content="« Back" Style="{StaticResource SecondaryButton}" Width="95" Margin="0,0,10,0" Command="{Binding PreviousStepCommand}" IsEnabled="{Binding CanGoPrevious}"/>
+                                    <Button Content="Next »" Style="{StaticResource PrimaryButton}" Width="110" Margin="0,0,10,0" Command="{Binding NextStepCommand}" Visibility="{Binding CanGoNext, Converter={StaticResource BoolToVis}}"/>
+                                    <Button Content="Save Backup Job" Style="{StaticResource PrimaryButton}" Width="160" Command="{Binding SaveJobCommand}"/>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                    </StackPanel>
                 </ScrollViewer>
             </Grid>
         </Grid>
