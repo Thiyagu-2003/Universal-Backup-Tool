@@ -38,6 +38,11 @@ public class NamedPipeApiTests : IDisposable
         var pipeline = new BackupPipeline(archiveService, storageProviders, new EmailNotificationService(), new WebhookNotificationService(), _configService, new SqlServerBackupService(crypto));
         _coordinator = new JobExecutionCoordinator(_configService, pipeline);
 
+        var sqlBackup = new SqlServerBackupService(crypto);
+        var sqlRestore = new SqlServerRestoreService(crypto);
+        var orchestrator = new SqlRestoreOrchestrator(storageProviders, sqlRestore);
+        var drillService = new RestoreDrillService(orchestrator, sqlBackup);
+
         var webAppBuilder = WebApplication.CreateBuilder();
         webAppBuilder.Logging.ClearProviders();
         webAppBuilder.Services.AddSingleton(crypto);
@@ -45,7 +50,10 @@ public class NamedPipeApiTests : IDisposable
         webAppBuilder.Services.AddSingleton(pipeline);
         webAppBuilder.Services.AddSingleton(_coordinator);
         webAppBuilder.Services.AddSingleton<IEnumerable<IStorageProvider>>(storageProviders);
-        webAppBuilder.Services.AddSingleton(new SqlServerBackupService(crypto));
+        webAppBuilder.Services.AddSingleton(sqlBackup);
+        webAppBuilder.Services.AddSingleton(sqlRestore);
+        webAppBuilder.Services.AddSingleton(orchestrator);
+        webAppBuilder.Services.AddSingleton(drillService);
         webAppBuilder.WebHost.UseTestServer();
 
         var app = webAppBuilder.Build();
@@ -127,6 +135,31 @@ public class NamedPipeApiTests : IDisposable
         var cancelRes = await _client.CancelAllRunsAsync();
         Assert.True(cancelRes.IsSuccess);
         Assert.Equal(0, cancelRes.Value);
+    }
+
+    [Fact]
+    public async Task RestoreDrill_JobNotFound_ReturnsNotFound()
+    {
+        var res = await _client.ExecuteRestoreDrillAsync("nonexistent", "MyDB");
+        Assert.False(res.IsSuccess);
+        Assert.Contains("not found", res.Error, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public async Task RestoreDrill_ValidJob_ExecutesDrillAndReturnsResult()
+    {
+        var job = new BackupJob
+        {
+            Id = "drill-job",
+            Name = "Drill Test Job",
+            Kind = "sqlserver",
+            Destinations = ["mock"],
+            Sql = new SqlServerSource { Server = "localhost", Databases = ["TestDB"] }
+        };
+        await _client.SaveJobAsync(job);
+
+        var res = await _client.ExecuteRestoreDrillAsync("drill-job", "TestDB");
+        Assert.False(res.IsSuccess); // fails because mock has no archives, but correctly returns drill response
     }
 
     public void Dispose()

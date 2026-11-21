@@ -134,6 +134,12 @@ public class SqlServerBackupService(ICredentialProtector crypto)
     public Task<Result> CheckDbAsync(SqlServerSource source, string database, CancellationToken ct) =>
         RunAsync(source, SqlBackupText.CheckDb(source.CheckDbPhysicalOnly), null, ct, ("@db", database));
 
+    public Task<Result> DropDatabaseAsync(SqlServerSource source, string database, CancellationToken ct)
+    {
+        var sql = $"IF DB_ID(@db) IS NOT NULL BEGIN ALTER DATABASE [{database.Replace("]", "]]")}] SET SINGLE_USER WITH ROLLBACK IMMEDIATE; DROP DATABASE [{database.Replace("]", "]]")}; END;";
+        return RunAsync(source, sql, null, ct, ("@db", database));
+    }
+
     public async Task<Result> EnsureS3CredentialAsync(SqlServerSource source, string credentialUrl, string accessKey, string secretKey, CancellationToken ct)
     {
         var sql = SqlBackupText.CreateS3Credential(credentialUrl, accessKey, secretKey);

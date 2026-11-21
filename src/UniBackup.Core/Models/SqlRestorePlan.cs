@@ -21,3 +21,28 @@ public class SqlRestorePlan
         }
     }
 }
+
+public class RestoreDrillRequest
+{
+    public string JobId { get; set; } = "";
+    public string Database { get; set; } = "";
+}
+
+public class RestoreExecuteRequest
+{
+    public string JobId { get; set; } = "";
+    public string Database { get; set; } = "";
+    public DateTime? TargetTime { get; set; }
+    public string? TargetDatabaseName { get; set; }
+    public string? ProviderName { get; set; }
+    public string? Passphrase { get; set; }
+    public bool Replace { get; set; }
+}
+
+public record RestoreDrillResult(
+    string Database,
+    string DrillDatabaseName,
+    bool Success,
+    double RtoSeconds,
+    bool CheckDbPassed,
+    string? ErrorMessage);

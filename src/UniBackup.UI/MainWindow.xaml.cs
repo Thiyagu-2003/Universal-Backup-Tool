@@ -41,10 +41,15 @@ public partial class MainWindow : Window
         _schedulerService = new WinTaskSchedulerService();
         _iisService = new IisSiteDiscoveryService();
 
-        var pipeline = new BackupPipeline(archiveService, storageProviders, emailService, webhookService, _configService, new SqlServerBackupService(crypto));
+        var sqlBackup = new SqlServerBackupService(crypto);
+        var pipeline = new BackupPipeline(archiveService, storageProviders, emailService, webhookService, _configService, sqlBackup);
         var batchRunner = new BatchBackupRunner(pipeline, _configService, emailService);
         var recoveryService = new RecoveryService(storageProviders, archiveService);
         var diagnostics = new ServerDiagnosticsService(storageProviders, emailService, _iisService, _configService);
+
+        var sqlRestore = new SqlServerRestoreService(crypto);
+        var sqlOrchestrator = new SqlRestoreOrchestrator(storageProviders, sqlRestore);
+        var restoreDrill = new RestoreDrillService(sqlOrchestrator, sqlBackup);
 
         _viewModel = new MainViewModel(
             _configService,
@@ -54,7 +59,9 @@ public partial class MainWindow : Window
             diagnostics,
             _schedulerService,
             _iisService,
-            emailService);
+            emailService,
+            sqlOrchestrator,
+            restoreDrill);
 
         DataContext = _viewModel;
         _viewModel.Logs.ScrollRequested += (_, line) =>

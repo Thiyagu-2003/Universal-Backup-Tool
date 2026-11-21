@@ -27,6 +27,8 @@ public partial class MainViewModel : ObservableObject
     private readonly ISchedulerService _schedulerService;
     private readonly IIisDiscoveryService _iisService;
     private readonly INotificationService _notificationService;
+    private readonly SqlRestoreOrchestrator? _sqlRestoreOrchestrator;
+    private readonly RestoreDrillService? _restoreDrillService;
 
     [ObservableProperty]
     private string _activeTab = "Backups";
@@ -63,6 +65,9 @@ public partial class MainViewModel : ObservableObject
 
     [ObservableProperty]
     private string _restoreWriteMode = "safe";
+
+    [ObservableProperty]
+    private string _selectedRecoveryTab = "SqlServer";
 
     // Summary Statistics
     [ObservableProperty]
@@ -226,7 +231,9 @@ public partial class MainViewModel : ObservableObject
         ServerDiagnosticsService diagnosticsService,
         ISchedulerService schedulerService,
         IIisDiscoveryService iisService,
-        INotificationService notificationService)
+        INotificationService notificationService,
+        SqlRestoreOrchestrator? sqlRestoreOrchestrator = null,
+        RestoreDrillService? restoreDrillService = null)
     {
         _configService = configService;
         _pipeline = pipeline;
@@ -236,6 +243,8 @@ public partial class MainViewModel : ObservableObject
         _schedulerService = schedulerService;
         _iisService = iisService;
         _notificationService = notificationService;
+        _sqlRestoreOrchestrator = sqlRestoreOrchestrator;
+        _restoreDrillService = restoreDrillService;
         UpdateFreeSpaceIndicators();
     }
 
@@ -503,6 +512,170 @@ public partial class MainViewModel : ObservableObject
         }
     }
 
+    // SQL Server Disaster Recovery & Drills
+    [ObservableProperty]
+    private JobCardViewModel? _selectedSqlJob;
+
+    [ObservableProperty]
+    private string _sqlRestoreDatabaseName = "";
+
+    [ObservableProperty]
+    private string _sqlRestoreTargetDbName = "";
+
+    [ObservableProperty]
+    private bool _sqlPointInTimeEnabled;
+
+    [ObservableProperty]
+    private DateTime _sqlPointInTime = DateTime.Now;
+
+    [ObservableProperty]
+    private string _sqlRestorePassphrase = "";
+
+    [ObservableProperty]
+    private bool _sqlRestoreReplace = true;
+
+    [ObservableProperty]
+    private string _drillStatusDisplay = "No restore drills run yet";
+
+    [ObservableProperty]
+    private string _drillStatusColor = "#94A3B8";
+
+    [ObservableProperty]
+    private string _drillRtoDisplay = "--";
+
+    [RelayCommand]
+    public async Task ExecuteRestoreDrillAsync()
+    {
+        if (SelectedSqlJob == null)
+        {
+            NotificationHub.ShowWarning("Please select a SQL Server backup job first.", "Drill Selection");
+            return;
+        }
+
+        var db = string.IsNullOrWhiteSpace(SqlRestoreDatabaseName) 
+            ? SelectedSqlJob.Model.Sql?.Databases.FirstOrDefault() ?? "" 
+            : SqlRestoreDatabaseName;
+
+        if (string.IsNullOrWhiteSpace(db))
+        {
+            NotificationHub.ShowWarning("Please specify the database name to drill test.", "Missing Database");
+            return;
+        }
+
+        if (_restoreDrillService == null)
+        {
+            NotificationHub.ShowError("Restore drill service is not initialized.", "Error");
+            return;
+        }
+
+        IsBusy = true;
+        ProgressPhase = "Sandbox Drill";
+        ProgressPercent = 30;
+        ProgressStatusMessage = $"Starting automated restore drill for '{db}' -> ub_drill_{db}...";
+        DrillStatusDisplay = $"Running drill for {db}...";
+        DrillStatusColor = "#38BDF8";
+
+        try
+        {
+            var res = await _restoreDrillService.RunDrillAsync(Config, SelectedSqlJob.Model, db);
+            DrillRtoDisplay = $"{res.RtoSeconds:F1}s RTO";
+            if (res.Success)
+            {
+                DrillStatusDisplay = $"Drill PASSED: Restored & DBCC CHECKDB valid in {res.RtoSeconds:F1}s";
+                DrillStatusColor = "#4ADE80";
+                NotificationHub.ShowSuccess($"Automated restore drill PASSED for '{db}' in {res.RtoSeconds:F1}s (CHECKDB verified)!", "Drill Passed");
+            }
+            else
+            {
+                DrillStatusDisplay = $"Drill FAILED: {res.ErrorMessage}";
+                DrillStatusColor = "#F87171";
+                NotificationHub.ShowError($"Restore drill FAILED: {res.ErrorMessage}", "Drill Failed");
+            }
+        }
+        catch (Exception ex)
+        {
+            DrillStatusDisplay = $"Drill Error: {ex.Message}";
+            DrillStatusColor = "#F87171";
+            NotificationHub.ShowError($"Restore drill error: {ex.Message}", "Drill Error");
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
+    [RelayCommand]
+    public async Task ExecuteSqlCloudRestoreAsync()
+    {
+        if (SelectedSqlJob == null)
+        {
+            NotificationHub.ShowWarning("Please select a SQL Server backup job.", "Select Job");
+            return;
+        }
+
+        var db = string.IsNullOrWhiteSpace(SqlRestoreDatabaseName) 
+            ? SelectedSqlJob.Model.Sql?.Databases.FirstOrDefault() ?? "" 
+            : SqlRestoreDatabaseName;
+
+        if (string.IsNullOrWhiteSpace(db))
+        {
+            NotificationHub.ShowWarning("Please specify the database to restore.", "Missing Database");
+            return;
+        }
+
+        if (_sqlRestoreOrchestrator == null)
+        {
+            NotificationHub.ShowError("SQL Restore Orchestrator is not initialized.", "Error");
+            return;
+        }
+
+        var targetDb = string.IsNullOrWhiteSpace(SqlRestoreTargetDbName) ? db : SqlRestoreTargetDbName;
+        var confirm = MessageBox.Show(
+            $"Restore SQL Server database '{db}' as '{targetDb}'?\n\nTarget SQL Server: {SelectedSqlJob.Model.Sql?.Server}\nPoint-in-Time: {(SqlPointInTimeEnabled ? SqlPointInTime.ToString("yyyy-MM-dd HH:mm:ss") : "Latest Backup")}\nReplace Existing: {SqlRestoreReplace}",
+            "Confirm Database Restore",
+            MessageBoxButton.YesNo,
+            MessageBoxImage.Warning);
+
+        if (confirm != MessageBoxResult.Yes) return;
+
+        IsBusy = true;
+        try
+        {
+            var res = await _sqlRestoreOrchestrator.RestoreFromCloudAsync(
+                Config,
+                SelectedSqlJob.Model,
+                db,
+                SqlPointInTimeEnabled ? SqlPointInTime : null,
+                targetDb,
+                null,
+                string.IsNullOrWhiteSpace(SqlRestorePassphrase) ? null : SqlRestorePassphrase,
+                SqlRestoreReplace,
+                (msg, pct) =>
+                {
+                    ProgressPhase = "Restoring";
+                    ProgressPercent = pct;
+                    ProgressStatusMessage = msg;
+                });
+
+            if (res.IsSuccess)
+            {
+                NotificationHub.ShowSuccess($"Database '{targetDb}' restored successfully!", "Restore Finished");
+            }
+            else
+            {
+                NotificationHub.ShowError($"Database restore failed: {res.Error}", "Restore Failed");
+            }
+        }
+        catch (Exception ex)
+        {
+            NotificationHub.ShowError($"Database restore failed: {ex.Message}", "Restore Failed");
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
     [ObservableProperty]
     private bool _isValidatingServer;
 
@@ -600,6 +773,12 @@ public partial class MainViewModel : ObservableObject
     public void SelectSettingsTab(string tab)
     {
         SelectedSettingsTab = tab;
+    }
+
+    [RelayCommand]
+    public void SelectRecoveryTab(string tab)
+    {
+        SelectedRecoveryTab = tab;
     }
 
     [RelayCommand]

@@ -269,6 +269,37 @@ public class UniBackupClient : IDisposable
         }
     }
 
+    public async Task<Result<RestoreDrillResult>> ExecuteRestoreDrillAsync(string jobId, string database, CancellationToken ct = default)
+    {
+        try
+        {
+            var res = await _http.PostAsJsonAsync("/restore/drill", new RestoreDrillRequest { JobId = jobId, Database = database }, ct);
+            if (res.IsSuccessStatusCode)
+            {
+                var drill = await res.Content.ReadFromJsonAsync<RestoreDrillResult>(ct);
+                return drill != null ? Result<RestoreDrillResult>.Success(drill) : Result<RestoreDrillResult>.Failure("Empty drill response");
+            }
+            return Result<RestoreDrillResult>.Failure(await res.Content.ReadAsStringAsync(ct));
+        }
+        catch (Exception ex)
+        {
+            return Result<RestoreDrillResult>.Failure(ex.Message);
+        }
+    }
+
+    public async Task<Result> ExecuteRestoreAsync(RestoreExecuteRequest request, CancellationToken ct = default)
+    {
+        try
+        {
+            var res = await _http.PostAsJsonAsync("/restore/execute", request, ct);
+            return res.IsSuccessStatusCode ? Result.Success() : Result.Failure(await res.Content.ReadAsStringAsync(ct));
+        }
+        catch (Exception ex)
+        {
+            return Result.Failure(ex.Message);
+        }
+    }
+
     public async Task SubscribeEventsAsync(Func<ProgressEvent, Task> onEvent, CancellationToken ct)
     {
         using var response = await _http.GetAsync("/events", HttpCompletionOption.ResponseHeadersRead, ct);

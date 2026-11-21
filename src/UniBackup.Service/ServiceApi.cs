@@ -119,6 +119,40 @@ public static class ServiceApi
             return res.IsSuccess ? Results.Ok(res.Value) : Results.BadRequest(res.Error);
         });
 
+        // Restore & Drill
+        app.MapPost("/restore/drill", async (RestoreDrillRequest req, ConfigurationService cs, RestoreDrillService drill, CancellationToken ct) =>
+        {
+            var jobs = await cs.LoadJobsAsync();
+            var job = jobs.FirstOrDefault(j => j.Id.Equals(req.JobId, StringComparison.OrdinalIgnoreCase));
+            if (job == null) return Results.NotFound($"Job '{req.JobId}' not found.");
+
+            var config = await cs.LoadConfigAsync();
+            var res = await drill.RunDrillAsync(config, job, req.Database, ct);
+            return res.Success ? Results.Ok(res) : Results.BadRequest(res);
+        });
+
+        app.MapPost("/restore/execute", async (RestoreExecuteRequest req, ConfigurationService cs, SqlRestoreOrchestrator orchestrator, CancellationToken ct) =>
+        {
+            var jobs = await cs.LoadJobsAsync();
+            var job = jobs.FirstOrDefault(j => j.Id.Equals(req.JobId, StringComparison.OrdinalIgnoreCase));
+            if (job == null) return Results.NotFound($"Job '{req.JobId}' not found.");
+
+            var config = await cs.LoadConfigAsync();
+            var res = await orchestrator.RestoreFromCloudAsync(
+                config,
+                job,
+                req.Database,
+                req.TargetTime,
+                req.TargetDatabaseName,
+                req.ProviderName,
+                req.Passphrase,
+                req.Replace,
+                null,
+                ct);
+
+            return res.IsSuccess ? Results.Ok() : Results.BadRequest(res.Error);
+        });
+
         // Server-Sent Events (SSE) Progress Stream
         app.MapGet("/events", async (HttpContext ctx, JobExecutionCoordinator coordinator, CancellationToken ct) =>
         {
