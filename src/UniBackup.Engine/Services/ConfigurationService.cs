@@ -156,6 +156,33 @@ public class ConfigurationService
         }
     }
 
+    public async Task<Result> SaveJobAsync(BackupJob job, string? explicitPath = null)
+    {
+        var jobs = await LoadJobsAsync(explicitPath);
+        var idx = jobs.FindIndex(j => j.Id.Equals(job.Id, StringComparison.OrdinalIgnoreCase));
+        if (idx >= 0)
+        {
+            jobs[idx] = job;
+        }
+        else
+        {
+            jobs.Add(job);
+        }
+        return await SaveJobsAsync(jobs, explicitPath);
+    }
+
+    public async Task<bool> DeleteJobAsync(string jobId, string? explicitPath = null)
+    {
+        var jobs = await LoadJobsAsync(explicitPath);
+        var removed = jobs.RemoveAll(j => j.Id.Equals(jobId, StringComparison.OrdinalIgnoreCase));
+        if (removed > 0)
+        {
+            await SaveJobsAsync(jobs, explicitPath);
+            return true;
+        }
+        return false;
+    }
+
     public async Task<List<RunHistoryRecord>> LoadHistoryAsync(string? explicitPath = null)
     {
         if (!string.IsNullOrEmpty(explicitPath) && explicitPath.EndsWith(".json", StringComparison.OrdinalIgnoreCase))

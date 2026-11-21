@@ -1,3 +1,7 @@
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using UniBackup.Core.Interfaces;
 using UniBackup.Engine.Pipeline;
 using UniBackup.Engine.Services;
@@ -52,10 +56,15 @@ var configService = new ConfigurationService(crypto);
 var config = await configService.LoadConfigAsync();
 LoggingSetup.Initialize(config.Backup.LogPath, config.Backup.MaxLogMb, config.Backup.KeepLogsDays);
 
-var builder = Host.CreateApplicationBuilder(args);
-builder.Services.AddWindowsService(options =>
+var builder = WebApplication.CreateBuilder(args);
+builder.Host.UseWindowsService(options =>
 {
     options.ServiceName = WindowsServiceManager.ServiceName;
+});
+
+builder.WebHost.ConfigureKestrel(serverOptions =>
+{
+    ServiceApi.ConfigureNamedPipeKestrel(serverOptions);
 });
 
 // Singletons & Services
@@ -69,10 +78,12 @@ builder.Services.AddSingleton<WebhookNotificationService>();
 builder.Services.AddSingleton<SqlServerBackupService>();
 builder.Services.AddSingleton<BackupPipeline>();
 builder.Services.AddSingleton<BatchBackupRunner>();
+builder.Services.AddSingleton<JobExecutionCoordinator>();
 
 // Hosted Worker Service
-builder.Services.AddHostedService<CloudPackerWorker>();
+builder.Services.AddHostedService<UniBackupWorker>();
 
-var host = builder.Build();
-host.Run();
+var app = builder.Build();
+app.MapUniBackupEndpoints();
+app.Run();
 return 0;

@@ -9,7 +9,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="coverlet.collector" Version="6.0.2" />
+    <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="9.0.2" />
     <PackageReference Include="Microsoft.Extensions.TimeProvider.Testing" Version="9.2.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
     <PackageReference Include="xunit" Version="2.9.2" />
@@ -20,6 +22,7 @@
     <ProjectReference Include="..\..\src\UniBackup.Core\UniBackup.Core.csproj" />
     <ProjectReference Include="..\..\src\UniBackup.Infrastructure\UniBackup.Infrastructure.csproj" />
     <ProjectReference Include="..\..\src\UniBackup.Engine\UniBackup.Engine.csproj" />
+    <ProjectReference Include="..\..\src\UniBackup.Service\UniBackup.Service.csproj" />
     <ProjectReference Include="..\..\src\UniBackup.UI\UniBackup.UI.csproj" />
   </ItemGroup>
 

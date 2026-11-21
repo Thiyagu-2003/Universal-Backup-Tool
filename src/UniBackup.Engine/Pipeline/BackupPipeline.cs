@@ -12,16 +12,6 @@ using Serilog;
 
 namespace UniBackup.Engine.Pipeline;
 
-public class BackupProgressInfo
-{
-    public string Phase { get; set; } = "Starting"; // "Preflight", "Compressing", "Uploading", "Retention", "Finalizing"
-    public double Percent { get; set; }
-    public string StatusMessage { get; set; } = "";
-    public string? CurrentFile { get; set; }
-    public long BytesTransferred { get; set; }
-    public long TotalBytes { get; set; }
-}
-
 public partial class BackupPipeline
 {
     private readonly IArchiveService _archiveService;

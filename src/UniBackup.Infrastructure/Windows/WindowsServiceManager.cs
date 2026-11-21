@@ -118,10 +118,13 @@ public static class WindowsServiceManager
             using var descProc = Process.Start(new ProcessStartInfo("sc.exe", descArgs) { CreateNoWindow = true });
             descProc?.WaitForExit(5000);
 
-            // 3. Set failure recovery: auto-restart after 1 minute
-            var failureArgs = $"failure \"{ServiceName}\" reset= 86400 actions= restart/60000/restart/60000/restart/60000";
-            using var failProc = Process.Start(new ProcessStartInfo("sc.exe", failureArgs) { CreateNoWindow = true });
-            failProc?.WaitForExit(5000);
+            // 3. Configure service failure recovery actions: restart after 60s, 180s, 360s; reset counter daily
+            var failureArgs = $"failure \"{ServiceName}\" reset= 86400 actions= restart/60000/restart/180000/restart/360000";
+            using var failureProc = Process.Start(new ProcessStartInfo("sc.exe", failureArgs) { CreateNoWindow = true });
+            failureProc?.WaitForExit(5000);
+
+            // 4. Prune only UniBackup scheduled tasks (never touch CloudPacker tasks!)
+            DeleteLegacyUniBackupTasks();
 
             Log.Information("Windows Service '{ServiceName}' installed successfully.", ServiceName);
             return Result.Success();
@@ -222,6 +225,45 @@ public static class WindowsServiceManager
         {
             Log.Error(ex, "Failed to stop service {ServiceName}: {Error}", ServiceName, ex.Message);
             return Result.Failure($"Stop service error: {ex.Message}");
+        }
+    }
+
+    private static void DeleteLegacyUniBackupTasks()
+    {
+        try
+        {
+            var psi = new ProcessStartInfo("schtasks.exe", "/query /fo CSV /nh")
+            {
+                RedirectStandardOutput = true,
+                UseShellExecute = false,
+                CreateNoWindow = true
+            };
+            using var proc = Process.Start(psi);
+            var output = proc?.StandardOutput.ReadToEnd() ?? "";
+            proc?.WaitForExit(5000);
+
+            foreach (var line in output.Split('\n', StringSplitOptions.RemoveEmptyEntries))
+            {
+                var parts = line.Split(',');
+                if (parts.Length > 0)
+                {
+                    var taskName = parts[0].Trim('"', ' ', '\\', '\r');
+                    if (taskName.StartsWith("UniBackup_", StringComparison.OrdinalIgnoreCase))
+                    {
+                        var delPsi = new ProcessStartInfo("schtasks.exe", $"/delete /tn \"{taskName}\" /f")
+                        {
+                            CreateNoWindow = true
+                        };
+                        using var delProc = Process.Start(delPsi);
+                        delProc?.WaitForExit(3000);
+                        Log.Information("[Service Setup] Cleaned up legacy scheduled task {Task}", taskName);
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Log.Warning(ex, "[Service Setup] Error cleaning up legacy scheduled tasks: {Message}", ex.Message);
         }
     }
 }
