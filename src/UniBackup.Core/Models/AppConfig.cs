@@ -1,0 +1,195 @@
+using System.Text.Json.Serialization;
+
+namespace UniBackup.Core.Models;
+
+public class BackupSettings
+{
+    [JsonPropertyName("folders")]
+    public List<string> Folders { get; set; } = [];
+
+    [JsonPropertyName("temp_folder")]
+    public string TempFolder { get; set; } = @"C:\UniBackup\temp";
+
+    [JsonPropertyName("log_path")]
+    public string LogPath { get; set; } = @"C:\UniBackup\logs\backup.log";
+
+    [JsonPropertyName("max_log_mb")]
+    public int MaxLogMb { get; set; } = 10;
+
+    [JsonPropertyName("keep_logs_days")]
+    public int KeepLogsDays { get; set; } = 30;
+
+    [JsonPropertyName("warn_stale_days")]
+    public int WarnStaleDays { get; set; } = 3;
+
+    [JsonPropertyName("use_vss_default")]
+    public bool UseVssDefault { get; set; } = true;
+}
+
+public class AwsSettings
+{
+    [JsonPropertyName("enabled")]
+    public bool Enabled { get; set; } = true;
+
+    [JsonPropertyName("bucket_name")]
+    public string BucketName { get; set; } = "iis-backup-2026";
+
+    [JsonPropertyName("region")]
+    public string Region { get; set; } = "ap-south-1";
+
+    [JsonPropertyName("s3_prefix")]
+    public string S3Prefix { get; set; } = "";
+
+    [JsonPropertyName("storage_class")]
+    public string StorageClass { get; set; } = "STANDARD";
+
+    [JsonPropertyName("access_key_id")]
+    public string AccessKeyId { get; set; } = "";
+
+    [JsonPropertyName("secret_access_key")]
+    public string SecretAccessKey { get; set; } = "";
+
+    [JsonPropertyName("retention_days")]
+    public int RetentionDays { get; set; } = 30;
+
+    [JsonPropertyName("multipart_chunk_mb")]
+    public int MultipartChunkMb { get; set; } = 100;
+}
+
+public class GDriveSettings
+{
+    [JsonPropertyName("enabled")]
+    public bool Enabled { get; set; } = false;
+
+    [JsonPropertyName("account_label")]
+    public string AccountLabel { get; set; } = "UNIPROCLOUDBACKUP";
+
+    [JsonPropertyName("target_folder")]
+    public string TargetFolder { get; set; } = "/Backups";
+
+    [JsonPropertyName("retention_days")]
+    public int RetentionDays { get; set; } = 10;
+}
+
+public class EmailSettings
+{
+    [JsonPropertyName("enabled")]
+    public bool Enabled { get; set; } = true;
+
+    [JsonPropertyName("mode")]
+    public string Mode { get; set; } = "custom"; // "custom", "gmail", "m365"
+
+    [JsonPropertyName("smtp_host")]
+    public string SmtpHost { get; set; } = "smtp.uniprotech.net";
+
+    [JsonPropertyName("smtp_port")]
+    public int SmtpPort { get; set; } = 587;
+
+    [JsonPropertyName("use_tls")]
+    public bool UseTls { get; set; } = true;
+
+    [JsonPropertyName("from_address")]
+    public string FromAddress { get; set; } = "thiyagu@uniprotech.net";
+
+    [JsonPropertyName("username")]
+    public string Username { get; set; } = "thiyagu@uniprotech.net";
+
+    [JsonPropertyName("password")]
+    public string Password { get; set; } = "";
+
+    [JsonPropertyName("to_addresses")]
+    public List<string> ToAddresses { get; set; } = ["thiyagu@uniprotech.net"];
+
+    [JsonPropertyName("m365_client_id")]
+    public string M365ClientId { get; set; } = "";
+
+    [JsonPropertyName("m365_tenant_id")]
+    public string M365TenantId { get; set; } = "common";
+
+    [JsonPropertyName("notify_on_success")]
+    public bool NotifyOnSuccess { get; set; } = false;
+
+    [JsonPropertyName("notify_on_failure")]
+    public bool NotifyOnFailure { get; set; } = true;
+}
+
+public class ScheduleSettings
+{
+    [JsonPropertyName("freq")]
+    public string Freq { get; set; } = "daily";
+
+    [JsonPropertyName("time")]
+    public string Time { get; set; } = "02:00";
+
+    [JsonPropertyName("interval")]
+    public int Interval { get; set; } = 1;
+
+    [JsonPropertyName("days")]
+    public List<string> Days { get; set; } = ["MON"];
+
+    [JsonPropertyName("day")]
+    public string Day { get; set; } = "1";
+
+    [JsonPropertyName("date")]
+    public string Date { get; set; } = "";
+
+    [JsonPropertyName("window_mode")]
+    public string WindowMode { get; set; } = "headless";
+
+    [JsonPropertyName("exit_on_partial")]
+    public int ExitOnPartial { get; set; } = 1;
+}
+
+public class WebhookSettings
+{
+    [JsonPropertyName("enabled")]
+    public bool Enabled { get; set; } = false;
+
+    [JsonPropertyName("teams_webhook_url")]
+    public string TeamsWebhookUrl { get; set; } = "";
+
+    [JsonPropertyName("slack_webhook_url")]
+    public string SlackWebhookUrl { get; set; } = "";
+
+    [JsonPropertyName("discord_webhook_url")]
+    public string DiscordWebhookUrl { get; set; } = "";
+
+    [JsonPropertyName("notify_on_success")]
+    public bool NotifyOnSuccess { get; set; } = false;
+
+    [JsonPropertyName("notify_on_failure")]
+    public bool NotifyOnFailure { get; set; } = true;
+}
+
+public class AppConfig
+{
+    [JsonPropertyName("backup")]
+    public BackupSettings Backup { get; set; } = new();
+
+    [JsonPropertyName("aws")]
+    public AwsSettings Aws { get; set; } = new();
+
+    [JsonPropertyName("gdrive")]
+    public GDriveSettings GDrive { get; set; } = new();
+
+    [JsonPropertyName("email")]
+    public EmailSettings Email { get; set; } = new();
+
+    [JsonPropertyName("schedule")]
+    public ScheduleSettings Schedule { get; set; } = new();
+
+    [JsonPropertyName("webhooks")]
+    public WebhookSettings Webhooks { get; set; } = new();
+
+    [JsonPropertyName("security")]
+    public SecuritySettings Security { get; set; } = new();
+}
+
+public class SecuritySettings
+{
+    [JsonPropertyName("access_password")]
+    public string AccessPassword { get; set; } = "adminupsddmmyyyy";
+
+    [JsonPropertyName("require_login")]
+    public bool RequireLogin { get; set; } = true;
+}

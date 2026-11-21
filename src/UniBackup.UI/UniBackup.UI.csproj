@@ -1,0 +1,36 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net9.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <AssemblyName>UniBackup</AssemblyName>
+    <ApplicationIcon>UniBackup.ico</ApplicationIcon>
+    <StartupObject>UniBackup.UI.Program</StartupObject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ApplicationDefinition Remove="App.xaml" />
+    <Page Include="App.xaml" />
+    <Resource Include="UniBackup.ico" />
+    <Resource Include="UniBackup.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="9.0.2" />
+    <PackageReference Include="Serilog" Version="4.2.0" />
+    <PackageReference Include="Serilog.Sinks.File" Version="6.0.0" />
+    <PackageReference Include="Serilog.Sinks.Console" Version="6.1.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\UniBackup.Core\UniBackup.Core.csproj" />
+    <ProjectReference Include="..\UniBackup.Infrastructure\UniBackup.Infrastructure.csproj" />
+    <ProjectReference Include="..\UniBackup.Engine\UniBackup.Engine.csproj" />
+    <ProjectReference Include="..\UniBackup.Service\UniBackup.Service.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,13 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/UniBackup.Cli/UniBackup.Cli.csproj" />
+    <Project Path="src/UniBackup.Core/UniBackup.Core.csproj" />
+    <Project Path="src/UniBackup.Engine/UniBackup.Engine.csproj" />
+    <Project Path="src/UniBackup.Infrastructure/UniBackup.Infrastructure.csproj" />
+    <Project Path="src/UniBackup.Service/UniBackup.Service.csproj" />
+    <Project Path="src/UniBackup.UI/UniBackup.UI.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/UniBackup.Tests/UniBackup.Tests.csproj" />
+  </Folder>
+</Solution>

@@ -1,0 +1,1017 @@
+﻿<Application x:Class="UniBackup.UI.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:conv="clr-namespace:UniBackup.UI.Converters">
+    <Application.Resources>
+        <!-- Converters -->
+        <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+        <conv:InverseBooleanToVisibilityConverter x:Key="InverseBoolToVis"/>
+
+        <!-- Pro Max Color System -->
+        <!-- Gradients -->
+        <LinearGradientBrush x:Key="PrimaryGradient" StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#4F46E5" Offset="0.0"/>
+            <GradientStop Color="#2563EB" Offset="1.0"/>
+        </LinearGradientBrush>
+        <LinearGradientBrush x:Key="PrimaryHoverGradient" StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#4338CA" Offset="0.0"/>
+            <GradientStop Color="#1D4ED8" Offset="1.0"/>
+        </LinearGradientBrush>
+        <LinearGradientBrush x:Key="SuccessGradient" StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#059669" Offset="0.0"/>
+            <GradientStop Color="#10B981" Offset="1.0"/>
+        </LinearGradientBrush>
+        <LinearGradientBrush x:Key="WarningGradient" StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#D97706" Offset="0.0"/>
+            <GradientStop Color="#F59E0B" Offset="1.0"/>
+        </LinearGradientBrush>
+        <LinearGradientBrush x:Key="DangerGradient" StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#DC2626" Offset="0.0"/>
+            <GradientStop Color="#EF4444" Offset="1.0"/>
+        </LinearGradientBrush>
+        <LinearGradientBrush x:Key="CyanGradient" StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#0891B2" Offset="0.0"/>
+            <GradientStop Color="#06B6D4" Offset="1.0"/>
+        </LinearGradientBrush>
+        <LinearGradientBrush x:Key="PurpleGradient" StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#7C3AED" Offset="0.0"/>
+            <GradientStop Color="#8B5CF6" Offset="1.0"/>
+        </LinearGradientBrush>
+        <LinearGradientBrush x:Key="SidebarGradient" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#0B132B" Offset="0.0"/>
+            <GradientStop Color="#161F38" Offset="0.6"/>
+            <GradientStop Color="#1C2541" Offset="1.0"/>
+        </LinearGradientBrush>
+
+        <!-- Solid Colors -->
+        <SolidColorBrush x:Key="PrimaryBrush" Color="#2563EB"/>
+        <SolidColorBrush x:Key="PrimaryHoverBrush" Color="#1D4ED8"/>
+        <SolidColorBrush x:Key="SuccessBrush" Color="#10B981"/>
+        <SolidColorBrush x:Key="WarningBrush" Color="#F59E0B"/>
+        <SolidColorBrush x:Key="DangerBrush" Color="#EF4444"/>
+        <SolidColorBrush x:Key="CyanBrush" Color="#06B6D4"/>
+        <SolidColorBrush x:Key="BackgroundBrush" Color="#F8FAFC"/>
+        <SolidColorBrush x:Key="SurfaceBrush" Color="#FFFFFF"/>
+        <SolidColorBrush x:Key="BorderBrush" Color="#E2E8F0"/>
+        <SolidColorBrush x:Key="BorderLightBrush" Color="#F1F5F9"/>
+        <SolidColorBrush x:Key="TextPrimaryBrush" Color="#0F172A"/>
+        <SolidColorBrush x:Key="TextSecondaryBrush" Color="#64748B"/>
+        <SolidColorBrush x:Key="TextMutedBrush" Color="#94A3B8"/>
+        <SolidColorBrush x:Key="SidebarTextBrush" Color="#94A3B8"/>
+        <SolidColorBrush x:Key="SidebarTextActiveBrush" Color="#FFFFFF"/>
+
+        <!-- Soft Tint Brushes for Logs & Badges -->
+        <SolidColorBrush x:Key="BrandTintBlueSoft" Color="#EFF5FE"/>
+        <SolidColorBrush x:Key="BrandTintBlueDeep" Color="#1D4ED8"/>
+        <SolidColorBrush x:Key="BrandTintAmberSoft" Color="#FFF4E0"/>
+        <SolidColorBrush x:Key="BrandTintAmberDeep" Color="#B26A00"/>
+        <SolidColorBrush x:Key="BrandTintPurpleSoft" Color="#F5F3FF"/>
+        <SolidColorBrush x:Key="BrandTintPurpleDeep" Color="#6D28D9"/>
+        <SolidColorBrush x:Key="BrandTintTealSoft" Color="#E6FFFA"/>
+        <SolidColorBrush x:Key="BrandTintTealDeep" Color="#0D9488"/>
+        <SolidColorBrush x:Key="BrandDangerSoft" Color="#FDECEC"/>
+        <SolidColorBrush x:Key="BrandDangerDeep" Color="#DC2626"/>
+
+        <!-- Typography -->
+        <FontFamily x:Key="MainFont">Segoe UI, -apple-system, BlinkMacSystemFont, Roboto, sans-serif</FontFamily>
+        <FontFamily x:Key="BrandFontMono">Consolas, Cascadia Code, "Segoe UI Mono", monospace</FontFamily>
+
+        <!-- SVG Icon Geometries (Crisp Vector Geometries) -->
+        <StreamGeometry x:Key="IconBackups">M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z</StreamGeometry>
+        <StreamGeometry x:Key="IconSummary">M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z</StreamGeometry>
+        <StreamGeometry x:Key="IconRecovery">M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z</StreamGeometry>
+        <StreamGeometry x:Key="IconLogs">M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z</StreamGeometry>
+        <StreamGeometry x:Key="IconSettings">M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z</StreamGeometry>
+        <StreamGeometry x:Key="IconPlay">M8 5v14l11-7z</StreamGeometry>
+        <StreamGeometry x:Key="IconRunAll">M4 18l8.5-6L4 6v12zm9-12v12l8.5-6L13 6z</StreamGeometry>
+        <StreamGeometry x:Key="IconTrash">M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z</StreamGeometry>
+        <StreamGeometry x:Key="IconSearch">M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z</StreamGeometry>
+        <StreamGeometry x:Key="IconPlus">M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z</StreamGeometry>
+        <StreamGeometry x:Key="IconValidate">M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z</StreamGeometry>
+        <StreamGeometry x:Key="IconServer">M2 20h20v-4H2v4zm2-3h2v2H4v-2zM2 4v4h20V4H2zm4 3H4V5h2v2zm-4 7h20v-4H2v4zm2-3h2v2H4v-2z</StreamGeometry>
+        <StreamGeometry x:Key="IconCheck">M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z</StreamGeometry>
+        <StreamGeometry x:Key="IconRefresh">M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z</StreamGeometry>
+        <StreamGeometry x:Key="IconClock">M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z</StreamGeometry>
+        <StreamGeometry x:Key="IconFolder">M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z</StreamGeometry>
+        <StreamGeometry x:Key="IconGlobe">M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z</StreamGeometry>
+        <StreamGeometry x:Key="IconShield">M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z</StreamGeometry>
+        <StreamGeometry x:Key="IconToggle">M17 7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h10c2.76 0 5-2.24 5-5s-2.24-5-5-5zm0 8c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3z</StreamGeometry>
+        <StreamGeometry x:Key="IconWarning">M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z</StreamGeometry>
+        <StreamGeometry x:Key="IconCloud">M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z</StreamGeometry>
+        <StreamGeometry x:Key="IconDownload">M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z</StreamGeometry>
+        <StreamGeometry x:Key="IconSpinner">M12 4V2A10 10 0 0 0 2 12h2a8 8 0 0 1 8-8z</StreamGeometry>
+        <StreamGeometry x:Key="IconCopy">M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z</StreamGeometry>
+        <StreamGeometry x:Key="IconDocumentText">M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z</StreamGeometry>
+        <StreamGeometry x:Key="IconEye">M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z</StreamGeometry>
+        <StreamGeometry x:Key="IconEyeOff">M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.44-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z</StreamGeometry>
+        
+        <!-- Modern Extended Icons -->
+        <StreamGeometry x:Key="IconCheckCircle">M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z</StreamGeometry>
+        <StreamGeometry x:Key="IconInfoCircle">M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z</StreamGeometry>
+        <StreamGeometry x:Key="IconCloseCircle">M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z</StreamGeometry>
+        <StreamGeometry x:Key="IconWarningCircle">M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z</StreamGeometry>
+        <StreamGeometry x:Key="IconChevronLeft">M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z</StreamGeometry>
+        <StreamGeometry x:Key="IconChevronRight">M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z</StreamGeometry>
+        <StreamGeometry x:Key="IconDatabase">M12 3C7.58 3 4 4.79 4 7v10c0 2.21 3.58 4 8 4s8-1.79 8-4V7c0-2.21-3.58-4-8-4zm0 2c3.87 0 6 1.5 6 2s-2.13 2-6 2-6-1.5-6-2 2.13-2 6-2zm6 12c0 .5-2.13 2-6 2s-6-1.5-6-2v-2.23c1.61.78 3.72 1.23 6 1.23s4.39-.45 6-1.23V17zm0-5c0 .5-2.13 2-6 2s-6-1.5-6-2v-2.23c1.61.78 3.72 1.23 6 1.23s4.39-.45 6-1.23V12z</StreamGeometry>
+        <StreamGeometry x:Key="IconLock">M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z</StreamGeometry>
+        <StreamGeometry x:Key="IconMail">M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z</StreamGeometry>
+        <StreamGeometry x:Key="IconPaperPlane">M2.01 21L23 12 2.01 3 2 10l15 2-15 2z</StreamGeometry>
+        <StreamGeometry x:Key="IconEdit">M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z</StreamGeometry>
+        <StreamGeometry x:Key="IconLayers">M11.99 18.54l-7.37-5.73L3 14.07l9 7 9-7-1.63-1.27-7.38 5.74zM12 16l7.36-5.73L21 9l-9-7-9 7 1.63 1.27L12 16z</StreamGeometry>
+        <StreamGeometry x:Key="IconNotepad">M19 3h-4.18C14.4 1.84 13.3 1 12 1c-1.3 0-2.4.84-2.82 2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 0c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm2 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z</StreamGeometry>
+        <StreamGeometry x:Key="IconFolderOpen">M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 12H4V8h16v10z</StreamGeometry>
+        <StreamGeometry x:Key="IconStop">M6 6h12v12H6z</StreamGeometry>
+        <StreamGeometry x:Key="IconTerminal">M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V8h16v10zm-2-1h-6v-2h6v2zM7.5 15l-1.41-1.41L8.67 11l-2.58-2.59L7.5 7l4 4-4 4z</StreamGeometry>
+        <StreamGeometry x:Key="IconCalendarCheck">M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM10.5 15.5l-2-2 1.4-1.4 0.6 0.6 3.6-3.6 1.4 1.4-5 5z</StreamGeometry>
+        <StreamGeometry x:Key="IconStethoscope">M19 8c-.55 0-1 .45-1 1v3c0 2.76-2.24 5-5 5s-5-2.24-5-5V9c0-.55-.45-1-1-1s-1 .45-1 1v3c0 3.52 2.61 6.43 6 6.92V20H9c-.55 0-1 .45-1 1s.45 1 1 1h6c.55 0 1-.45 1-1s-.45-1-1-1h-2v-1.08c3.39-.49 6-3.4 6-6.92V9c0-.55-.45-1-1-1z</StreamGeometry>
+        <StreamGeometry x:Key="IconSave">M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z</StreamGeometry>
+
+        <!-- Animations & Storyboards -->
+        <!-- Pulsing Indicator for Live Engine status -->
+        <Style x:Key="PulsingIndicator" TargetType="Ellipse">
+            <Style.Triggers>
+                <EventTrigger RoutedEvent="Loaded">
+                    <BeginStoryboard>
+                        <Storyboard RepeatBehavior="Forever">
+                            <DoubleAnimation Storyboard.TargetProperty="Opacity" From="1.0" To="0.25" Duration="0:0:1.4" AutoReverse="True"/>
+                        </Storyboard>
+                    </BeginStoryboard>
+                </EventTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- High-Speed Spinner Ring for Progress Modal -->
+        <Style x:Key="RotatingSpinner" TargetType="Path">
+            <Setter Property="RenderTransformOrigin" Value="0.5,0.5"/>
+            <Setter Property="RenderTransform">
+                <Setter.Value>
+                    <RotateTransform Angle="0"/>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <EventTrigger RoutedEvent="Loaded">
+                    <BeginStoryboard>
+                        <Storyboard RepeatBehavior="Forever">
+                            <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(RotateTransform.Angle)" From="0" To="360" Duration="0:0:0.9"/>
+                        </Storyboard>
+                    </BeginStoryboard>
+                </EventTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Smooth Tab Content Transition Animation -->
+        <Style x:Key="AnimatedTabContent" TargetType="FrameworkElement">
+            <Setter Property="RenderTransform">
+                <Setter.Value>
+                    <TranslateTransform Y="0"/>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="Visibility" Value="Visible">
+                    <Trigger.EnterActions>
+                        <BeginStoryboard>
+                            <Storyboard>
+                                <DoubleAnimation Storyboard.TargetProperty="Opacity" From="0" To="1" Duration="0:0:0.22">
+                                    <DoubleAnimation.EasingFunction>
+                                        <CubicEase EasingMode="EaseOut"/>
+                                    </DoubleAnimation.EasingFunction>
+                                </DoubleAnimation>
+                                <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.Y)" From="10" To="0" Duration="0:0:0.22">
+                                    <DoubleAnimation.EasingFunction>
+                                        <CubicEase EasingMode="EaseOut"/>
+                                    </DoubleAnimation.EasingFunction>
+                                </DoubleAnimation>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </Trigger.EnterActions>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Pro Max Card Container -->
+        <Style x:Key="ModernCard" TargetType="Border">
+            <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="Padding" Value="20"/>
+            <Setter Property="Margin" Value="0,0,0,16"/>
+        </Style>
+
+        <!-- Sidebar Nav Tab Button -->
+        <Style x:Key="NavTabStyle" TargetType="RadioButton">
+            <Setter Property="FontFamily" Value="{StaticResource MainFont}"/>
+            <Setter Property="FontSize" Value="13.5"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="{StaticResource SidebarTextBrush}"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Height" Value="48"/>
+            <Setter Property="Margin" Value="0,0,0,4"/>
+            <Setter Property="Padding" Value="12,0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Border x:Name="border" Background="{TemplateBinding Background}" CornerRadius="10" Padding="{TemplateBinding Padding}">
+                            <Grid>
+                                <Border x:Name="bar" Width="3" CornerRadius="1.5" Margin="-12,8,0,8" HorizontalAlignment="Left" Background="Transparent"/>
+                                <ContentPresenter VerticalAlignment="Center"/>
+                            </Grid>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#1A264F"/>
+                                <Setter Property="Foreground" Value="#F8FAFC"/>
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="{StaticResource PrimaryGradient}"/>
+                                <Setter TargetName="bar" Property="Background" Value="#38BDF8"/>
+                                <Setter Property="Foreground" Value="{StaticResource SidebarTextActiveBrush}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Filter Chip Style for Logs / Categories -->
+        <Style x:Key="FilterChipStyle" TargetType="RadioButton">
+            <Setter Property="FontFamily" Value="{StaticResource MainFont}"/>
+            <Setter Property="FontSize" Value="11.5"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}"/>
+            <Setter Property="Background" Value="#F1F5F9"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Height" Value="28"/>
+            <Setter Property="Padding" Value="12,0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Border x:Name="border" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="6" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#E2E8F0"/>
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="{StaticResource PrimaryBrush}"/>
+                                <Setter TargetName="border" Property="BorderBrush" Value="{StaticResource PrimaryBrush}"/>
+                                <Setter Property="Foreground" Value="White"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- BrandOptionCard (Settings RunMode radio choice card) -->
+        <Style x:Key="BrandOptionCard" TargetType="RadioButton">
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FontFamily" Value="{StaticResource MainFont}"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Border x:Name="Card" Background="White" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1.5" CornerRadius="12" Padding="16,14" SnapsToDevicePixels="True">
+                            <ContentPresenter/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Card" Property="BorderBrush" Value="{StaticResource PrimaryBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="Card" Property="BorderBrush" Value="{StaticResource PrimaryBrush}"/>
+                                <Setter TargetName="Card" Property="Background" Value="#F0F7FF"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- BrandWell (Inset container for time pickers) -->
+        <Style x:Key="BrandWell" TargetType="Border">
+            <Setter Property="Background" Value="#F8FAFC"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+        </Style>
+
+        <!-- BrandSegmentTrack (Pill container for AM/PM & sub-tabs) -->
+        <Style x:Key="BrandSegmentTrack" TargetType="Border">
+            <Setter Property="Background" Value="#F1F5F9"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Padding" Value="3"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+        </Style>
+
+        <!-- BrandSegment (Pill segment button) -->
+        <Style x:Key="BrandSegment" TargetType="RadioButton">
+            <Setter Property="Height" Value="28"/>
+            <Setter Property="MinWidth" Value="48"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FontFamily" Value="{StaticResource MainFont}"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Border x:Name="Chip" Background="Transparent" CornerRadius="6" Padding="12,0" SnapsToDevicePixels="True">
+                            <ContentPresenter x:Name="Label" HorizontalAlignment="Center" VerticalAlignment="Center" TextElement.Foreground="{StaticResource TextSecondaryBrush}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Chip" Property="Background" Value="#E2E8F0"/>
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="Chip" Property="Background" Value="White"/>
+                                <Setter TargetName="Label" Property="TextElement.Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+                                <Setter TargetName="Label" Property="TextElement.FontWeight" Value="Bold"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- MeridiemSegment (Ultra-clear AM / PM Pill Segment) -->
+        <Style x:Key="MeridiemSegment" TargetType="RadioButton">
+            <Setter Property="Height" Value="32"/>
+            <Setter Property="MinWidth" Value="48"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FontFamily" Value="{StaticResource MainFont}"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Border x:Name="Chip" Background="Transparent" CornerRadius="6" Padding="12,0" SnapsToDevicePixels="True">
+                            <ContentPresenter x:Name="Label" HorizontalAlignment="Center" VerticalAlignment="Center" TextElement.Foreground="{StaticResource TextSecondaryBrush}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Chip" Property="Background" Value="#E2E8F0"/>
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="Chip" Property="Background" Value="{StaticResource PrimaryBrush}"/>
+                                <Setter TargetName="Label" Property="TextElement.Foreground" Value="White"/>
+                                <Setter TargetName="Label" Property="TextElement.FontWeight" Value="Bold"/>
+                                <Setter TargetName="Chip" Property="Effect">
+                                    <Setter.Value>
+                                        <DropShadowEffect Color="#2563EB" BlurRadius="8" Direction="270" ShadowDepth="1" Opacity="0.35"/>
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Modern ComboBox Item Style -->
+        <Style x:Key="ModernComboBoxItem" TargetType="ComboBoxItem">
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+            <Setter Property="Padding" Value="10,6"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FontFamily" Value="{StaticResource MainFont}"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBoxItem">
+                        <Border x:Name="ItemBorder" Background="Transparent" CornerRadius="6" Margin="2,1" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="ItemBorder" Property="Background" Value="#EFF6FF"/>
+                                <Setter Property="TextElement.Foreground" Value="{StaticResource PrimaryBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="ItemBorder" Property="Background" Value="#DBEAFE"/>
+                                <Setter Property="TextElement.Foreground" Value="#1D4ED8"/>
+                                <Setter Property="TextElement.FontWeight" Value="Bold"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Modern ComboBox Toggle Button Template -->
+        <ControlTemplate x:Key="ModernComboBoxToggleButton" TargetType="ToggleButton">
+            <Border x:Name="BtnBorder" Background="White" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="7" SnapsToDevicePixels="True">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="22"/>
+                    </Grid.ColumnDefinitions>
+                    <Path Grid.Column="1" Data="M7 10l5 5 5-5z" Fill="{StaticResource TextSecondaryBrush}" Width="9" Height="5" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Grid>
+            </Border>
+            <ControlTemplate.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter TargetName="BtnBorder" Property="BorderBrush" Value="{StaticResource PrimaryBrush}"/>
+                    <Setter TargetName="BtnBorder" Property="Background" Value="#F8FAFC"/>
+                </Trigger>
+                <Trigger Property="IsChecked" Value="True">
+                    <Setter TargetName="BtnBorder" Property="BorderBrush" Value="{StaticResource PrimaryBrush}"/>
+                </Trigger>
+            </ControlTemplate.Triggers>
+        </ControlTemplate>
+
+        <!-- Modern ComboBox Style -->
+        <Style x:Key="ModernTimeComboBox" TargetType="ComboBox">
+            <Setter Property="ItemContainerStyle" Value="{StaticResource ModernComboBoxItem}"/>
+            <Setter Property="FontFamily" Value="{StaticResource MainFont}"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+            <Setter Property="MaxDropDownHeight" Value="240"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBox">
+                        <Grid>
+                            <ToggleButton Template="{StaticResource ModernComboBoxToggleButton}" Focusable="False"
+                                          IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
+                                          ClickMode="Press"/>
+                            <ContentPresenter IsHitTestVisible="False" Margin="10,0,22,0"
+                                              Content="{TemplateBinding SelectionBoxItem}"
+                                              ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                                              ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}"
+                                              HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                            <Popup x:Name="PART_Popup" AllowsTransparency="True" Focusable="False"
+                                   IsOpen="{TemplateBinding IsDropDownOpen}"
+                                   Placement="Bottom" PopupAnimation="Slide">
+                                <Border Background="White" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="8" Margin="0,4,0,0" Padding="4" MinWidth="{TemplateBinding ActualWidth}">
+                                    <Border.Effect>
+                                        <DropShadowEffect BlurRadius="16" Direction="270" ShadowDepth="4" Opacity="0.15" Color="#0B132B"/>
+                                    </Border.Effect>
+                                    <ScrollViewer MaxHeight="{TemplateBinding MaxDropDownHeight}" SnapsToDevicePixels="True" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                                        <StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Contained"/>
+                                    </ScrollViewer>
+                                </Border>
+                            </Popup>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- BrandChipAmber (Schedule "Runs daily" badge) -->
+        <Style x:Key="BrandChipAmber" TargetType="Border">
+            <Setter Property="Background" Value="{StaticResource BrandTintAmberSoft}"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="CornerRadius" Value="6"/>
+            <Setter Property="Padding" Value="10,6"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+        </Style>
+
+        <!-- TagButton (Quick preset pill button) -->
+        <Style x:Key="TagButton" TargetType="Button">
+            <Setter Property="Height" Value="26"/>
+            <Setter Property="Padding" Value="10,0"/>
+            <Setter Property="FontSize" Value="11.5"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Background" Value="{StaticResource BrandTintPurpleSoft}"/>
+            <Setter Property="Foreground" Value="{StaticResource BrandTintPurpleDeep}"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border" Background="{TemplateBinding Background}" CornerRadius="6" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#EDE9FE"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#DDD6FE"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Settings Colorful Sub-Menu Tabs -->
+        <!-- 1. Service & Scheduler (Teal) -->
+        <Style x:Key="SettingsSubTabTeal" TargetType="RadioButton">
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FontFamily" Value="{StaticResource MainFont}"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Margin" Value="0,0,8,0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Border x:Name="TabContainer" Background="#FFFFFF" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="8" Padding="14,0,18,0" SnapsToDevicePixels="True">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <Border x:Name="IconBadge" Background="#E6FFFA" CornerRadius="6" Width="26" Height="26" Margin="0,0,10,0" VerticalAlignment="Center">
+                                    <Path x:Name="TabIcon" Data="{StaticResource IconServer}" Fill="#0D9488" Width="13" Height="13" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <TextBlock x:Name="TabLabel" Text="{TemplateBinding Content}" FontSize="12.5" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="TabContainer" Property="Background" Value="#F0FDFA"/>
+                                <Setter TargetName="TabContainer" Property="BorderBrush" Value="#99F6E4"/>
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="TabContainer" Property="Background" Value="#0D9488"/>
+                                <Setter TargetName="TabContainer" Property="BorderBrush" Value="#0F766E"/>
+                                <Setter TargetName="IconBadge" Property="Background" Value="#33FFFFFF"/>
+                                <Setter TargetName="TabIcon" Property="Fill" Value="White"/>
+                                <Setter TargetName="TabLabel" Property="Foreground" Value="White"/>
+                                <Setter TargetName="TabLabel" Property="FontWeight" Value="Bold"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding SelectedSettingsTab}" Value="Service">
+                    <Setter Property="IsChecked" Value="True"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding SelectedSettingsTab}" Value="Schedule">
+                    <Setter Property="IsChecked" Value="True"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- 2. AWS / S3 (Blue) -->
+        <Style x:Key="SettingsSubTabBlue" TargetType="RadioButton">
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FontFamily" Value="{StaticResource MainFont}"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Margin" Value="0,0,8,0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Border x:Name="TabContainer" Background="#FFFFFF" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="8" Padding="14,0,18,0" SnapsToDevicePixels="True">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <Border x:Name="IconBadge" Background="#EFF5FE" CornerRadius="6" Width="26" Height="26" Margin="0,0,10,0" VerticalAlignment="Center">
+                                    <Path x:Name="TabIcon" Data="{StaticResource IconBackups}" Fill="#2563EB" Width="13" Height="13" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <TextBlock x:Name="TabLabel" Text="{TemplateBinding Content}" FontSize="12.5" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="TabContainer" Property="Background" Value="#EFF6FF"/>
+                                <Setter TargetName="TabContainer" Property="BorderBrush" Value="#BFDBFE"/>
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="TabContainer" Property="Background" Value="#2563EB"/>
+                                <Setter TargetName="TabContainer" Property="BorderBrush" Value="#1D4ED8"/>
+                                <Setter TargetName="IconBadge" Property="Background" Value="#33FFFFFF"/>
+                                <Setter TargetName="TabIcon" Property="Fill" Value="White"/>
+                                <Setter TargetName="TabLabel" Property="Foreground" Value="White"/>
+                                <Setter TargetName="TabLabel" Property="FontWeight" Value="Bold"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding SelectedSettingsTab}" Value="Connection">
+                    <Setter Property="IsChecked" Value="True"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding SelectedSettingsTab}" Value="AWS">
+                    <Setter Property="IsChecked" Value="True"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- 3. Destinations (Emerald Green) -->
+        <Style x:Key="SettingsSubTabEmerald" TargetType="RadioButton">
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FontFamily" Value="{StaticResource MainFont}"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Margin" Value="0,0,8,0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Border x:Name="TabContainer" Background="#FFFFFF" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="8" Padding="14,0,18,0" SnapsToDevicePixels="True">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <Border x:Name="IconBadge" Background="#ECFDF5" CornerRadius="6" Width="26" Height="26" Margin="0,0,10,0" VerticalAlignment="Center">
+                                    <Path x:Name="TabIcon" Data="{StaticResource IconGlobe}" Fill="#059669" Width="13" Height="13" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <TextBlock x:Name="TabLabel" Text="{TemplateBinding Content}" FontSize="12.5" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="TabContainer" Property="Background" Value="#F0FDF4"/>
+                                <Setter TargetName="TabContainer" Property="BorderBrush" Value="#A7F3D0"/>
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="TabContainer" Property="Background" Value="#059669"/>
+                                <Setter TargetName="TabContainer" Property="BorderBrush" Value="#047857"/>
+                                <Setter TargetName="IconBadge" Property="Background" Value="#33FFFFFF"/>
+                                <Setter TargetName="TabIcon" Property="Fill" Value="White"/>
+                                <Setter TargetName="TabLabel" Property="Foreground" Value="White"/>
+                                <Setter TargetName="TabLabel" Property="FontWeight" Value="Bold"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding SelectedSettingsTab}" Value="Destinations">
+                    <Setter Property="IsChecked" Value="True"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- 4. Email Notifications (Purple) -->
+        <Style x:Key="SettingsSubTabPurple" TargetType="RadioButton">
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FontFamily" Value="{StaticResource MainFont}"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Margin" Value="0,0,8,0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Border x:Name="TabContainer" Background="#FFFFFF" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="8" Padding="14,0,18,0" SnapsToDevicePixels="True">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <Border x:Name="IconBadge" Background="#F5F3FF" CornerRadius="6" Width="26" Height="26" Margin="0,0,10,0" VerticalAlignment="Center">
+                                    <Path x:Name="TabIcon" Data="{StaticResource IconPaperPlane}" Fill="#7C3AED" Width="13" Height="13" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <TextBlock x:Name="TabLabel" Text="{TemplateBinding Content}" FontSize="12.5" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="TabContainer" Property="Background" Value="#FAF5FF"/>
+                                <Setter TargetName="TabContainer" Property="BorderBrush" Value="#E9D5FF"/>
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="TabContainer" Property="Background" Value="#7C3AED"/>
+                                <Setter TargetName="TabContainer" Property="BorderBrush" Value="#6D28D9"/>
+                                <Setter TargetName="IconBadge" Property="Background" Value="#33FFFFFF"/>
+                                <Setter TargetName="TabIcon" Property="Fill" Value="White"/>
+                                <Setter TargetName="TabLabel" Property="Foreground" Value="White"/>
+                                <Setter TargetName="TabLabel" Property="FontWeight" Value="Bold"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding SelectedSettingsTab}" Value="Notifications">
+                    <Setter Property="IsChecked" Value="True"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding SelectedSettingsTab}" Value="Email">
+                    <Setter Property="IsChecked" Value="True"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- 5. Storage & Maintenance (Amber) -->
+        <Style x:Key="SettingsSubTabAmber" TargetType="RadioButton">
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FontFamily" Value="{StaticResource MainFont}"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Margin" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Border x:Name="TabContainer" Background="#FFFFFF" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="8" Padding="14,0,18,0" SnapsToDevicePixels="True">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <Border x:Name="IconBadge" Background="#FFF4E0" CornerRadius="6" Width="26" Height="26" Margin="0,0,10,0" VerticalAlignment="Center">
+                                    <Path x:Name="TabIcon" Data="{StaticResource IconFolder}" Fill="#D97706" Width="13" Height="13" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <TextBlock x:Name="TabLabel" Text="{TemplateBinding Content}" FontSize="12.5" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="TabContainer" Property="Background" Value="#FFFBEB"/>
+                                <Setter TargetName="TabContainer" Property="BorderBrush" Value="#FDE68A"/>
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="TabContainer" Property="Background" Value="#D97706"/>
+                                <Setter TargetName="TabContainer" Property="BorderBrush" Value="#B45309"/>
+                                <Setter TargetName="IconBadge" Property="Background" Value="#33FFFFFF"/>
+                                <Setter TargetName="TabIcon" Property="Fill" Value="White"/>
+                                <Setter TargetName="TabLabel" Property="Foreground" Value="White"/>
+                                <Setter TargetName="TabLabel" Property="FontWeight" Value="Bold"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding SelectedSettingsTab}" Value="Storage">
+                    <Setter Property="IsChecked" Value="True"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding SelectedSettingsTab}" Value="Temp">
+                    <Setter Property="IsChecked" Value="True"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Pro Max Primary Button with Gradient & Micro-interaction -->
+        <Style TargetType="Button" x:Key="PrimaryButton">
+            <Setter Property="FontFamily" Value="{StaticResource MainFont}"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Background" Value="{StaticResource PrimaryGradient}"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="16,9"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border" Background="{TemplateBinding Background}" CornerRadius="8" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="{StaticResource PrimaryHoverGradient}"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="border" Property="Opacity" Value="0.85"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="border" Property="Opacity" Value="0.4"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Success Button (Emerald Gradient) -->
+        <Style TargetType="Button" x:Key="SuccessButton" BasedOn="{StaticResource PrimaryButton}">
+            <Setter Property="Background" Value="{StaticResource SuccessGradient}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border" Background="{TemplateBinding Background}" CornerRadius="8" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#059669"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="border" Property="Opacity" Value="0.85"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Danger Button (Coral Red Gradient) -->
+        <Style TargetType="Button" x:Key="DangerButton" BasedOn="{StaticResource PrimaryButton}">
+            <Setter Property="Background" Value="{StaticResource DangerGradient}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border" Background="{TemplateBinding Background}" CornerRadius="8" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#B91C1C"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Secondary Ghost / Outlined Button -->
+        <Style TargetType="Button" x:Key="SecondaryButton" BasedOn="{StaticResource PrimaryButton}">
+            <Setter Property="Background" Value="#F8FAFC"/>
+            <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="8" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#F1F5F9"/>
+                                <Setter TargetName="border" Property="BorderBrush" Value="#CBD5E1"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#E2E8F0"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Crisp Modern Tool Button (Sharp border, subtle elevation, micro-animation) -->
+        <Style TargetType="Button" x:Key="CrispToolButton">
+            <Setter Property="FontFamily" Value="{StaticResource MainFont}"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="#334155"/>
+            <Setter Property="Background" Value="#FFFFFF"/>
+            <Setter Property="BorderBrush" Value="#CBD5E1"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="12,5"/>
+            <Setter Property="Height" Value="32"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bd" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="7" Padding="{TemplateBinding Padding}">
+                            <Border.Effect>
+                                <DropShadowEffect BlurRadius="3" ShadowDepth="1" Opacity="0.06" Color="#0F172A"/>
+                            </Border.Effect>
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#F8FAFC"/>
+                                <Setter TargetName="Bd" Property="BorderBrush" Value="#94A3B8"/>
+                                <Setter Property="Foreground" Value="#0F172A"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#F1F5F9"/>
+                                <Setter TargetName="Bd" Property="BorderBrush" Value="#64748B"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Crisp Problem Next Button (Gold Accent Border as in reference) -->
+        <Style TargetType="Button" x:Key="CrispProblemNextButton" BasedOn="{StaticResource CrispToolButton}">
+            <Setter Property="Background" Value="#FFFBEB"/>
+            <Setter Property="BorderBrush" Value="#F59E0B"/>
+            <Setter Property="BorderThickness" Value="1.5"/>
+            <Setter Property="Foreground" Value="#B45309"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Height" Value="30"/>
+            <Setter Property="Padding" Value="12,4"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bd" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="7" Padding="{TemplateBinding Padding}">
+                            <Border.Effect>
+                                <DropShadowEffect BlurRadius="4" ShadowDepth="1" Opacity="0.10" Color="#D97706"/>
+                            </Border.Effect>
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#FEF3C7"/>
+                                <Setter TargetName="Bd" Property="BorderBrush" Value="#D97706"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#FDE68A"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Crisp Problem Prev Button -->
+        <Style TargetType="Button" x:Key="CrispProblemPrevButton" BasedOn="{StaticResource CrispToolButton}">
+            <Setter Property="Background" Value="#FFFFFF"/>
+            <Setter Property="BorderBrush" Value="#CBD5E1"/>
+            <Setter Property="Foreground" Value="#475569"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Height" Value="30"/>
+            <Setter Property="Padding" Value="12,4"/>
+        </Style>
+
+        <!-- Modern Rounded Input Field -->
+        <Style TargetType="TextBox">
+            <Setter Property="FontFamily" Value="{StaticResource MainFont}"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+            <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="10,6"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Border x:Name="border" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="8" SnapsToDevicePixels="True">
+                            <ScrollViewer x:Name="PART_ContentHost" Focusable="False" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsFocused" Value="True">
+                                <Setter TargetName="border" Property="BorderBrush" Value="{StaticResource PrimaryBrush}"/>
+                                <Setter TargetName="border" Property="BorderThickness" Value="1.5"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="BorderBrush" Value="#94A3B8"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Modern Rounded Password Field -->
+        <Style TargetType="PasswordBox">
+            <Setter Property="FontFamily" Value="{StaticResource MainFont}"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+            <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="10,6"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="PasswordBox">
+                        <Border x:Name="border" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="8" SnapsToDevicePixels="True">
+                            <ScrollViewer x:Name="PART_ContentHost" Focusable="False" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsFocused" Value="True">
+                                <Setter TargetName="border" Property="BorderBrush" Value="{StaticResource PrimaryBrush}"/>
+                                <Setter TargetName="border" Property="BorderThickness" Value="1.5"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="BorderBrush" Value="#94A3B8"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Modern Clean DataGrid Style -->
+        <Style TargetType="DataGrid">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="RowBackground" Value="White"/>
+            <Setter Property="AlternatingRowBackground" Value="#FBFDFF"/>
+            <Setter Property="HorizontalGridLinesBrush" Value="#F1F5F9"/>
+            <Setter Property="VerticalGridLinesBrush" Value="Transparent"/>
+            <Setter Property="FontFamily" Value="{StaticResource MainFont}"/>
+            <Setter Property="FontSize" Value="12.5"/>
+            <Setter Property="RowHeight" Value="38"/>
+            <Setter Property="HeadersVisibility" Value="Column"/>
+            <Setter Property="GridLinesVisibility" Value="Horizontal"/>
+            <Setter Property="AutoGenerateColumns" Value="False"/>
+            <Setter Property="CanUserAddRows" Value="False"/>
+            <Setter Property="IsReadOnly" Value="True"/>
+            <Setter Property="SelectionMode" Value="Single"/>
+        </Style>
+
+        <!-- DataGrid Header Style -->
+        <Style TargetType="DataGridColumnHeader">
+            <Setter Property="Background" Value="#F8FAFC"/>
+            <Setter Property="Foreground" Value="#475569"/>
+            <Setter Property="FontFamily" Value="{StaticResource MainFont}"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Height" Value="36"/>
+            <Setter Property="Padding" Value="12,0"/>
+            <Setter Property="BorderThickness" Value="0,0,0,1"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
+        </Style>
+
+        <!-- DataGrid Row Style -->
+        <Style TargetType="DataGridRow">
+            <Setter Property="Cursor" Value="Hand"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#F1F5F9"/>
+                </Trigger>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="#EEF2FF"/>
+                    <Setter Property="Foreground" Value="#1E1B4B"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </Application.Resources>
+</Application>
