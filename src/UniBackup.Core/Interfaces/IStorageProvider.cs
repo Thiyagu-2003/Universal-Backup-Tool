@@ -28,6 +28,11 @@ public interface IStorageProvider
         IProgress<(long downloadedBytes, long totalBytes)>? progress = null,
         CancellationToken ct = default);
 
+    Task<Result> DeleteAsync(
+        AppConfig config,
+        string keyOrId,
+        CancellationToken ct = default);
+
     Task<Result<int>> CleanupRetentionAsync(
         AppConfig config,
         string targetFolder,

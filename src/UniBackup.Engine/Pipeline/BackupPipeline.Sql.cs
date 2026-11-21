@@ -1,11 +1,14 @@
 using UniBackup.Core.Common;
+using UniBackup.Core.Interfaces;
 using UniBackup.Core.Models;
+using UniBackup.Infrastructure.Security;
 using Serilog;
 
 namespace UniBackup.Engine.Pipeline;
 
 public partial class BackupPipeline
 {
+    private readonly StreamedEncryptionService _encryption = new();
     private async Task RunSqlJobAsync(AppConfig config, BackupJob job, SqlBackupType requested,
         RunHistoryRecord history, Action<string, double, string> report, CancellationToken ct)
     {
@@ -50,8 +53,43 @@ public partial class BackupPipeline
                 history.SqlDatabases.Where(d => d.Status == "FAILED").Select(d => $"{d.Database}: {d.Message}")
                     .Concat(history.Destinations.Where(d => d.Status == "FAILED").Select(d => $"{d.Destination}: {d.ErrorMessage}")));
         }
-        // ponytail: no retention for SQL jobs until Phase 3 (age-based delete would break restore chains).
-        Log.Information("[SQL] Retention is not applied to SQL Server jobs yet (chain-aware retention ships in Phase 3).");
+
+        // Apply chain-aware retention across active cloud destinations
+        foreach (var provider in ActiveProviders(config, job))
+        {
+            try
+            {
+                report("Retention", 95, $"Applying chain-aware retention on {provider.Name.ToUpperInvariant()}...");
+                await ApplySqlRetentionAsync(config, job, provider, ct);
+            }
+            catch (Exception ex)
+            {
+                Log.Warning(ex, "[SQL Retention] Retention cleanup on {Provider} encountered an issue: {Message}", provider.Name, ex.Message);
+            }
+        }
+    }
+
+    private async Task ApplySqlRetentionAsync(AppConfig config, BackupJob job, IStorageProvider provider, CancellationToken ct)
+    {
+        var retentionPolicy = job.Retention ?? new RetentionPolicy
+        {
+            KeepDays = job.RetentionDaysOverride ?? (provider.Name == "s3" ? config.Aws.RetentionDays : config.GDrive.RetentionDays)
+        };
+
+        if (retentionPolicy.KeepDays <= 0 && !retentionPolicy.GfsEnabled) return;
+
+        var rootFolder = DestinationFolders.Resolve(provider.Name, config, job);
+        var archives = await provider.ListArchivesAsync(config, rootFolder, ct);
+        if (archives.IsFailure || archives.Value.Count == 0) return;
+
+        var plan = SqlRetentionPlanner.Plan(archives.Value, retentionPolicy, DateTime.UtcNow);
+        foreach (var deletion in plan.Deletions)
+        {
+            ct.ThrowIfCancellationRequested();
+            Log.Information("[SQL Retention] Pruning expired backup {Key} (Reason: {Reason}) on {Provider}",
+                deletion.Item.KeyOrId, deletion.Reason, provider.Name);
+            await provider.DeleteAsync(config, deletion.Item.KeyOrId, ct);
+        }
     }
 
     private async Task<SqlDatabaseRunResult> BackupOneDatabaseAsync(AppConfig config, BackupJob job, SqlServerSource sql,
@@ -60,6 +98,7 @@ public partial class BackupPipeline
     {
         var result = new SqlDatabaseRunResult { Database = db, BackupType = requested };
         string? file = null;
+        string? encryptedFile = null;
         try
         {
             var chain = await _sql.GetChainStateAsync(sql, db, ct);
@@ -99,12 +138,22 @@ public partial class BackupPipeline
                 if (check.IsFailure) Failed(result, "DBCC CHECKDB reported problems: " + check.Error); // still upload: newest copy is kept
             }
 
+            var fileToUpload = file;
+            if (!string.IsNullOrWhiteSpace(job.EncryptionPassphrase))
+            {
+                report("Encrypting", basePct + slice * 0.65, $"{db}: AES-256-GCM streaming encryption");
+                encryptedFile = file + ".ubenc";
+                await _encryption.EncryptFileAsync(file, encryptedFile, job.EncryptionPassphrase, ct);
+                fileToUpload = encryptedFile;
+                result.FileName = Path.GetFileName(encryptedFile);
+            }
+
             var allUploaded = true;
             foreach (var provider in ActiveProviders(config, job))
             {
                 var folder = $"{DestinationFolders.Resolve(provider.Name, config, job)}/{SqlBackupFileName.RemoteSubfolder(db, result.BackupType)}";
                 report("Uploading", basePct + slice * 0.7, $"{db}: uploading to {provider.Name.ToUpperInvariant()}");
-                var upload = await UploadWithRetryAsync(provider, config, job, file, folder, null, ct);
+                var upload = await UploadWithRetryAsync(provider, config, job, fileToUpload, folder, null, ct);
                 allUploaded &= upload.IsSuccess;
                 history.Destinations.Add(upload.IsSuccess
                     ? upload.Value
@@ -115,6 +164,11 @@ public partial class BackupPipeline
         }
         finally
         {
+            if (encryptedFile != null && File.Exists(encryptedFile))
+            {
+                try { File.Delete(encryptedFile); }
+                catch (Exception ex) { Log.Warning(ex, "Could not delete encrypted staged backup {File}", encryptedFile); }
+            }
             if (file != null && File.Exists(file))
             {
                 try { File.Delete(file); }

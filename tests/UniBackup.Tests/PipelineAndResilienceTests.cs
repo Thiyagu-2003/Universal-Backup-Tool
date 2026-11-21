@@ -53,6 +53,9 @@ public class MockFailingStorageProvider : IStorageProvider
     public Task<Result> DownloadAsync(AppConfig config, string keyOrId, string destinationFilePath, IProgress<(long downloadedBytes, long totalBytes)>? progress = null, CancellationToken ct = default) =>
         Task.FromResult(Result.Success());
 
+    public Task<Result> DeleteAsync(AppConfig config, string keyOrId, CancellationToken ct = default) =>
+        Task.FromResult(Result.Success());
+
     public Task<Result<int>> CleanupRetentionAsync(AppConfig config, string targetFolder, int retentionDays, CancellationToken ct = default) =>
         Task.FromResult(Result<int>.Success(0));
 

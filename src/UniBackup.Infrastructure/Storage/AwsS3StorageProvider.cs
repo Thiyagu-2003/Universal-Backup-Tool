@@ -280,6 +280,69 @@ public class AwsS3StorageProvider : IStorageProvider
         }
     }
 
+    public async Task<Result> DeleteAsync(AppConfig config, string keyOrId, CancellationToken ct = default)
+    {
+        try
+        {
+            var (s3Client, _) = CreateClient(config);
+            using (s3Client)
+            {
+                await s3Client.DeleteObjectAsync(new DeleteObjectRequest
+                {
+                    BucketName = config.Aws.BucketName,
+                    Key = keyOrId
+                }, ct);
+                return Result.Success();
+            }
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "[AWS S3] Delete failed for {Key}: {Error}", keyOrId, ex.Message);
+            return Result.Failure($"S3 delete error: {ex.Message}");
+        }
+    }
+
+    public async Task<Result<int>> AbortMultipartUploadsOlderThanAsync(AppConfig config, TimeSpan maxAge, CancellationToken ct = default)
+    {
+        try
+        {
+            var (s3Client, _) = CreateClient(config);
+            using (s3Client)
+            {
+                var cutoff = DateTime.UtcNow - maxAge;
+                var aborted = 0;
+                var listReq = new ListMultipartUploadsRequest { BucketName = config.Aws.BucketName };
+                do
+                {
+                    ct.ThrowIfCancellationRequested();
+                    var resp = await s3Client.ListMultipartUploadsAsync(listReq, ct);
+                    foreach (var u in resp.MultipartUploads)
+                    {
+                        if (u.Initiated < cutoff)
+                        {
+                            await s3Client.AbortMultipartUploadAsync(new AbortMultipartUploadRequest
+                            {
+                                BucketName = config.Aws.BucketName,
+                                Key = u.Key,
+                                UploadId = u.UploadId
+                            }, ct);
+                            aborted++;
+                        }
+                    }
+                    listReq.KeyMarker = resp.NextKeyMarker;
+                    listReq.UploadIdMarker = resp.NextUploadIdMarker;
+                } while (listReq.KeyMarker != null);
+
+                return Result<int>.Success(aborted);
+            }
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "[AWS S3] Aborting multipart uploads failed: {Error}", ex.Message);
+            return Result<int>.Failure($"Abort multipart uploads error: {ex.Message}");
+        }
+    }
+
     public async Task<Result> ValidateConnectionAsync(AppConfig config, CancellationToken ct = default)
     {
         try

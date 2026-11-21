@@ -311,6 +311,23 @@ public class GoogleDriveStorageProvider : IStorageProvider
         }
     }
 
+    public async Task<Result> DeleteAsync(AppConfig config, string keyOrId, CancellationToken ct = default)
+    {
+        try
+        {
+            using var service = await CreateDriveServiceAsync(ct);
+            if (service == null) return Result.Failure("Missing or invalid Google Drive credentials.");
+
+            await service.Files.Delete(keyOrId).ExecuteAsync(ct);
+            return Result.Success();
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "[Google Drive] Delete failed for {Id}: {Error}", keyOrId, ex.Message);
+            return Result.Failure($"Drive delete error: {ex.Message}");
+        }
+    }
+
     public async Task<Result> ValidateConnectionAsync(AppConfig config, CancellationToken ct = default)
     {
         try

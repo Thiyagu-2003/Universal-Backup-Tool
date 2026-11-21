@@ -36,6 +36,6 @@ public static partial class SqlBackupFileName
         _ => "LOG"
     };
 
-    [GeneratedRegex(@"^(?<db>.+)_(?<type>FULL|DIFF|LOG)_(?<ts>\d{8}_\d{6})\.(bak|trn)$")]
+    [GeneratedRegex(@"^(?<db>.+)_(?<type>FULL|DIFF|LOG)_(?<ts>\d{8}_\d{6})\.(bak|trn)(\.ubenc)?$", RegexOptions.IgnoreCase)]
     private static partial Regex Pattern();
 }

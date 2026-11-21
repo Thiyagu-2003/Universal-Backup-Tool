@@ -136,6 +136,12 @@ public class BackupJob
     [JsonPropertyName("retention_days")]
     public int? RetentionDaysOverride { get; set; }
 
+    [JsonPropertyName("retention")]
+    public RetentionPolicy? Retention { get; set; }
+
+    [JsonPropertyName("encryption_passphrase")]
+    public string? EncryptionPassphrase { get; set; }
+
     [JsonPropertyName("kind")]
     public string Kind { get; set; } = "folder"; // "folder" | "sqlserver"
 
