@@ -85,6 +85,89 @@ public static class Program
             }
         }
 
+        if (args.Contains("--restore"))
+        {
+            var jobIndex = Array.IndexOf(args, "--job");
+            var dbIndex = Array.IndexOf(args, "--db");
+            var atIndex = Array.IndexOf(args, "--at");
+            var asIndex = Array.IndexOf(args, "--as");
+            var provIndex = Array.IndexOf(args, "--provider");
+            var passIndex = Array.IndexOf(args, "--passphrase");
+            var replace = args.Contains("--replace");
+
+            if (jobIndex < 0 || jobIndex >= args.Length - 1 || dbIndex < 0 || dbIndex >= args.Length - 1)
+            {
+                Console.Error.WriteLine("Error: --restore requires --job <id> and --db <databaseName>.");
+                Console.WriteLine("Usage: UniBackup.Cli.exe --restore --job <id> --db <name> [--at <yyyy-MM-dd HH:mm:ss>] [--as <newName>] [--provider <s3|gdrive>] [--passphrase <pwd>] [--replace]");
+                return 1;
+            }
+
+            var jobId = args[jobIndex + 1];
+            var dbName = args[dbIndex + 1];
+            DateTime? targetTime = null;
+            if (atIndex >= 0 && atIndex < args.Length - 1)
+            {
+                if (DateTime.TryParse(args[atIndex + 1], out var parsedTime))
+                {
+                    targetTime = parsedTime;
+                }
+                else
+                {
+                    Console.Error.WriteLine($"Error: Invalid date/time format for --at '{args[atIndex + 1]}'. Expected 'yyyy-MM-dd HH:mm:ss'.");
+                    return 1;
+                }
+            }
+
+            var newDbName = asIndex >= 0 && asIndex < args.Length - 1 ? args[asIndex + 1] : null;
+            var providerName = provIndex >= 0 && provIndex < args.Length - 1 ? args[provIndex + 1] : null;
+            var passphrase = passIndex >= 0 && passIndex < args.Length - 1 ? args[passIndex + 1] : null;
+
+            var jobs = await configService.LoadJobsAsync();
+            var job = jobs.FirstOrDefault(j => j.Id.Equals(jobId, StringComparison.OrdinalIgnoreCase));
+            if (job == null)
+            {
+                Console.Error.WriteLine($"Error: Job '{jobId}' was not found in jobs.json");
+                return 1;
+            }
+
+            Console.WriteLine($"Starting restore of database '{dbName}' from cloud...");
+            if (targetTime.HasValue) Console.WriteLine($"Target Point-in-Time: {targetTime.Value:yyyy-MM-dd HH:mm:ss}");
+            if (!string.IsNullOrEmpty(newDbName)) Console.WriteLine($"Restoring As Database: '{newDbName}'");
+
+            var restoreService = new SqlServerRestoreService(crypto);
+            var orchestrator = new SqlRestoreOrchestrator(storageProviders, restoreService);
+
+            var result = await orchestrator.RestoreFromCloudAsync(
+                config,
+                job,
+                dbName,
+                targetTime,
+                newDbName,
+                providerName,
+                passphrase,
+                replace,
+                (status, pct) =>
+                {
+                    Console.Write($"\r[Restore] {pct:F0}% {status.PadRight(50)}");
+                });
+
+            Console.WriteLine();
+            if (result.IsSuccess)
+            {
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine($"\n[SUCCESS] Restore of database '{newDbName ?? dbName}' completed successfully!");
+                Console.ResetColor();
+                return 0;
+            }
+            else
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine($"\n[FAILED] Restore failed: {result.Error}");
+                Console.ResetColor();
+                return 1;
+            }
+        }
+
         if (args.Contains("--list-jobs"))
         {
             var jobs = await configService.LoadJobsAsync();
@@ -193,6 +276,12 @@ public static class Program
         Console.WriteLine("  UniBackup.Cli.exe --auto                Run all enabled jobs sequentially (Task Scheduler)");
         Console.WriteLine("  UniBackup.Cli.exe --auto --job <id>     Run a specific job by Id");
         Console.WriteLine("  UniBackup.Cli.exe --auto --job <id> --type diff   SQL jobs: full (default) | diff | log");
+        Console.WriteLine("  UniBackup.Cli.exe --restore --job <id> --db <name>  Restore SQL database from cloud");
+        Console.WriteLine("    [--at <yyyy-MM-dd HH:mm:ss>]     Point-in-time restore target");
+        Console.WriteLine("    [--as <newName>]                 Restore under a different database name");
+        Console.WriteLine("    [--provider <s3|gdrive>]         Destination to restore from");
+        Console.WriteLine("    [--passphrase <pwd>]             Decryption passphrase if encrypted");
+        Console.WriteLine("    [--replace]                      Overwrite existing database");
         Console.WriteLine("  UniBackup.Cli.exe --validate            Run comprehensive server & connection diagnostics");
         Console.WriteLine("  UniBackup.Cli.exe --list-jobs           List all configured backup jobs");
         Console.WriteLine("  UniBackup.Cli.exe --service <action>    Manage Windows Service (install, uninstall, start, stop, status)");
