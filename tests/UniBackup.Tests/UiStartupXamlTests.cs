@@ -272,10 +272,10 @@ public class UiStartupXamlTests
             {
                 var initialPos = vm.ProblemPosition;
                 vm.NextProblem();
-                Assert.True(vm.VisibleLines.Any(l => l.Highlighted));
+                Assert.Contains(vm.VisibleLines, l => l.Highlighted);
 
                 vm.PreviousProblem();
-                Assert.True(vm.VisibleLines.Any(l => l.Highlighted));
+                Assert.Contains(vm.VisibleLines, l => l.Highlighted);
             }
         }
     }

@@ -325,7 +325,7 @@ public class SqliteHistoryRepository
                         Status = destReader.GetString(1),
                         BytesUploaded = destReader.GetInt64(2),
                         DurationSeconds = destReader.GetDouble(3),
-                        TargetLocation = destReader.IsDBNull(4) ? null : destReader.GetString(4),
+                        TargetLocation = destReader.IsDBNull(4) ? "" : destReader.GetString(4),
                         ErrorMessage = destReader.IsDBNull(5) ? null : destReader.GetString(5)
                     });
                 }
