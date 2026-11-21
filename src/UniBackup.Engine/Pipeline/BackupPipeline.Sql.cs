@@ -41,8 +41,19 @@ public partial class BackupPipeline
         for (var i = 0; i < included.Count; i++)
         {
             ct.ThrowIfCancellationRequested();
-            history.SqlDatabases.Add(await BackupOneDatabaseAsync(
-                config, job, sql, included[i], requested, staging.Value, uploadedFiles, history, 5 + i * slice, slice, report, ct));
+            var db = included[i];
+            var curBasePct = 5 + i * slice;
+
+            if (sql.DirectToUrl && ActiveProviders(config, job).All(p => p.Name == "s3") && string.IsNullOrEmpty(job.EncryptionPassphrase))
+            {
+                history.SqlDatabases.Add(await BackupOneDatabaseDirectToUrlAsync(
+                    config, job, sql, db, requested, uploadedFiles, history, curBasePct, slice, report, ct));
+            }
+            else
+            {
+                history.SqlDatabases.Add(await BackupOneDatabaseAsync(
+                    config, job, sql, db, requested, staging.Value, uploadedFiles, history, curBasePct, slice, report, ct));
+            }
         }
 
         history.ArchiveName = $"{included.Count} database(s)";
@@ -148,16 +159,22 @@ public partial class BackupPipeline
                 result.FileName = Path.GetFileName(encryptedFile);
             }
 
-            var allUploaded = true;
-            foreach (var provider in ActiveProviders(config, job))
+            var uploadTasks = ActiveProviders(config, job).Select(async provider =>
             {
                 var folder = $"{DestinationFolders.Resolve(provider.Name, config, job)}/{SqlBackupFileName.RemoteSubfolder(db, result.BackupType)}";
-                report("Uploading", basePct + slice * 0.7, $"{db}: uploading to {provider.Name.ToUpperInvariant()}");
+                report("Uploading", basePct + slice * 0.7, $"{db}: uploading to {provider.Name.ToUpperInvariant()} in parallel");
                 var upload = await UploadWithRetryAsync(provider, config, job, fileToUpload, folder, null, ct);
+                return (Provider: provider.Name, Result: upload);
+            }).ToList();
+
+            var uploadResults = await Task.WhenAll(uploadTasks);
+            var allUploaded = true;
+            foreach (var (providerName, upload) in uploadResults)
+            {
                 allUploaded &= upload.IsSuccess;
                 history.Destinations.Add(upload.IsSuccess
                     ? upload.Value
-                    : new DestinationRunResult { Destination = provider.Name, Status = "FAILED", ErrorMessage = $"{db}: {upload.Error}" });
+                    : new DestinationRunResult { Destination = providerName, Status = "FAILED", ErrorMessage = $"{db}: {upload.Error}" });
             }
             result.Uploaded = allUploaded;
             return result;
@@ -174,6 +191,59 @@ public partial class BackupPipeline
                 try { File.Delete(file); }
                 catch (Exception ex) { Log.Warning(ex, "Could not delete staged backup {File}", file); }
             }
+        }
+    }
+
+    private async Task<SqlDatabaseRunResult> BackupOneDatabaseDirectToUrlAsync(
+        AppConfig config, BackupJob job, SqlServerSource sql, string db, SqlBackupType requested,
+        IReadOnlySet<string> uploadedFiles, RunHistoryRecord history, double basePct, double slice,
+        Action<string, double, string> report, CancellationToken ct)
+    {
+        var result = new SqlDatabaseRunResult { Database = db, BackupType = requested };
+        try
+        {
+            var chain = await _sql.GetChainStateAsync(sql, db, ct);
+            if (chain.IsFailure) return Failed(result, chain.Error!);
+
+            result.BackupType = SqlJobRules.EffectiveType(requested, chain.Value, uploadedFiles);
+            if (result.BackupType != requested)
+                Log.Warning("[SQL Direct] {Db}: no {Requested} base, taking FULL instead", db, requested);
+
+            var stamp = DateTime.Now;
+            while (uploadedFiles.Contains(SqlBackupFileName.Format(db, result.BackupType, stamp))) stamp = stamp.AddSeconds(1);
+            result.FileName = SqlBackupFileName.Format(db, result.BackupType, stamp);
+
+            var s3Url = $"s3://{config.Aws.BucketName}/{DestinationFolders.Resolve("s3", config, job)}/{SqlBackupFileName.RemoteSubfolder(db, result.BackupType)}/{result.FileName}";
+            report("Direct Backup", basePct + slice * 0.3, $"{db}: Direct-to-URL backup to S3");
+
+            var credRes = await _sql.EnsureS3CredentialAsync(sql, $"s3://{config.Aws.BucketName}", config.Aws.AccessKeyId, config.Aws.SecretAccessKey, ct);
+            if (credRes.IsFailure) return Failed(result, "S3 Credential creation failed: " + credRes.Error);
+
+            var backupProgress = new Progress<int>(p =>
+                report("Backing up", basePct + slice * 0.5 * p / 100, $"{db}: {result.BackupType} direct backup {p}%"));
+            var backup = await _sql.BackupToUrlAsync(sql, db, result.BackupType, [s3Url], backupProgress, ct);
+            if (backup.IsFailure) return Failed(result, backup.Error!);
+
+            if (sql.Verify)
+            {
+                report("Verifying", basePct + slice * 0.8, $"{db}: RESTORE VERIFYONLY FROM URL");
+                var verify = await _sql.VerifyFromUrlAsync(sql, [s3Url], ct);
+                if (verify.IsFailure) return Failed(result, "Verify from URL failed: " + verify.Error);
+            }
+
+            result.Uploaded = true;
+            history.Destinations.Add(new DestinationRunResult
+            {
+                Destination = "s3",
+                Status = "SUCCESS",
+                TargetLocation = s3Url
+            });
+
+            return result;
+        }
+        catch (Exception ex)
+        {
+            return Failed(result, "Direct-to-URL backup exception: " + ex.Message);
         }
     }
 

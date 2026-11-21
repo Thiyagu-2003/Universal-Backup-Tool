@@ -23,6 +23,38 @@ public static partial class SqlBackupText
     public static string Verify(bool checksum) =>
         checksum ? "RESTORE VERIFYONLY FROM DISK = @path WITH CHECKSUM;" : "RESTORE VERIFYONLY FROM DISK = @path;";
 
+    public static string BackupToUrl(SqlBackupType type, SqlServerSource options, bool compression, IReadOnlyList<string> urls)
+    {
+        var with = new List<string>();
+        if (type == SqlBackupType.Diff) with.Add("DIFFERENTIAL");
+        with.Add("INIT");
+        if (options.CopyOnly && type != SqlBackupType.Diff) with.Add("COPY_ONLY");
+        if (options.Checksum) with.Add("CHECKSUM");
+        if (compression) with.Add("COMPRESSION");
+        with.Add("STATS = 5");
+
+        var verb = type == SqlBackupType.Log ? "BACKUP LOG" : "BACKUP DATABASE";
+        var urlClauses = string.Join(", ", urls.Select((_, idx) => $"URL = @url{idx}"));
+        return $"{verb} @db TO {urlClauses} WITH {string.Join(", ", with)};";
+    }
+
+    public static string VerifyFromUrl(bool checksum, IReadOnlyList<string> urls)
+    {
+        var urlClauses = string.Join(", ", urls.Select((_, idx) => $"URL = @url{idx}"));
+        return checksum
+            ? $"RESTORE VERIFYONLY FROM {urlClauses} WITH CHECKSUM;"
+            : $"RESTORE VERIFYONLY FROM {urlClauses};";
+    }
+
+    public static string CreateS3Credential(string credentialUrl, string accessKey, string secretKey)
+    {
+        var secret = $"{accessKey}:{secretKey}".Replace("'", "''");
+        return $@"IF NOT EXISTS (SELECT * FROM sys.credentials WHERE name = '{credentialUrl.Replace("'", "''")}')
+BEGIN
+    CREATE CREDENTIAL [{credentialUrl.Replace("]", "]]")}] WITH IDENTITY = 'S3 Access Key', SECRET = '{secret}';
+END;";
+    }
+
     public static string CheckDb(bool physicalOnly) =>
         physicalOnly ? "DBCC CHECKDB (@db) WITH NO_INFOMSGS, PHYSICAL_ONLY;" : "DBCC CHECKDB (@db) WITH NO_INFOMSGS;";
 

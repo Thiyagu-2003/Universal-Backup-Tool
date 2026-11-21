@@ -134,6 +134,42 @@ public class SqlServerBackupService(ICredentialProtector crypto)
     public Task<Result> CheckDbAsync(SqlServerSource source, string database, CancellationToken ct) =>
         RunAsync(source, SqlBackupText.CheckDb(source.CheckDbPhysicalOnly), null, ct, ("@db", database));
 
+    public async Task<Result> EnsureS3CredentialAsync(SqlServerSource source, string credentialUrl, string accessKey, string secretKey, CancellationToken ct)
+    {
+        var sql = SqlBackupText.CreateS3Credential(credentialUrl, accessKey, secretKey);
+        return await RunAsync(source, sql, null, ct);
+    }
+
+    public async Task<Result> BackupToUrlAsync(SqlServerSource source, string database, SqlBackupType type, IReadOnlyList<string> urls, IProgress<int>? percent, CancellationToken ct)
+    {
+        var sql = SqlBackupText.BackupToUrl(type, source, source.NativeCompression, urls);
+        var parameters = new List<(string Name, string Value)> { ("@db", database) };
+        for (int i = 0; i < urls.Count; i++)
+        {
+            parameters.Add(($"@url{i}", urls[i]));
+        }
+
+        var result = await RunAsync(source, sql, percent, ct, parameters.ToArray());
+        if (result.IsFailure && source.NativeCompression && result.Error!.Contains($"[{CompressionNotSupported}]"))
+        {
+            Log.Warning("[SQL] This edition does not support backup compression; retrying {Db} without it", database);
+            sql = SqlBackupText.BackupToUrl(type, source, compression: false, urls);
+            result = await RunAsync(source, sql, percent, ct, parameters.ToArray());
+        }
+        return result;
+    }
+
+    public Task<Result> VerifyFromUrlAsync(SqlServerSource source, IReadOnlyList<string> urls, CancellationToken ct)
+    {
+        var sql = SqlBackupText.VerifyFromUrl(source.Checksum, urls);
+        var parameters = new List<(string Name, string Value)>();
+        for (int i = 0; i < urls.Count; i++)
+        {
+            parameters.Add(($"@url{i}", urls[i]));
+        }
+        return RunAsync(source, sql, null, ct, parameters.ToArray());
+    }
+
     private async Task<SqlConnection> OpenAsync(SqlServerSource source, CancellationToken ct)
     {
         var conn = new SqlConnection(BuildConnectionString(source));

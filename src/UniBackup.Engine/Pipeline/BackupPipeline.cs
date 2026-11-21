@@ -209,51 +209,42 @@ public partial class BackupPipeline
                 return history;
             }
 
-            var destStep = 40.0 / activeProviders.Count;
-            var currentStep = 0;
+            Report("Uploading", 60, "Uploading archive to all configured destinations in parallel...");
 
-            foreach (var provider in activeProviders)
+            var uploadTasks = activeProviders.Select(async provider =>
             {
-                ct.ThrowIfCancellationRequested();
-
-                var basePct = 50.0 + (currentStep * destStep);
-                Report("Uploading", basePct, $"Uploading to {provider.Name.ToUpperInvariant()}...");
-
                 var uploadProgress = new Progress<(long uploaded, long total)>(u =>
                 {
-                    var subPct = u.total > 0 ? basePct + ((u.uploaded / (double)u.total) * destStep) : basePct;
-                    Report("Uploading", subPct, $"Uploading to {provider.Name.ToUpperInvariant()}: {FormattingUtils.FormatBytes(u.uploaded)} / {FormattingUtils.FormatBytes(u.total)}", null, u.uploaded, u.total);
+                    Report("Uploading", 75, $"Uploading to {provider.Name.ToUpperInvariant()}: {FormattingUtils.FormatBytes(u.uploaded)} / {FormattingUtils.FormatBytes(u.total)}", null, u.uploaded, u.total);
                 });
 
                 var uploadResult = await UploadWithRetryAsync(provider, config, job, stagedArchiveFile, null, uploadProgress, ct);
 
                 if (uploadResult.IsSuccess)
                 {
-                    history.Destinations.Add(uploadResult.Value);
-
-                    // Retention cleanup
                     var retentionDays = job.RetentionDaysOverride ??
                                        (provider.Name == "s3" ? config.Aws.RetentionDays : config.GDrive.RetentionDays);
 
                     if (retentionDays > 0)
                     {
-                        Report("Retention", basePct + destStep - 2, $"Applying retention ({retentionDays} days) on {provider.Name.ToUpperInvariant()}...");
                         var folder = DestinationFolders.Resolve(provider.Name, config, job);
                         await provider.CleanupRetentionAsync(config, folder, retentionDays, ct);
                     }
+                    return uploadResult.Value;
                 }
                 else
                 {
-                    history.Destinations.Add(new DestinationRunResult
+                    return new DestinationRunResult
                     {
                         Destination = provider.Name,
                         Status = "FAILED",
                         ErrorMessage = uploadResult.Error
-                    });
+                    };
                 }
+            }).ToList();
 
-                currentStep++;
-            }
+            var destinationResults = await Task.WhenAll(uploadTasks);
+            history.Destinations.AddRange(destinationResults);
 
             // Determine aggregate status
             var failedDests = history.Destinations.Count(d => d.Status == "FAILED");

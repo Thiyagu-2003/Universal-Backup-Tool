@@ -22,6 +22,7 @@ public class SqlServerSource
     [JsonPropertyName("verify")] public bool Verify { get; set; } = true;
     [JsonPropertyName("run_checkdb")] public bool RunCheckDb { get; set; }
     [JsonPropertyName("checkdb_physical_only")] public bool CheckDbPhysicalOnly { get; set; }
+    [JsonPropertyName("direct_to_url")] public bool DirectToUrl { get; set; }
     [JsonPropertyName("staging_folder")] public string? StagingFolder { get; set; } // blank = instance default backup path
     [JsonPropertyName("command_timeout_seconds")] public int CommandTimeoutSeconds { get; set; } // 0 = no timeout
 }
