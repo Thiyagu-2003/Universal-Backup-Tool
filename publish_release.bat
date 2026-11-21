@@ -16,6 +16,12 @@ if exist "..\dist\all configs\jobs.json" copy "..\dist\all configs\jobs.json" "%
 if exist "..\dist\all configs\gdrive_credentials.json" copy "..\dist\all configs\gdrive_credentials.json" "%OUTPUT_DIR%\"
 if exist "..\dist\all configs\gdrive_token.json" copy "..\dist\all configs\gdrive_token.json" "%OUTPUT_DIR%\"
 
+echo Copying PowerShell UniBackup Module...
+if exist "modules\UniBackup" (
+    mkdir "%OUTPUT_DIR%\modules\UniBackup"
+    copy "modules\UniBackup\*" "%OUTPUT_DIR%\modules\UniBackup\"
+)
+
 echo ========================================================
 echo  Unified Single-File Release Built: %OUTPUT_DIR%\UniBackup.exe
 echo ========================================================
