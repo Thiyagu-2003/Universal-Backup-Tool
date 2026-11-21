@@ -97,6 +97,27 @@ public class UiStartupXamlTests
 
             Assert.NotNull(dialog);
             Assert.Contains("Create Backup Job", dialog.Title);
+
+            // Test step commands with string parameters (exactly what XAML buttons pass)
+            vm.SetStepCommand.Execute("1");
+            Assert.True(vm.IsStep1);
+            vm.SetStepCommand.Execute("2");
+            Assert.True(vm.IsStep2);
+            vm.SetStepCommand.Execute("3");
+            Assert.True(vm.IsStep3);
+            vm.SetStepCommand.Execute("4");
+            Assert.True(vm.IsStep4);
+
+            vm.PreviousStepCommand.Execute(null);
+            Assert.True(vm.IsStep3);
+            vm.NextStepCommand.Execute(null);
+            Assert.True(vm.IsStep4);
+
+            // Test SQL Authentication toggle
+            vm.SqlUseWindowsAuth = false;
+            Assert.True(vm.SqlUseSqlAuth);
+            vm.SqlUseWindowsAuth = true;
+            Assert.False(vm.SqlUseSqlAuth);
         });
     }
 

@@ -21,6 +21,7 @@ public partial class NewBackupViewModel : ObservableObject
     // Stepped Wizard (1: Source, 2: Schedule, 3: Destinations, 4: Options)
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(CanGoPrevious))]
+    [NotifyPropertyChangedFor(nameof(CanGoNext))]
     [NotifyPropertyChangedFor(nameof(IsStep1))]
     [NotifyPropertyChangedFor(nameof(IsStep2))]
     [NotifyPropertyChangedFor(nameof(IsStep3))]
@@ -28,6 +29,7 @@ public partial class NewBackupViewModel : ObservableObject
     private int _currentStep = 1;
 
     public bool CanGoPrevious => CurrentStep > 1;
+    public bool CanGoNext => CurrentStep < 4;
     public bool IsStep1 => CurrentStep == 1;
     public bool IsStep2 => CurrentStep == 2;
     public bool IsStep3 => CurrentStep == 3;
@@ -56,7 +58,18 @@ public partial class NewBackupViewModel : ObservableObject
     private string _sqlServer = "localhost";
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(SqlUseSqlAuth))]
     private bool _sqlUseWindowsAuth = true;
+
+    public bool SqlUseSqlAuth
+    {
+        get => !SqlUseWindowsAuth;
+        set
+        {
+            if (value) SqlUseWindowsAuth = false;
+            else SqlUseWindowsAuth = true;
+        }
+    }
 
     [ObservableProperty]
     private string _sqlUsername = "";
@@ -255,8 +268,12 @@ public partial class NewBackupViewModel : ObservableObject
     }
 
     [RelayCommand]
-    public void SetStep(int step)
+    public void SetStep(object? stepParam)
     {
+        var step = 1;
+        if (stepParam is int i) step = i;
+        else if (stepParam is string s && int.TryParse(s, out var parsed)) step = parsed;
+
         if (step >= 1 && step <= 4)
         {
             CurrentStep = step;

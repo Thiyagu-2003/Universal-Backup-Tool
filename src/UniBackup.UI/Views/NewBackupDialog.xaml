@@ -49,8 +49,29 @@
             <UniformGrid Columns="4">
                 <Button Command="{Binding SetStepCommand}" CommandParameter="1" Background="Transparent" BorderThickness="0" Cursor="Hand">
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                        <Border Background="{Binding IsStep1, Converter={StaticResource BoolToVis}}" CornerRadius="12" Width="22" Height="22" Margin="0,0,6,0">
-                            <TextBlock Text="1" FontWeight="Bold" FontSize="11" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <Border CornerRadius="12" Width="22" Height="22" Margin="0,0,6,0">
+                            <Border.Style>
+                                <Style TargetType="Border">
+                                    <Setter Property="Background" Value="#E2E8F0"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsStep1}" Value="True">
+                                            <Setter Property="Background" Value="#0284C7"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+                            <TextBlock Text="1" FontWeight="Bold" FontSize="11" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Foreground" Value="#64748B"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsStep1}" Value="True">
+                                                <Setter Property="Foreground" Value="White"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
                         </Border>
                         <TextBlock Text="1. Source" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}" VerticalAlignment="Center"/>
                     </StackPanel>
@@ -58,8 +79,29 @@
 
                 <Button Command="{Binding SetStepCommand}" CommandParameter="2" Background="Transparent" BorderThickness="0" Cursor="Hand">
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                        <Border Background="{Binding IsStep2, Converter={StaticResource BoolToVis}}" CornerRadius="12" Width="22" Height="22" Margin="0,0,6,0">
-                            <TextBlock Text="2" FontWeight="Bold" FontSize="11" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <Border CornerRadius="12" Width="22" Height="22" Margin="0,0,6,0">
+                            <Border.Style>
+                                <Style TargetType="Border">
+                                    <Setter Property="Background" Value="#E2E8F0"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsStep2}" Value="True">
+                                            <Setter Property="Background" Value="#0284C7"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+                            <TextBlock Text="2" FontWeight="Bold" FontSize="11" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Foreground" Value="#64748B"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsStep2}" Value="True">
+                                                <Setter Property="Foreground" Value="White"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
                         </Border>
                         <TextBlock Text="2. Schedule" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}" VerticalAlignment="Center"/>
                     </StackPanel>
@@ -67,8 +109,29 @@
 
                 <Button Command="{Binding SetStepCommand}" CommandParameter="3" Background="Transparent" BorderThickness="0" Cursor="Hand">
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                        <Border Background="{Binding IsStep3, Converter={StaticResource BoolToVis}}" CornerRadius="12" Width="22" Height="22" Margin="0,0,6,0">
-                            <TextBlock Text="3" FontWeight="Bold" FontSize="11" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <Border CornerRadius="12" Width="22" Height="22" Margin="0,0,6,0">
+                            <Border.Style>
+                                <Style TargetType="Border">
+                                    <Setter Property="Background" Value="#E2E8F0"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsStep3}" Value="True">
+                                            <Setter Property="Background" Value="#0284C7"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+                            <TextBlock Text="3" FontWeight="Bold" FontSize="11" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Foreground" Value="#64748B"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsStep3}" Value="True">
+                                                <Setter Property="Foreground" Value="White"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
                         </Border>
                         <TextBlock Text="3. Destinations" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}" VerticalAlignment="Center"/>
                     </StackPanel>
@@ -76,8 +139,29 @@
 
                 <Button Command="{Binding SetStepCommand}" CommandParameter="4" Background="Transparent" BorderThickness="0" Cursor="Hand">
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                        <Border Background="{Binding IsStep4, Converter={StaticResource BoolToVis}}" CornerRadius="12" Width="22" Height="22" Margin="0,0,6,0">
-                            <TextBlock Text="4" FontWeight="Bold" FontSize="11" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <Border CornerRadius="12" Width="22" Height="22" Margin="0,0,6,0">
+                            <Border.Style>
+                                <Style TargetType="Border">
+                                    <Setter Property="Background" Value="#E2E8F0"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsStep4}" Value="True">
+                                            <Setter Property="Background" Value="#0284C7"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+                            <TextBlock Text="4" FontWeight="Bold" FontSize="11" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Foreground" Value="#64748B"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsStep4}" Value="True">
+                                                <Setter Property="Foreground" Value="White"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
                         </Border>
                         <TextBlock Text="4. Options" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}" VerticalAlignment="Center"/>
                     </StackPanel>
@@ -144,11 +228,24 @@
 
                             <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
                                 <RadioButton Content="Windows Authentication" IsChecked="{Binding SqlUseWindowsAuth}" Margin="0,0,20,0" FontWeight="SemiBold"/>
-                                <RadioButton Content="SQL Server Authentication" IsChecked="{Binding SqlUseWindowsAuth, Converter={StaticResource BoolToVis}}" FontWeight="SemiBold"/>
+                                <RadioButton Content="SQL Server Authentication" IsChecked="{Binding SqlUseSqlAuth}" FontWeight="SemiBold"/>
                             </StackPanel>
 
-                            <StackPanel Visibility="{Binding SqlUseWindowsAuth, Converter={StaticResource BoolToVis}}">
-                                <!-- Placeholders for SQL credentials when SQL auth enabled -->
+                            <StackPanel Visibility="{Binding SqlUseSqlAuth, Converter={StaticResource BoolToVis}}" Margin="0,0,0,12">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0" Margin="0,0,10,0">
+                                        <TextBlock Text="SQL Username (e.g. sa)" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                                        <TextBox Text="{Binding SqlUsername, UpdateSourceTrigger=PropertyChanged}"/>
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="1" Margin="10,0,0,0">
+                                        <TextBlock Text="SQL Password" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                                        <TextBox Text="{Binding SqlPassword, UpdateSourceTrigger=PropertyChanged}"/>
+                                    </StackPanel>
+                                </Grid>
                             </StackPanel>
 
                             <CheckBox Content="Backup all user databases" IsChecked="{Binding SqlAllDatabases}" FontWeight="SemiBold" Margin="0,0,0,8"/>
@@ -330,7 +427,7 @@
                 <Button Content="Cancel" Style="{StaticResource SecondaryButton}" Width="90" HorizontalAlignment="Left" Click="Cancel_Click"/>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                     <Button Content="« Back" Style="{StaticResource SecondaryButton}" Width="95" Margin="0,0,10,0" Command="{Binding PreviousStepCommand}" IsEnabled="{Binding CanGoPrevious}"/>
-                    <Button Content="Next »" Style="{StaticResource PrimaryButton}" Width="110" Margin="0,0,10,0" Command="{Binding NextStepCommand}" Visibility="{Binding IsStep4, Converter={StaticResource BoolToVis}}"/>
+                    <Button Content="Next »" Style="{StaticResource PrimaryButton}" Width="110" Margin="0,0,10,0" Command="{Binding NextStepCommand}" Visibility="{Binding CanGoNext, Converter={StaticResource BoolToVis}}"/>
                     <Button Content="Save Job" Style="{StaticResource PrimaryButton}" Width="140" Command="{Binding SaveJobCommand}"/>
                 </StackPanel>
             </Grid>
