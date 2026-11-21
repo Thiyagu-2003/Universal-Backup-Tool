@@ -105,6 +105,30 @@ public partial class NewBackupViewModel : ObservableObject
     private bool _enableGDrive = false;
 
     [ObservableProperty]
+    private bool _enableAzure = false;
+
+    [ObservableProperty]
+    private bool _enableLocal = false;
+
+    [ObservableProperty]
+    private bool _enableFtp = false;
+
+    [ObservableProperty]
+    private bool _enableSftp = false;
+
+    [ObservableProperty]
+    private bool _enableWebDav = false;
+
+    [ObservableProperty]
+    private bool _enableDropbox = false;
+
+    [ObservableProperty]
+    private bool _enableOneDrive = false;
+
+    [ObservableProperty]
+    private bool _enableBox = false;
+
+    [ObservableProperty]
     private string _cloudFolder = "";
 
     [ObservableProperty]
@@ -363,10 +387,18 @@ public partial class NewBackupViewModel : ObservableObject
         var destinations = new List<string>();
         if (EnableS3) destinations.Add("s3");
         if (EnableGDrive) destinations.Add("gdrive");
+        if (EnableAzure) destinations.Add("azure");
+        if (EnableLocal) destinations.Add("local");
+        if (EnableFtp) destinations.Add("ftp");
+        if (EnableSftp) destinations.Add("sftp");
+        if (EnableWebDav) destinations.Add("webdav");
+        if (EnableDropbox) destinations.Add("dropbox");
+        if (EnableOneDrive) destinations.Add("onedrive");
+        if (EnableBox) destinations.Add("box");
 
         if (destinations.Count == 0)
         {
-            MessageBox.Show("Please enable at least one destination (S3 or Google Drive).", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
+            MessageBox.Show("Please enable at least one backup destination.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
             return;
         }
 

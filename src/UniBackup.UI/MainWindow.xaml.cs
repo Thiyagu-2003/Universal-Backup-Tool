@@ -39,7 +39,10 @@ public partial class MainWindow : Window
         var ftpStorage = new FtpStorageProvider();
         var sftpStorage = new SftpStorageProvider();
         var webdavStorage = new WebDavStorageProvider();
-        var storageProviders = new IStorageProvider[] { s3Storage, gdriveStorage, localStorage, azureStorage, ftpStorage, sftpStorage, webdavStorage };
+        var dropboxStorage = new DropboxStorageProvider();
+        var onedriveStorage = new OneDriveStorageProvider();
+        var boxStorage = new BoxStorageProvider();
+        var storageProviders = new IStorageProvider[] { s3Storage, gdriveStorage, localStorage, azureStorage, ftpStorage, sftpStorage, webdavStorage, dropboxStorage, onedriveStorage, boxStorage };
 
         var emailService = new EmailNotificationService();
         var webhookService = new WebhookNotificationService();

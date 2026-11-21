@@ -173,6 +173,54 @@ public class WebDavSettings
     public int RetentionDays { get; set; } = 30;
 }
 
+public class DropboxSettings
+{
+    [JsonPropertyName("enabled")]
+    public bool Enabled { get; set; }
+
+    [JsonPropertyName("access_token")]
+    public string AccessToken { get; set; } = "";
+
+    [JsonPropertyName("remote_folder")]
+    public string RemoteFolder { get; set; } = "/UniBackup";
+
+    [JsonPropertyName("retention_days")]
+    public int RetentionDays { get; set; } = 30;
+}
+
+public class OneDriveSettings
+{
+    [JsonPropertyName("enabled")]
+    public bool Enabled { get; set; }
+
+    [JsonPropertyName("account_type")]
+    public string AccountType { get; set; } = "business"; // "personal", "business"
+
+    [JsonPropertyName("access_token")]
+    public string AccessToken { get; set; } = "";
+
+    [JsonPropertyName("remote_folder")]
+    public string RemoteFolder { get; set; } = "/Backups";
+
+    [JsonPropertyName("retention_days")]
+    public int RetentionDays { get; set; } = 30;
+}
+
+public class BoxSettings
+{
+    [JsonPropertyName("enabled")]
+    public bool Enabled { get; set; }
+
+    [JsonPropertyName("access_token")]
+    public string AccessToken { get; set; } = "";
+
+    [JsonPropertyName("folder_id")]
+    public string FolderId { get; set; } = "0";
+
+    [JsonPropertyName("retention_days")]
+    public int RetentionDays { get; set; } = 30;
+}
+
 public class ProxySettings
 {
     [JsonPropertyName("enabled")]
@@ -292,6 +340,37 @@ public class WebhookSettings
     [JsonPropertyName("telegram_chat_id")]
     public string TelegramChatId { get; set; } = "";
 
+    // Pushover Mobile Push
+    [JsonPropertyName("pushover_user_key")]
+    public string PushoverUserKey { get; set; } = "";
+
+    [JsonPropertyName("pushover_api_token")]
+    public string PushoverApiToken { get; set; } = "";
+
+    // ntfy.sh (or self-hosted)
+    [JsonPropertyName("ntfy_server_url")]
+    public string NtfyServerUrl { get; set; } = "https://ntfy.sh";
+
+    [JsonPropertyName("ntfy_topic")]
+    public string NtfyTopic { get; set; } = "";
+
+    [JsonPropertyName("ntfy_token")]
+    public string NtfyToken { get; set; } = "";
+
+    // PagerDuty Events API v2
+    [JsonPropertyName("pagerduty_routing_key")]
+    public string PagerDutyRoutingKey { get; set; } = "";
+
+    // Generic Custom Webhook (n8n, Zapier, Make, Home Assistant)
+    [JsonPropertyName("custom_webhook_url")]
+    public string CustomWebhookUrl { get; set; } = "";
+
+    [JsonPropertyName("custom_webhook_header_name")]
+    public string CustomWebhookHeaderName { get; set; } = "";
+
+    [JsonPropertyName("custom_webhook_header_value")]
+    public string CustomWebhookHeaderValue { get; set; } = "";
+
     [JsonPropertyName("notify_on_success")]
     public bool NotifyOnSuccess { get; set; } = false;
 
@@ -336,6 +415,15 @@ public class AppConfig
 
     [JsonPropertyName("webdav")]
     public WebDavSettings WebDav { get; set; } = new();
+
+    [JsonPropertyName("dropbox")]
+    public DropboxSettings Dropbox { get; set; } = new();
+
+    [JsonPropertyName("onedrive")]
+    public OneDriveSettings OneDrive { get; set; } = new();
+
+    [JsonPropertyName("box")]
+    public BoxSettings Box { get; set; } = new();
 
     [JsonPropertyName("proxy")]
     public ProxySettings Proxy { get; set; } = new();

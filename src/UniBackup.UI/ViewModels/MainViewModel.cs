@@ -910,6 +910,134 @@ public partial class MainViewModel : ObservableObject
     }
 
     [RelayCommand]
+    public async Task TestAzureAsync()
+    {
+        IsBusy = true;
+        ProgressPhase = "Testing Azure Blob";
+        ProgressStatusMessage = "Connecting to Azure Blob container...";
+        try
+        {
+            var provider = new UniBackup.Infrastructure.Storage.AzureBlobStorageProvider();
+            var res = await provider.ValidateConnectionAsync(Config);
+            if (res.IsSuccess) NotificationHub.ShowSuccess($"Azure Blob container '{Config.Azure.ContainerName}' verified!", "Azure OK");
+            else NotificationHub.ShowError($"Azure Blob error: {res.Error}", "Azure Failed");
+        }
+        finally { IsBusy = false; }
+    }
+
+    [RelayCommand]
+    public async Task TestDropboxAsync()
+    {
+        IsBusy = true;
+        ProgressPhase = "Testing Dropbox";
+        ProgressStatusMessage = "Connecting to Dropbox API...";
+        try
+        {
+            var provider = new UniBackup.Infrastructure.Storage.DropboxStorageProvider();
+            var res = await provider.ValidateConnectionAsync(Config);
+            if (res.IsSuccess) NotificationHub.ShowSuccess("Dropbox account connection verified!", "Dropbox OK");
+            else NotificationHub.ShowError($"Dropbox error: {res.Error}", "Dropbox Failed");
+        }
+        finally { IsBusy = false; }
+    }
+
+    [RelayCommand]
+    public async Task TestOneDriveAsync()
+    {
+        IsBusy = true;
+        ProgressPhase = "Testing OneDrive";
+        ProgressStatusMessage = "Connecting to Microsoft Graph OneDrive...";
+        try
+        {
+            var provider = new UniBackup.Infrastructure.Storage.OneDriveStorageProvider();
+            var res = await provider.ValidateConnectionAsync(Config);
+            if (res.IsSuccess) NotificationHub.ShowSuccess("Microsoft OneDrive connection verified!", "OneDrive OK");
+            else NotificationHub.ShowError($"OneDrive error: {res.Error}", "OneDrive Failed");
+        }
+        finally { IsBusy = false; }
+    }
+
+    [RelayCommand]
+    public async Task TestBoxAsync()
+    {
+        IsBusy = true;
+        ProgressPhase = "Testing Box";
+        ProgressStatusMessage = "Connecting to Box API...";
+        try
+        {
+            var provider = new UniBackup.Infrastructure.Storage.BoxStorageProvider();
+            var res = await provider.ValidateConnectionAsync(Config);
+            if (res.IsSuccess) NotificationHub.ShowSuccess("Box cloud storage connection verified!", "Box OK");
+            else NotificationHub.ShowError($"Box error: {res.Error}", "Box Failed");
+        }
+        finally { IsBusy = false; }
+    }
+
+    [RelayCommand]
+    public async Task TestFtpAsync()
+    {
+        IsBusy = true;
+        ProgressPhase = "Testing FTP";
+        ProgressStatusMessage = "Connecting to FTP server...";
+        try
+        {
+            var provider = new UniBackup.Infrastructure.Storage.FtpStorageProvider();
+            var res = await provider.ValidateConnectionAsync(Config);
+            if (res.IsSuccess) NotificationHub.ShowSuccess($"FTP connection to {Config.Ftp.Host}:{Config.Ftp.Port} verified!", "FTP OK");
+            else NotificationHub.ShowError($"FTP error: {res.Error}", "FTP Failed");
+        }
+        finally { IsBusy = false; }
+    }
+
+    [RelayCommand]
+    public async Task TestSftpAsync()
+    {
+        IsBusy = true;
+        ProgressPhase = "Testing SFTP";
+        ProgressStatusMessage = "Connecting to SFTP server...";
+        try
+        {
+            var provider = new UniBackup.Infrastructure.Storage.SftpStorageProvider();
+            var res = await provider.ValidateConnectionAsync(Config);
+            if (res.IsSuccess) NotificationHub.ShowSuccess($"SFTP connection to {Config.Sftp.Host}:{Config.Sftp.Port} verified!", "SFTP OK");
+            else NotificationHub.ShowError($"SFTP error: {res.Error}", "SFTP Failed");
+        }
+        finally { IsBusy = false; }
+    }
+
+    [RelayCommand]
+    public async Task TestWebDavAsync()
+    {
+        IsBusy = true;
+        ProgressPhase = "Testing WebDAV";
+        ProgressStatusMessage = "Connecting to WebDAV server...";
+        try
+        {
+            var provider = new UniBackup.Infrastructure.Storage.WebDavStorageProvider();
+            var res = await provider.ValidateConnectionAsync(Config);
+            if (res.IsSuccess) NotificationHub.ShowSuccess($"WebDAV connection to {Config.WebDav.ServerUrl} verified!", "WebDAV OK");
+            else NotificationHub.ShowError($"WebDAV error: {res.Error}", "WebDAV Failed");
+        }
+        finally { IsBusy = false; }
+    }
+
+    [RelayCommand]
+    public async Task TestLocalAsync()
+    {
+        IsBusy = true;
+        ProgressPhase = "Testing Local Storage";
+        ProgressStatusMessage = "Validating local / UNC folder access...";
+        try
+        {
+            var provider = new UniBackup.Infrastructure.Storage.LocalStorageProvider();
+            var res = await provider.ValidateConnectionAsync(Config);
+            if (res.IsSuccess) NotificationHub.ShowSuccess("Local / UNC destination directory verified!", "Local Folder OK");
+            else NotificationHub.ShowError($"Local folder error: {res.Error}", "Local Folder Failed");
+        }
+        finally { IsBusy = false; }
+    }
+
+    [RelayCommand]
     public void BrowseTempFolder()
     {
         var initialDir = !string.IsNullOrWhiteSpace(Config.Backup.TempFolder) && Directory.Exists(Config.Backup.TempFolder)
@@ -1125,6 +1253,93 @@ public partial class MainViewModel : ObservableObject
             var res = await _webhookService.SendTestTelegramAsync(Config.Webhooks.TelegramBotToken, Config.Webhooks.TelegramChatId);
             if (res.IsSuccess) NotificationHub.ShowSuccess("Telegram test alert delivered successfully!", "Telegram Dispatched");
             else NotificationHub.ShowError($"Telegram test failed: {res.Error}", "Telegram Failed");
+        }
+        finally { IsBusy = false; }
+    }
+
+    [RelayCommand]
+    public async Task TestPushoverAsync()
+    {
+        if (string.IsNullOrWhiteSpace(Config.Webhooks.PushoverUserKey) || string.IsNullOrWhiteSpace(Config.Webhooks.PushoverApiToken))
+        {
+            NotificationHub.ShowError("Please enter both Pushover User Key and API Token first.", "Pushover Test");
+            return;
+        }
+        IsBusy = true;
+        ProgressPhase = "Testing Pushover";
+        ProgressPercent = 50;
+        ProgressStatusMessage = "Dispatching test alert to Pushover...";
+        try
+        {
+            var res = await _webhookService.SendTestPushoverAsync(Config.Webhooks.PushoverUserKey, Config.Webhooks.PushoverApiToken);
+            if (res.IsSuccess) NotificationHub.ShowSuccess("Pushover test alert dispatched successfully!", "Pushover Dispatched");
+            else NotificationHub.ShowError($"Pushover test failed: {res.Error}", "Pushover Failed");
+        }
+        finally { IsBusy = false; }
+    }
+
+    [RelayCommand]
+    public async Task TestNtfyAsync()
+    {
+        if (string.IsNullOrWhiteSpace(Config.Webhooks.NtfyTopic))
+        {
+            NotificationHub.ShowError("Please enter a ntfy topic name first.", "ntfy Test");
+            return;
+        }
+        IsBusy = true;
+        ProgressPhase = "Testing ntfy";
+        ProgressPercent = 50;
+        ProgressStatusMessage = "Dispatching test alert to ntfy...";
+        try
+        {
+            var res = await _webhookService.SendTestNtfyAsync(Config.Webhooks.NtfyServerUrl, Config.Webhooks.NtfyTopic, Config.Webhooks.NtfyToken);
+            if (res.IsSuccess) NotificationHub.ShowSuccess("ntfy test alert dispatched successfully!", "ntfy Dispatched");
+            else NotificationHub.ShowError($"ntfy test failed: {res.Error}", "ntfy Failed");
+        }
+        finally { IsBusy = false; }
+    }
+
+    [RelayCommand]
+    public async Task TestPagerDutyAsync()
+    {
+        if (string.IsNullOrWhiteSpace(Config.Webhooks.PagerDutyRoutingKey))
+        {
+            NotificationHub.ShowError("Please enter a PagerDuty Routing / Integration Key first.", "PagerDuty Test");
+            return;
+        }
+        IsBusy = true;
+        ProgressPhase = "Testing PagerDuty";
+        ProgressPercent = 50;
+        ProgressStatusMessage = "Dispatching test alert to PagerDuty Events API...";
+        try
+        {
+            var res = await _webhookService.SendTestPagerDutyAsync(Config.Webhooks.PagerDutyRoutingKey);
+            if (res.IsSuccess) NotificationHub.ShowSuccess("PagerDuty test incident triggered successfully!", "PagerDuty Dispatched");
+            else NotificationHub.ShowError($"PagerDuty test failed: {res.Error}", "PagerDuty Failed");
+        }
+        finally { IsBusy = false; }
+    }
+
+    [RelayCommand]
+    public async Task TestCustomWebhookAsync()
+    {
+        if (string.IsNullOrWhiteSpace(Config.Webhooks.CustomWebhookUrl))
+        {
+            NotificationHub.ShowError("Please enter a Custom Webhook URL first.", "Webhook Test");
+            return;
+        }
+        IsBusy = true;
+        ProgressPhase = "Testing Custom Webhook";
+        ProgressPercent = 50;
+        ProgressStatusMessage = "Dispatching test payload to Custom Webhook...";
+        try
+        {
+            var res = await _webhookService.SendTestCustomWebhookAsync(
+                Config.Webhooks.CustomWebhookUrl,
+                Config.Webhooks.CustomWebhookHeaderName,
+                Config.Webhooks.CustomWebhookHeaderValue);
+            if (res.IsSuccess) NotificationHub.ShowSuccess("Custom Webhook test payload delivered successfully!", "Webhook Dispatched");
+            else NotificationHub.ShowError($"Custom Webhook test failed: {res.Error}", "Webhook Failed");
         }
         finally { IsBusy = false; }
     }

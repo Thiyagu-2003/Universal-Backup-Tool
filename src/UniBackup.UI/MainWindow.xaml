@@ -1300,7 +1300,7 @@
 
                         <!-- Row 1: Segmented Sub-Tab Switcher -->
                         <Border Grid.Row="1" HorizontalAlignment="Center" Margin="0,0,0,20" Background="#F8FAFC" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="12" Padding="5">
-                            <StackPanel Orientation="Horizontal">
+                            <WrapPanel Orientation="Horizontal" MaxWidth="1100">
                                 <!-- 1. Email (Purple) -->
                                 <RadioButton Content="Email (SMTP)" GroupName="NotifSubTabs"
                                              Style="{StaticResource NotifSubTabEmail}"
@@ -1322,15 +1322,35 @@
                                              Command="{Binding SelectNotificationTabCommand}" CommandParameter="Telegram"/>
 
                                 <!-- 5. Microsoft Teams (Violet) -->
-                                <RadioButton Content="Microsoft Teams" GroupName="NotifSubTabs"
+                                <RadioButton Content="Teams" GroupName="NotifSubTabs"
                                              Style="{StaticResource NotifSubTabTeams}"
                                              Command="{Binding SelectNotificationTabCommand}" CommandParameter="Teams"/>
 
-                                <!-- 6. Trigger Matrix & Heartbeat (Rose) -->
+                                <!-- 6. Pushover (Amber Orange) -->
+                                <RadioButton Content="Pushover" GroupName="NotifSubTabs"
+                                             Style="{StaticResource NotifSubTabPushover}"
+                                             Command="{Binding SelectNotificationTabCommand}" CommandParameter="Pushover"/>
+
+                                <!-- 7. ntfy.sh (Sky Blue) -->
+                                <RadioButton Content="ntfy.sh" GroupName="NotifSubTabs"
+                                             Style="{StaticResource NotifSubTabNtfy}"
+                                             Command="{Binding SelectNotificationTabCommand}" CommandParameter="Ntfy"/>
+
+                                <!-- 8. PagerDuty (Forest Green) -->
+                                <RadioButton Content="PagerDuty" GroupName="NotifSubTabs"
+                                             Style="{StaticResource NotifSubTabPagerDuty}"
+                                             Command="{Binding SelectNotificationTabCommand}" CommandParameter="PagerDuty"/>
+
+                                <!-- 9. Custom Webhook (Indigo) -->
+                                <RadioButton Content="Webhook" GroupName="NotifSubTabs"
+                                             Style="{StaticResource NotifSubTabWebhook}"
+                                             Command="{Binding SelectNotificationTabCommand}" CommandParameter="Webhook"/>
+
+                                <!-- 10. Trigger Matrix & Heartbeat (Rose) -->
                                 <RadioButton Content="Rules &amp; Heartbeat" GroupName="NotifSubTabs"
                                              Style="{StaticResource NotifSubTabRules}"
                                              Command="{Binding SelectNotificationTabCommand}" CommandParameter="Matrix"/>
-                            </StackPanel>
+                            </WrapPanel>
                         </Border>
 
                         <!-- Row 2: Sub-Tab Content -->
@@ -1750,7 +1770,265 @@
                             </StackPanel>
 
                             <!-- ============================================== -->
-                            <!-- SUB-TAB 6: TRIGGER MATRIX & HEARTBEAT          -->
+                            <!-- SUB-TAB 6: PUSHOVER MOBILE PUSH                -->
+                            <!-- ============================================== -->
+                            <StackPanel>
+                                <StackPanel.Style>
+                                    <Style TargetType="StackPanel">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding SelectedNotificationTab}" Value="Pushover">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </StackPanel.Style>
+
+                                <Border Style="{StaticResource ModernCard}" Margin="0,0,0,16">
+                                    <StackPanel>
+                                        <Grid Margin="0,0,0,14">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                                                <Border Width="26" Height="26" CornerRadius="6" Background="#FEF3C7" Margin="0,0,8,0" VerticalAlignment="Center">
+                                                    <Path Data="{StaticResource IconPushover}" Fill="#D97706" Width="13" Height="13" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </Border>
+                                                <TextBlock Text="PUSHOVER REAL-TIME MOBILE NOTIFICATIONS" FontWeight="Bold" FontSize="11.5" Foreground="{StaticResource TextSecondaryBrush}" VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                            <CheckBox Grid.Column="1" Content="Enable Webhooks" IsChecked="{Binding Config.Webhooks.Enabled}" FontWeight="Bold" Foreground="#D97706"/>
+                                        </Grid>
+
+                                        <Border Background="#FFFBEB" BorderBrush="#FDE68A" BorderThickness="1" CornerRadius="8" Padding="14,10" Margin="0,0,0,16">
+                                            <TextBlock Text="Deliver instant push notifications directly to iOS, Android, and desktop apps via Pushover. Simple setup with User Key and Application API Token."
+                                                       FontSize="12" Foreground="#92400E" TextWrapping="Wrap"/>
+                                        </Border>
+
+                                        <Grid Margin="0,0,0,14">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel Grid.Column="0" Margin="0,0,10,0">
+                                                <TextBlock Text="Pushover User Key" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                                                <TextBox Text="{Binding Config.Webhooks.PushoverUserKey, UpdateSourceTrigger=PropertyChanged}" Height="36" VerticalContentAlignment="Center"/>
+                                                <TextBlock Text="Find this on your Pushover dashboard (30 chars)" FontSize="11" Foreground="{StaticResource TextMutedBrush}" Margin="0,3,0,0"/>
+                                            </StackPanel>
+                                            <StackPanel Grid.Column="1" Margin="10,0,0,0">
+                                                <TextBlock Text="Application API Token / Key" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                                                <TextBox Text="{Binding Config.Webhooks.PushoverApiToken, UpdateSourceTrigger=PropertyChanged}" Height="36" VerticalContentAlignment="Center"/>
+                                                <TextBlock Text="Create an app token in Pushover for UniBackup" FontSize="11" Foreground="{StaticResource TextMutedBrush}" Margin="0,3,0,0"/>
+                                            </StackPanel>
+                                        </Grid>
+
+                                        <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                                            <Button Style="{StaticResource SecondaryButton}" Command="{Binding TestPushoverCommand}">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <Path Data="{StaticResource IconPaperPlane}" Fill="#D97706" Width="13" Height="13" Stretch="Uniform" Margin="0,0,8,0"/>
+                                                    <TextBlock Text="Send Test Pushover Alert" FontWeight="SemiBold"/>
+                                                </StackPanel>
+                                            </Button>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+
+                            <!-- ============================================== -->
+                            <!-- SUB-TAB 7: NTFY.SH PUB/SUB PUSH                -->
+                            <!-- ============================================== -->
+                            <StackPanel>
+                                <StackPanel.Style>
+                                    <Style TargetType="StackPanel">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding SelectedNotificationTab}" Value="Ntfy">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </StackPanel.Style>
+
+                                <Border Style="{StaticResource ModernCard}" Margin="0,0,0,16">
+                                    <StackPanel>
+                                        <Grid Margin="0,0,0,14">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                                                <Border Width="26" Height="26" CornerRadius="6" Background="#E0F2FE" Margin="0,0,8,0" VerticalAlignment="Center">
+                                                    <Path Data="{StaticResource IconNtfy}" Fill="#0284C7" Width="13" Height="13" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </Border>
+                                                <TextBlock Text="NTFY.SH HTTP-BASED PUB/SUB NOTIFICATIONS" FontWeight="Bold" FontSize="11.5" Foreground="{StaticResource TextSecondaryBrush}" VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                            <CheckBox Grid.Column="1" Content="Enable Webhooks" IsChecked="{Binding Config.Webhooks.Enabled}" FontWeight="Bold" Foreground="#0284C7"/>
+                                        </Grid>
+
+                                        <Border Background="#F0F9FF" BorderBrush="#BAE6FD" BorderThickness="1" CornerRadius="8" Padding="14,10" Margin="0,0,0,16">
+                                            <TextBlock Text="Send free, privacy-first push notifications to phone or desktop via ntfy.sh or your self-hosted ntfy server instance. No signup required for public topics."
+                                                       FontSize="12" Foreground="#0369A1" TextWrapping="Wrap"/>
+                                        </Border>
+
+                                        <Grid Margin="0,0,0,14">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="2*"/>
+                                                <ColumnDefinition Width="2*"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel Grid.Column="0" Margin="0,0,10,0">
+                                                <TextBlock Text="Server URL" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                                                <TextBox Text="{Binding Config.Webhooks.NtfyServerUrl, UpdateSourceTrigger=PropertyChanged}" Height="36" VerticalContentAlignment="Center"/>
+                                                <TextBlock Text="Default: https://ntfy.sh (or https://ntfy.yourdomain.com)" FontSize="11" Foreground="{StaticResource TextMutedBrush}" Margin="0,3,0,0"/>
+                                            </StackPanel>
+                                            <StackPanel Grid.Column="1" Margin="10,0,10,0">
+                                                <TextBlock Text="Topic Name" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                                                <TextBox Text="{Binding Config.Webhooks.NtfyTopic, UpdateSourceTrigger=PropertyChanged}" Height="36" VerticalContentAlignment="Center"/>
+                                                <TextBlock Text="e.g. unibackup-alerts-prod (use unique unguessable topic)" FontSize="11" Foreground="{StaticResource TextMutedBrush}" Margin="0,3,0,0"/>
+                                            </StackPanel>
+                                            <StackPanel Grid.Column="2" Margin="10,0,0,0">
+                                                <TextBlock Text="Auth Token (Optional)" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                                                <TextBox Text="{Binding Config.Webhooks.NtfyToken, UpdateSourceTrigger=PropertyChanged}" Height="36" VerticalContentAlignment="Center"/>
+                                                <TextBlock Text="Bearer token for protected topics" FontSize="11" Foreground="{StaticResource TextMutedBrush}" Margin="0,3,0,0"/>
+                                            </StackPanel>
+                                        </Grid>
+
+                                        <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                                            <Button Style="{StaticResource SecondaryButton}" Command="{Binding TestNtfyCommand}">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <Path Data="{StaticResource IconPaperPlane}" Fill="#0284C7" Width="13" Height="13" Stretch="Uniform" Margin="0,0,8,0"/>
+                                                    <TextBlock Text="Send Test ntfy Alert" FontWeight="SemiBold"/>
+                                                </StackPanel>
+                                            </Button>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+
+                            <!-- ============================================== -->
+                            <!-- SUB-TAB 8: PAGERDUTY INCIDENT ESCALATION       -->
+                            <!-- ============================================== -->
+                            <StackPanel>
+                                <StackPanel.Style>
+                                    <Style TargetType="StackPanel">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding SelectedNotificationTab}" Value="PagerDuty">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </StackPanel.Style>
+
+                                <Border Style="{StaticResource ModernCard}" Margin="0,0,0,16">
+                                    <StackPanel>
+                                        <Grid Margin="0,0,0,14">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                                                <Border Width="26" Height="26" CornerRadius="6" Background="#ECFDF5" Margin="0,0,8,0" VerticalAlignment="Center">
+                                                    <Path Data="{StaticResource IconPagerDuty}" Fill="#059669" Width="13" Height="13" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </Border>
+                                                <TextBlock Text="PAGERDUTY INCIDENT MANAGEMENT &amp; ON-CALL ALERTS" FontWeight="Bold" FontSize="11.5" Foreground="{StaticResource TextSecondaryBrush}" VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                            <CheckBox Grid.Column="1" Content="Enable Webhooks" IsChecked="{Binding Config.Webhooks.Enabled}" FontWeight="Bold" Foreground="#059669"/>
+                                        </Grid>
+
+                                        <Border Background="#F0FDF4" BorderBrush="#BBF7D0" BorderThickness="1" CornerRadius="8" Padding="14,10" Margin="0,0,0,16">
+                                            <TextBlock Text="Trigger on-call engineer pages, incident escalations, and automated runbooks via the PagerDuty Events API v2 when critical database backup runs fail."
+                                                       FontSize="12" Foreground="#047857" TextWrapping="Wrap"/>
+                                        </Border>
+
+                                        <StackPanel Margin="0,0,0,14">
+                                            <TextBlock Text="PagerDuty Events API v2 Routing Key (Integration Key)" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                                            <TextBox Text="{Binding Config.Webhooks.PagerDutyRoutingKey, UpdateSourceTrigger=PropertyChanged}" Height="36" VerticalContentAlignment="Center"/>
+                                            <TextBlock Text="From PagerDuty Service → Integrations → Events API v2 (32 alphanumeric chars)" FontSize="11" Foreground="{StaticResource TextMutedBrush}" Margin="0,3,0,0"/>
+                                        </StackPanel>
+
+                                        <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                                            <Button Style="{StaticResource SecondaryButton}" Command="{Binding TestPagerDutyCommand}">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <Path Data="{StaticResource IconPaperPlane}" Fill="#059669" Width="13" Height="13" Stretch="Uniform" Margin="0,0,8,0"/>
+                                                    <TextBlock Text="Trigger Test PagerDuty Incident" FontWeight="SemiBold"/>
+                                                </StackPanel>
+                                            </Button>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+
+                            <!-- ============================================== -->
+                            <!-- SUB-TAB 9: CUSTOM WEBHOOK (DEVOPS AUTOMATION)   -->
+                            <!-- ============================================== -->
+                            <StackPanel>
+                                <StackPanel.Style>
+                                    <Style TargetType="StackPanel">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding SelectedNotificationTab}" Value="Webhook">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </StackPanel.Style>
+
+                                <Border Style="{StaticResource ModernCard}" Margin="0,0,0,16">
+                                    <StackPanel>
+                                        <Grid Margin="0,0,0,14">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                                                <Border Width="26" Height="26" CornerRadius="6" Background="#EEF2FF" Margin="0,0,8,0" VerticalAlignment="Center">
+                                                    <Path Data="{StaticResource IconWebhook}" Fill="#4F46E5" Width="13" Height="13" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </Border>
+                                                <TextBlock Text="GENERIC CUSTOM WEBHOOK (N8N / ZAPIER / MAKE / HOME ASSISTANT / SPLUNK)" FontWeight="Bold" FontSize="11.5" Foreground="{StaticResource TextSecondaryBrush}" VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                            <CheckBox Grid.Column="1" Content="Enable Webhooks" IsChecked="{Binding Config.Webhooks.Enabled}" FontWeight="Bold" Foreground="#4F46E5"/>
+                                        </Grid>
+
+                                        <Border Background="#F5F3FF" BorderBrush="#C7D2FE" BorderThickness="1" CornerRadius="8" Padding="14,10" Margin="0,0,0,16">
+                                            <TextBlock Text="Connect UniBackup with modern automation platforms: n8n workflows, Zapier zaps, Make scenarios, Home Assistant webhooks, Datadog logs, Splunk HEC, or custom internal REST microservices."
+                                                       FontSize="12" Foreground="#4338CA" TextWrapping="Wrap"/>
+                                        </Border>
+
+                                        <StackPanel Margin="0,0,0,14">
+                                            <TextBlock Text="Webhook Endpoint URL" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                                            <TextBox Text="{Binding Config.Webhooks.CustomWebhookUrl, UpdateSourceTrigger=PropertyChanged}" Height="36" VerticalContentAlignment="Center"/>
+                                            <TextBlock Text="e.g. https://automation.domain.com/webhook/backup-alert or https://hooks.zapier.com/..." FontSize="11" Foreground="{StaticResource TextMutedBrush}" Margin="0,3,0,0"/>
+                                        </StackPanel>
+
+                                        <Grid Margin="0,0,0,14">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="2*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel Grid.Column="0" Margin="0,0,10,0">
+                                                <TextBlock Text="Custom Header Name (Optional)" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                                                <TextBox Text="{Binding Config.Webhooks.CustomWebhookHeaderName, UpdateSourceTrigger=PropertyChanged}" Height="36" VerticalContentAlignment="Center"/>
+                                                <TextBlock Text="e.g. Authorization or X-API-Key" FontSize="11" Foreground="{StaticResource TextMutedBrush}" Margin="0,3,0,0"/>
+                                            </StackPanel>
+                                            <StackPanel Grid.Column="1" Margin="10,0,0,0">
+                                                <TextBlock Text="Custom Header Value / Token (Optional)" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                                                <TextBox Text="{Binding Config.Webhooks.CustomWebhookHeaderValue, UpdateSourceTrigger=PropertyChanged}" Height="36" VerticalContentAlignment="Center"/>
+                                                <TextBlock Text="e.g. Bearer secret_token_xyz" FontSize="11" Foreground="{StaticResource TextMutedBrush}" Margin="0,3,0,0"/>
+                                            </StackPanel>
+                                        </Grid>
+
+                                        <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                                            <Button Style="{StaticResource SecondaryButton}" Command="{Binding TestCustomWebhookCommand}">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <Path Data="{StaticResource IconPaperPlane}" Fill="#4F46E5" Width="13" Height="13" Stretch="Uniform" Margin="0,0,8,0"/>
+                                                    <TextBlock Text="Send Test Custom Webhook Payload" FontWeight="SemiBold"/>
+                                                </StackPanel>
+                                            </Button>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
                             <!-- ============================================== -->
                             <StackPanel>
                                 <StackPanel.Style>
@@ -2330,7 +2608,7 @@
                                             </StackPanel>
                                         </Border>
 
-                                        <!-- Two Column Form with Fixed Badges -->
+                                        <!-- Two Column Form with S3 Settings -->
                                         <Grid Margin="0,0,0,12">
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="*"/>
@@ -2339,26 +2617,23 @@
 
                                             <!-- Left Column -->
                                             <StackPanel Grid.Column="0" Margin="0,0,12,0">
-                                                <!-- S3 Bucket Name (fixed) -->
+                                                <!-- S3 Bucket Name -->
                                                 <StackPanel Margin="0,0,0,12">
-                                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
-                                                        <TextBlock Text="S3 Bucket Name" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}"/>
-                                                        <Border Background="#E2E8F0" CornerRadius="4" Padding="5,1" Margin="6,0,0,0" VerticalAlignment="Center">
-                                                            <TextBlock Text="fixed" FontSize="10" FontWeight="Bold" Foreground="#475569"/>
-                                                        </Border>
-                                                    </StackPanel>
-                                                    <TextBox Text="{Binding Config.Aws.BucketName}" IsReadOnly="True" Background="#F1F5F9" Foreground="#0F172A" FontWeight="SemiBold" Height="36" VerticalContentAlignment="Center"/>
+                                                    <TextBlock Text="S3 Bucket Name" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                                                    <TextBox Text="{Binding Config.Aws.BucketName, UpdateSourceTrigger=PropertyChanged}" Height="36" VerticalContentAlignment="Center"/>
                                                 </StackPanel>
 
-                                                <!-- Storage Class (fixed) -->
+                                                <!-- Custom S3 Service URL (Cloudflare R2, Wasabi, MinIO, B2) -->
                                                 <StackPanel Margin="0,0,0,12">
-                                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
-                                                        <TextBlock Text="Storage Class" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}"/>
-                                                        <Border Background="#E2E8F0" CornerRadius="4" Padding="5,1" Margin="6,0,0,0" VerticalAlignment="Center">
-                                                            <TextBlock Text="fixed" FontSize="10" FontWeight="Bold" Foreground="#475569"/>
-                                                        </Border>
-                                                    </StackPanel>
-                                                    <TextBox Text="{Binding Config.Aws.StorageClass}" IsReadOnly="True" Background="#F1F5F9" Foreground="#0F172A" FontWeight="SemiBold" Height="36" VerticalContentAlignment="Center"/>
+                                                    <TextBlock Text="S3 Service URL / Endpoint (Leave blank for official AWS S3)" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                                                    <TextBox Text="{Binding Config.Aws.ServiceUrl, UpdateSourceTrigger=PropertyChanged}" Height="36" VerticalContentAlignment="Center"/>
+                                                    <TextBlock Text="e.g. https://&lt;account_id&gt;.r2.cloudflarestorage.com or https://s3.wasabisys.com" FontSize="11" Foreground="{StaticResource TextMutedBrush}" Margin="0,3,0,0"/>
+                                                </StackPanel>
+
+                                                <!-- Storage Class -->
+                                                <StackPanel Margin="0,0,0,12">
+                                                    <TextBlock Text="Storage Class (STANDARD, STANDARD_IA, GLACIER)" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                                                    <TextBox Text="{Binding Config.Aws.StorageClass, UpdateSourceTrigger=PropertyChanged}" Height="36" VerticalContentAlignment="Center"/>
                                                 </StackPanel>
 
                                                 <!-- Multipart Chunk Size (MB) -->
@@ -2370,15 +2645,16 @@
 
                                             <!-- Right Column -->
                                             <StackPanel Grid.Column="1">
-                                                <!-- AWS Region (fixed: Mumbai) -->
+                                                <!-- AWS / Provider Region -->
                                                 <StackPanel Margin="0,0,0,12">
-                                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
-                                                        <TextBlock Text="AWS Region" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}"/>
-                                                        <Border Background="#E2E8F0" CornerRadius="4" Padding="5,1" Margin="6,0,0,0" VerticalAlignment="Center">
-                                                            <TextBlock Text="fixed: Mumbai" FontSize="10" FontWeight="Bold" Foreground="#475569"/>
-                                                        </Border>
-                                                    </StackPanel>
-                                                    <TextBox Text="{Binding Config.Aws.Region}" IsReadOnly="True" Background="#F1F5F9" Foreground="#0F172A" FontWeight="SemiBold" Height="36" VerticalContentAlignment="Center"/>
+                                                    <TextBlock Text="S3 Region (e.g. ap-south-1, us-east-1, auto)" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                                                    <TextBox Text="{Binding Config.Aws.Region, UpdateSourceTrigger=PropertyChanged}" Height="36" VerticalContentAlignment="Center"/>
+                                                </StackPanel>
+
+                                                <!-- Force Path Style (MinIO / Ceph) -->
+                                                <StackPanel Margin="0,0,0,12">
+                                                    <TextBlock Text="Addressing Style" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                                                    <CheckBox Content="Force Path-Style S3 Addressing (Required for MinIO)" IsChecked="{Binding Config.Aws.ForcePathStyle}" FontWeight="SemiBold" Margin="0,8,0,0"/>
                                                 </StackPanel>
 
                                                 <!-- Retention Days (0 = forever) -->
@@ -2388,8 +2664,8 @@
                                                 </StackPanel>
 
                                                 <!-- Destination Enablement Toggle -->
-                                                <StackPanel VerticalAlignment="Bottom" Margin="0,18,0,0">
-                                                    <CheckBox Content="Enable Amazon S3 as Backup Destination" IsChecked="{Binding Config.Aws.Enabled}" FontWeight="SemiBold"/>
+                                                <StackPanel VerticalAlignment="Bottom" Margin="0,10,0,0">
+                                                    <CheckBox Content="Enable S3 as Backup Destination" IsChecked="{Binding Config.Aws.Enabled}" FontWeight="SemiBold"/>
                                                 </StackPanel>
                                             </StackPanel>
                                         </Grid>
@@ -2471,7 +2747,8 @@
                             </StackPanel>
 
                             <!-- ============================================== -->
-                            <!-- SUB-TAB 2: DESTINATIONS (Google Drive)          -->
+                            <!-- ============================================== -->
+                            <!-- SUB-TAB 2: DESTINATIONS CATALOG & MANAGEMENT   -->
                             <!-- ============================================== -->
                             <StackPanel>
                                 <StackPanel.Style>
@@ -2485,65 +2762,556 @@
                                     </Style>
                                 </StackPanel.Style>
 
-                                <!-- Subtitle / Breadcrumb Note -->
-                                <TextBlock Text="Region, storage class and credentials are on the AWS / S3 tab. The S3 folder (key prefix) is set per job."
-                                           FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,16"/>
+                                <!-- Universal Destination Banner -->
+                                <Border Background="#ECFDF5" BorderBrush="#A7F3D0" BorderThickness="1" CornerRadius="10" Padding="16,12" Margin="0,0,0,16">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Border Grid.Column="0" Width="32" Height="32" CornerRadius="16" Background="#059669" Margin="0,0,12,0" VerticalAlignment="Center">
+                                            <Path Data="{StaticResource IconCheckCircle}" Fill="White" Width="16" Height="16" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </Border>
+                                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                            <TextBlock Text="ALL DESTINATIONS 100% UNLOCKED &amp; FREE" FontWeight="Bold" FontSize="13" Foreground="#065F46"/>
+                                            <TextBlock Text="Unlike commercial tools that gate Dropbox, Box, Google Drive, OneDrive, Azure Blob, and S3 behind expensive license editions, UniBackup Pro provides complete enterprise access to every storage destination with zero restrictions."
+                                                       FontSize="11.5" Foreground="#047857" TextWrapping="Wrap"/>
+                                        </StackPanel>
+                                    </Grid>
+                                </Border>
 
-                                <!-- Google Drive Card (Matching Reference App) -->
+                                <!-- 1. Local or Network Folder (UNC / NAS) -->
                                 <Border Style="{StaticResource ModernCard}" Margin="0,0,0,16">
                                     <StackPanel>
-                                        <!-- Header Row with Status Badge -->
-                                        <Grid Margin="0,0,0,14">
+                                        <Grid Margin="0,0,0,12">
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="Auto"/>
                                                 <ColumnDefinition Width="*"/>
                                                 <ColumnDefinition Width="Auto"/>
                                             </Grid.ColumnDefinitions>
-                                            <Border Grid.Column="0" Width="38" Height="38" CornerRadius="8" Background="#ECFDF5" Margin="0,0,12,0" VerticalAlignment="Center">
-                                                <Path Data="{StaticResource IconGlobe}" Fill="#059669" Width="18" Height="18" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            <Border Grid.Column="0" Width="36" Height="36" CornerRadius="8" Background="#FEF3C7" Margin="0,0,12,0" VerticalAlignment="Center">
+                                                <Path Data="{StaticResource IconFolder}" Fill="#D97706" Width="16" Height="16" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                             </Border>
                                             <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                                <TextBlock Text="Google Drive" FontSize="16" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}"/>
-                                                <TextBlock Text="Available as a destination:" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock Text="Local or Network Folder (UNC / NAS)" FontSize="15" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}"/>
+                                                    <Border Background="#ECFDF5" CornerRadius="4" Padding="6,1" Margin="8,0,0,0" VerticalAlignment="Center">
+                                                        <TextBlock Text="FREE &amp; UNLOCKED" FontSize="10" FontWeight="Bold" Foreground="#059669"/>
+                                                    </Border>
+                                                </StackPanel>
+                                                <TextBlock Text="Store backup copies on local drives, external disks, or network UNC shares (\\server\share)." FontSize="11.5" Foreground="{StaticResource TextSecondaryBrush}"/>
                                             </StackPanel>
-                                            <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
-                                                <CheckBox Content="Enable" IsChecked="{Binding Config.GDrive.Enabled}" FontWeight="SemiBold" Margin="0,0,12,0" VerticalAlignment="Center"/>
-                                                <Border Background="#059669" CornerRadius="6" Padding="10,4" VerticalAlignment="Center">
-                                                    <TextBlock Text="✔ ENABLED" FontSize="11" FontWeight="Bold" Foreground="White"/>
-                                                </Border>
+                                            <CheckBox Grid.Column="2" Content="Enable" IsChecked="{Binding Config.Local.Enabled}" FontWeight="Bold" Foreground="#D97706" VerticalAlignment="Center"/>
+                                        </Grid>
+
+                                        <Grid Margin="0,0,0,12">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="3*"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel Grid.Column="0" Margin="0,0,10,0">
+                                                <TextBlock Text="Target Directory / UNC Share Path" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                                                <TextBox Text="{Binding Config.Local.TargetPath, UpdateSourceTrigger=PropertyChanged}" Height="36" VerticalContentAlignment="Center"/>
+                                            </StackPanel>
+                                            <StackPanel Grid.Column="1" Margin="10,0,0,0">
+                                                <TextBlock Text="Retention Days" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                                                <TextBox Text="{Binding Config.Local.RetentionDays, UpdateSourceTrigger=PropertyChanged}" Height="36" VerticalContentAlignment="Center"/>
                                             </StackPanel>
                                         </Grid>
 
-                                        <!-- Authenticated Banner -->
-                                        <Border Background="#ECFDF5" BorderBrush="#A7F3D0" BorderThickness="1" CornerRadius="8" Padding="14,10" Margin="0,0,0,16">
-                                            <StackPanel Orientation="Horizontal">
-                                                <Path Data="{StaticResource IconCheckCircle}" Fill="#059669" Width="16" Height="16" Stretch="Uniform" Margin="0,0,10,0" VerticalAlignment="Center"/>
-                                                <TextBlock Text="✔ Google Drive authenticated — refresh token saved (headless ready). Copy gdrive_credentials.json + gdrive_token.json to your other servers to reuse this sign-in."
-                                                           FontSize="12" Foreground="#047857" VerticalAlignment="Center" FontWeight="SemiBold" TextWrapping="Wrap"/>
-                                            </StackPanel>
-                                        </Border>
-
-                                        <!-- Fields -->
-                                        <StackPanel Margin="0,0,0,12">
-                                            <TextBlock Text="Drive Account / Label" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
-                                            <TextBox Text="{Binding Config.GDrive.AccountLabel, UpdateSourceTrigger=PropertyChanged}" Height="36" VerticalContentAlignment="Center"/>
-                                        </StackPanel>
-
-                                        <StackPanel Margin="0,0,0,16" Width="220" HorizontalAlignment="Left">
-                                            <TextBlock Text="Retention Days (0 = forever)" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
-                                            <TextBox Text="{Binding Config.GDrive.RetentionDays, UpdateSourceTrigger=PropertyChanged}" Height="36" VerticalContentAlignment="Center"/>
-                                        </StackPanel>
-
-                                        <!-- Action & Note -->
-                                        <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                                            <Button Style="{StaticResource SecondaryButton}" Command="{Binding ReauthenticateGoogleDriveCommand}" ToolTip="Refresh Google Drive OAuth tokens">
+                                        <StackPanel Orientation="Horizontal">
+                                            <Button Style="{StaticResource SecondaryButton}" Command="{Binding TestLocalCommand}">
                                                 <StackPanel Orientation="Horizontal">
-                                                    <Path Data="{StaticResource IconRefresh}" Fill="{StaticResource PrimaryBrush}" Width="13" Height="13" Stretch="Uniform" Margin="0,0,8,0"/>
+                                                    <Path Data="{StaticResource IconCheck}" Fill="{StaticResource PrimaryBrush}" Width="12" Height="12" Stretch="Uniform" Margin="0,0,6,0"/>
+                                                    <TextBlock Text="Validate Folder Access" FontWeight="SemiBold"/>
+                                                </StackPanel>
+                                            </Button>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- 2. Microsoft Azure Blob Storage -->
+                                <Border Style="{StaticResource ModernCard}" Margin="0,0,0,16">
+                                    <StackPanel>
+                                        <Grid Margin="0,0,0,12">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Border Grid.Column="0" Width="36" Height="36" CornerRadius="8" Background="#EFF6FF" Margin="0,0,12,0" VerticalAlignment="Center">
+                                                <Path Data="{StaticResource IconCloud}" Fill="#2563EB" Width="16" Height="16" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock Text="Microsoft Azure Blob Storage" FontSize="15" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}"/>
+                                                    <Border Background="#ECFDF5" CornerRadius="4" Padding="6,1" Margin="8,0,0,0" VerticalAlignment="Center">
+                                                        <TextBlock Text="FREE &amp; UNLOCKED" FontSize="10" FontWeight="Bold" Foreground="#059669"/>
+                                                    </Border>
+                                                </StackPanel>
+                                                <TextBlock Text="Enterprise storage containers with Hot, Cool, or Cold Archive access tiers." FontSize="11.5" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                            </StackPanel>
+                                            <CheckBox Grid.Column="2" Content="Enable" IsChecked="{Binding Config.Azure.Enabled}" FontWeight="Bold" Foreground="#2563EB" VerticalAlignment="Center"/>
+                                        </Grid>
+
+                                        <StackPanel Margin="0,0,0,12">
+                                            <TextBlock Text="Azure Storage Connection String" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                                            <TextBox Text="{Binding Config.Azure.ConnectionString, UpdateSourceTrigger=PropertyChanged}" Height="36" VerticalContentAlignment="Center"/>
+                                            <TextBlock Text="DefaultEndpointsProtocol=https;AccountName=...;AccountKey=...;EndpointSuffix=core.windows.net" FontSize="11" Foreground="{StaticResource TextMutedBrush}" Margin="0,3,0,0"/>
+                                        </StackPanel>
+
+                                        <Grid Margin="0,0,0,12">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel Grid.Column="0" Margin="0,0,10,0">
+                                                <TextBlock Text="Container Name" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                                                <TextBox Text="{Binding Config.Azure.ContainerName, UpdateSourceTrigger=PropertyChanged}" Height="36" VerticalContentAlignment="Center"/>
+                                            </StackPanel>
+                                            <StackPanel Grid.Column="1" Margin="5,0,5,0">
+                                                <TextBlock Text="Access Tier (Hot / Cool / Cold)" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                                                <TextBox Text="{Binding Config.Azure.AccessTier, UpdateSourceTrigger=PropertyChanged}" Height="36" VerticalContentAlignment="Center"/>
+                                            </StackPanel>
+                                            <StackPanel Grid.Column="2" Margin="10,0,0,0">
+                                                <TextBlock Text="Retention Days" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                                                <TextBox Text="{Binding Config.Azure.RetentionDays, UpdateSourceTrigger=PropertyChanged}" Height="36" VerticalContentAlignment="Center"/>
+                                            </StackPanel>
+                                        </Grid>
+
+                                        <StackPanel Orientation="Horizontal">
+                                            <Button Style="{StaticResource SecondaryButton}" Command="{Binding TestAzureCommand}">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <Path Data="{StaticResource IconCheck}" Fill="{StaticResource PrimaryBrush}" Width="12" Height="12" Stretch="Uniform" Margin="0,0,6,0"/>
+                                                    <TextBlock Text="Test Azure Blob Connection" FontWeight="SemiBold"/>
+                                                </StackPanel>
+                                            </Button>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- 3. Google Drive -->
+                                <Border Style="{StaticResource ModernCard}" Margin="0,0,0,16">
+                                    <StackPanel>
+                                        <Grid Margin="0,0,0,12">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Border Grid.Column="0" Width="36" Height="36" CornerRadius="8" Background="#ECFDF5" Margin="0,0,12,0" VerticalAlignment="Center">
+                                                <Path Data="{StaticResource IconGlobe}" Fill="#059669" Width="16" Height="16" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock Text="Google Drive" FontSize="15" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}"/>
+                                                    <Border Background="#ECFDF5" CornerRadius="4" Padding="6,1" Margin="8,0,0,0" VerticalAlignment="Center">
+                                                        <TextBlock Text="FREE &amp; UNLOCKED" FontSize="10" FontWeight="Bold" Foreground="#059669"/>
+                                                    </Border>
+                                                </StackPanel>
+                                                <TextBlock Text="Google Workspace or Personal Drive cloud backup storage." FontSize="11.5" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                            </StackPanel>
+                                            <CheckBox Grid.Column="2" Content="Enable" IsChecked="{Binding Config.GDrive.Enabled}" FontWeight="Bold" Foreground="#059669" VerticalAlignment="Center"/>
+                                        </Grid>
+
+                                        <Grid Margin="0,0,0,12">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="2*"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel Grid.Column="0" Margin="0,0,10,0">
+                                                <TextBlock Text="Drive Account / Label" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                                                <TextBox Text="{Binding Config.GDrive.AccountLabel, UpdateSourceTrigger=PropertyChanged}" Height="36" VerticalContentAlignment="Center"/>
+                                            </StackPanel>
+                                            <StackPanel Grid.Column="1" Margin="10,0,0,0">
+                                                <TextBlock Text="Retention Days" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                                                <TextBox Text="{Binding Config.GDrive.RetentionDays, UpdateSourceTrigger=PropertyChanged}" Height="36" VerticalContentAlignment="Center"/>
+                                            </StackPanel>
+                                        </Grid>
+
+                                        <StackPanel Orientation="Horizontal">
+                                            <Button Style="{StaticResource SecondaryButton}" Command="{Binding ReauthenticateGoogleDriveCommand}">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <Path Data="{StaticResource IconRefresh}" Fill="{StaticResource PrimaryBrush}" Width="12" Height="12" Stretch="Uniform" Margin="0,0,6,0"/>
                                                     <TextBlock Text="Re-authenticate Google Drive" FontWeight="SemiBold"/>
                                                 </StackPanel>
                                             </Button>
                                         </StackPanel>
-                                        <TextBlock Text="The Drive folder is set per job." FontSize="11.5" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- 4. Dropbox -->
+                                <Border Style="{StaticResource ModernCard}" Margin="0,0,0,16">
+                                    <StackPanel>
+                                        <Grid Margin="0,0,0,12">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Border Grid.Column="0" Width="36" Height="36" CornerRadius="8" Background="#EFF6FF" Margin="0,0,12,0" VerticalAlignment="Center">
+                                                <Path Data="{StaticResource IconCloud}" Fill="#0284C7" Width="16" Height="16" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock Text="Dropbox" FontSize="15" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}"/>
+                                                    <Border Background="#ECFDF5" CornerRadius="4" Padding="6,1" Margin="8,0,0,0" VerticalAlignment="Center">
+                                                        <TextBlock Text="FREE &amp; UNLOCKED" FontSize="10" FontWeight="Bold" Foreground="#059669"/>
+                                                    </Border>
+                                                </StackPanel>
+                                                <TextBlock Text="Stream backup archives directly to your personal or team Dropbox storage folder." FontSize="11.5" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                            </StackPanel>
+                                            <CheckBox Grid.Column="2" Content="Enable" IsChecked="{Binding Config.Dropbox.Enabled}" FontWeight="Bold" Foreground="#0284C7" VerticalAlignment="Center"/>
+                                        </Grid>
+
+                                        <StackPanel Margin="0,0,0,12">
+                                            <TextBlock Text="Dropbox Access Token (Generated via Dropbox App Console)" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                                            <TextBox Text="{Binding Config.Dropbox.AccessToken, UpdateSourceTrigger=PropertyChanged}" Height="36" VerticalContentAlignment="Center"/>
+                                        </StackPanel>
+
+                                        <Grid Margin="0,0,0,12">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="2*"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel Grid.Column="0" Margin="0,0,10,0">
+                                                <TextBlock Text="Remote Folder Path" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                                                <TextBox Text="{Binding Config.Dropbox.RemoteFolder, UpdateSourceTrigger=PropertyChanged}" Height="36" VerticalContentAlignment="Center"/>
+                                            </StackPanel>
+                                            <StackPanel Grid.Column="1" Margin="10,0,0,0">
+                                                <TextBlock Text="Retention Days" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                                                <TextBox Text="{Binding Config.Dropbox.RetentionDays, UpdateSourceTrigger=PropertyChanged}" Height="36" VerticalContentAlignment="Center"/>
+                                            </StackPanel>
+                                        </Grid>
+
+                                        <StackPanel Orientation="Horizontal">
+                                            <Button Style="{StaticResource SecondaryButton}" Command="{Binding TestDropboxCommand}">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <Path Data="{StaticResource IconCheck}" Fill="{StaticResource PrimaryBrush}" Width="12" Height="12" Stretch="Uniform" Margin="0,0,6,0"/>
+                                                    <TextBlock Text="Test Dropbox Connection" FontWeight="SemiBold"/>
+                                                </StackPanel>
+                                            </Button>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- 5. Microsoft OneDrive (Personal & Business) -->
+                                <Border Style="{StaticResource ModernCard}" Margin="0,0,0,16">
+                                    <StackPanel>
+                                        <Grid Margin="0,0,0,12">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Border Grid.Column="0" Width="36" Height="36" CornerRadius="8" Background="#EEF2FF" Margin="0,0,12,0" VerticalAlignment="Center">
+                                                <Path Data="{StaticResource IconCloud}" Fill="#4F46E5" Width="16" Height="16" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock Text="Microsoft OneDrive (Personal &amp; Business)" FontSize="15" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}"/>
+                                                    <Border Background="#ECFDF5" CornerRadius="4" Padding="6,1" Margin="8,0,0,0" VerticalAlignment="Center">
+                                                        <TextBlock Text="FREE &amp; UNLOCKED" FontSize="10" FontWeight="Bold" Foreground="#059669"/>
+                                                    </Border>
+                                                </StackPanel>
+                                                <TextBlock Text="Upload directly via Microsoft Graph API to personal OneDrive or Microsoft 365 business drives." FontSize="11.5" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                            </StackPanel>
+                                            <CheckBox Grid.Column="2" Content="Enable" IsChecked="{Binding Config.OneDrive.Enabled}" FontWeight="Bold" Foreground="#4F46E5" VerticalAlignment="Center"/>
+                                        </Grid>
+
+                                        <StackPanel Margin="0,0,0,12">
+                                            <TextBlock Text="Microsoft Graph OAuth Access Token" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                                            <TextBox Text="{Binding Config.OneDrive.AccessToken, UpdateSourceTrigger=PropertyChanged}" Height="36" VerticalContentAlignment="Center"/>
+                                        </StackPanel>
+
+                                        <Grid Margin="0,0,0,12">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="2*"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel Grid.Column="0" Margin="0,0,10,0">
+                                                <TextBlock Text="Account Type (personal / business)" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                                                <TextBox Text="{Binding Config.OneDrive.AccountType, UpdateSourceTrigger=PropertyChanged}" Height="36" VerticalContentAlignment="Center"/>
+                                            </StackPanel>
+                                            <StackPanel Grid.Column="1" Margin="5,0,5,0">
+                                                <TextBlock Text="Remote Folder Path" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                                                <TextBox Text="{Binding Config.OneDrive.RemoteFolder, UpdateSourceTrigger=PropertyChanged}" Height="36" VerticalContentAlignment="Center"/>
+                                            </StackPanel>
+                                            <StackPanel Grid.Column="2" Margin="10,0,0,0">
+                                                <TextBlock Text="Retention Days" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                                                <TextBox Text="{Binding Config.OneDrive.RetentionDays, UpdateSourceTrigger=PropertyChanged}" Height="36" VerticalContentAlignment="Center"/>
+                                            </StackPanel>
+                                        </Grid>
+
+                                        <StackPanel Orientation="Horizontal">
+                                            <Button Style="{StaticResource SecondaryButton}" Command="{Binding TestOneDriveCommand}">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <Path Data="{StaticResource IconCheck}" Fill="{StaticResource PrimaryBrush}" Width="12" Height="12" Stretch="Uniform" Margin="0,0,6,0"/>
+                                                    <TextBlock Text="Test OneDrive Connection" FontWeight="SemiBold"/>
+                                                </StackPanel>
+                                            </Button>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- 6. Box Cloud Storage -->
+                                <Border Style="{StaticResource ModernCard}" Margin="0,0,0,16">
+                                    <StackPanel>
+                                        <Grid Margin="0,0,0,12">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Border Grid.Column="0" Width="36" Height="36" CornerRadius="8" Background="#F0FDF4" Margin="0,0,12,0" VerticalAlignment="Center">
+                                                <Path Data="{StaticResource IconCloud}" Fill="#16A34A" Width="16" Height="16" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock Text="Box Cloud Storage" FontSize="15" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}"/>
+                                                    <Border Background="#ECFDF5" CornerRadius="4" Padding="6,1" Margin="8,0,0,0" VerticalAlignment="Center">
+                                                        <TextBlock Text="FREE &amp; UNLOCKED" FontSize="10" FontWeight="Bold" Foreground="#059669"/>
+                                                    </Border>
+                                                </StackPanel>
+                                                <TextBlock Text="Enterprise content cloud management with custom folder IDs." FontSize="11.5" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                            </StackPanel>
+                                            <CheckBox Grid.Column="2" Content="Enable" IsChecked="{Binding Config.Box.Enabled}" FontWeight="Bold" Foreground="#16A34A" VerticalAlignment="Center"/>
+                                        </Grid>
+
+                                        <StackPanel Margin="0,0,0,12">
+                                            <TextBlock Text="Box Developer Access Token" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                                            <TextBox Text="{Binding Config.Box.AccessToken, UpdateSourceTrigger=PropertyChanged}" Height="36" VerticalContentAlignment="Center"/>
+                                        </StackPanel>
+
+                                        <Grid Margin="0,0,0,12">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="2*"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel Grid.Column="0" Margin="0,0,10,0">
+                                                <TextBlock Text="Box Folder ID (0 for root)" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                                                <TextBox Text="{Binding Config.Box.FolderId, UpdateSourceTrigger=PropertyChanged}" Height="36" VerticalContentAlignment="Center"/>
+                                            </StackPanel>
+                                            <StackPanel Grid.Column="1" Margin="10,0,0,0">
+                                                <TextBlock Text="Retention Days" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                                                <TextBox Text="{Binding Config.Box.RetentionDays, UpdateSourceTrigger=PropertyChanged}" Height="36" VerticalContentAlignment="Center"/>
+                                            </StackPanel>
+                                        </Grid>
+
+                                        <StackPanel Orientation="Horizontal">
+                                            <Button Style="{StaticResource SecondaryButton}" Command="{Binding TestBoxCommand}">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <Path Data="{StaticResource IconCheck}" Fill="{StaticResource PrimaryBrush}" Width="12" Height="12" Stretch="Uniform" Margin="0,0,6,0"/>
+                                                    <TextBlock Text="Test Box Connection" FontWeight="SemiBold"/>
+                                                </StackPanel>
+                                            </Button>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- 7. WebDAV Server (Nextcloud / ownCloud / Synology) -->
+                                <Border Style="{StaticResource ModernCard}" Margin="0,0,0,16">
+                                    <StackPanel>
+                                        <Grid Margin="0,0,0,12">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Border Grid.Column="0" Width="36" Height="36" CornerRadius="8" Background="#F5F3FF" Margin="0,0,12,0" VerticalAlignment="Center">
+                                                <Path Data="{StaticResource IconGlobe}" Fill="#7C3AED" Width="16" Height="16" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock Text="WebDAV Server (Nextcloud / ownCloud / NAS)" FontSize="15" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}"/>
+                                                    <Border Background="#ECFDF5" CornerRadius="4" Padding="6,1" Margin="8,0,0,0" VerticalAlignment="Center">
+                                                        <TextBlock Text="FREE &amp; UNLOCKED" FontSize="10" FontWeight="Bold" Foreground="#059669"/>
+                                                    </Border>
+                                                </StackPanel>
+                                                <TextBlock Text="Direct HTTP/HTTPS WebDAV file transfer with basic authentication." FontSize="11.5" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                            </StackPanel>
+                                            <CheckBox Grid.Column="2" Content="Enable" IsChecked="{Binding Config.WebDav.Enabled}" FontWeight="Bold" Foreground="#7C3AED" VerticalAlignment="Center"/>
+                                        </Grid>
+
+                                        <StackPanel Margin="0,0,0,12">
+                                            <TextBlock Text="WebDAV Server URL (e.g. https://cloud.domain.com/remote.php/dav/files/user/)" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                                            <TextBox Text="{Binding Config.WebDav.ServerUrl, UpdateSourceTrigger=PropertyChanged}" Height="36" VerticalContentAlignment="Center"/>
+                                        </StackPanel>
+
+                                        <Grid Margin="0,0,0,12">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel Grid.Column="0" Margin="0,0,10,0">
+                                                <TextBlock Text="Username" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                                                <TextBox Text="{Binding Config.WebDav.Username, UpdateSourceTrigger=PropertyChanged}" Height="36" VerticalContentAlignment="Center"/>
+                                            </StackPanel>
+                                            <StackPanel Grid.Column="1" Margin="5,0,5,0">
+                                                <TextBlock Text="Password / App Key" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                                                <TextBox Text="{Binding Config.WebDav.Password, UpdateSourceTrigger=PropertyChanged}" Height="36" VerticalContentAlignment="Center"/>
+                                            </StackPanel>
+                                            <StackPanel Grid.Column="2" Margin="10,0,0,0">
+                                                <TextBlock Text="Retention Days" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                                                <TextBox Text="{Binding Config.WebDav.RetentionDays, UpdateSourceTrigger=PropertyChanged}" Height="36" VerticalContentAlignment="Center"/>
+                                            </StackPanel>
+                                        </Grid>
+
+                                        <StackPanel Orientation="Horizontal">
+                                            <Button Style="{StaticResource SecondaryButton}" Command="{Binding TestWebDavCommand}">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <Path Data="{StaticResource IconCheck}" Fill="{StaticResource PrimaryBrush}" Width="12" Height="12" Stretch="Uniform" Margin="0,0,6,0"/>
+                                                    <TextBlock Text="Test WebDAV Connection" FontWeight="SemiBold"/>
+                                                </StackPanel>
+                                            </Button>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- 8. FTP / FTPS Server -->
+                                <Border Style="{StaticResource ModernCard}" Margin="0,0,0,16">
+                                    <StackPanel>
+                                        <Grid Margin="0,0,0,12">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Border Grid.Column="0" Width="36" Height="36" CornerRadius="8" Background="#FEF2F2" Margin="0,0,12,0" VerticalAlignment="Center">
+                                                <Path Data="{StaticResource IconServer}" Fill="#DC2626" Width="16" Height="16" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock Text="FTP / FTPS Server (Explicit / Implicit TLS)" FontSize="15" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}"/>
+                                                    <Border Background="#ECFDF5" CornerRadius="4" Padding="6,1" Margin="8,0,0,0" VerticalAlignment="Center">
+                                                        <TextBlock Text="FREE &amp; UNLOCKED" FontSize="10" FontWeight="Bold" Foreground="#059669"/>
+                                                    </Border>
+                                                </StackPanel>
+                                                <TextBlock Text="Standard and secure encrypted FTP server transfers." FontSize="11.5" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                            </StackPanel>
+                                            <CheckBox Grid.Column="2" Content="Enable" IsChecked="{Binding Config.Ftp.Enabled}" FontWeight="Bold" Foreground="#DC2626" VerticalAlignment="Center"/>
+                                        </Grid>
+
+                                        <Grid Margin="0,0,0,12">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="3*"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel Grid.Column="0" Margin="0,0,10,0">
+                                                <TextBlock Text="Host / Server Address" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                                                <TextBox Text="{Binding Config.Ftp.Host, UpdateSourceTrigger=PropertyChanged}" Height="36" VerticalContentAlignment="Center"/>
+                                            </StackPanel>
+                                            <StackPanel Grid.Column="1" Margin="5,0,10,0">
+                                                <TextBlock Text="Port" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                                                <TextBox Text="{Binding Config.Ftp.Port, UpdateSourceTrigger=PropertyChanged}" Height="36" VerticalContentAlignment="Center"/>
+                                            </StackPanel>
+                                            <StackPanel Grid.Column="2" VerticalAlignment="Bottom" Margin="0,0,0,6">
+                                                <CheckBox Content="Use SSL / TLS (FTPS)" IsChecked="{Binding Config.Ftp.UseSsl}" FontWeight="SemiBold"/>
+                                            </StackPanel>
+                                        </Grid>
+
+                                        <Grid Margin="0,0,0,12">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel Grid.Column="0" Margin="0,0,10,0">
+                                                <TextBlock Text="Username" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                                                <TextBox Text="{Binding Config.Ftp.Username, UpdateSourceTrigger=PropertyChanged}" Height="36" VerticalContentAlignment="Center"/>
+                                            </StackPanel>
+                                            <StackPanel Grid.Column="1" Margin="5,0,5,0">
+                                                <TextBlock Text="Password" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                                                <TextBox Text="{Binding Config.Ftp.Password, UpdateSourceTrigger=PropertyChanged}" Height="36" VerticalContentAlignment="Center"/>
+                                            </StackPanel>
+                                            <StackPanel Grid.Column="2" Margin="10,0,0,0">
+                                                <TextBlock Text="Retention Days" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                                                <TextBox Text="{Binding Config.Ftp.RetentionDays, UpdateSourceTrigger=PropertyChanged}" Height="36" VerticalContentAlignment="Center"/>
+                                            </StackPanel>
+                                        </Grid>
+
+                                        <StackPanel Orientation="Horizontal">
+                                            <Button Style="{StaticResource SecondaryButton}" Command="{Binding TestFtpCommand}">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <Path Data="{StaticResource IconCheck}" Fill="{StaticResource PrimaryBrush}" Width="12" Height="12" Stretch="Uniform" Margin="0,0,6,0"/>
+                                                    <TextBlock Text="Test FTP Connection" FontWeight="SemiBold"/>
+                                                </StackPanel>
+                                            </Button>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- 9. SFTP Server (SSH) -->
+                                <Border Style="{StaticResource ModernCard}" Margin="0,0,0,16">
+                                    <StackPanel>
+                                        <Grid Margin="0,0,0,12">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Border Grid.Column="0" Width="36" Height="36" CornerRadius="8" Background="#FDF4FF" Margin="0,0,12,0" VerticalAlignment="Center">
+                                                <Path Data="{StaticResource IconShield}" Fill="#C026D3" Width="16" Height="16" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock Text="SFTP Server (SSH File Transfer Protocol)" FontSize="15" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}"/>
+                                                    <Border Background="#ECFDF5" CornerRadius="4" Padding="6,1" Margin="8,0,0,0" VerticalAlignment="Center">
+                                                        <TextBlock Text="FREE &amp; UNLOCKED" FontSize="10" FontWeight="Bold" Foreground="#059669"/>
+                                                    </Border>
+                                                </StackPanel>
+                                                <TextBlock Text="Secure shell encrypted file transfer with SSH password or private key." FontSize="11.5" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                            </StackPanel>
+                                            <CheckBox Grid.Column="2" Content="Enable" IsChecked="{Binding Config.Sftp.Enabled}" FontWeight="Bold" Foreground="#C026D3" VerticalAlignment="Center"/>
+                                        </Grid>
+
+                                        <Grid Margin="0,0,0,12">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="3*"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel Grid.Column="0" Margin="0,0,10,0">
+                                                <TextBlock Text="SSH Host Address" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                                                <TextBox Text="{Binding Config.Sftp.Host, UpdateSourceTrigger=PropertyChanged}" Height="36" VerticalContentAlignment="Center"/>
+                                            </StackPanel>
+                                            <StackPanel Grid.Column="1" Margin="10,0,0,0">
+                                                <TextBlock Text="Port (default: 22)" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                                                <TextBox Text="{Binding Config.Sftp.Port, UpdateSourceTrigger=PropertyChanged}" Height="36" VerticalContentAlignment="Center"/>
+                                            </StackPanel>
+                                        </Grid>
+
+                                        <Grid Margin="0,0,0,12">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel Grid.Column="0" Margin="0,0,10,0">
+                                                <TextBlock Text="SSH Username" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                                                <TextBox Text="{Binding Config.Sftp.Username, UpdateSourceTrigger=PropertyChanged}" Height="36" VerticalContentAlignment="Center"/>
+                                            </StackPanel>
+                                            <StackPanel Grid.Column="1" Margin="5,0,5,0">
+                                                <TextBlock Text="Password / Key Passphrase" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                                                <TextBox Text="{Binding Config.Sftp.Password, UpdateSourceTrigger=PropertyChanged}" Height="36" VerticalContentAlignment="Center"/>
+                                            </StackPanel>
+                                            <StackPanel Grid.Column="2" Margin="10,0,0,0">
+                                                <TextBlock Text="Retention Days" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                                                <TextBox Text="{Binding Config.Sftp.RetentionDays, UpdateSourceTrigger=PropertyChanged}" Height="36" VerticalContentAlignment="Center"/>
+                                            </StackPanel>
+                                        </Grid>
+
+                                        <StackPanel Orientation="Horizontal">
+                                            <Button Style="{StaticResource SecondaryButton}" Command="{Binding TestSftpCommand}">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <Path Data="{StaticResource IconCheck}" Fill="{StaticResource PrimaryBrush}" Width="12" Height="12" Stretch="Uniform" Margin="0,0,6,0"/>
+                                                    <TextBlock Text="Test SFTP Connection" FontWeight="SemiBold"/>
+                                                </StackPanel>
+                                            </Button>
+                                        </StackPanel>
                                     </StackPanel>
                                 </Border>
                             </StackPanel>

@@ -25,4 +25,3 @@ if exist "modules\UniBackup" (
 echo ========================================================
 echo  Unified Single-File Release Built: %OUTPUT_DIR%\UniBackup.exe
 echo ========================================================
-pause

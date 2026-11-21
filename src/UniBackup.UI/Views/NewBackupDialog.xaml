@@ -247,9 +247,28 @@
                 <StackPanel Visibility="{Binding IsStep3, Converter={StaticResource BoolToVis}}">
                     <Border Style="{StaticResource ModernCard}" Margin="0,0,0,16">
                         <StackPanel>
-                            <TextBlock Text="Cloud Storage Providers" FontWeight="Bold" FontSize="14" Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,12"/>
-                            <CheckBox Content="Amazon Web Services (AWS S3) / Wasabi / S3-Compatible" IsChecked="{Binding EnableS3}" FontWeight="SemiBold" Margin="0,0,0,10"/>
-                            <CheckBox Content="Google Drive Enterprise Storage" IsChecked="{Binding EnableGDrive}" FontWeight="SemiBold" Margin="0,0,0,14"/>
+                            <TextBlock Text="S3 Compatible Cloud Providers" FontWeight="Bold" FontSize="14" Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,6"/>
+                            <TextBlock Text="Direct streaming to any S3-compliant object store (Amazon S3, Cloudflare R2, Backblaze B2, Wasabi, MinIO, DigitalOcean Spaces, Oracle Cloud, Google Cloud)."
+                                       FontSize="11.5" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,10" TextWrapping="Wrap"/>
+                            <CheckBox Content="Amazon Web Services (AWS S3) / Cloudflare R2 / Wasabi / MinIO / S3-Compatible" IsChecked="{Binding EnableS3}" FontWeight="SemiBold" Margin="0,0,0,14"/>
+
+                            <Separator Margin="0,4,0,14" Background="{StaticResource BorderBrush}"/>
+
+                            <TextBlock Text="General &amp; Enterprise Storage Providers" FontWeight="Bold" FontSize="14" Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,6"/>
+                            <TextBlock Text="All destination storage providers are 100% unlocked with zero license restrictions in UniBackup Pro."
+                                       FontSize="11.5" Foreground="#059669" FontWeight="SemiBold" Margin="0,0,0,10"/>
+
+                            <UniformGrid Columns="2" Margin="0,0,0,14">
+                                <CheckBox Content="Google Drive" IsChecked="{Binding EnableGDrive}" FontWeight="SemiBold" Margin="0,0,10,8"/>
+                                <CheckBox Content="Microsoft Azure Blob Storage" IsChecked="{Binding EnableAzure}" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                                <CheckBox Content="Dropbox" IsChecked="{Binding EnableDropbox}" FontWeight="SemiBold" Margin="0,0,10,8"/>
+                                <CheckBox Content="Microsoft OneDrive (Personal &amp; Business)" IsChecked="{Binding EnableOneDrive}" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                                <CheckBox Content="Box Cloud Storage" IsChecked="{Binding EnableBox}" FontWeight="SemiBold" Margin="0,0,10,8"/>
+                                <CheckBox Content="WebDAV Server (Nextcloud / ownCloud)" IsChecked="{Binding EnableWebDav}" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                                <CheckBox Content="FTP / FTPS Server (TLS/SSL)" IsChecked="{Binding EnableFtp}" FontWeight="SemiBold" Margin="0,0,10,8"/>
+                                <CheckBox Content="SFTP Server (SSH File Transfer)" IsChecked="{Binding EnableSftp}" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                                <CheckBox Content="Local or Network Folder (UNC / NAS)" IsChecked="{Binding EnableLocal}" FontWeight="SemiBold" Margin="0,0,10,8"/>
+                            </UniformGrid>
 
                             <TextBlock Text="Target Cloud Folder / Prefix Override (Optional)" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
                             <TextBox Text="{Binding CloudFolder, UpdateSourceTrigger=PropertyChanged}" ToolTip="Leave blank to use host machine default"/>

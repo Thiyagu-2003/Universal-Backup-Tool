@@ -19,6 +19,12 @@ public static class DestinationFolders
             return string.IsNullOrWhiteSpace(config.Sftp.RemoteFolder) ? "/backups" : config.Sftp.RemoteFolder.TrimEnd('/');
         if (provider.Equals("webdav", StringComparison.OrdinalIgnoreCase))
             return string.IsNullOrWhiteSpace(config.WebDav.RemoteFolder) ? "/backups" : config.WebDav.RemoteFolder.TrimEnd('/');
+        if (provider.Equals("dropbox", StringComparison.OrdinalIgnoreCase))
+            return string.IsNullOrWhiteSpace(config.Dropbox.RemoteFolder) ? "/UniBackup" : config.Dropbox.RemoteFolder.TrimEnd('/');
+        if (provider.Equals("onedrive", StringComparison.OrdinalIgnoreCase))
+            return string.IsNullOrWhiteSpace(config.OneDrive.RemoteFolder) ? "/Backups" : config.OneDrive.RemoteFolder.TrimEnd('/');
+        if (provider.Equals("box", StringComparison.OrdinalIgnoreCase))
+            return string.IsNullOrWhiteSpace(config.Box.FolderId) ? "0" : config.Box.FolderId.Trim();
 
         var configured = isS3 ? config.Aws.S3Prefix : config.GDrive.TargetFolder;
         if (!string.IsNullOrWhiteSpace(configured)) return configured.TrimEnd('/');

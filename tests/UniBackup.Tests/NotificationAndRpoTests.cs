@@ -182,6 +182,22 @@ public class NotificationAndRpoTests
         var telegramRes = await service.SendTestTelegramAsync("", "");
         Assert.True(telegramRes.IsFailure);
         Assert.Contains("Telegram Bot Token is empty", telegramRes.Error);
+
+        var pushoverRes = await service.SendTestPushoverAsync("", "");
+        Assert.True(pushoverRes.IsFailure);
+        Assert.Contains("Pushover User Key is required", pushoverRes.Error);
+
+        var ntfyRes = await service.SendTestNtfyAsync("https://ntfy.sh", "", null);
+        Assert.True(ntfyRes.IsFailure);
+        Assert.Contains("ntfy Topic is required", ntfyRes.Error);
+
+        var pagerDutyRes = await service.SendTestPagerDutyAsync("");
+        Assert.True(pagerDutyRes.IsFailure);
+        Assert.Contains("PagerDuty Integration / Routing Key is required", pagerDutyRes.Error);
+
+        var customWebhookRes = await service.SendTestCustomWebhookAsync("", null, null);
+        Assert.True(customWebhookRes.IsFailure);
+        Assert.Contains("Custom Webhook URL is required", customWebhookRes.Error);
     }
 
     [Fact]
@@ -194,7 +210,16 @@ public class NotificationAndRpoTests
             DiscordWebhookUrl = "https://discord.com/api/webhooks/test",
             TeamsWebhookUrl = "https://office.com/webhook/test",
             TelegramBotToken = "123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11",
-            TelegramChatId = "-1001234567890"
+            TelegramChatId = "-1001234567890",
+            PushoverUserKey = "uQiRzpo4DXghDmr9QzzfQu27cmVRsG",
+            PushoverApiToken = "azGDORePK8gMaC0QOYAMyEEuzJnyUi",
+            NtfyServerUrl = "https://ntfy.sh",
+            NtfyTopic = "unibackup-alerts",
+            NtfyToken = "tk_12345678",
+            PagerDutyRoutingKey = "pd_events_routing_key_xyz123",
+            CustomWebhookUrl = "https://automation.domain.com/webhook/alert",
+            CustomWebhookHeaderName = "X-Api-Key",
+            CustomWebhookHeaderValue = "secret-token-123"
         };
 
         var json = System.Text.Json.JsonSerializer.Serialize(settings);
@@ -203,5 +228,39 @@ public class NotificationAndRpoTests
         Assert.NotNull(deserialized);
         Assert.Equal("123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11", deserialized.TelegramBotToken);
         Assert.Equal("-1001234567890", deserialized.TelegramChatId);
+        Assert.Equal("uQiRzpo4DXghDmr9QzzfQu27cmVRsG", deserialized.PushoverUserKey);
+        Assert.Equal("azGDORePK8gMaC0QOYAMyEEuzJnyUi", deserialized.PushoverApiToken);
+        Assert.Equal("https://ntfy.sh", deserialized.NtfyServerUrl);
+        Assert.Equal("unibackup-alerts", deserialized.NtfyTopic);
+        Assert.Equal("tk_12345678", deserialized.NtfyToken);
+        Assert.Equal("pd_events_routing_key_xyz123", deserialized.PagerDutyRoutingKey);
+        Assert.Equal("https://automation.domain.com/webhook/alert", deserialized.CustomWebhookUrl);
+        Assert.Equal("X-Api-Key", deserialized.CustomWebhookHeaderName);
+        Assert.Equal("secret-token-123", deserialized.CustomWebhookHeaderValue);
+    }
+
+    [Fact]
+    public void StorageProviders_ContractCheck_NamesAndSettings()
+    {
+        var config = new AppConfig();
+        var dropbox = new UniBackup.Infrastructure.Storage.DropboxStorageProvider();
+        var onedrive = new UniBackup.Infrastructure.Storage.OneDriveStorageProvider();
+        var box = new UniBackup.Infrastructure.Storage.BoxStorageProvider();
+
+        Assert.Equal("dropbox", dropbox.Name);
+        Assert.Equal("onedrive", onedrive.Name);
+        Assert.Equal("box", box.Name);
+
+        Assert.False(dropbox.IsEnabled(config));
+        Assert.False(onedrive.IsEnabled(config));
+        Assert.False(box.IsEnabled(config));
+
+        config.Dropbox.Enabled = true;
+        config.OneDrive.Enabled = true;
+        config.Box.Enabled = true;
+
+        Assert.True(dropbox.IsEnabled(config));
+        Assert.True(onedrive.IsEnabled(config));
+        Assert.True(box.IsEnabled(config));
     }
 }
