@@ -98,6 +98,24 @@ public class UiStartupXamlTests
             Assert.NotNull(dialog);
             Assert.Contains("Create Backup Job", dialog.Title);
 
+            // Show window and pump dispatcher to activate all WPF data bindings and layout engine
+            dialog.Show();
+            System.Windows.Threading.Dispatcher.CurrentDispatcher.Invoke(() => { }, System.Windows.Threading.DispatcherPriority.ApplicationIdle);
+
+            // Test TwoWay binding for Source Selection (Folder <-> SQL Server)
+            Assert.True(vm.IsFolder);
+            Assert.False(vm.IsSqlServer);
+
+            vm.IsSqlServer = true;
+            System.Windows.Threading.Dispatcher.CurrentDispatcher.Invoke(() => { }, System.Windows.Threading.DispatcherPriority.ApplicationIdle);
+            Assert.True(vm.IsSqlServer);
+            Assert.False(vm.IsFolder);
+
+            vm.IsFolder = true;
+            System.Windows.Threading.Dispatcher.CurrentDispatcher.Invoke(() => { }, System.Windows.Threading.DispatcherPriority.ApplicationIdle);
+            Assert.True(vm.IsFolder);
+            Assert.False(vm.IsSqlServer);
+
             // Test step commands with string parameters (exactly what XAML buttons pass)
             vm.SetStepCommand.Execute("1");
             Assert.True(vm.IsStep1);
@@ -115,9 +133,15 @@ public class UiStartupXamlTests
 
             // Test SQL Authentication toggle
             vm.SqlUseWindowsAuth = false;
+            System.Windows.Threading.Dispatcher.CurrentDispatcher.Invoke(() => { }, System.Windows.Threading.DispatcherPriority.ApplicationIdle);
             Assert.True(vm.SqlUseSqlAuth);
+
             vm.SqlUseWindowsAuth = true;
+            System.Windows.Threading.Dispatcher.CurrentDispatcher.Invoke(() => { }, System.Windows.Threading.DispatcherPriority.ApplicationIdle);
             Assert.False(vm.SqlUseSqlAuth);
+
+            dialog.Close();
+            System.Windows.Threading.Dispatcher.CurrentDispatcher.Invoke(() => { }, System.Windows.Threading.DispatcherPriority.ApplicationIdle);
         });
     }
 

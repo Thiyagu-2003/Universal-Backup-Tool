@@ -211,13 +211,21 @@ public partial class MainWindow : Window
 
     private void NewBackup_Click(object sender, RoutedEventArgs e)
     {
-        var newVm = new NewBackupViewModel(_configService, _iisService, _schedulerService);
-        var dlg = new NewBackupDialog(newVm) { Owner = this };
-        dlg.ShowDialog();
-
-        if (newVm.DialogResult)
+        try
         {
-            _ = _viewModel.RefreshJobsCommand.ExecuteAsync(null);
+            var newVm = new NewBackupViewModel(_configService, _iisService, _schedulerService);
+            var dlg = new NewBackupDialog(newVm) { Owner = this };
+            dlg.ShowDialog();
+
+            if (newVm.DialogResult)
+            {
+                _ = _viewModel.RefreshJobsCommand.ExecuteAsync(null);
+            }
+        }
+        catch (Exception ex)
+        {
+            Serilog.Log.Error(ex, "Failed to display New Backup dialog: {Message}", ex.Message);
+            MessageBox.Show($"Unable to open New Backup dialog:\n\n{ex.Message}", "UniBackup Pro", MessageBoxButton.OK, MessageBoxImage.Error);
         }
     }
 

@@ -40,8 +40,41 @@ public partial class NewBackupViewModel : ObservableObject
     [NotifyPropertyChangedFor(nameof(IsFolder))]
     private string _kind = "folder"; // "folder" | "sqlserver"
 
-    public bool IsSqlServer => Kind.Equals("sqlserver", StringComparison.OrdinalIgnoreCase);
-    public bool IsFolder => !IsSqlServer;
+    public bool IsSqlServer
+    {
+        get => Kind.Equals("sqlserver", StringComparison.OrdinalIgnoreCase);
+        set
+        {
+            if (value)
+            {
+                Kind = "sqlserver";
+            }
+            else
+            {
+                Kind = "folder";
+            }
+            OnPropertyChanged(nameof(IsSqlServer));
+            OnPropertyChanged(nameof(IsFolder));
+        }
+    }
+
+    public bool IsFolder
+    {
+        get => !IsSqlServer;
+        set
+        {
+            if (value)
+            {
+                Kind = "folder";
+            }
+            else
+            {
+                Kind = "sqlserver";
+            }
+            OnPropertyChanged(nameof(IsSqlServer));
+            OnPropertyChanged(nameof(IsFolder));
+        }
+    }
 
     // Job Common Details
     [ObservableProperty]
@@ -66,8 +99,16 @@ public partial class NewBackupViewModel : ObservableObject
         get => !SqlUseWindowsAuth;
         set
         {
-            if (value) SqlUseWindowsAuth = false;
-            else SqlUseWindowsAuth = true;
+            if (value)
+            {
+                SqlUseWindowsAuth = false;
+            }
+            else
+            {
+                SqlUseWindowsAuth = true;
+            }
+            OnPropertyChanged(nameof(SqlUseSqlAuth));
+            OnPropertyChanged(nameof(SqlUseWindowsAuth));
         }
     }
 

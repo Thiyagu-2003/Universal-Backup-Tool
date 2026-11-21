@@ -180,8 +180,8 @@
                         <StackPanel>
                             <TextBlock Text="Select Backup Source Type" FontWeight="Bold" FontSize="14" Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,10"/>
                             <StackPanel Orientation="Horizontal" Margin="0,0,0,14">
-                                <RadioButton Content="Folder / File System / IIS" IsChecked="{Binding IsFolder}" Margin="0,0,24,0" FontWeight="SemiBold"/>
-                                <RadioButton Content="SQL Server Database Engine" IsChecked="{Binding IsSqlServer}" FontWeight="SemiBold"/>
+                                <RadioButton Content="Folder / File System / IIS" GroupName="SourceTypeGroup" IsChecked="{Binding IsFolder}" Margin="0,0,24,0" FontWeight="SemiBold"/>
+                                <RadioButton Content="SQL Server Database Engine" GroupName="SourceTypeGroup" IsChecked="{Binding IsSqlServer}" FontWeight="SemiBold"/>
                             </StackPanel>
 
                             <TextBlock Text="Job Name (Identifier / Archive Base Name)" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
@@ -227,8 +227,8 @@
                             <TextBlock Text="{Binding SqlConnectionStatus}" FontSize="12" Foreground="#38BDF8" Margin="0,0,0,12"/>
 
                             <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
-                                <RadioButton Content="Windows Authentication" IsChecked="{Binding SqlUseWindowsAuth}" Margin="0,0,20,0" FontWeight="SemiBold"/>
-                                <RadioButton Content="SQL Server Authentication" IsChecked="{Binding SqlUseSqlAuth}" FontWeight="SemiBold"/>
+                                <RadioButton Content="Windows Authentication" GroupName="SqlAuthGroup" IsChecked="{Binding SqlUseWindowsAuth}" Margin="0,0,20,0" FontWeight="SemiBold"/>
+                                <RadioButton Content="SQL Server Authentication" GroupName="SqlAuthGroup" IsChecked="{Binding SqlUseSqlAuth}" FontWeight="SemiBold"/>
                             </StackPanel>
 
                             <StackPanel Visibility="{Binding SqlUseSqlAuth, Converter={StaticResource BoolToVis}}" Margin="0,0,0,12">
@@ -279,7 +279,7 @@
                                 <StackPanel Grid.Column="0" Margin="0,0,10,0">
                                     <TextBlock Text="Frequency" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
                                     <ComboBox SelectedValuePath="Tag" SelectedValue="{Binding SelectedFrequency}" Height="34">
-                                        <ComboBoxItem Content="Daily" Tag="daily" IsSelected="True"/>
+                                        <ComboBoxItem Content="Daily" Tag="daily"/>
                                         <ComboBoxItem Content="Weekly" Tag="weekly"/>
                                         <ComboBoxItem Content="Monthly" Tag="monthly"/>
                                         <ComboBoxItem Content="Manual Only" Tag="manual"/>
