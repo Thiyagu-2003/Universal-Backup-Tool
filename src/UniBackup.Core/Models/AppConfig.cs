@@ -333,6 +333,18 @@ public class AppConfig
 
     [JsonPropertyName("proxy")]
     public ProxySettings Proxy { get; set; } = new();
+
+    [JsonPropertyName("notification_matrix")]
+    public NotificationTriggerMatrix NotificationMatrix { get; set; } = new();
+
+    [JsonPropertyName("heartbeat")]
+    public HeartbeatSettings Heartbeat { get; set; } = new();
+
+    [JsonPropertyName("rpo")]
+    public RpoSettings Rpo { get; set; } = new();
+
+    [JsonPropertyName("prometheus")]
+    public PrometheusSettings Prometheus { get; set; } = new();
 }
 
 public class SecuritySettings

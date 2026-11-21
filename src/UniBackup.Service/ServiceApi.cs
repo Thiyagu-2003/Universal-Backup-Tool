@@ -12,6 +12,8 @@ using UniBackup.Core.Interfaces;
 using UniBackup.Core.Models;
 using UniBackup.Engine.Pipeline;
 using UniBackup.Engine.Services;
+using UniBackup.Infrastructure.Monitoring;
+using UniBackup.Infrastructure.Notifications;
 using UniBackup.Infrastructure.Sql;
 
 namespace UniBackup.Service;
@@ -151,6 +153,23 @@ public static class ServiceApi
                 ct);
 
             return res.IsSuccess ? Results.Ok() : Results.BadRequest(res.Error);
+        });
+
+        // Prometheus Metrics & Executive HTML Report
+        app.MapGet("/metrics", async (ConfigurationService cs) =>
+        {
+            var jobs = await cs.LoadJobsAsync();
+            var history = await cs.HistoryRepository.GetRunsAsync(500);
+            var metrics = PrometheusMetricsService.GenerateMetricsText(jobs, history);
+            return Results.Text(metrics, "text/plain; version=0.0.4");
+        });
+
+        app.MapGet("/reports/executive", async (ConfigurationService cs) =>
+        {
+            var jobs = await cs.LoadJobsAsync();
+            var history = await cs.HistoryRepository.GetRunsAsync(500);
+            var html = HtmlReportGenerator.GenerateExecutiveReport(ServerIdentity.Current, jobs, history);
+            return Results.Content(html, "text/html");
         });
 
         // Server-Sent Events (SSE) Progress Stream

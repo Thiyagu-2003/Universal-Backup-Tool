@@ -162,6 +162,26 @@ public class NamedPipeApiTests : IDisposable
         Assert.False(res.IsSuccess); // fails because mock has no archives, but correctly returns drill response
     }
 
+    [Fact]
+    public async Task Metrics_Endpoint_ReturnsPrometheusText()
+    {
+        var rawHttp = _server.CreateClient();
+        var res = await rawHttp.GetAsync("/metrics");
+        Assert.True(res.IsSuccessStatusCode);
+        var text = await res.Content.ReadAsStringAsync();
+        Assert.Contains("unibackup_total_runs_total", text);
+    }
+
+    [Fact]
+    public async Task ExecutiveReport_Endpoint_ReturnsHtml()
+    {
+        var rawHttp = _server.CreateClient();
+        var res = await rawHttp.GetAsync("/reports/executive");
+        Assert.True(res.IsSuccessStatusCode);
+        var html = await res.Content.ReadAsStringAsync();
+        Assert.Contains("UniBackup Pro &mdash; Executive Backup &amp; Recovery Audit", html);
+    }
+
     public void Dispose()
     {
         _client.Dispose();

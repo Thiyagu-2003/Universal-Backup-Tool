@@ -374,9 +374,22 @@ public partial class BackupPipeline
             await _configService.SaveJobsAsync(allJobs);
         }
 
-        // Send notifications
-        await _notificationService.SendRunReportAsync(config, job, history);
-        await _webhookService.SendWebhookAlertAsync(config, job, history);
+        // Heartbeat ping
+        var heartbeat = job.Heartbeat ?? (config.Heartbeat.Enabled ? config.Heartbeat : null);
+        if (heartbeat != null && heartbeat.Enabled)
+        {
+            var hbService = new HeartbeatService();
+            _ = hbService.PingAsync(heartbeat, history.Status == "SUCCESS", CancellationToken.None);
+        }
+
+        // Send notifications based on TriggerMatrix
+        var matrix = job.TriggerMatrix ?? config.NotificationMatrix;
+        var sqlType = history.SqlDatabases.FirstOrDefault()?.BackupType ?? SqlBackupType.Full;
+        if (matrix.ShouldNotify(sqlType, history.Status))
+        {
+            await _notificationService.SendRunReportAsync(config, job, history);
+            await _webhookService.SendWebhookAlertAsync(config, job, history);
+        }
 
         Log.Information("========== [JOB FINISHED] {JobName} -> Status: {Status} in {Duration} ==========",
             job.Name, history.Status, FormattingUtils.FormatDuration(elapsed));

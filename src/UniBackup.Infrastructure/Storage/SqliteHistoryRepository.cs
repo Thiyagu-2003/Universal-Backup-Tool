@@ -11,6 +11,8 @@ public class SqliteHistoryRepository
     private readonly string _connectionString;
     private readonly string _dbFilePath;
     private static readonly JsonSerializerOptions JsonOptions = new() { PropertyNameCaseInsensitive = true };
+    private bool _initialized;
+    private readonly SemaphoreSlim _initLock = new(1, 1);
 
     public SqliteHistoryRepository(string dbFilePath)
     {
@@ -21,6 +23,22 @@ public class SqliteHistoryRepository
             Mode = SqliteOpenMode.ReadWriteCreate,
             Cache = SqliteCacheMode.Shared
         }.ToString();
+    }
+
+    public async Task EnsureInitializedAsync()
+    {
+        if (_initialized) return;
+        await _initLock.WaitAsync();
+        try
+        {
+            if (_initialized) return;
+            await InitializeAsync();
+            _initialized = true;
+        }
+        finally
+        {
+            _initLock.Release();
+        }
     }
 
     public async Task InitializeAsync()
@@ -105,6 +123,7 @@ public class SqliteHistoryRepository
 
     public async Task RecordRunAsync(RunHistoryRecord record)
     {
+        await EnsureInitializedAsync();
         await using var conn = new SqliteConnection(_connectionString);
         await conn.OpenAsync();
         await using var tx = await conn.BeginTransactionAsync();
@@ -231,6 +250,7 @@ public class SqliteHistoryRepository
 
     public async Task<List<RunHistoryRecord>> GetRunsAsync(int limit = 100, string? jobId = null)
     {
+        await EnsureInitializedAsync();
         await using var conn = new SqliteConnection(_connectionString);
         await conn.OpenAsync();
 

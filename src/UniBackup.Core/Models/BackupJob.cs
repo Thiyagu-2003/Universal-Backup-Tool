@@ -145,6 +145,15 @@ public class BackupJob
     [JsonPropertyName("destination_routing")]
     public List<DestinationRoutingRule> DestinationRouting { get; set; } = [];
 
+    [JsonPropertyName("trigger_matrix")]
+    public NotificationTriggerMatrix? TriggerMatrix { get; set; }
+
+    [JsonPropertyName("heartbeat")]
+    public HeartbeatSettings? Heartbeat { get; set; }
+
+    [JsonPropertyName("rpo_minutes")]
+    public int? RpoMinutes { get; set; }
+
     [JsonPropertyName("kind")]
     public string Kind { get; set; } = "folder"; // "folder" | "sqlserver"
 
