@@ -24,6 +24,9 @@ public class BackupSettings
 
     [JsonPropertyName("use_vss_default")]
     public bool UseVssDefault { get; set; } = true;
+
+    [JsonPropertyName("history_retention_days")]
+    public int HistoryRetentionDays { get; set; } = 90;
 }
 
 public class AwsSettings

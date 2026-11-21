@@ -2,6 +2,7 @@ using System.Text.Json;
 using UniBackup.Core.Common;
 using UniBackup.Core.Interfaces;
 using UniBackup.Core.Models;
+using UniBackup.Infrastructure.Storage;
 using Serilog;
 
 namespace UniBackup.Engine.Services;
@@ -10,6 +11,7 @@ public class ConfigurationService
 {
     private readonly ICredentialProtector _crypto;
     private readonly string? _dataDirectory; // null = AppPaths data directory; tests pass a temp folder
+    private readonly Lazy<SqliteHistoryRepository> _historyRepo;
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         WriteIndented = true,
@@ -20,9 +22,13 @@ public class ConfigurationService
     {
         _crypto = crypto;
         _dataDirectory = dataDirectory;
+        _historyRepo = new Lazy<SqliteHistoryRepository>(() =>
+            new SqliteHistoryRepository(Path.Combine(DataDirectory, "UniBackup.db")));
     }
 
     public string DataDirectory => _dataDirectory ?? AppPaths.ResolveDataDirectory();
+
+    public SqliteHistoryRepository HistoryRepository => _historyRepo.Value;
 
     private string DataFile(string name, string defaultPath) =>
         _dataDirectory is null ? defaultPath : Path.Combine(_dataDirectory, name);
@@ -152,8 +158,62 @@ public class ConfigurationService
 
     public async Task<List<RunHistoryRecord>> LoadHistoryAsync(string? explicitPath = null)
     {
-        var historyPath = explicitPath ?? DataFile("history.json", AppPaths.DefaultHistoryFile);
+        if (!string.IsNullOrEmpty(explicitPath) && explicitPath.EndsWith(".json", StringComparison.OrdinalIgnoreCase))
+        {
+            return await LoadHistoryJsonAsync(explicitPath);
+        }
 
+        try
+        {
+            await HistoryRepository.InitializeAsync();
+            var jsonLegacy = DataFile("history.json", AppPaths.DefaultHistoryFile);
+            if (File.Exists(jsonLegacy))
+            {
+                await HistoryRepository.ImportHistoryJsonAsync(jsonLegacy);
+            }
+            return await HistoryRepository.GetRunsAsync();
+        }
+        catch (Exception ex)
+        {
+            Log.Warning(ex, "Could not load history from SQLite, falling back to JSON");
+            return await LoadHistoryJsonAsync(DataFile("history.json", AppPaths.DefaultHistoryFile));
+        }
+    }
+
+    public async Task<Result> AppendHistoryAsync(RunHistoryRecord record, string? explicitPath = null)
+    {
+        if (!string.IsNullOrEmpty(explicitPath) && explicitPath.EndsWith(".json", StringComparison.OrdinalIgnoreCase))
+        {
+            return await AppendHistoryJsonAsync(record, explicitPath);
+        }
+
+        try
+        {
+            await HistoryRepository.InitializeAsync();
+            await HistoryRepository.RecordRunAsync(record);
+            return Result.Success();
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "Failed to record history to SQLite: {Error}", ex.Message);
+            return Result.Failure($"History error: {ex.Message}");
+        }
+    }
+
+    public async Task<JobRunState?> GetRunStateAsync(string jobId)
+    {
+        await HistoryRepository.InitializeAsync();
+        return await HistoryRepository.GetRunStateAsync(jobId);
+    }
+
+    public async Task SaveRunStateAsync(JobRunState state)
+    {
+        await HistoryRepository.InitializeAsync();
+        await HistoryRepository.SaveRunStateAsync(state);
+    }
+
+    private async Task<List<RunHistoryRecord>> LoadHistoryJsonAsync(string historyPath)
+    {
         try
         {
             if (!File.Exists(historyPath)) return [];
@@ -168,16 +228,13 @@ public class ConfigurationService
         }
     }
 
-    public async Task<Result> AppendHistoryAsync(RunHistoryRecord record, string? explicitPath = null)
+    private async Task<Result> AppendHistoryJsonAsync(RunHistoryRecord record, string historyPath)
     {
-        var historyPath = explicitPath ?? DataFile("history.json", AppPaths.DefaultHistoryFile);
-
         try
         {
-            var history = await LoadHistoryAsync(historyPath);
+            var history = await LoadHistoryJsonAsync(historyPath);
             history.Insert(0, record);
 
-            // Keep max 1000 history entries
             if (history.Count > 1000)
             {
                 history = history.Take(1000).ToList();
@@ -192,7 +249,7 @@ public class ConfigurationService
         }
         catch (Exception ex)
         {
-            Log.Error(ex, "Failed to append history record: {Error}", ex.Message);
+            Log.Error(ex, "Failed to append history record to JSON: {Error}", ex.Message);
             return Result.Failure($"History error: {ex.Message}");
         }
     }

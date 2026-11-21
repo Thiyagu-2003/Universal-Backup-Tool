@@ -52,6 +52,12 @@ public class RunHistoryRecord
     [JsonPropertyName("status")]
     public string Status { get; set; } = "SUCCESS"; // "SUCCESS", "PARTIAL", "FAILED"
 
+    [JsonPropertyName("kind")]
+    public string Kind { get; set; } = "folder"; // "folder", "sqlserver"
+
+    [JsonPropertyName("trigger")]
+    public string Trigger { get; set; } = "Schedule"; // "Schedule", "Manual", "NightlyBatch", "Cli"
+
     [JsonPropertyName("destinations")]
     public List<DestinationRunResult> Destinations { get; set; } = [];
 

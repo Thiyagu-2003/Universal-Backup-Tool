@@ -3,6 +3,36 @@ using UniBackup.Core.Common;
 
 namespace UniBackup.Core.Models;
 
+public class FullBackupSchedule
+{
+    [JsonPropertyName("freq")] public string Freq { get; set; } = "daily"; // daily, weekly, monthly, onetime, manual
+    [JsonPropertyName("time")] public string Time { get; set; } = "02:00"; // HH:mm
+    [JsonPropertyName("interval")] public int Interval { get; set; } = 1;
+    [JsonPropertyName("days")] public List<string> Days { get; set; } = ["MON", "TUE", "WED", "THU", "FRI"];
+    [JsonPropertyName("day")] public string Day { get; set; } = "1";
+    [JsonPropertyName("date")] public string Date { get; set; } = "";
+}
+
+public class IntervalBackupSchedule
+{
+    [JsonPropertyName("enabled")] public bool Enabled { get; set; }
+    [JsonPropertyName("every_minutes")] public int EveryMinutes { get; set; } = 60;
+}
+
+public class ScheduleRunWindow
+{
+    [JsonPropertyName("enabled")] public bool Enabled { get; set; }
+    [JsonPropertyName("start")] public string Start { get; set; } = "08:00"; // HH:mm
+    [JsonPropertyName("end")] public string End { get; set; } = "20:00"; // HH:mm
+    [JsonPropertyName("days")] public List<string> Days { get; set; } = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"];
+}
+
+public class ScheduleRetrySettings
+{
+    [JsonPropertyName("max_attempts")] public int MaxAttempts { get; set; } = 3;
+    [JsonPropertyName("wait_minutes")] public int WaitMinutes { get; set; } = 5;
+}
+
 public class JobSchedule
 {
     [JsonPropertyName("freq")]
@@ -22,6 +52,35 @@ public class JobSchedule
 
     [JsonPropertyName("date")]
     public string Date { get; set; } = "";
+
+    // Schedule v2 fields
+    [JsonPropertyName("full")]
+    public FullBackupSchedule? Full { get; set; }
+
+    [JsonPropertyName("diff")]
+    public IntervalBackupSchedule? Diff { get; set; }
+
+    [JsonPropertyName("log")]
+    public IntervalBackupSchedule? Log { get; set; }
+
+    [JsonPropertyName("window")]
+    public ScheduleRunWindow? Window { get; set; }
+
+    [JsonPropertyName("missed_run_lookback_minutes")]
+    public int MissedRunLookbackMinutes { get; set; } = 120;
+
+    [JsonPropertyName("retry")]
+    public ScheduleRetrySettings Retry { get; set; } = new();
+
+    public FullBackupSchedule GetEffectiveFullSchedule() => Full ?? new FullBackupSchedule
+    {
+        Freq = Freq,
+        Time = Time,
+        Interval = Interval,
+        Days = Days,
+        Day = Day,
+        Date = Date
+    };
 
     public string ToDisplayString()
     {
