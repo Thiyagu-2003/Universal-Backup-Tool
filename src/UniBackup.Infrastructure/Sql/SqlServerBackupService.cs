@@ -183,7 +183,7 @@ public class SqlServerBackupService(ICredentialProtector crypto)
         return conn;
     }
 
-    private async Task<Result> RunAsync(SqlServerSource source, string sql, IProgress<int>? percent, CancellationToken ct,
+    public async Task<Result> RunAsync(SqlServerSource source, string sql, IProgress<int>? percent, CancellationToken ct,
         params (string Name, string Value)[] parameters)
     {
         var errors = new List<string>();

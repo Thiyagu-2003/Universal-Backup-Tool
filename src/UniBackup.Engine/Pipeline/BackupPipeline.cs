@@ -20,6 +20,7 @@ public partial class BackupPipeline
     private readonly WebhookNotificationService _webhookService;
     private readonly ConfigurationService _configService;
     private readonly SqlServerBackupService _sql;
+    private readonly ScriptExecutionService _scriptService;
 
     public BackupPipeline(
         IArchiveService archiveService,
@@ -35,6 +36,7 @@ public partial class BackupPipeline
         _webhookService = webhookService;
         _configService = configService;
         _sql = sqlService;
+        _scriptService = new ScriptExecutionService(_sql);
     }
 
     public async Task<RunHistoryRecord> ExecuteJobAsync(
@@ -125,6 +127,19 @@ public partial class BackupPipeline
 
         try
         {
+            // Pre-backup script
+            if (job.PreScript != null && job.PreScript.Enabled)
+            {
+                Report("PreScript", 3, "Running pre-backup script...");
+                var preRes = await _scriptService.ExecuteScriptAsync(job.PreScript, job, sqlType, ct);
+                if (preRes.IsFailure && job.PreScript.AbortOnError)
+                {
+                    history.Status = "FAILED";
+                    history.ErrorMessage = $"Pre-backup script failed: {preRes.Error}";
+                    return history;
+                }
+            }
+
             if (job.IsSqlServer)
             {
                 await RunSqlJobAsync(config, job, sqlType, history, (phase, pct, msg) => Report(phase, pct, msg), ct);
@@ -374,6 +389,14 @@ public partial class BackupPipeline
             await _configService.SaveJobsAsync(allJobs);
         }
 
+        var sqlType = history.SqlDatabases.FirstOrDefault()?.BackupType ?? SqlBackupType.Full;
+
+        // Post-backup script
+        if (job.PostScript != null && job.PostScript.Enabled)
+        {
+            await _scriptService.ExecuteScriptAsync(job.PostScript, job, sqlType, CancellationToken.None);
+        }
+
         // Heartbeat ping
         var heartbeat = job.Heartbeat ?? (config.Heartbeat.Enabled ? config.Heartbeat : null);
         if (heartbeat != null && heartbeat.Enabled)
@@ -384,7 +407,6 @@ public partial class BackupPipeline
 
         // Send notifications based on TriggerMatrix
         var matrix = job.TriggerMatrix ?? config.NotificationMatrix;
-        var sqlType = history.SqlDatabases.FirstOrDefault()?.BackupType ?? SqlBackupType.Full;
         if (matrix.ShouldNotify(sqlType, history.Status))
         {
             await _notificationService.SendRunReportAsync(config, job, history);

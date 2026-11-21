@@ -154,6 +154,15 @@ public class BackupJob
     [JsonPropertyName("rpo_minutes")]
     public int? RpoMinutes { get; set; }
 
+    [JsonPropertyName("pre_script")]
+    public BackupScriptConfig? PreScript { get; set; }
+
+    [JsonPropertyName("post_script")]
+    public BackupScriptConfig? PostScript { get; set; }
+
+    [JsonPropertyName("run_as_user")]
+    public WindowsRunAsCredentials? RunAsUser { get; set; }
+
     [JsonPropertyName("kind")]
     public string Kind { get; set; } = "folder"; // "folder" | "sqlserver"
 
@@ -201,4 +210,40 @@ public class DestinationRoutingRule
 
     [JsonPropertyName("is_fallback")]
     public bool IsFallback { get; set; }
+}
+
+public class BackupScriptConfig
+{
+    [JsonPropertyName("enabled")]
+    public bool Enabled { get; set; }
+
+    [JsonPropertyName("script_type")]
+    public string ScriptType { get; set; } = "powershell"; // "powershell", "batch", "sql"
+
+    [JsonPropertyName("command_or_path")]
+    public string CommandOrPath { get; set; } = "";
+
+    [JsonPropertyName("timeout_seconds")]
+    public int TimeoutSeconds { get; set; } = 300;
+
+    [JsonPropertyName("abort_on_error")]
+    public bool AbortOnError { get; set; } = true;
+
+    [JsonPropertyName("full_backups_only")]
+    public bool FullBackupsOnly { get; set; } = false;
+}
+
+public class WindowsRunAsCredentials
+{
+    [JsonPropertyName("enabled")]
+    public bool Enabled { get; set; }
+
+    [JsonPropertyName("domain")]
+    public string? Domain { get; set; }
+
+    [JsonPropertyName("username")]
+    public string Username { get; set; } = "";
+
+    [JsonPropertyName("password_sealed")]
+    public string? PasswordSealed { get; set; }
 }

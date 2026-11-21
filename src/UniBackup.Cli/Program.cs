@@ -55,6 +55,83 @@ public static class Program
             return 0;
         }
 
+        var isJson = args.Contains("--json");
+
+        if (args.Contains("--export-config"))
+        {
+            var pIndex = Array.IndexOf(args, "--export-config");
+            var targetPath = pIndex < args.Length - 1 ? args[pIndex + 1] : "UniBackup_Config.ubcfg";
+            var passIndex = Array.IndexOf(args, "--passphrase");
+            var passphrase = passIndex >= 0 && passIndex < args.Length - 1 ? args[passIndex + 1] : "";
+
+            if (string.IsNullOrEmpty(passphrase))
+            {
+                Console.Error.WriteLine("Error: --export-config requires --passphrase <pwd> to encrypt secrets.");
+                return 1;
+            }
+
+            var exportService = new ConfigExportService(configService, crypto);
+            var res = await exportService.ExportConfigAsync(targetPath, passphrase);
+            if (res.IsSuccess)
+            {
+                if (isJson) Console.WriteLine(JsonSerializer.Serialize(new { status = "SUCCESS", path = targetPath }));
+                else Console.WriteLine($"[SUCCESS] Configuration securely exported to: {targetPath}");
+                return 0;
+            }
+            if (isJson) Console.WriteLine(JsonSerializer.Serialize(new { status = "FAILED", error = res.Error }));
+            else Console.Error.WriteLine($"[FAILED] Export failed: {res.Error}");
+            return 1;
+        }
+
+        if (args.Contains("--import-config"))
+        {
+            var pIndex = Array.IndexOf(args, "--import-config");
+            var sourcePath = pIndex < args.Length - 1 ? args[pIndex + 1] : "UniBackup_Config.ubcfg";
+            var passIndex = Array.IndexOf(args, "--passphrase");
+            var passphrase = passIndex >= 0 && passIndex < args.Length - 1 ? args[passIndex + 1] : "";
+
+            if (string.IsNullOrEmpty(passphrase))
+            {
+                Console.Error.WriteLine("Error: --import-config requires --passphrase <pwd>.");
+                return 1;
+            }
+
+            var exportService = new ConfigExportService(configService, crypto);
+            var res = await exportService.ImportConfigAsync(sourcePath, passphrase);
+            if (res.IsSuccess)
+            {
+                if (isJson) Console.WriteLine(JsonSerializer.Serialize(new { status = "SUCCESS", jobsImported = res.Value!.Jobs.Count }));
+                else Console.WriteLine($"[SUCCESS] Imported {res.Value!.Jobs.Count} jobs and configuration from: {sourcePath}");
+                return 0;
+            }
+            if (isJson) Console.WriteLine(JsonSerializer.Serialize(new { status = "FAILED", error = res.Error }));
+            else Console.Error.WriteLine($"[FAILED] Import failed: {res.Error}");
+            return 1;
+        }
+
+        if (args.Contains("--history"))
+        {
+            var jobIndex = Array.IndexOf(args, "--job");
+            var jobId = jobIndex >= 0 && jobIndex < args.Length - 1 ? args[jobIndex + 1] : null;
+            var limitIndex = Array.IndexOf(args, "--limit");
+            var limit = limitIndex >= 0 && limitIndex < args.Length - 1 && int.TryParse(args[limitIndex + 1], out var parsedLimit) ? parsedLimit : 50;
+
+            var runs = await configService.HistoryRepository.GetRunsAsync(limit, jobId);
+            if (isJson)
+            {
+                Console.WriteLine(JsonSerializer.Serialize(runs, new JsonSerializerOptions { WriteIndented = true }));
+                return 0;
+            }
+
+            Console.WriteLine($"\nBackup History ({runs.Count} runs):");
+            Console.WriteLine("--------------------------------------------------------------------------------");
+            foreach (var r in runs)
+            {
+                Console.WriteLine($"[{r.Timestamp:yyyy-MM-dd HH:mm}] {r.JobName,-20} | {r.Status,-7} | {r.DurationSeconds,5:F1}s | {FormattingUtils.FormatBytes(r.ArchiveSizeBytes),-10} | {r.ErrorMessage ?? "OK"}");
+            }
+            return 0;
+        }
+
         if (args.Contains("--service"))
         {
             var sIndex = Array.IndexOf(args, "--service");
@@ -173,9 +250,15 @@ public static class Program
             }
         }
 
-        if (args.Contains("--list-jobs"))
+        if (args.Contains("--list-jobs") || args.Contains("--jobs"))
         {
             var jobs = await configService.LoadJobsAsync();
+            if (isJson)
+            {
+                Console.WriteLine(JsonSerializer.Serialize(jobs, new JsonSerializerOptions { WriteIndented = true }));
+                return 0;
+            }
+
             Console.WriteLine($"\nConfigured Backup Jobs ({jobs.Count}):");
             Console.WriteLine("---------------------------------------------------------");
             foreach (var j in jobs)
@@ -248,6 +331,10 @@ public static class Program
 
                 var history = await pipeline.ExecuteJobAsync(config, job, progress, sqlType: sqlType);
                 Console.WriteLine();
+                if (isJson)
+                {
+                    Console.WriteLine(JsonSerializer.Serialize(history, new JsonSerializerOptions { WriteIndented = true }));
+                }
 
                 return history.Status == "SUCCESS" ? 0 : 1;
             }
