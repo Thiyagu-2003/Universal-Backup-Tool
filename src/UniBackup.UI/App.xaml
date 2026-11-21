@@ -125,6 +125,12 @@
         <StreamGeometry x:Key="IconCalendarCheck">M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM10.5 15.5l-2-2 1.4-1.4 0.6 0.6 3.6-3.6 1.4 1.4-5 5z</StreamGeometry>
         <StreamGeometry x:Key="IconStethoscope">M19 8c-.55 0-1 .45-1 1v3c0 2.76-2.24 5-5 5s-5-2.24-5-5V9c0-.55-.45-1-1-1s-1 .45-1 1v3c0 3.52 2.61 6.43 6 6.92V20H9c-.55 0-1 .45-1 1s.45 1 1 1h6c.55 0 1-.45 1-1s-.45-1-1-1h-2v-1.08c3.39-.49 6-3.4 6-6.92V9c0-.55-.45-1-1-1z</StreamGeometry>
         <StreamGeometry x:Key="IconSave">M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z</StreamGeometry>
+        <StreamGeometry x:Key="IconBell">M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2zm-2 1H8v-6c0-2.48 1.51-4.5 4-4.5s4 2.02 4 4.5v6z</StreamGeometry>
+        <StreamGeometry x:Key="IconSlack">M6 15a2 2 0 0 1-2 2 2 2 0 0 1-2-2 2 2 0 0 1 2-2h2v2zm1 0a2 2 0 0 1 2-2 2 2 0 0 1 2 2v5a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-5zm2-8a2 2 0 0 1-2-2 2 2 0 0 1 2-2 2 2 0 0 1 2 2v2H9zm0 1a2 2 0 0 1 2 2 2 2 0 0 1-2 2H4a2 2 0 0 1-2-2 2 2 0 0 1 2-2h5zm8 2a2 2 0 0 1 2-2 2 2 0 0 1 2 2 2 2 0 0 1-2 2h-2v-2zm-1 0a2 2 0 0 1-2 2 2 2 0 0 1-2-2V5a2 2 0 0 1 2-2 2 2 0 0 1 2 2v5zm-2 8a2 2 0 0 1 2 2 2 2 0 0 1-2 2 2 2 0 0 1-2-2v-2h2zm0-1a2 2 0 0 1-2-2 2 2 0 0 1 2-2h5a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-5z</StreamGeometry>
+        <StreamGeometry x:Key="IconDiscord">M19.27 5.33C17.94 4.71 16.5 4.26 15 4a.09.09 0 0 0-.07.03c-.18.33-.39.76-.53 1.09a16.09 16.09 0 0 0-4.8 0c-.14-.34-.35-.76-.54-1.09-.01-.02-.04-.03-.07-.03-1.5.26-2.93.71-4.27 1.33-.01 0-.02.01-.03.02-2.72 4.07-3.47 8.03-3.1 11.95 0 .02.01.04.03.05 1.8 1.32 3.53 2.12 5.24 2.65.03.01.06 0 .07-.02.4-.55.76-1.13 1.07-1.74.02-.04 0-.08-.04-.09-.57-.22-1.11-.48-1.64-.78-.04-.02-.04-.08-.01-.11.11-.08.22-.17.33-.25.02-.02.05-.02.07-.01 3.44 1.57 7.15 1.57 10.55 0 .02-.01.05-.01.07.01.11.09.22.17.33.26.04.03.04.08-.01.11-.52.31-1.07.56-1.64.78-.04.01-.05.06-.04.09.32.61.68 1.19 1.07 1.74.03.01.06.02.09.01 1.72-.53 3.45-1.33 5.25-2.65.02-.01.03-.03.03-.05.44-4.53-.73-8.46-3.1-11.95-.01-.01-.02-.02-.04-.02zM8.52 14.91c-1.03 0-1.89-.95-1.89-2.12s.84-2.12 1.89-2.12c1.06 0 1.9.96 1.89 2.12 0 1.17-.84 2.12-1.89 2.12zm6.97 0c-1.03 0-1.89-.95-1.89-2.12s.84-2.12 1.89-2.12c1.06 0 1.9.96 1.89 2.12 0 1.17-.83 2.12-1.89 2.12z</StreamGeometry>
+        <StreamGeometry x:Key="IconTelegram">M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 0 0-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.74-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z</StreamGeometry>
+        <StreamGeometry x:Key="IconTeams">M19.42 8.71C19.79 8.24 20 7.64 20 7a3 3 0 0 0-3-3c-.64 0-1.24.21-1.71.58A5.006 5.006 0 0 1 18 8c0 .24-.03.48-.08.71h1.5zM15 12h5a2 2 0 0 1 2 2v2.5a1.5 1.5 0 0 1-1.5 1.5H18v-4a2 2 0 0 0-2-2h-1v-1zm-6-2a4 4 0 1 0 0-8 4 4 0 0 0 0 8zm-7 8v-4a4 4 0 0 1 4-4h6a4 4 0 0 1 4 4v4a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2z</StreamGeometry>
+        <StreamGeometry x:Key="IconHeartbeat">M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z</StreamGeometry>
 
         <!-- Animations & Storyboards -->
         <!-- Pulsing Indicator for Live Engine status -->
@@ -724,6 +730,261 @@
                     <Setter Property="IsChecked" Value="True"/>
                 </DataTrigger>
                 <DataTrigger Binding="{Binding SelectedSettingsTab}" Value="Temp">
+                    <Setter Property="IsChecked" Value="True"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- ============================================== -->
+        <!-- NOTIFICATIONS SUB-TAB STYLES (Colorful Chips)  -->
+        <!-- ============================================== -->
+        <!-- 1. Email (Purple) -->
+        <Style x:Key="NotifSubTabEmail" TargetType="RadioButton">
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FontFamily" Value="{StaticResource MainFont}"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Margin" Value="0,0,8,0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Border x:Name="TabContainer" Background="#FFFFFF" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="8" Padding="14,0,18,0" SnapsToDevicePixels="True">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <Border x:Name="IconBadge" Background="#F5F3FF" CornerRadius="6" Width="26" Height="26" Margin="0,0,10,0" VerticalAlignment="Center">
+                                    <Path x:Name="TabIcon" Data="{StaticResource IconMail}" Fill="#7C3AED" Width="13" Height="13" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <TextBlock x:Name="TabLabel" Text="{TemplateBinding Content}" FontSize="12.5" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="TabContainer" Property="Background" Value="#FAF5FF"/>
+                                <Setter TargetName="TabContainer" Property="BorderBrush" Value="#E9D5FF"/>
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="TabContainer" Property="Background" Value="#7C3AED"/>
+                                <Setter TargetName="TabContainer" Property="BorderBrush" Value="#6D28D9"/>
+                                <Setter TargetName="IconBadge" Property="Background" Value="#33FFFFFF"/>
+                                <Setter TargetName="TabIcon" Property="Fill" Value="White"/>
+                                <Setter TargetName="TabLabel" Property="Foreground" Value="White"/>
+                                <Setter TargetName="TabLabel" Property="FontWeight" Value="Bold"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding SelectedNotificationTab}" Value="Email">
+                    <Setter Property="IsChecked" Value="True"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- 2. Slack (Emerald Green) -->
+        <Style x:Key="NotifSubTabSlack" TargetType="RadioButton">
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FontFamily" Value="{StaticResource MainFont}"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Margin" Value="0,0,8,0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Border x:Name="TabContainer" Background="#FFFFFF" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="8" Padding="14,0,18,0" SnapsToDevicePixels="True">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <Border x:Name="IconBadge" Background="#ECFDF5" CornerRadius="6" Width="26" Height="26" Margin="0,0,10,0" VerticalAlignment="Center">
+                                    <Path x:Name="TabIcon" Data="{StaticResource IconSlack}" Fill="#059669" Width="13" Height="13" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <TextBlock x:Name="TabLabel" Text="{TemplateBinding Content}" FontSize="12.5" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="TabContainer" Property="Background" Value="#F0FDF4"/>
+                                <Setter TargetName="TabContainer" Property="BorderBrush" Value="#A7F3D0"/>
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="TabContainer" Property="Background" Value="#059669"/>
+                                <Setter TargetName="TabContainer" Property="BorderBrush" Value="#047857"/>
+                                <Setter TargetName="IconBadge" Property="Background" Value="#33FFFFFF"/>
+                                <Setter TargetName="TabIcon" Property="Fill" Value="White"/>
+                                <Setter TargetName="TabLabel" Property="Foreground" Value="White"/>
+                                <Setter TargetName="TabLabel" Property="FontWeight" Value="Bold"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding SelectedNotificationTab}" Value="Slack">
+                    <Setter Property="IsChecked" Value="True"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- 3. Discord (Blurple) -->
+        <Style x:Key="NotifSubTabDiscord" TargetType="RadioButton">
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FontFamily" Value="{StaticResource MainFont}"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Margin" Value="0,0,8,0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Border x:Name="TabContainer" Background="#FFFFFF" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="8" Padding="14,0,18,0" SnapsToDevicePixels="True">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <Border x:Name="IconBadge" Background="#EEF2FF" CornerRadius="6" Width="26" Height="26" Margin="0,0,10,0" VerticalAlignment="Center">
+                                    <Path x:Name="TabIcon" Data="{StaticResource IconDiscord}" Fill="#4F46E5" Width="13" Height="13" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <TextBlock x:Name="TabLabel" Text="{TemplateBinding Content}" FontSize="12.5" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="TabContainer" Property="Background" Value="#EEF2FF"/>
+                                <Setter TargetName="TabContainer" Property="BorderBrush" Value="#C7D2FE"/>
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="TabContainer" Property="Background" Value="#4F46E5"/>
+                                <Setter TargetName="TabContainer" Property="BorderBrush" Value="#4338CA"/>
+                                <Setter TargetName="IconBadge" Property="Background" Value="#33FFFFFF"/>
+                                <Setter TargetName="TabIcon" Property="Fill" Value="White"/>
+                                <Setter TargetName="TabLabel" Property="Foreground" Value="White"/>
+                                <Setter TargetName="TabLabel" Property="FontWeight" Value="Bold"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding SelectedNotificationTab}" Value="Discord">
+                    <Setter Property="IsChecked" Value="True"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- 4. Telegram (Sky Blue) -->
+        <Style x:Key="NotifSubTabTelegram" TargetType="RadioButton">
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FontFamily" Value="{StaticResource MainFont}"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Margin" Value="0,0,8,0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Border x:Name="TabContainer" Background="#FFFFFF" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="8" Padding="14,0,18,0" SnapsToDevicePixels="True">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <Border x:Name="IconBadge" Background="#E0F2FE" CornerRadius="6" Width="26" Height="26" Margin="0,0,10,0" VerticalAlignment="Center">
+                                    <Path x:Name="TabIcon" Data="{StaticResource IconTelegram}" Fill="#0284C7" Width="13" Height="13" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <TextBlock x:Name="TabLabel" Text="{TemplateBinding Content}" FontSize="12.5" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="TabContainer" Property="Background" Value="#F0F9FF"/>
+                                <Setter TargetName="TabContainer" Property="BorderBrush" Value="#BAE6FD"/>
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="TabContainer" Property="Background" Value="#0284C7"/>
+                                <Setter TargetName="TabContainer" Property="BorderBrush" Value="#0369A1"/>
+                                <Setter TargetName="IconBadge" Property="Background" Value="#33FFFFFF"/>
+                                <Setter TargetName="TabIcon" Property="Fill" Value="White"/>
+                                <Setter TargetName="TabLabel" Property="Foreground" Value="White"/>
+                                <Setter TargetName="TabLabel" Property="FontWeight" Value="Bold"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding SelectedNotificationTab}" Value="Telegram">
+                    <Setter Property="IsChecked" Value="True"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- 5. Teams (Violet Blue) -->
+        <Style x:Key="NotifSubTabTeams" TargetType="RadioButton">
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FontFamily" Value="{StaticResource MainFont}"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Margin" Value="0,0,8,0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Border x:Name="TabContainer" Background="#FFFFFF" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="8" Padding="14,0,18,0" SnapsToDevicePixels="True">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <Border x:Name="IconBadge" Background="#EDE9FE" CornerRadius="6" Width="26" Height="26" Margin="0,0,10,0" VerticalAlignment="Center">
+                                    <Path x:Name="TabIcon" Data="{StaticResource IconTeams}" Fill="#6D28D9" Width="13" Height="13" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <TextBlock x:Name="TabLabel" Text="{TemplateBinding Content}" FontSize="12.5" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="TabContainer" Property="Background" Value="#F5F3FF"/>
+                                <Setter TargetName="TabContainer" Property="BorderBrush" Value="#DDD6FE"/>
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="TabContainer" Property="Background" Value="#6D28D9"/>
+                                <Setter TargetName="TabContainer" Property="BorderBrush" Value="#5B21B6"/>
+                                <Setter TargetName="IconBadge" Property="Background" Value="#33FFFFFF"/>
+                                <Setter TargetName="TabIcon" Property="Fill" Value="White"/>
+                                <Setter TargetName="TabLabel" Property="Foreground" Value="White"/>
+                                <Setter TargetName="TabLabel" Property="FontWeight" Value="Bold"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding SelectedNotificationTab}" Value="Teams">
+                    <Setter Property="IsChecked" Value="True"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- 6. Rules & Heartbeat (Rose Red) -->
+        <Style x:Key="NotifSubTabRules" TargetType="RadioButton">
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FontFamily" Value="{StaticResource MainFont}"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Margin" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Border x:Name="TabContainer" Background="#FFFFFF" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="8" Padding="14,0,18,0" SnapsToDevicePixels="True">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <Border x:Name="IconBadge" Background="#FFE4E6" CornerRadius="6" Width="26" Height="26" Margin="0,0,10,0" VerticalAlignment="Center">
+                                    <Path x:Name="TabIcon" Data="{StaticResource IconHeartbeat}" Fill="#E11D48" Width="13" Height="13" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <TextBlock x:Name="TabLabel" Text="{TemplateBinding Content}" FontSize="12.5" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="TabContainer" Property="Background" Value="#FFF1F2"/>
+                                <Setter TargetName="TabContainer" Property="BorderBrush" Value="#FECDD3"/>
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="TabContainer" Property="Background" Value="#E11D48"/>
+                                <Setter TargetName="TabContainer" Property="BorderBrush" Value="#BE123C"/>
+                                <Setter TargetName="IconBadge" Property="Background" Value="#33FFFFFF"/>
+                                <Setter TargetName="TabIcon" Property="Fill" Value="White"/>
+                                <Setter TargetName="TabLabel" Property="Foreground" Value="White"/>
+                                <Setter TargetName="TabLabel" Property="FontWeight" Value="Bold"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding SelectedNotificationTab}" Value="Matrix">
                     <Setter Property="IsChecked" Value="True"/>
                 </DataTrigger>
             </Style.Triggers>

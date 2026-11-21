@@ -161,4 +161,47 @@ public class NotificationAndRpoTests
         Assert.Contains("Main Job", html);
         Assert.Contains("SQL Server Database Catalog", html);
     }
+
+    [Fact]
+    public async Task WebhookNotificationService_ValidatesEmptyConfigurations()
+    {
+        var service = new WebhookNotificationService();
+
+        var slackRes = await service.SendTestSlackAsync("");
+        Assert.True(slackRes.IsFailure);
+        Assert.Contains("Slack webhook URL is empty", slackRes.Error);
+
+        var discordRes = await service.SendTestDiscordAsync("");
+        Assert.True(discordRes.IsFailure);
+        Assert.Contains("Discord webhook URL is empty", discordRes.Error);
+
+        var teamsRes = await service.SendTestTeamsAsync("");
+        Assert.True(teamsRes.IsFailure);
+        Assert.Contains("Microsoft Teams webhook URL is empty", teamsRes.Error);
+
+        var telegramRes = await service.SendTestTelegramAsync("", "");
+        Assert.True(telegramRes.IsFailure);
+        Assert.Contains("Telegram Bot Token is empty", telegramRes.Error);
+    }
+
+    [Fact]
+    public void WebhookSettings_IncludesTelegramConfiguration()
+    {
+        var settings = new WebhookSettings
+        {
+            Enabled = true,
+            SlackWebhookUrl = "https://hooks.slack.com/test",
+            DiscordWebhookUrl = "https://discord.com/api/webhooks/test",
+            TeamsWebhookUrl = "https://office.com/webhook/test",
+            TelegramBotToken = "123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11",
+            TelegramChatId = "-1001234567890"
+        };
+
+        var json = System.Text.Json.JsonSerializer.Serialize(settings);
+        var deserialized = System.Text.Json.JsonSerializer.Deserialize<WebhookSettings>(json);
+
+        Assert.NotNull(deserialized);
+        Assert.Equal("123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11", deserialized.TelegramBotToken);
+        Assert.Equal("-1001234567890", deserialized.TelegramChatId);
+    }
 }

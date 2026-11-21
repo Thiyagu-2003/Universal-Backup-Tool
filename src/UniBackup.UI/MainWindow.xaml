@@ -111,6 +111,17 @@
                         </StackPanel>
                     </RadioButton>
 
+                    <!-- Notifications Tab (Rose/Pink Chip) -->
+                    <RadioButton GroupName="NavTabs" Style="{StaticResource NavTabStyle}"
+                                 Checked="NavTab_Checked" Tag="Notifications">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <Border Width="28" Height="28" CornerRadius="7" Background="#881337" Margin="0,0,10,0" VerticalAlignment="Center">
+                                <Path Data="{StaticResource IconBell}" Fill="#FB7185" Width="14" Height="14" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <TextBlock Text="Notifications" FontSize="13.5" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </RadioButton>
+
                     <!-- Settings Tab (Slate Chip) -->
                     <RadioButton GroupName="NavTabs" Style="{StaticResource NavTabStyle}"
                                  Checked="NavTab_Checked" Tag="Settings">
@@ -1246,7 +1257,622 @@
                 </Grid>
 
                 <!-- ============================================== -->
-                <!-- 5. SETTINGS & ENGINE TAB                       -->
+                <!-- 5. NOTIFICATIONS & INCIDENT ALERTS TAB         -->
+                <!-- ============================================== -->
+                <ScrollViewer x:Name="NotificationsTabContent" Style="{StaticResource AnimatedTabContent}" Visibility="Collapsed" VerticalScrollBarVisibility="Auto" Padding="0,6,0,24">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <!-- Row 0: Header with Description & Server badge -->
+                            <RowDefinition Height="Auto"/>
+                            <!-- Row 1: Segmented Sub-Tab Switcher (Email, Slack, Discord, Telegram, Teams, Matrix) -->
+                            <RowDefinition Height="Auto"/>
+                            <!-- Row 2: Sub-Tab Content -->
+                            <RowDefinition Height="*"/>
+                            <!-- Row 3: Bottom Action Bar (Save Notifications) -->
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <!-- Row 0: Header -->
+                        <Grid Grid.Row="0" Margin="0,0,0,20">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,0,4">
+                                    <Border Width="26" Height="26" CornerRadius="6" Background="#881337" Margin="0,0,10,0" VerticalAlignment="Center">
+                                        <Path Data="{StaticResource IconBell}" Fill="#FB7185" Width="14" Height="14" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                    <TextBlock Text="Notifications &amp; Incident Alerts" FontSize="20" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}"/>
+                                </StackPanel>
+                                <TextBlock Text="Configure multi-channel notifications for automated backup success, warnings, failure alerts, and heartbeat telemetry."
+                                           FontSize="12.5" Foreground="{StaticResource TextSecondaryBrush}"/>
+                            </StackPanel>
+
+                            <Border Grid.Column="1" Background="#F1F5F9" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="8" Padding="12,6" VerticalAlignment="Center">
+                                <StackPanel Orientation="Horizontal">
+                                    <Ellipse Width="8" Height="8" Fill="#10B981" Margin="0,0,6,0" VerticalAlignment="Center"/>
+                                    <TextBlock Text="{Binding ServerLabel}" FontSize="12" FontWeight="SemiBold" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                </StackPanel>
+                            </Border>
+                        </Grid>
+
+                        <!-- Row 1: Segmented Sub-Tab Switcher -->
+                        <Border Grid.Row="1" HorizontalAlignment="Center" Margin="0,0,0,20" Background="#F8FAFC" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="12" Padding="5">
+                            <StackPanel Orientation="Horizontal">
+                                <!-- 1. Email (Purple) -->
+                                <RadioButton Content="Email (SMTP)" GroupName="NotifSubTabs"
+                                             Style="{StaticResource NotifSubTabEmail}"
+                                             Command="{Binding SelectNotificationTabCommand}" CommandParameter="Email"/>
+
+                                <!-- 2. Slack (Emerald) -->
+                                <RadioButton Content="Slack" GroupName="NotifSubTabs"
+                                             Style="{StaticResource NotifSubTabSlack}"
+                                             Command="{Binding SelectNotificationTabCommand}" CommandParameter="Slack"/>
+
+                                <!-- 3. Discord (Blurple) -->
+                                <RadioButton Content="Discord" GroupName="NotifSubTabs"
+                                             Style="{StaticResource NotifSubTabDiscord}"
+                                             Command="{Binding SelectNotificationTabCommand}" CommandParameter="Discord"/>
+
+                                <!-- 4. Telegram (Sky Blue) -->
+                                <RadioButton Content="Telegram" GroupName="NotifSubTabs"
+                                             Style="{StaticResource NotifSubTabTelegram}"
+                                             Command="{Binding SelectNotificationTabCommand}" CommandParameter="Telegram"/>
+
+                                <!-- 5. Microsoft Teams (Violet) -->
+                                <RadioButton Content="Microsoft Teams" GroupName="NotifSubTabs"
+                                             Style="{StaticResource NotifSubTabTeams}"
+                                             Command="{Binding SelectNotificationTabCommand}" CommandParameter="Teams"/>
+
+                                <!-- 6. Trigger Matrix & Heartbeat (Rose) -->
+                                <RadioButton Content="Rules &amp; Heartbeat" GroupName="NotifSubTabs"
+                                             Style="{StaticResource NotifSubTabRules}"
+                                             Command="{Binding SelectNotificationTabCommand}" CommandParameter="Matrix"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Row 2: Sub-Tab Content -->
+                        <Grid Grid.Row="2" Margin="0,0,0,20">
+                            <!-- ============================================== -->
+                            <!-- SUB-TAB 1: EMAIL (SMTP & OAuth)                -->
+                            <!-- ============================================== -->
+                            <StackPanel>
+                                <StackPanel.Style>
+                                    <Style TargetType="StackPanel">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding SelectedNotificationTab}" Value="Email">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </StackPanel.Style>
+
+                                <!-- Email Configuration Card -->
+                                <Border Style="{StaticResource ModernCard}" Margin="0,0,0,16">
+                                    <StackPanel>
+                                        <Grid Margin="0,0,0,12">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                                                <Border Width="26" Height="26" CornerRadius="6" Background="#F5F3FF" Margin="0,0,8,0" VerticalAlignment="Center">
+                                                    <Path Data="{StaticResource IconMail}" Fill="#7C3AED" Width="13" Height="13" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </Border>
+                                                <TextBlock Text="EMAIL DISPATCH CONFIGURATION" FontWeight="Bold" FontSize="11.5" Foreground="{StaticResource TextSecondaryBrush}" VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                            <CheckBox Grid.Column="1" Content="Enable Email Alerts" IsChecked="{Binding Config.Email.Enabled}" FontWeight="Bold" Foreground="{StaticResource PrimaryBrush}"/>
+                                        </Grid>
+
+                                        <!-- Email Provider Radio buttons -->
+                                        <StackPanel Orientation="Horizontal" Margin="0,0,0,18">
+                                            <RadioButton Content="Custom SMTP" GroupName="EmailProviderChoice" IsChecked="True" FontWeight="SemiBold" Margin="0,0,24,0"/>
+                                            <RadioButton Content="Gmail (OAuth)" GroupName="EmailProviderChoice" FontWeight="SemiBold" Margin="0,0,24,0" IsEnabled="False"/>
+                                            <RadioButton Content="Microsoft 365 (OAuth)" GroupName="EmailProviderChoice" FontWeight="SemiBold" IsEnabled="False"/>
+                                        </StackPanel>
+
+                                        <!-- SMTP Host & Port -->
+                                        <Grid Margin="0,0,0,12">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="3*"/>
+                                                <ColumnDefinition Width="1*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel Grid.Column="0" Margin="0,0,12,0">
+                                                <TextBlock Text="SMTP Host" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                                                <TextBox Text="{Binding Config.Email.SmtpHost, UpdateSourceTrigger=PropertyChanged}" Height="36" VerticalContentAlignment="Center"/>
+                                            </StackPanel>
+                                            <StackPanel Grid.Column="1">
+                                                <TextBlock Text="Port" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                                                <TextBox Text="{Binding Config.Email.SmtpPort, UpdateSourceTrigger=PropertyChanged}" Height="36" VerticalContentAlignment="Center"/>
+                                            </StackPanel>
+                                        </Grid>
+
+                                        <!-- Username -->
+                                        <StackPanel Margin="0,0,0,12">
+                                            <TextBlock Text="Username (authentication sender account)" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                                            <TextBox Text="{Binding Config.Email.Username, UpdateSourceTrigger=PropertyChanged}" Height="36" VerticalContentAlignment="Center"/>
+                                        </StackPanel>
+
+                                        <!-- Password with Eye Toggle -->
+                                        <StackPanel Margin="0,0,0,12">
+                                            <TextBlock Text="Password (login credentials — encrypted securely when saved)" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                                            <Border Background="White" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="8" Height="36">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="38"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <TextBox x:Name="SmtpPasswordVisibleInput" Grid.Column="0"
+                                                             Text="{Binding Config.Email.Password, UpdateSourceTrigger=PropertyChanged}"
+                                                             BorderThickness="0" Background="Transparent" VerticalContentAlignment="Center" Padding="10,0"
+                                                             Visibility="{Binding IsSmtpPasswordVisible, Converter={StaticResource BoolToVis}}"/>
+                                                    <PasswordBox x:Name="SmtpPasswordInput" Grid.Column="0"
+                                                                 BorderThickness="0" Background="Transparent" VerticalContentAlignment="Center" Padding="10,0"
+                                                                 Visibility="{Binding IsSmtpPasswordVisible, Converter={StaticResource InverseBoolToVis}}"
+                                                                 PasswordChanged="SmtpPasswordInput_PasswordChanged"/>
+                                                    <Button Grid.Column="1" Width="32" Height="32" Margin="0,0,3,0" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                            Background="Transparent" BorderThickness="0" Cursor="Hand" Focusable="False"
+                                                            Command="{Binding ToggleSmtpPasswordVisibilityCommand}" ToolTip="Show / Hide Password">
+                                                        <Button.Style>
+                                                            <Style TargetType="Button">
+                                                                <Setter Property="Template">
+                                                                    <Setter.Value>
+                                                                        <ControlTemplate TargetType="Button">
+                                                                            <Border x:Name="bd" Background="Transparent" CornerRadius="6" Padding="6">
+                                                                                <Path x:Name="EyeIcon" Data="{StaticResource IconEye}" Fill="{StaticResource TextSecondaryBrush}" Width="16" Height="16" Stretch="Uniform"/>
+                                                                            </Border>
+                                                                            <ControlTemplate.Triggers>
+                                                                                <Trigger Property="IsMouseOver" Value="True">
+                                                                                    <Setter TargetName="bd" Property="Background" Value="#F1F5F9"/>
+                                                                                </Trigger>
+                                                                                <DataTrigger Binding="{Binding IsSmtpPasswordVisible}" Value="True">
+                                                                                    <Setter TargetName="EyeIcon" Property="Data" Value="{StaticResource IconEyeOff}"/>
+                                                                                    <Setter TargetName="EyeIcon" Property="Fill" Value="{StaticResource PrimaryBrush}"/>
+                                                                                </DataTrigger>
+                                                                            </ControlTemplate.Triggers>
+                                                                        </ControlTemplate>
+                                                                    </Setter.Value>
+                                                                </Setter>
+                                                            </Style>
+                                                        </Button.Style>
+                                                    </Button>
+                                                </Grid>
+                                            </Border>
+                                        </StackPanel>
+
+                                        <!-- Use TLS -->
+                                        <CheckBox Content="Use TLS (STARTTLS)" IsChecked="{Binding Config.Email.UseTls}" FontWeight="SemiBold" Margin="0,0,0,16"/>
+
+                                        <Border Height="1" Background="{StaticResource BorderBrush}" Margin="0,0,0,16"/>
+
+                                        <!-- From Address -->
+                                        <StackPanel Margin="0,0,0,14">
+                                            <TextBlock Text="From Address (sender display email)" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                                            <TextBox Text="{Binding Config.Email.FromAddress, UpdateSourceTrigger=PropertyChanged}" Height="36" VerticalContentAlignment="Center"/>
+                                        </StackPanel>
+
+                                        <!-- Recipients (comma separated) -->
+                                        <StackPanel Margin="0,0,0,16">
+                                            <TextBlock Text="Recipients (comma or semicolon separated)" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                                            <TextBox Text="{Binding EmailRecipientsText, UpdateSourceTrigger=PropertyChanged}" Height="36" VerticalContentAlignment="Center"/>
+                                        </StackPanel>
+
+                                        <!-- Triggers -->
+                                        <StackPanel Margin="0,0,0,16">
+                                            <Grid Margin="0,0,0,8">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <CheckBox Grid.Column="0" Content="Send email on success" IsChecked="{Binding Config.Email.NotifyOnSuccess}" FontWeight="SemiBold"/>
+                                                <CheckBox Grid.Column="1" Content="Send email on failure" IsChecked="{Binding Config.Email.NotifyOnFailure}" FontWeight="SemiBold"/>
+                                            </Grid>
+                                            <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                                                <TextBlock Text="Quick trigger presets:" FontSize="11.5" Foreground="{StaticResource TextSecondaryBrush}" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                                <Button Content="Failure only" Style="{StaticResource TagButton}" Margin="0,0,6,0" Command="{Binding SetNotificationRuleCommand}" CommandParameter="failure"/>
+                                                <Button Content="Both (Always)" Style="{StaticResource TagButton}" Margin="0,0,6,0" Command="{Binding SetNotificationRuleCommand}" CommandParameter="both"/>
+                                                <Button Content="Success only" Style="{StaticResource TagButton}" Command="{Binding SetNotificationRuleCommand}" CommandParameter="success"/>
+                                            </StackPanel>
+                                        </StackPanel>
+
+                                        <!-- Action: Test Email -->
+                                        <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                                            <Button Style="{StaticResource SecondaryButton}" Command="{Binding TestEmailCommand}" ToolTip="Send real verification alert to recipient email address(es)">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <Path Data="{StaticResource IconPaperPlane}" Fill="{StaticResource PrimaryBrush}" Width="13" Height="13" Stretch="Uniform" Margin="0,0,8,0"/>
+                                                    <TextBlock Text="Send Test Email" FontWeight="SemiBold"/>
+                                                </StackPanel>
+                                            </Button>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+
+                            <!-- ============================================== -->
+                            <!-- SUB-TAB 2: SLACK WEBHOOKS                      -->
+                            <!-- ============================================== -->
+                            <StackPanel>
+                                <StackPanel.Style>
+                                    <Style TargetType="StackPanel">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding SelectedNotificationTab}" Value="Slack">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </StackPanel.Style>
+
+                                <Border Style="{StaticResource ModernCard}" Margin="0,0,0,16">
+                                    <StackPanel>
+                                        <Grid Margin="0,0,0,14">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                                                <Border Width="26" Height="26" CornerRadius="6" Background="#ECFDF5" Margin="0,0,8,0" VerticalAlignment="Center">
+                                                    <Path Data="{StaticResource IconSlack}" Fill="#059669" Width="13" Height="13" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </Border>
+                                                <TextBlock Text="SLACK INCOMING WEBHOOKS" FontWeight="Bold" FontSize="11.5" Foreground="{StaticResource TextSecondaryBrush}" VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                            <CheckBox Grid.Column="1" Content="Enable Webhooks" IsChecked="{Binding Config.Webhooks.Enabled}" FontWeight="Bold" Foreground="{StaticResource SuccessBrush}"/>
+                                        </Grid>
+
+                                        <Border Background="#F0FDF4" BorderBrush="#A7F3D0" BorderThickness="1" CornerRadius="8" Padding="14,10" Margin="0,0,0,16">
+                                            <TextBlock Text="Send real-time backup run summaries, error traces, and status alerts directly into any Slack channel via Incoming Webhooks."
+                                                       FontSize="12" Foreground="#065F46" TextWrapping="Wrap"/>
+                                        </Border>
+
+                                        <StackPanel Margin="0,0,0,14">
+                                            <TextBlock Text="Slack Webhook URL" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                                            <TextBox Text="{Binding Config.Webhooks.SlackWebhookUrl, UpdateSourceTrigger=PropertyChanged}" Height="36" VerticalContentAlignment="Center"/>
+                                            <TextBlock Text="e.g. https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX" FontSize="11" Foreground="{StaticResource TextMutedBrush}" Margin="0,3,0,0"/>
+                                        </StackPanel>
+
+                                        <Grid Margin="0,0,0,16">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <CheckBox Grid.Column="0" Content="Notify on Success" IsChecked="{Binding Config.Webhooks.NotifyOnSuccess}" FontWeight="SemiBold"/>
+                                            <CheckBox Grid.Column="1" Content="Notify on Failure" IsChecked="{Binding Config.Webhooks.NotifyOnFailure}" FontWeight="SemiBold"/>
+                                        </Grid>
+
+                                        <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                                            <Button Style="{StaticResource SecondaryButton}" Command="{Binding TestSlackCommand}">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <Path Data="{StaticResource IconPaperPlane}" Fill="#059669" Width="13" Height="13" Stretch="Uniform" Margin="0,0,8,0"/>
+                                                    <TextBlock Text="Send Test Slack Alert" FontWeight="SemiBold"/>
+                                                </StackPanel>
+                                            </Button>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+
+                            <!-- ============================================== -->
+                            <!-- SUB-TAB 3: DISCORD WEBHOOKS                    -->
+                            <!-- ============================================== -->
+                            <StackPanel>
+                                <StackPanel.Style>
+                                    <Style TargetType="StackPanel">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding SelectedNotificationTab}" Value="Discord">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </StackPanel.Style>
+
+                                <Border Style="{StaticResource ModernCard}" Margin="0,0,0,16">
+                                    <StackPanel>
+                                        <Grid Margin="0,0,0,14">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                                                <Border Width="26" Height="26" CornerRadius="6" Background="#EEF2FF" Margin="0,0,8,0" VerticalAlignment="Center">
+                                                    <Path Data="{StaticResource IconDiscord}" Fill="#4F46E5" Width="13" Height="13" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </Border>
+                                                <TextBlock Text="DISCORD SERVER WEBHOOKS" FontWeight="Bold" FontSize="11.5" Foreground="{StaticResource TextSecondaryBrush}" VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                            <CheckBox Grid.Column="1" Content="Enable Webhooks" IsChecked="{Binding Config.Webhooks.Enabled}" FontWeight="Bold" Foreground="#4F46E5"/>
+                                        </Grid>
+
+                                        <Border Background="#EEF2FF" BorderBrush="#C7D2FE" BorderThickness="1" CornerRadius="8" Padding="14,10" Margin="0,0,0,16">
+                                            <TextBlock Text="Publish backup status events into your Discord server. Works with both standard and announcement channels."
+                                                       FontSize="12" Foreground="#3730A3" TextWrapping="Wrap"/>
+                                        </Border>
+
+                                        <StackPanel Margin="0,0,0,14">
+                                            <TextBlock Text="Discord Webhook URL" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                                            <TextBox Text="{Binding Config.Webhooks.DiscordWebhookUrl, UpdateSourceTrigger=PropertyChanged}" Height="36" VerticalContentAlignment="Center"/>
+                                            <TextBlock Text="e.g. https://discord.com/api/webhooks/123456789012345678/abcdefghijklmnopqrstuvwxyz..." FontSize="11" Foreground="{StaticResource TextMutedBrush}" Margin="0,3,0,0"/>
+                                        </StackPanel>
+
+                                        <Grid Margin="0,0,0,16">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <CheckBox Grid.Column="0" Content="Notify on Success" IsChecked="{Binding Config.Webhooks.NotifyOnSuccess}" FontWeight="SemiBold"/>
+                                            <CheckBox Grid.Column="1" Content="Notify on Failure" IsChecked="{Binding Config.Webhooks.NotifyOnFailure}" FontWeight="SemiBold"/>
+                                        </Grid>
+
+                                        <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                                            <Button Style="{StaticResource SecondaryButton}" Command="{Binding TestDiscordCommand}">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <Path Data="{StaticResource IconPaperPlane}" Fill="#4F46E5" Width="13" Height="13" Stretch="Uniform" Margin="0,0,8,0"/>
+                                                    <TextBlock Text="Send Test Discord Alert" FontWeight="SemiBold"/>
+                                                </StackPanel>
+                                            </Button>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+
+                            <!-- ============================================== -->
+                            <!-- SUB-TAB 4: TELEGRAM BOT                        -->
+                            <!-- ============================================== -->
+                            <StackPanel>
+                                <StackPanel.Style>
+                                    <Style TargetType="StackPanel">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding SelectedNotificationTab}" Value="Telegram">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </StackPanel.Style>
+
+                                <Border Style="{StaticResource ModernCard}" Margin="0,0,0,16">
+                                    <StackPanel>
+                                        <Grid Margin="0,0,0,14">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                                                <Border Width="26" Height="26" CornerRadius="6" Background="#E0F2FE" Margin="0,0,8,0" VerticalAlignment="Center">
+                                                    <Path Data="{StaticResource IconTelegram}" Fill="#0284C7" Width="13" Height="13" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </Border>
+                                                <TextBlock Text="TELEGRAM BOT NOTIFICATIONS" FontWeight="Bold" FontSize="11.5" Foreground="{StaticResource TextSecondaryBrush}" VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                            <CheckBox Grid.Column="1" Content="Enable Webhooks" IsChecked="{Binding Config.Webhooks.Enabled}" FontWeight="Bold" Foreground="#0284C7"/>
+                                        </Grid>
+
+                                        <Border Background="#F0F9FF" BorderBrush="#BAE6FD" BorderThickness="1" CornerRadius="8" Padding="14,10" Margin="0,0,0,16">
+                                            <TextBlock Text="Receive instant mobile push alerts on Telegram directly to your phone or channel. Messages include status emojis, duration, and error diagnostics."
+                                                       FontSize="12" Foreground="#0369A1" TextWrapping="Wrap"/>
+                                        </Border>
+
+                                        <StackPanel Margin="0,0,0,14">
+                                            <TextBlock Text="Telegram Bot Token" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                                            <TextBox Text="{Binding Config.Webhooks.TelegramBotToken, UpdateSourceTrigger=PropertyChanged}" Height="36" VerticalContentAlignment="Center"/>
+                                            <TextBlock Text="Generated via @BotFather on Telegram (e.g. 123456789:ABCdefGhIJKlmNoPQRsTUVwxyZ)" FontSize="11" Foreground="{StaticResource TextMutedBrush}" Margin="0,3,0,0"/>
+                                        </StackPanel>
+
+                                        <StackPanel Margin="0,0,0,14">
+                                            <TextBlock Text="Telegram Chat ID" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                                            <TextBox Text="{Binding Config.Webhooks.TelegramChatId, UpdateSourceTrigger=PropertyChanged}" Height="36" VerticalContentAlignment="Center"/>
+                                            <TextBlock Text="Your individual user Chat ID or Group ID (e.g. 987654321 or -1001234567890). Message @userinfobot to view your ID." FontSize="11" Foreground="{StaticResource TextMutedBrush}" Margin="0,3,0,0"/>
+                                        </StackPanel>
+
+                                        <Grid Margin="0,0,0,16">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <CheckBox Grid.Column="0" Content="Notify on Success" IsChecked="{Binding Config.Webhooks.NotifyOnSuccess}" FontWeight="SemiBold"/>
+                                            <CheckBox Grid.Column="1" Content="Notify on Failure" IsChecked="{Binding Config.Webhooks.NotifyOnFailure}" FontWeight="SemiBold"/>
+                                        </Grid>
+
+                                        <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                                            <Button Style="{StaticResource SecondaryButton}" Command="{Binding TestTelegramCommand}">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <Path Data="{StaticResource IconPaperPlane}" Fill="#0284C7" Width="13" Height="13" Stretch="Uniform" Margin="0,0,8,0"/>
+                                                    <TextBlock Text="Send Test Telegram Alert" FontWeight="SemiBold"/>
+                                                </StackPanel>
+                                            </Button>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+
+                            <!-- ============================================== -->
+                            <!-- SUB-TAB 5: MICROSOFT TEAMS                     -->
+                            <!-- ============================================== -->
+                            <StackPanel>
+                                <StackPanel.Style>
+                                    <Style TargetType="StackPanel">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding SelectedNotificationTab}" Value="Teams">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </StackPanel.Style>
+
+                                <Border Style="{StaticResource ModernCard}" Margin="0,0,0,16">
+                                    <StackPanel>
+                                        <Grid Margin="0,0,0,14">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                                                <Border Width="26" Height="26" CornerRadius="6" Background="#EDE9FE" Margin="0,0,8,0" VerticalAlignment="Center">
+                                                    <Path Data="{StaticResource IconTeams}" Fill="#6D28D9" Width="13" Height="13" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </Border>
+                                                <TextBlock Text="MICROSOFT TEAMS WORKFLOW WEBHOOKS" FontWeight="Bold" FontSize="11.5" Foreground="{StaticResource TextSecondaryBrush}" VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                            <CheckBox Grid.Column="1" Content="Enable Webhooks" IsChecked="{Binding Config.Webhooks.Enabled}" FontWeight="Bold" Foreground="#6D28D9"/>
+                                        </Grid>
+
+                                        <Border Background="#F5F3FF" BorderBrush="#DDD6FE" BorderThickness="1" CornerRadius="8" Padding="14,10" Margin="0,0,0,16">
+                                            <TextBlock Text="Dispatch structured alert cards to your Microsoft Teams incident channels via Power Automate workflows or Incoming Webhook connectors."
+                                                       FontSize="12" Foreground="#5B21B6" TextWrapping="Wrap"/>
+                                        </Border>
+
+                                        <StackPanel Margin="0,0,0,14">
+                                            <TextBlock Text="Teams Webhook URL" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                                            <TextBox Text="{Binding Config.Webhooks.TeamsWebhookUrl, UpdateSourceTrigger=PropertyChanged}" Height="36" VerticalContentAlignment="Center"/>
+                                            <TextBlock Text="e.g. https://company.webhook.office.com/webhookb2/..." FontSize="11" Foreground="{StaticResource TextMutedBrush}" Margin="0,3,0,0"/>
+                                        </StackPanel>
+
+                                        <Grid Margin="0,0,0,16">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <CheckBox Grid.Column="0" Content="Notify on Success" IsChecked="{Binding Config.Webhooks.NotifyOnSuccess}" FontWeight="SemiBold"/>
+                                            <CheckBox Grid.Column="1" Content="Notify on Failure" IsChecked="{Binding Config.Webhooks.NotifyOnFailure}" FontWeight="SemiBold"/>
+                                        </Grid>
+
+                                        <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                                            <Button Style="{StaticResource SecondaryButton}" Command="{Binding TestTeamsCommand}">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <Path Data="{StaticResource IconPaperPlane}" Fill="#6D28D9" Width="13" Height="13" Stretch="Uniform" Margin="0,0,8,0"/>
+                                                    <TextBlock Text="Send Test Teams Alert" FontWeight="SemiBold"/>
+                                                </StackPanel>
+                                            </Button>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+
+                            <!-- ============================================== -->
+                            <!-- SUB-TAB 6: TRIGGER MATRIX & HEARTBEAT          -->
+                            <!-- ============================================== -->
+                            <StackPanel>
+                                <StackPanel.Style>
+                                    <Style TargetType="StackPanel">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding SelectedNotificationTab}" Value="Matrix">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </StackPanel.Style>
+
+                                <!-- Trigger Matrix Card -->
+                                <Border Style="{StaticResource ModernCard}" Margin="0,0,0,16">
+                                    <StackPanel>
+                                        <TextBlock Text="GRANULAR NOTIFICATION TRIGGER MATRIX" FontWeight="Bold" FontSize="11.5" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,10"/>
+                                        <TextBlock Text="Filter alert notifications by backup type to prevent inbox and channel noise from high-frequency (e.g. 15-minute) transaction logs."
+                                                   FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,14"/>
+
+                                        <Grid Margin="0,0,0,16">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="140"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="30"/>
+                                                <RowDefinition Height="34"/>
+                                                <RowDefinition Height="34"/>
+                                                <RowDefinition Height="34"/>
+                                            </Grid.RowDefinitions>
+
+                                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Backup Type" FontWeight="Bold" FontSize="11.5" Foreground="{StaticResource TextMutedBrush}"/>
+                                            <TextBlock Grid.Row="0" Grid.Column="1" Text="On Success" FontWeight="Bold" FontSize="11.5" Foreground="#059669"/>
+                                            <TextBlock Grid.Row="0" Grid.Column="2" Text="On Warning" FontWeight="Bold" FontSize="11.5" Foreground="#D97706"/>
+                                            <TextBlock Grid.Row="0" Grid.Column="3" Text="On Failure" FontWeight="Bold" FontSize="11.5" Foreground="#DC2626"/>
+
+                                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Full Backup" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                            <CheckBox Grid.Row="1" Grid.Column="1" IsChecked="{Binding Config.NotificationMatrix.FullSuccess}" VerticalAlignment="Center"/>
+                                            <CheckBox Grid.Row="1" Grid.Column="2" IsChecked="{Binding Config.NotificationMatrix.FullWarning}" VerticalAlignment="Center"/>
+                                            <CheckBox Grid.Row="1" Grid.Column="3" IsChecked="{Binding Config.NotificationMatrix.FullFailure}" VerticalAlignment="Center"/>
+
+                                            <TextBlock Grid.Row="2" Grid.Column="0" Text="Differential" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                            <CheckBox Grid.Row="2" Grid.Column="1" IsChecked="{Binding Config.NotificationMatrix.DiffSuccess}" VerticalAlignment="Center"/>
+                                            <CheckBox Grid.Row="2" Grid.Column="2" IsChecked="{Binding Config.NotificationMatrix.DiffWarning}" VerticalAlignment="Center"/>
+                                            <CheckBox Grid.Row="2" Grid.Column="3" IsChecked="{Binding Config.NotificationMatrix.DiffFailure}" VerticalAlignment="Center"/>
+
+                                            <TextBlock Grid.Row="3" Grid.Column="0" Text="Transaction Log" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                            <CheckBox Grid.Row="3" Grid.Column="1" IsChecked="{Binding Config.NotificationMatrix.LogSuccess}" VerticalAlignment="Center"/>
+                                            <CheckBox Grid.Row="3" Grid.Column="2" IsChecked="{Binding Config.NotificationMatrix.LogWarning}" VerticalAlignment="Center"/>
+                                            <CheckBox Grid.Row="3" Grid.Column="3" IsChecked="{Binding Config.NotificationMatrix.LogFailure}" VerticalAlignment="Center"/>
+                                        </Grid>
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- Heartbeat Telemetry Card -->
+                                <Border Style="{StaticResource ModernCard}" Margin="0,0,0,16">
+                                    <StackPanel>
+                                        <Grid Margin="0,0,0,14">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                                                <Border Width="26" Height="26" CornerRadius="6" Background="#FFE4E6" Margin="0,0,8,0" VerticalAlignment="Center">
+                                                    <Path Data="{StaticResource IconHeartbeat}" Fill="#E11D48" Width="13" Height="13" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </Border>
+                                                <TextBlock Text="HEARTBEAT TELEMETRY (DEAD-MAN SWITCH)" FontWeight="Bold" FontSize="11.5" Foreground="{StaticResource TextSecondaryBrush}" VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                            <CheckBox Grid.Column="1" Content="Enable Heartbeat" IsChecked="{Binding Config.Heartbeat.Enabled}" FontWeight="Bold" Foreground="#E11D48"/>
+                                        </Grid>
+
+                                        <TextBlock Text="Integrate with Healthchecks.io, Uptime Kuma, or Dead Man's Snitch. Pings automatically upon run completion; alerts if your server dies or misses a scheduled window."
+                                                   FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,14"/>
+
+                                        <StackPanel Margin="0,0,0,14">
+                                            <TextBlock Text="Heartbeat Ping URL" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                                            <TextBox Text="{Binding Config.Heartbeat.Url, UpdateSourceTrigger=PropertyChanged}" Height="36" VerticalContentAlignment="Center"/>
+                                            <TextBlock Text="e.g. https://hc-ping.com/your-uuid-token" FontSize="11" Foreground="{StaticResource TextMutedBrush}" Margin="0,3,0,0"/>
+                                        </StackPanel>
+
+                                        <CheckBox Content="Append /fail on backup failure" IsChecked="{Binding Config.Heartbeat.AppendFailPath}" FontWeight="SemiBold" Margin="0,0,0,16"/>
+
+                                        <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                                            <Button Style="{StaticResource SecondaryButton}" Command="{Binding TestHeartbeatCommand}">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <Path Data="{StaticResource IconPaperPlane}" Fill="#E11D48" Width="13" Height="13" Stretch="Uniform" Margin="0,0,8,0"/>
+                                                    <TextBlock Text="Send Test Ping" FontWeight="SemiBold"/>
+                                                </StackPanel>
+                                            </Button>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+                        </Grid>
+
+                        <!-- Row 3: Bottom Action Bar (Save Notifications) -->
+                        <Border Grid.Row="3" Background="#FFFFFF" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="12" Padding="20,14">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                    <TextBlock Text="Notification configurations apply immediately to all scheduled and manual backup jobs."
+                                               FontSize="12" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                </StackPanel>
+                                <Button Grid.Column="1" Style="{StaticResource PrimaryButton}" Height="38" Padding="20,0" Command="{Binding SaveNotificationsCommand}">
+                                    <StackPanel Orientation="Horizontal">
+                                        <Path Data="{StaticResource IconSave}" Fill="White" Width="14" Height="14" Stretch="Uniform" Margin="0,0,8,0"/>
+                                        <TextBlock Text="Save Notification Settings" FontWeight="Bold"/>
+                                    </StackPanel>
+                                </Button>
+                            </Grid>
+                        </Border>
+                    </Grid>
+                </ScrollViewer>
+
+                <!-- ============================================== -->
+                <!-- 6. SETTINGS & ENGINE TAB                       -->
                 <!-- ============================================== -->
                 <ScrollViewer x:Name="SettingsTabContent" Style="{StaticResource AnimatedTabContent}" Visibility="Collapsed" VerticalScrollBarVisibility="Auto" Padding="0,6,0,24">
                     <Grid>
@@ -1301,12 +1927,7 @@
                                              Style="{StaticResource SettingsSubTabEmerald}"
                                              Command="{Binding SelectSettingsTabCommand}" CommandParameter="Destinations"/>
 
-                                <!-- 3. Email Sub-Tab (Purple) -->
-                                <RadioButton Content="Email" GroupName="SettingsSubTabs"
-                                             Style="{StaticResource SettingsSubTabPurple}"
-                                             Command="{Binding SelectSettingsTabCommand}" CommandParameter="Email"/>
-
-                                <!-- 4. Schedule Sub-Tab (Teal) -->
+                                <!-- 3. Schedule Sub-Tab (Teal) -->
                                 <RadioButton Content="Schedule" GroupName="SettingsSubTabs"
                                              Style="{StaticResource SettingsSubTabTeal}"
                                              Command="{Binding SelectSettingsTabCommand}" CommandParameter="Schedule"/>
@@ -1928,160 +2549,7 @@
                             </StackPanel>
 
                             <!-- ============================================== -->
-                            <!-- SUB-TAB 3: EMAIL NOTIFICATIONS (Exact Match)    -->
-                            <!-- ============================================== -->
-                            <StackPanel>
-                                <StackPanel.Style>
-                                    <Style TargetType="StackPanel">
-                                        <Setter Property="Visibility" Value="Collapsed"/>
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding SelectedSettingsTab}" Value="Email">
-                                                <Setter Property="Visibility" Value="Visible"/>
-                                            </DataTrigger>
-                                            <DataTrigger Binding="{Binding SelectedSettingsTab}" Value="Notifications">
-                                                <Setter Property="Visibility" Value="Visible"/>
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </StackPanel.Style>
-
-                                <!-- Email Configuration Card -->
-                                <Border Style="{StaticResource ModernCard}" Margin="0,0,0,16">
-                                    <StackPanel>
-                                        <!-- Header: EMAIL PROVIDER -->
-                                        <TextBlock Text="EMAIL PROVIDER" FontWeight="Bold" FontSize="11.5" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,10"/>
-                                        <StackPanel Orientation="Horizontal" Margin="0,0,0,18">
-                                            <RadioButton Content="Custom SMTP" GroupName="EmailProviderChoice" IsChecked="True" FontWeight="SemiBold" Margin="0,0,24,0"/>
-                                            <RadioButton Content="Gmail (OAuth)" GroupName="EmailProviderChoice" FontWeight="SemiBold" Margin="0,0,24,0" IsEnabled="False"/>
-                                            <RadioButton Content="Microsoft 365 (OAuth)" GroupName="EmailProviderChoice" FontWeight="SemiBold" IsEnabled="False"/>
-                                        </StackPanel>
-
-                                        <!-- SMTP Host & Port (Side by Side) -->
-                                        <Grid Margin="0,0,0,12">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="3*"/>
-                                                <ColumnDefinition Width="1*"/>
-                                            </Grid.ColumnDefinitions>
-                                            <StackPanel Grid.Column="0" Margin="0,0,12,0">
-                                                <TextBlock Text="SMTP Host" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
-                                                <TextBox Text="{Binding Config.Email.SmtpHost, UpdateSourceTrigger=PropertyChanged}" Height="36" VerticalContentAlignment="Center"/>
-                                            </StackPanel>
-                                            <StackPanel Grid.Column="1">
-                                                <TextBlock Text="Port" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
-                                                <TextBox Text="{Binding Config.Email.SmtpPort, UpdateSourceTrigger=PropertyChanged}" Height="36" VerticalContentAlignment="Center"/>
-                                            </StackPanel>
-                                        </Grid>
-
-                                        <!-- Username (the mailbox that logs in to send) -->
-                                        <StackPanel Margin="0,0,0,12">
-                                            <TextBlock Text="Username (the mailbox that logs in to send)" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
-                                            <TextBox Text="{Binding Config.Email.Username, UpdateSourceTrigger=PropertyChanged}" Height="36" VerticalContentAlignment="Center"/>
-                                        </StackPanel>
-
-                                        <!-- Password (login for the Username above — encrypted when saved) -->
-                                        <StackPanel Margin="0,0,0,12">
-                                            <TextBlock Text="Password (login for the Username above — encrypted when saved)" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
-                                            <Border Background="White" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="8" Height="36">
-                                                <Grid>
-                                                    <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition Width="*"/>
-                                                        <ColumnDefinition Width="38"/>
-                                                    </Grid.ColumnDefinitions>
-                                                    <!-- Visible plain text password -->
-                                                    <TextBox x:Name="SmtpPasswordVisibleInput" Grid.Column="0"
-                                                             Text="{Binding Config.Email.Password, UpdateSourceTrigger=PropertyChanged}"
-                                                             BorderThickness="0" Background="Transparent" VerticalContentAlignment="Center" Padding="10,0"
-                                                             Visibility="{Binding IsSmtpPasswordVisible, Converter={StaticResource BoolToVis}}"/>
-                                                    <!-- Masked password using PasswordBox -->
-                                                    <PasswordBox x:Name="SmtpPasswordInput" Grid.Column="0"
-                                                                 BorderThickness="0" Background="Transparent" VerticalContentAlignment="Center" Padding="10,0"
-                                                                 Visibility="{Binding IsSmtpPasswordVisible, Converter={StaticResource InverseBoolToVis}}"
-                                                                 PasswordChanged="SmtpPasswordInput_PasswordChanged"/>
-                                                    <!-- Eye Toggle Button -->
-                                                    <Button Grid.Column="1" Width="32" Height="32" Margin="0,0,3,0" HorizontalAlignment="Center" VerticalAlignment="Center"
-                                                            Background="Transparent" BorderThickness="0" Cursor="Hand" Focusable="False"
-                                                            Command="{Binding ToggleSmtpPasswordVisibilityCommand}" ToolTip="Show / Hide Password">
-                                                        <Button.Style>
-                                                            <Style TargetType="Button">
-                                                                <Setter Property="Template">
-                                                                    <Setter.Value>
-                                                                        <ControlTemplate TargetType="Button">
-                                                                            <Border x:Name="bd" Background="Transparent" CornerRadius="6" Padding="6">
-                                                                                <Path x:Name="EyeIcon" Data="{StaticResource IconEye}" Fill="{StaticResource TextSecondaryBrush}" Width="16" Height="16" Stretch="Uniform"/>
-                                                                            </Border>
-                                                                            <ControlTemplate.Triggers>
-                                                                                <Trigger Property="IsMouseOver" Value="True">
-                                                                                    <Setter TargetName="bd" Property="Background" Value="#F1F5F9"/>
-                                                                                </Trigger>
-                                                                                <DataTrigger Binding="{Binding IsSmtpPasswordVisible}" Value="True">
-                                                                                    <Setter TargetName="EyeIcon" Property="Data" Value="{StaticResource IconEyeOff}"/>
-                                                                                    <Setter TargetName="EyeIcon" Property="Fill" Value="{StaticResource PrimaryBrush}"/>
-                                                                                </DataTrigger>
-                                                                            </ControlTemplate.Triggers>
-                                                                        </ControlTemplate>
-                                                                    </Setter.Value>
-                                                                </Setter>
-                                                            </Style>
-                                                        </Button.Style>
-                                                    </Button>
-                                                </Grid>
-                                            </Border>
-                                        </StackPanel>
-
-                                        <!-- Use TLS (STARTTLS) -->
-                                        <CheckBox Content="Use TLS (STARTTLS)" IsChecked="{Binding Config.Email.UseTls}" FontWeight="SemiBold" Margin="0,0,0,16"/>
-
-                                        <Border Height="1" Background="{StaticResource BorderBrush}" Margin="0,0,0,16"/>
-
-                                        <!-- From address (sender mail ID) -->
-                                        <StackPanel Margin="0,0,0,14">
-                                            <TextBlock Text="From address (sender mail ID)" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
-                                            <TextBox Text="{Binding Config.Email.FromAddress, UpdateSourceTrigger=PropertyChanged}" Height="36" VerticalContentAlignment="Center"/>
-                                            <TextBlock Text="Shown to recipients as the sender — usually the same mailbox as Username above. It doesn't need its own password."
-                                                       FontSize="11.5" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,4,0,0"/>
-                                        </StackPanel>
-
-                                        <!-- Send to (comma-separated — multiple recipients allowed) -->
-                                        <StackPanel Margin="0,0,0,16">
-                                            <TextBlock Text="Send to (comma-separated — multiple recipients allowed)" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
-                                            <TextBox Text="{Binding EmailRecipientsText, UpdateSourceTrigger=PropertyChanged}" Height="36" VerticalContentAlignment="Center"/>
-                                        </StackPanel>
-
-                                        <!-- Triggers (Send on success / failure) -->
-                                        <StackPanel Margin="0,0,0,16">
-                                            <Grid Margin="0,0,0,8">
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="*"/>
-                                                    <ColumnDefinition Width="*"/>
-                                                </Grid.ColumnDefinitions>
-                                                <CheckBox Grid.Column="0" Content="Send email on success" IsChecked="{Binding Config.Email.NotifyOnSuccess}" FontWeight="SemiBold"/>
-                                                <CheckBox Grid.Column="1" Content="Send email on failure" IsChecked="{Binding Config.Email.NotifyOnFailure}" FontWeight="SemiBold"/>
-                                            </Grid>
-                                            <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
-                                                <TextBlock Text="Quick trigger presets:" FontSize="11.5" Foreground="{StaticResource TextSecondaryBrush}" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                                                <Button Content="Failure only" Style="{StaticResource TagButton}" Margin="0,0,6,0" Command="{Binding SetNotificationRuleCommand}" CommandParameter="failure"/>
-                                                <Button Content="Both (Always)" Style="{StaticResource TagButton}" Margin="0,0,6,0" Command="{Binding SetNotificationRuleCommand}" CommandParameter="both"/>
-                                                <Button Content="Success only" Style="{StaticResource TagButton}" Command="{Binding SetNotificationRuleCommand}" CommandParameter="success"/>
-                                            </StackPanel>
-                                        </StackPanel>
-
-                                        <!-- Action: Test Email -->
-                                        <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
-                                            <Button Style="{StaticResource SecondaryButton}" Command="{Binding TestEmailCommand}" ToolTip="Send real verification alert to recipient email address(es)">
-                                                <StackPanel Orientation="Horizontal">
-                                                    <Path Data="{StaticResource IconPaperPlane}" Fill="{StaticResource PrimaryBrush}" Width="13" Height="13" Stretch="Uniform" Margin="0,0,8,0"/>
-                                                    <TextBlock Text="Test Email" FontWeight="SemiBold"/>
-                                                </StackPanel>
-                                            </Button>
-                                            <TextBlock Text="Sends immediate verification alert to configured recipient email address(es) to test connectivity."
-                                                       FontSize="11.5" Foreground="{StaticResource TextSecondaryBrush}" VerticalAlignment="Center" Margin="14,0,0,0"/>
-                                        </StackPanel>
-                                    </StackPanel>
-                                </Border>
-                            </StackPanel>
-
-                            <!-- ============================================== -->
-                            <!-- SUB-TAB 5: TEMP & LOGS (STORAGE & MAINTENANCE) -->
+                            <!-- SUB-TAB 4: TEMP & LOGS (STORAGE & MAINTENANCE) -->
                             <!-- ============================================== -->
                             <StackPanel>
                                 <StackPanel.Style>

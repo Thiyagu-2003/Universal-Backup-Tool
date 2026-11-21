@@ -71,6 +71,7 @@ public class UiStartupXamlTests
             Assert.NotNull(window.FindName("RecoveryTabContent"));
             Assert.NotNull(window.FindName("LogsTabContent"));
             Assert.NotNull(window.FindName("LogViewerList"));
+            Assert.NotNull(window.FindName("NotificationsTabContent"));
             Assert.NotNull(window.FindName("SettingsTabContent"));
         });
     }

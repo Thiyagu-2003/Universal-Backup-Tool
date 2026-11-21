@@ -286,6 +286,12 @@ public class WebhookSettings
     [JsonPropertyName("discord_webhook_url")]
     public string DiscordWebhookUrl { get; set; } = "";
 
+    [JsonPropertyName("telegram_bot_token")]
+    public string TelegramBotToken { get; set; } = "";
+
+    [JsonPropertyName("telegram_chat_id")]
+    public string TelegramChatId { get; set; } = "";
+
     [JsonPropertyName("notify_on_success")]
     public bool NotifyOnSuccess { get; set; } = false;
 

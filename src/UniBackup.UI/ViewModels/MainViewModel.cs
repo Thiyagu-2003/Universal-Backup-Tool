@@ -9,6 +9,7 @@ using UniBackup.Core.Models;
 using UniBackup.Engine.Pipeline;
 using UniBackup.Engine.Services;
 using UniBackup.Infrastructure.Logging;
+using UniBackup.Infrastructure.Notifications;
 using UniBackup.Infrastructure.Windows;
 using UniBackup.UI.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -29,6 +30,8 @@ public partial class MainViewModel : ObservableObject
     private readonly INotificationService _notificationService;
     private readonly SqlRestoreOrchestrator? _sqlRestoreOrchestrator;
     private readonly RestoreDrillService? _restoreDrillService;
+    private readonly WebhookNotificationService _webhookService = new();
+    private readonly HeartbeatService _heartbeatService = new();
 
     [ObservableProperty]
     private string _activeTab = "Backups";
@@ -126,6 +129,10 @@ public partial class MainViewModel : ObservableObject
     // Settings Sub-Tabs ("Service", "Connection", "Notifications", "Storage")
     [ObservableProperty]
     private string _selectedSettingsTab = "Service";
+
+    // Notifications Sub-Tabs ("Email", "Slack", "Discord", "Telegram", "Teams", "Matrix")
+    [ObservableProperty]
+    private string _selectedNotificationTab = "Email";
 
     // Run Mode (Windows Service vs Task Scheduler)
     [ObservableProperty]
@@ -776,6 +783,12 @@ public partial class MainViewModel : ObservableObject
     }
 
     [RelayCommand]
+    public void SelectNotificationTab(string tab)
+    {
+        SelectedNotificationTab = tab;
+    }
+
+    [RelayCommand]
     public void SelectRecoveryTab(string tab)
     {
         SelectedRecoveryTab = tab;
@@ -1030,6 +1043,117 @@ public partial class MainViewModel : ObservableObject
         {
             IsBusy = false;
         }
+    }
+
+    [RelayCommand]
+    public async Task TestSlackAsync()
+    {
+        if (string.IsNullOrWhiteSpace(Config.Webhooks.SlackWebhookUrl))
+        {
+            NotificationHub.ShowError("Please enter a Slack Webhook URL first.", "Slack Test");
+            return;
+        }
+        IsBusy = true;
+        ProgressPhase = "Testing Slack";
+        ProgressPercent = 50;
+        ProgressStatusMessage = "Dispatching test alert to Slack...";
+        try
+        {
+            var res = await _webhookService.SendTestSlackAsync(Config.Webhooks.SlackWebhookUrl);
+            if (res.IsSuccess) NotificationHub.ShowSuccess("Slack test alert delivered successfully!", "Slack Dispatched");
+            else NotificationHub.ShowError($"Slack test failed: {res.Error}", "Slack Failed");
+        }
+        finally { IsBusy = false; }
+    }
+
+    [RelayCommand]
+    public async Task TestDiscordAsync()
+    {
+        if (string.IsNullOrWhiteSpace(Config.Webhooks.DiscordWebhookUrl))
+        {
+            NotificationHub.ShowError("Please enter a Discord Webhook URL first.", "Discord Test");
+            return;
+        }
+        IsBusy = true;
+        ProgressPhase = "Testing Discord";
+        ProgressPercent = 50;
+        ProgressStatusMessage = "Dispatching test alert to Discord...";
+        try
+        {
+            var res = await _webhookService.SendTestDiscordAsync(Config.Webhooks.DiscordWebhookUrl);
+            if (res.IsSuccess) NotificationHub.ShowSuccess("Discord test alert delivered successfully!", "Discord Dispatched");
+            else NotificationHub.ShowError($"Discord test failed: {res.Error}", "Discord Failed");
+        }
+        finally { IsBusy = false; }
+    }
+
+    [RelayCommand]
+    public async Task TestTeamsAsync()
+    {
+        if (string.IsNullOrWhiteSpace(Config.Webhooks.TeamsWebhookUrl))
+        {
+            NotificationHub.ShowError("Please enter a Microsoft Teams Webhook URL first.", "Teams Test");
+            return;
+        }
+        IsBusy = true;
+        ProgressPhase = "Testing Teams";
+        ProgressPercent = 50;
+        ProgressStatusMessage = "Dispatching test alert to Teams...";
+        try
+        {
+            var res = await _webhookService.SendTestTeamsAsync(Config.Webhooks.TeamsWebhookUrl);
+            if (res.IsSuccess) NotificationHub.ShowSuccess("Teams test alert delivered successfully!", "Teams Dispatched");
+            else NotificationHub.ShowError($"Teams test failed: {res.Error}", "Teams Failed");
+        }
+        finally { IsBusy = false; }
+    }
+
+    [RelayCommand]
+    public async Task TestTelegramAsync()
+    {
+        if (string.IsNullOrWhiteSpace(Config.Webhooks.TelegramBotToken) || string.IsNullOrWhiteSpace(Config.Webhooks.TelegramChatId))
+        {
+            NotificationHub.ShowError("Please enter both Telegram Bot Token and Chat ID first.", "Telegram Test");
+            return;
+        }
+        IsBusy = true;
+        ProgressPhase = "Testing Telegram";
+        ProgressPercent = 50;
+        ProgressStatusMessage = "Dispatching test alert to Telegram...";
+        try
+        {
+            var res = await _webhookService.SendTestTelegramAsync(Config.Webhooks.TelegramBotToken, Config.Webhooks.TelegramChatId);
+            if (res.IsSuccess) NotificationHub.ShowSuccess("Telegram test alert delivered successfully!", "Telegram Dispatched");
+            else NotificationHub.ShowError($"Telegram test failed: {res.Error}", "Telegram Failed");
+        }
+        finally { IsBusy = false; }
+    }
+
+    [RelayCommand]
+    public async Task TestHeartbeatAsync()
+    {
+        if (string.IsNullOrWhiteSpace(Config.Heartbeat.Url))
+        {
+            NotificationHub.ShowError("Please enter a Heartbeat URL first.", "Heartbeat Test");
+            return;
+        }
+        IsBusy = true;
+        ProgressPhase = "Testing Heartbeat";
+        ProgressPercent = 50;
+        ProgressStatusMessage = "Sending test ping to Heartbeat service...";
+        try
+        {
+            var res = await _heartbeatService.PingAsync(Config.Heartbeat, success: true);
+            if (res.IsSuccess) NotificationHub.ShowSuccess("Heartbeat ping sent successfully!", "Heartbeat OK");
+            else NotificationHub.ShowError($"Heartbeat ping failed: {res.Error}", "Heartbeat Failed");
+        }
+        finally { IsBusy = false; }
+    }
+
+    [RelayCommand]
+    public async Task SaveNotificationsAsync()
+    {
+        await SaveSettingsAsync();
     }
 
     [RelayCommand]

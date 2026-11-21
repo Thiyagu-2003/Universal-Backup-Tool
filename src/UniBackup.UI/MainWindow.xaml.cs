@@ -180,12 +180,13 @@ public partial class MainWindow : Window
         if (sender is not RadioButton rb || rb.Tag is not string tag) return;
 
         if (BackupsTabContent == null || SummaryTabContent == null ||
-            RecoveryTabContent == null || LogsTabContent == null || SettingsTabContent == null) return;
+            RecoveryTabContent == null || LogsTabContent == null || NotificationsTabContent == null || SettingsTabContent == null) return;
 
         BackupsTabContent.Visibility = tag == "Backups" ? Visibility.Visible : Visibility.Collapsed;
         SummaryTabContent.Visibility = tag == "Summary" ? Visibility.Visible : Visibility.Collapsed;
         RecoveryTabContent.Visibility = tag == "Recovery" ? Visibility.Visible : Visibility.Collapsed;
         LogsTabContent.Visibility = tag == "Logs" ? Visibility.Visible : Visibility.Collapsed;
+        NotificationsTabContent.Visibility = tag == "Notifications" ? Visibility.Visible : Visibility.Collapsed;
         SettingsTabContent.Visibility = tag == "Settings" ? Visibility.Visible : Visibility.Collapsed;
 
         _viewModel.ActiveTab = tag;
