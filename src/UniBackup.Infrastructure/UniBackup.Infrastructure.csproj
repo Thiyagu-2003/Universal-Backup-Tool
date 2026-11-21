@@ -7,6 +7,8 @@
 
   <ItemGroup>
     <PackageReference Include="AWSSDK.S3" Version="3.7.417.6" />
+    <PackageReference Include="Azure.Storage.Blobs" Version="12.23.0" />
+    <PackageReference Include="FluentFTP" Version="52.0.0" />
     <PackageReference Include="Google.Apis.Drive.v3" Version="1.69.0.3693" />
     <PackageReference Include="MailKit" Version="4.18.1" />
     <PackageReference Include="Microsoft.Data.SqlClient" Version="6.0.2" />
@@ -17,6 +19,7 @@
     <PackageReference Include="Serilog" Version="4.2.0" />
     <PackageReference Include="Serilog.Sinks.Console" Version="6.1.1" />
     <PackageReference Include="Serilog.Sinks.File" Version="6.0.0" />
+    <PackageReference Include="SSH.NET" Version="2026.0.1" />
     <PackageReference Include="System.ServiceProcess.ServiceController" Version="11.0.0" />
     <PackageReference Include="TaskScheduler" Version="2.11.0" />
   </ItemGroup>

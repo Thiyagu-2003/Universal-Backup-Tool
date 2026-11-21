@@ -142,6 +142,9 @@ public class BackupJob
     [JsonPropertyName("encryption_passphrase")]
     public string? EncryptionPassphrase { get; set; }
 
+    [JsonPropertyName("destination_routing")]
+    public List<DestinationRoutingRule> DestinationRouting { get; set; } = [];
+
     [JsonPropertyName("kind")]
     public string Kind { get; set; } = "folder"; // "folder" | "sqlserver"
 
@@ -177,4 +180,16 @@ public class BackupJob
         var cleanName = FormattingUtils.SanitizePathSegment(string.IsNullOrWhiteSpace(Name) ? Path.GetFileName(EffectiveSourcePath) : Name);
         return $"{cleanName}_{timestamp:yyyyMMdd_HHmmss}.zip";
     }
+}
+
+public class DestinationRoutingRule
+{
+    [JsonPropertyName("destination")]
+    public string Destination { get; set; } = "";
+
+    [JsonPropertyName("backup_types")]
+    public List<SqlBackupType> BackupTypes { get; set; } = [];
+
+    [JsonPropertyName("is_fallback")]
+    public bool IsFallback { get; set; }
 }

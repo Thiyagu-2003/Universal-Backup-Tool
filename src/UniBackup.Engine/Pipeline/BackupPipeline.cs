@@ -284,10 +284,24 @@ public partial class BackupPipeline
         return history;
     }
 
-    private List<IStorageProvider> ActiveProviders(AppConfig config, BackupJob job) =>
-        _storageProviders
+    private List<IStorageProvider> ActiveProviders(AppConfig config, BackupJob job, SqlBackupType? backupType = null)
+    {
+        var providers = _storageProviders
             .Where(p => job.Destinations.Contains(p.Name, StringComparer.OrdinalIgnoreCase) && p.IsEnabled(config))
             .ToList();
+
+        if (backupType.HasValue && job.DestinationRouting.Count > 0)
+        {
+            providers = providers.Where(p =>
+            {
+                var rule = job.DestinationRouting.FirstOrDefault(r => r.Destination.Equals(p.Name, StringComparison.OrdinalIgnoreCase));
+                if (rule == null || rule.BackupTypes.Count == 0) return true;
+                return rule.BackupTypes.Contains(backupType.Value);
+            }).ToList();
+        }
+
+        return providers;
+    }
 
     private static async Task<Result<DestinationRunResult>> UploadWithRetryAsync(
         IStorageProvider provider, AppConfig config, BackupJob job, string localFile, string? folder,
@@ -305,7 +319,34 @@ public partial class BackupPipeline
             .Build();
 
         return await retry.ExecuteAsync(async token =>
-            await provider.UploadAsync(config, job, localFile, folder, progress, token), ct);
+        {
+            using var stallCts = CancellationTokenSource.CreateLinkedTokenSource(token);
+            var lastMove = DateTime.UtcNow;
+            using var watchdogTimer = new System.Timers.Timer(10000);
+            watchdogTimer.Elapsed += (_, _) =>
+            {
+                if ((DateTime.UtcNow - lastMove).TotalSeconds > 300)
+                {
+                    try { stallCts.Cancel(); } catch { }
+                }
+            };
+            watchdogTimer.Start();
+
+            try
+            {
+                var watchdogProgress = new Progress<(long u, long t)>(p =>
+                {
+                    lastMove = DateTime.UtcNow;
+                    progress?.Report(p);
+                });
+
+                return await provider.UploadAsync(config, job, localFile, folder, watchdogProgress, stallCts.Token);
+            }
+            finally
+            {
+                watchdogTimer.Stop();
+            }
+        }, ct);
     }
 
     private async Task FinalizeRunAsync(AppConfig config, BackupJob job, RunHistoryRecord history, TimeSpan elapsed)

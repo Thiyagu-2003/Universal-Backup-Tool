@@ -10,6 +10,16 @@ public static class DestinationFolders
         if (!string.IsNullOrWhiteSpace(job.CloudFolder)) return job.CloudFolder.TrimEnd('/');
 
         var isS3 = provider.Equals("s3", StringComparison.OrdinalIgnoreCase);
+        if (provider.Equals("azure", StringComparison.OrdinalIgnoreCase)) return "backups";
+        if (provider.Equals("local", StringComparison.OrdinalIgnoreCase))
+            return string.IsNullOrWhiteSpace(config.Local.TargetPath) ? @"C:\UniBackup\Backups" : config.Local.TargetPath.TrimEnd('\\', '/');
+        if (provider.Equals("ftp", StringComparison.OrdinalIgnoreCase))
+            return string.IsNullOrWhiteSpace(config.Ftp.RemoteFolder) ? "/backups" : config.Ftp.RemoteFolder.TrimEnd('/');
+        if (provider.Equals("sftp", StringComparison.OrdinalIgnoreCase))
+            return string.IsNullOrWhiteSpace(config.Sftp.RemoteFolder) ? "/backups" : config.Sftp.RemoteFolder.TrimEnd('/');
+        if (provider.Equals("webdav", StringComparison.OrdinalIgnoreCase))
+            return string.IsNullOrWhiteSpace(config.WebDav.RemoteFolder) ? "/backups" : config.WebDav.RemoteFolder.TrimEnd('/');
+
         var configured = isS3 ? config.Aws.S3Prefix : config.GDrive.TargetFolder;
         if (!string.IsNullOrWhiteSpace(configured)) return configured.TrimEnd('/');
 

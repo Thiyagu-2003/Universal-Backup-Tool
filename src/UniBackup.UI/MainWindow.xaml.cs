@@ -34,7 +34,12 @@ public partial class MainWindow : Window
         var archiveService = new HighSpeedZipArchiveService();
         var s3Storage = new AwsS3StorageProvider();
         var gdriveStorage = new GoogleDriveStorageProvider();
-        var storageProviders = new IStorageProvider[] { s3Storage, gdriveStorage };
+        var localStorage = new LocalStorageProvider();
+        var azureStorage = new AzureBlobStorageProvider();
+        var ftpStorage = new FtpStorageProvider();
+        var sftpStorage = new SftpStorageProvider();
+        var webdavStorage = new WebDavStorageProvider();
+        var storageProviders = new IStorageProvider[] { s3Storage, gdriveStorage, localStorage, azureStorage, ftpStorage, sftpStorage, webdavStorage };
 
         var emailService = new EmailNotificationService();
         var webhookService = new WebhookNotificationService();

@@ -159,7 +159,7 @@ public partial class BackupPipeline
                 result.FileName = Path.GetFileName(encryptedFile);
             }
 
-            var uploadTasks = ActiveProviders(config, job).Select(async provider =>
+            var uploadTasks = ActiveProviders(config, job, result.BackupType).Select(async provider =>
             {
                 var folder = $"{DestinationFolders.Resolve(provider.Name, config, job)}/{SqlBackupFileName.RemoteSubfolder(db, result.BackupType)}";
                 report("Uploading", basePct + slice * 0.7, $"{db}: uploading to {provider.Name.ToUpperInvariant()} in parallel");

@@ -26,6 +26,22 @@ public class AwsS3StorageProvider : IStorageProvider
             MaxErrorRetry = 3
         };
 
+        if (!string.IsNullOrWhiteSpace(config.Aws.ServiceUrl))
+        {
+            s3Config.ServiceURL = config.Aws.ServiceUrl;
+            s3Config.ForcePathStyle = config.Aws.ForcePathStyle;
+        }
+
+        if (config.Proxy.Enabled && !string.IsNullOrWhiteSpace(config.Proxy.ProxyUrl))
+        {
+            s3Config.SetWebProxy(new System.Net.WebProxy(config.Proxy.ProxyUrl)
+            {
+                Credentials = !string.IsNullOrWhiteSpace(config.Proxy.Username)
+                    ? new System.Net.NetworkCredential(config.Proxy.Username, config.Proxy.Password)
+                    : null
+            });
+        }
+
         if (!string.IsNullOrWhiteSpace(config.Aws.AccessKeyId) && !string.IsNullOrWhiteSpace(config.Aws.SecretAccessKey))
         {
             var credentials = new BasicAWSCredentials(config.Aws.AccessKeyId, config.Aws.SecretAccessKey);

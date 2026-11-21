@@ -57,6 +57,135 @@ public class AwsSettings
 
     [JsonPropertyName("multipart_chunk_mb")]
     public int MultipartChunkMb { get; set; } = 100;
+
+    [JsonPropertyName("service_url")]
+    public string? ServiceUrl { get; set; }
+
+    [JsonPropertyName("force_path_style")]
+    public bool ForcePathStyle { get; set; }
+
+    [JsonPropertyName("preset")]
+    public string Preset { get; set; } = "aws"; // "aws", "wasabi", "backblaze_b2", "minio", "cloudflare_r2", "custom"
+}
+
+public class AzureBlobSettings
+{
+    [JsonPropertyName("enabled")]
+    public bool Enabled { get; set; }
+
+    [JsonPropertyName("connection_string")]
+    public string ConnectionString { get; set; } = "";
+
+    [JsonPropertyName("container_name")]
+    public string ContainerName { get; set; } = "unibackup";
+
+    [JsonPropertyName("access_tier")]
+    public string AccessTier { get; set; } = "Hot";
+
+    [JsonPropertyName("retention_days")]
+    public int RetentionDays { get; set; } = 30;
+}
+
+public class FtpSettings
+{
+    [JsonPropertyName("enabled")]
+    public bool Enabled { get; set; }
+
+    [JsonPropertyName("host")]
+    public string Host { get; set; } = "";
+
+    [JsonPropertyName("port")]
+    public int Port { get; set; } = 21;
+
+    [JsonPropertyName("username")]
+    public string Username { get; set; } = "";
+
+    [JsonPropertyName("password")]
+    public string Password { get; set; } = "";
+
+    [JsonPropertyName("use_ftps")]
+    public bool UseFtps { get; set; } = true;
+
+    [JsonPropertyName("remote_folder")]
+    public string RemoteFolder { get; set; } = "/backups";
+
+    [JsonPropertyName("retention_days")]
+    public int RetentionDays { get; set; } = 30;
+}
+
+public class SftpSettings
+{
+    [JsonPropertyName("enabled")]
+    public bool Enabled { get; set; }
+
+    [JsonPropertyName("host")]
+    public string Host { get; set; } = "";
+
+    [JsonPropertyName("port")]
+    public int Port { get; set; } = 22;
+
+    [JsonPropertyName("username")]
+    public string Username { get; set; } = "";
+
+    [JsonPropertyName("password")]
+    public string Password { get; set; } = "";
+
+    [JsonPropertyName("private_key_path")]
+    public string? PrivateKeyPath { get; set; }
+
+    [JsonPropertyName("remote_folder")]
+    public string RemoteFolder { get; set; } = "/backups";
+
+    [JsonPropertyName("retention_days")]
+    public int RetentionDays { get; set; } = 30;
+}
+
+public class LocalStorageSettings
+{
+    [JsonPropertyName("enabled")]
+    public bool Enabled { get; set; }
+
+    [JsonPropertyName("target_path")]
+    public string TargetPath { get; set; } = @"C:\UniBackup\Backups";
+
+    [JsonPropertyName("retention_days")]
+    public int RetentionDays { get; set; } = 30;
+}
+
+public class WebDavSettings
+{
+    [JsonPropertyName("enabled")]
+    public bool Enabled { get; set; }
+
+    [JsonPropertyName("server_url")]
+    public string ServerUrl { get; set; } = "";
+
+    [JsonPropertyName("username")]
+    public string Username { get; set; } = "";
+
+    [JsonPropertyName("password")]
+    public string Password { get; set; } = "";
+
+    [JsonPropertyName("remote_folder")]
+    public string RemoteFolder { get; set; } = "/backups";
+
+    [JsonPropertyName("retention_days")]
+    public int RetentionDays { get; set; } = 30;
+}
+
+public class ProxySettings
+{
+    [JsonPropertyName("enabled")]
+    public bool Enabled { get; set; }
+
+    [JsonPropertyName("proxy_url")]
+    public string ProxyUrl { get; set; } = "";
+
+    [JsonPropertyName("username")]
+    public string? Username { get; set; }
+
+    [JsonPropertyName("password")]
+    public string? Password { get; set; }
 }
 
 public class GDriveSettings
@@ -186,6 +315,24 @@ public class AppConfig
 
     [JsonPropertyName("security")]
     public SecuritySettings Security { get; set; } = new();
+
+    [JsonPropertyName("azure")]
+    public AzureBlobSettings Azure { get; set; } = new();
+
+    [JsonPropertyName("ftp")]
+    public FtpSettings Ftp { get; set; } = new();
+
+    [JsonPropertyName("sftp")]
+    public SftpSettings Sftp { get; set; } = new();
+
+    [JsonPropertyName("local")]
+    public LocalStorageSettings Local { get; set; } = new();
+
+    [JsonPropertyName("webdav")]
+    public WebDavSettings WebDav { get; set; } = new();
+
+    [JsonPropertyName("proxy")]
+    public ProxySettings Proxy { get; set; } = new();
 }
 
 public class SecuritySettings
