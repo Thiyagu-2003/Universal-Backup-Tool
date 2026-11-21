@@ -1,0 +1,1399 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UniBackup Pro 2.0 — Modern Enterprise Cloud Backup & Recovery</title>
+  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+    
+    :root {
+      --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    body {
+      font-family: var(--font-sans);
+    }
+
+    .font-mono {
+      font-family: var(--font-mono);
+    }
+
+    /* Smooth animated transitions */
+    .tab-pane {
+      animation: tabFadeIn 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes tabFadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(6px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes pulseGlow {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.45; transform: scale(1.15); }
+    }
+
+    .pulse-indicator {
+      animation: pulseGlow 2.2s infinite ease-in-out;
+    }
+
+    /* Custom sleek scrollbars */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(148, 163, 184, 0.25);
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(148, 163, 184, 0.45);
+    }
+
+    /* Glass card styles */
+    .glass-card {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(12px);
+    }
+    .dark .glass-card {
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(14px);
+    }
+
+    /* Checkbox & toggle switches */
+    .toggle-checkbox:checked {
+      right: 0;
+      border-color: #0284c7;
+    }
+    .toggle-checkbox:checked + .toggle-label {
+      background-color: #0284c7;
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen antialiased flex flex-col selection:bg-sky-500 selection:text-white">
+
+  <!-- ============================================== -->
+  <!-- TOP APPLICATION NAVBAR                         -->
+  <!-- ============================================== -->
+  <header class="h-16 border-b border-slate-800/80 bg-slate-900/95 backdrop-blur-md sticky top-0 z-40 px-6 flex items-center justify-between">
+    <!-- Brand Title & Server Info -->
+    <div class="flex items-center gap-4">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-sky-600 via-indigo-600 to-cyan-400 p-[1px] shadow-lg shadow-sky-500/20">
+        <div class="w-full h-full bg-slate-900 rounded-[11px] flex items-center justify-center">
+          <svg class="w-5 h-5 text-sky-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/>
+            <polyline points="12 12 12 16 16 16"/>
+          </svg>
+        </div>
+      </div>
+      <div>
+        <div class="flex items-center gap-2">
+          <span class="font-extrabold text-base tracking-tight text-white">UniBackup <span class="bg-gradient-to-r from-sky-400 to-indigo-400 bg-clip-text text-transparent font-black">Pro</span></span>
+          <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-sky-500/10 text-sky-400 border border-sky-500/20 tracking-wider">ENTERPRISE v2.0</span>
+        </div>
+        <p class="text-[11px] text-slate-400 font-medium">Universal Cloud Backup &amp; Disaster Recovery Engine</p>
+      </div>
+    </div>
+
+    <!-- Central Search & Global Filter -->
+    <div class="flex-1 max-w-md mx-8 hidden lg:block">
+      <div class="relative">
+        <svg class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <input type="text" id="globalSearch" placeholder="Search backup jobs, databases, or logs (Press '/' to focus)..." 
+               class="w-full bg-slate-800/80 hover:bg-slate-800 focus:bg-slate-900 border border-slate-700/80 focus:border-sky-500 rounded-lg pl-10 pr-4 py-1.5 text-xs text-slate-200 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-sky-500/50 transition duration-150">
+        <kbd class="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-mono text-slate-400 bg-slate-700/60 px-1.5 py-0.5 rounded border border-slate-600/60">⌘K</kbd>
+      </div>
+    </div>
+
+    <!-- Top Action Buttons & System State -->
+    <div class="flex items-center gap-3">
+      <!-- Create Backup Job Primary Button -->
+      <button onclick="switchTab('newjob')" class="flex items-center gap-2 px-3.5 py-2 rounded-lg bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-400 hover:to-indigo-500 text-white text-xs font-semibold shadow-md shadow-sky-500/25 active:scale-95 transition-all">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+          <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+        </svg>
+        <span>+ New Backup</span>
+      </button>
+
+      <!-- Run All Enabled Trigger -->
+      <button onclick="runAllBackupsSim()" class="flex items-center gap-2 px-3.5 py-2 rounded-lg bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/30 text-xs font-semibold active:scale-95 transition-all">
+        <svg class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+          <polygon points="5 3 19 12 5 21 5 3"/>
+        </svg>
+        <span>Run All</span>
+      </button>
+
+      <!-- Health Diagnostics -->
+      <button onclick="runHealthCheckSim()" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700/70 text-xs font-medium transition" title="Validate Server &amp; Storage Health">
+        <svg class="w-4 h-4 text-sky-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+        </svg>
+      </button>
+
+      <!-- Theme Switcher -->
+      <button onclick="toggleTheme()" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700/70 transition" title="Toggle Dark/Light Mode">
+        <svg id="themeIcon" class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- ============================================== -->
+  <!-- MAIN WORKSPACE LAYOUT (SIDEBAR + CANVAS)       -->
+  <!-- ============================================== -->
+  <div class="flex-1 flex overflow-hidden">
+    
+    <!-- LEFT NAVIGATION SIDEBAR -->
+    <aside class="w-64 bg-slate-900 border-r border-slate-800/80 flex flex-col justify-between p-3.5 select-none shrink-0">
+      <div class="space-y-6">
+        
+        <!-- Live Server Status Badge -->
+        <div class="bg-slate-800/60 border border-slate-700/70 rounded-xl p-3 flex items-center justify-between">
+          <div class="flex items-center gap-2.5 overflow-hidden">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 pulse-indicator shrink-0"></span>
+            <div class="truncate">
+              <p class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Host Server</p>
+              <p class="text-xs font-semibold text-slate-200 truncate">DESKTOP-0TMHVLV</p>
+            </div>
+          </div>
+          <span class="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">ONLINE</span>
+        </div>
+
+        <!-- Navigation Menus -->
+        <nav class="space-y-1" id="navLinks">
+          <!-- 1. Backup Jobs -->
+          <button onclick="switchTab('jobs')" data-tab="jobs" class="nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold bg-sky-500/10 text-sky-400 border border-sky-500/20 transition-all">
+            <div class="w-7 h-7 rounded-lg bg-sky-500/20 text-sky-400 flex items-center justify-center">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <rect x="2" y="2" width="20" height="8" rx="2" ry="2"/><rect x="2" y="14" width="20" height="8" rx="2" ry="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/>
+              </svg>
+            </div>
+            <span>Backup Jobs</span>
+            <span class="ml-auto text-[10px] font-bold px-1.5 py-0.2 rounded-full bg-sky-500/20 text-sky-300">3</span>
+          </button>
+
+          <!-- 2. Create Backup Job (Dedicated Full Screen View) -->
+          <button onclick="switchTab('newjob')" data-tab="newjob" class="nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800/70 border border-transparent transition-all">
+            <div class="w-7 h-7 rounded-lg bg-indigo-500/15 text-indigo-400 flex items-center justify-center">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+              </svg>
+            </div>
+            <span>＋ Create Backup Job</span>
+            <span class="ml-auto text-[9px] font-bold px-1.5 py-0.5 rounded bg-indigo-500/20 text-indigo-300">WIZARD</span>
+          </button>
+
+          <!-- 3. Analytics & History -->
+          <button onclick="switchTab('analytics')" data-tab="analytics" class="nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800/70 border border-transparent transition-all">
+            <div class="w-7 h-7 rounded-lg bg-purple-500/15 text-purple-400 flex items-center justify-center">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>
+              </svg>
+            </div>
+            <span>Analytics &amp; History</span>
+          </button>
+
+          <!-- 4. Cloud Recovery -->
+          <button onclick="switchTab('recovery')" data-tab="recovery" class="nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800/70 border border-transparent transition-all">
+            <div class="w-7 h-7 rounded-lg bg-cyan-500/15 text-cyan-400 flex items-center justify-center">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/>
+              </svg>
+            </div>
+            <span>Cloud Recovery</span>
+          </button>
+
+          <!-- 5. Application Logs -->
+          <button onclick="switchTab('logs')" data-tab="logs" class="nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800/70 border border-transparent transition-all">
+            <div class="w-7 h-7 rounded-lg bg-amber-500/15 text-amber-400 flex items-center justify-center">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>
+              </svg>
+            </div>
+            <span>Application Logs</span>
+          </button>
+
+          <!-- 6. Notifications Hub -->
+          <button onclick="switchTab('notifications')" data-tab="notifications" class="nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800/70 border border-transparent transition-all">
+            <div class="w-7 h-7 rounded-lg bg-rose-500/15 text-rose-400 flex items-center justify-center">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+              </svg>
+            </div>
+            <span>Notifications Hub</span>
+            <span class="ml-auto text-[9px] font-bold px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300">10 CH</span>
+          </button>
+
+          <!-- 7. Settings & Destinations -->
+          <button onclick="switchTab('settings')" data-tab="settings" class="nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800/70 border border-transparent transition-all">
+            <div class="w-7 h-7 rounded-lg bg-slate-500/15 text-slate-400 flex items-center justify-center">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+              </svg>
+            </div>
+            <span>Settings &amp; Engine</span>
+          </button>
+        </nav>
+      </div>
+
+      <!-- Footer Disk Space & Service Widget -->
+      <div class="bg-slate-800/60 border border-slate-700/60 rounded-xl p-3.5 space-y-2.5">
+        <div class="flex items-center justify-between text-xs">
+          <span class="text-slate-400 font-medium">Temp Staging Disk</span>
+          <span class="font-mono font-bold text-sky-400">45.80 GB</span>
+        </div>
+        <div class="w-full bg-slate-700/60 rounded-full h-1.5 overflow-hidden">
+          <div class="bg-gradient-to-r from-sky-400 to-indigo-500 h-full rounded-full" style="width: 32%"></div>
+        </div>
+        <div class="flex items-center justify-between text-[11px] text-slate-400 pt-1 border-t border-slate-700/40">
+          <span>Engine Service</span>
+          <span class="text-emerald-400 font-semibold flex items-center gap-1.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Active
+          </span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- RIGHT MAIN CONTENT CANVAS -->
+    <main class="flex-1 bg-slate-950 overflow-y-auto p-8 relative" id="canvas">
+
+      <!-- ============================================================== -->
+      <!-- TAB 1: BACKUP JOBS VIEW                                        -->
+      <!-- ============================================================== -->
+      <div id="tab-jobs" class="tab-pane space-y-6">
+        
+        <!-- Header & Metrics Banner -->
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <h1 class="text-2xl font-extrabold text-white tracking-tight">Configured Backup Jobs</h1>
+            <p class="text-xs text-slate-400 mt-1">Manage scheduled, differential, and transaction log pipelines across cloud repositories</p>
+          </div>
+          <div class="flex items-center gap-3">
+            <div class="flex items-center bg-slate-900 border border-slate-800 rounded-lg p-1 text-xs">
+              <button class="px-3 py-1 rounded-md bg-sky-500/20 text-sky-400 font-semibold">All Jobs (3)</button>
+              <button class="px-3 py-1 rounded-md text-slate-400 hover:text-white">SQL Server (1)</button>
+              <button class="px-3 py-1 rounded-md text-slate-400 hover:text-white">Folders (2)</button>
+            </div>
+            <button onclick="switchTab('newjob')" class="px-3.5 py-1.5 rounded-lg bg-sky-600 hover:bg-sky-500 text-white text-xs font-semibold flex items-center gap-1.5 shadow">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              New Job
+            </button>
+          </div>
+        </div>
+
+        <!-- Job Cards Grid -->
+        <div class="grid grid-cols-1 xl:grid-cols-3 gap-5">
+          
+          <!-- Job Card 1: SQL Server Production DB -->
+          <div class="bg-slate-900/90 border border-slate-800 hover:border-sky-500/40 rounded-2xl p-5 shadow-lg transition-all duration-200 group">
+            <div class="flex items-start justify-between">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-sky-500/10 border border-sky-500/20 text-sky-400 flex items-center justify-center">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/>
+                  </svg>
+                </div>
+                <div>
+                  <div class="flex items-center gap-2">
+                    <h3 class="font-bold text-sm text-white group-hover:text-sky-400 transition">SQL_Production_ERP</h3>
+                    <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-sky-500/20 text-sky-300">SQL 2022</span>
+                  </div>
+                  <p class="text-xs text-slate-400 mt-0.5">Instance: localhost · 14 User DBs</p>
+                </div>
+              </div>
+              <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center gap-1.5">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> SUCCESS
+              </span>
+            </div>
+
+            <!-- Pipeline Parameters -->
+            <div class="grid grid-cols-2 gap-3 my-4 py-3 border-y border-slate-800 text-xs">
+              <div>
+                <span class="text-slate-400 text-[11px] block">Schedule Cadence</span>
+                <span class="text-slate-200 font-semibold">Daily at 02:00</span>
+              </div>
+              <div>
+                <span class="text-slate-400 text-[11px] block">High-Frequency</span>
+                <span class="text-sky-400 font-semibold font-mono">DIFF 4h · LOG 15m</span>
+              </div>
+              <div>
+                <span class="text-slate-400 text-[11px] block">Last Archive Size</span>
+                <span class="text-slate-200 font-mono font-medium">1.42 GB (zstd)</span>
+              </div>
+              <div>
+                <span class="text-slate-400 text-[11px] block">Last Run</span>
+                <span class="text-slate-200">18m ago</span>
+              </div>
+            </div>
+
+            <!-- Destinations Badges -->
+            <div class="flex items-center gap-1.5 flex-wrap">
+              <span class="text-[10px] font-semibold px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700/60">AWS S3</span>
+              <span class="text-[10px] font-semibold px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700/60">Cloudflare R2</span>
+              <span class="text-[10px] font-semibold px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">AES-256-GCM</span>
+            </div>
+
+            <!-- Actions -->
+            <div class="flex items-center justify-between mt-5 pt-3 border-t border-slate-800/80">
+              <button onclick="triggerJobRunSim('SQL_Production_ERP')" class="px-3 py-1.5 rounded-lg bg-sky-500/20 hover:bg-sky-500/30 text-sky-400 text-xs font-semibold flex items-center gap-1.5 transition">
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                Run Now
+              </button>
+              <div class="flex items-center gap-2">
+                <button onclick="switchTab('newjob')" class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium">Edit</button>
+                <button onclick="switchTab('logs')" class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium">Logs</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Job Card 2: IIS Web Applications & Content -->
+          <div class="bg-slate-900/90 border border-slate-800 hover:border-indigo-500/40 rounded-2xl p-5 shadow-lg transition-all duration-200 group">
+            <div class="flex items-start justify-between">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+                  </svg>
+                </div>
+                <div>
+                  <div class="flex items-center gap-2">
+                    <h3 class="font-bold text-sm text-white group-hover:text-indigo-400 transition">IIS_WebRoot_Sites</h3>
+                    <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-indigo-500/20 text-indigo-300">IIS VSS</span>
+                  </div>
+                  <p class="text-xs text-slate-400 mt-0.5">C:\inetpub\wwwroot · 3 Sites</p>
+                </div>
+              </div>
+              <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center gap-1.5">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> SUCCESS
+              </span>
+            </div>
+
+            <!-- Pipeline Parameters -->
+            <div class="grid grid-cols-2 gap-3 my-4 py-3 border-y border-slate-800 text-xs">
+              <div>
+                <span class="text-slate-400 text-[11px] block">Schedule Cadence</span>
+                <span class="text-slate-200 font-semibold">Daily at 03:30</span>
+              </div>
+              <div>
+                <span class="text-slate-400 text-[11px] block">VSS Snapshot</span>
+                <span class="text-emerald-400 font-semibold">Enabled (Shadow)</span>
+              </div>
+              <div>
+                <span class="text-slate-400 text-[11px] block">Last Archive Size</span>
+                <span class="text-slate-200 font-mono font-medium">8.65 GB</span>
+              </div>
+              <div>
+                <span class="text-slate-400 text-[11px] block">Last Run</span>
+                <span class="text-slate-200">5h ago</span>
+              </div>
+            </div>
+
+            <!-- Destinations Badges -->
+            <div class="flex items-center gap-1.5 flex-wrap">
+              <span class="text-[10px] font-semibold px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700/60">Google Drive</span>
+              <span class="text-[10px] font-semibold px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700/60">Azure Blob</span>
+              <span class="text-[10px] font-semibold px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700/60">Local NAS</span>
+            </div>
+
+            <!-- Actions -->
+            <div class="flex items-center justify-between mt-5 pt-3 border-t border-slate-800/80">
+              <button onclick="triggerJobRunSim('IIS_WebRoot_Sites')" class="px-3 py-1.5 rounded-lg bg-sky-500/20 hover:bg-sky-500/30 text-sky-400 text-xs font-semibold flex items-center gap-1.5 transition">
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                Run Now
+              </button>
+              <div class="flex items-center gap-2">
+                <button onclick="switchTab('newjob')" class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium">Edit</button>
+                <button onclick="switchTab('logs')" class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium">Logs</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Job Card 3: Finance File Repository -->
+          <div class="bg-slate-900/90 border border-slate-800 hover:border-purple-500/40 rounded-2xl p-5 shadow-lg transition-all duration-200 group">
+            <div class="flex items-start justify-between">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-400 flex items-center justify-center">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+                  </svg>
+                </div>
+                <div>
+                  <div class="flex items-center gap-2">
+                    <h3 class="font-bold text-sm text-white group-hover:text-purple-400 transition">Finance_Secure_Docs</h3>
+                    <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-purple-500/20 text-purple-300">FOLDER</span>
+                  </div>
+                  <p class="text-xs text-slate-400 mt-0.5">D:\Accounting\Ledgers_2026</p>
+                </div>
+              </div>
+              <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20 flex items-center gap-1.5">
+                <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span> SCHEDULED
+              </span>
+            </div>
+
+            <!-- Pipeline Parameters -->
+            <div class="grid grid-cols-2 gap-3 my-4 py-3 border-y border-slate-800 text-xs">
+              <div>
+                <span class="text-slate-400 text-[11px] block">Schedule Cadence</span>
+                <span class="text-slate-200 font-semibold">Weekly (Sun 00:00)</span>
+              </div>
+              <div>
+                <span class="text-slate-400 text-[11px] block">Retention GFS</span>
+                <span class="text-purple-400 font-semibold">7D / 4W / 12M</span>
+              </div>
+              <div>
+                <span class="text-slate-400 text-[11px] block">Last Archive Size</span>
+                <span class="text-slate-200 font-mono font-medium">34.2 GB</span>
+              </div>
+              <div>
+                <span class="text-slate-400 text-[11px] block">Last Run</span>
+                <span class="text-slate-200">5d ago</span>
+              </div>
+            </div>
+
+            <!-- Destinations Badges -->
+            <div class="flex items-center gap-1.5 flex-wrap">
+              <span class="text-[10px] font-semibold px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700/60">Wasabi S3</span>
+              <span class="text-[10px] font-semibold px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700/60">Dropbox</span>
+              <span class="text-[10px] font-semibold px-2 py-0.5 rounded bg-purple-500/10 text-purple-400 border border-purple-500/20">WORM Lock (90d)</span>
+            </div>
+
+            <!-- Actions -->
+            <div class="flex items-center justify-between mt-5 pt-3 border-t border-slate-800/80">
+              <button onclick="triggerJobRunSim('Finance_Secure_Docs')" class="px-3 py-1.5 rounded-lg bg-sky-500/20 hover:bg-sky-500/30 text-sky-400 text-xs font-semibold flex items-center gap-1.5 transition">
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                Run Now
+              </button>
+              <div class="flex items-center gap-2">
+                <button onclick="switchTab('newjob')" class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium">Edit</button>
+                <button onclick="switchTab('logs')" class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium">Logs</button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- ============================================================== -->
+      <!-- TAB 2: CREATE / EDIT BACKUP JOB (THE EMBEDDED WIZARD SCREEN)   -->
+      <!-- ============================================================== -->
+      <div id="tab-newjob" class="tab-pane hidden space-y-6">
+        
+        <!-- Header & Breadcrumb Bar -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm">
+          <div class="flex items-center gap-3">
+            <button onclick="switchTab('jobs')" class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-semibold flex items-center gap-2 transition">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+              <span>Back to Jobs</span>
+            </button>
+            <div class="h-6 w-[1px] bg-slate-800"></div>
+            <div>
+              <h2 class="text-base font-bold text-white flex items-center gap-2">
+                <span>Create New Backup Pipeline</span>
+                <span class="text-[10px] px-2 py-0.5 rounded-full bg-sky-500/10 text-sky-400 border border-sky-500/20">Full-Screen Mode</span>
+              </h2>
+              <p class="text-xs text-slate-400">Step-by-step configuration with instant cloud synchronization</p>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-2.5">
+            <button onclick="switchTab('jobs')" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold transition">Cancel</button>
+            <button onclick="saveJobSim()" class="px-5 py-2 rounded-xl bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-400 hover:to-indigo-500 text-white text-xs font-bold shadow-md shadow-sky-500/25 transition">Save Backup Job</button>
+          </div>
+        </div>
+
+        <!-- Stepped Navigation Indicator -->
+        <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-2 grid grid-cols-4 gap-2">
+          
+          <button onclick="setWizardStep(1)" id="step-btn-1" class="wizard-step-tab flex items-center justify-center gap-2.5 py-3 rounded-xl bg-sky-600 text-white text-xs font-bold transition">
+            <span class="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center text-[11px]">1</span>
+            <span>1. Source &amp; Engine</span>
+          </button>
+
+          <button onclick="setWizardStep(2)" id="step-btn-2" class="wizard-step-tab flex items-center justify-center gap-2.5 py-3 rounded-xl bg-slate-800/80 text-slate-400 hover:text-white text-xs font-bold transition">
+            <span class="w-5 h-5 rounded-full bg-slate-700 flex items-center justify-center text-[11px]">2</span>
+            <span>2. Schedule &amp; Cadence</span>
+          </button>
+
+          <button onclick="setWizardStep(3)" id="step-btn-3" class="wizard-step-tab flex items-center justify-center gap-2.5 py-3 rounded-xl bg-slate-800/80 text-slate-400 hover:text-white text-xs font-bold transition">
+            <span class="w-5 h-5 rounded-full bg-slate-700 flex items-center justify-center text-[11px]">3</span>
+            <span>3. Cloud Destinations (10)</span>
+          </button>
+
+          <button onclick="setWizardStep(4)" id="step-btn-4" class="wizard-step-tab flex items-center justify-center gap-2.5 py-3 rounded-xl bg-slate-800/80 text-slate-400 hover:text-white text-xs font-bold transition">
+            <span class="w-5 h-5 rounded-full bg-slate-700 flex items-center justify-center text-[11px]">4</span>
+            <span>4. Security &amp; GFS Retention</span>
+          </button>
+
+        </div>
+
+        <!-- ======================================== -->
+        <!-- WIZARD STEP 1: SOURCE                    -->
+        <!-- ======================================== -->
+        <div id="wizard-step-1" class="wizard-step-content space-y-6">
+          
+          <!-- Source Type Switcher Card -->
+          <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-5">
+            <label class="block text-xs font-bold uppercase tracking-wider text-slate-400">Select Backup Engine Source Type</label>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <!-- Option A: File System / IIS -->
+              <label class="cursor-pointer border-2 border-sky-500 bg-sky-500/5 rounded-2xl p-4 flex items-start gap-4 transition" id="sourceFolderCard">
+                <input type="radio" name="sourceType" value="folder" checked onchange="toggleSourceType('folder')" class="mt-1 text-sky-500 focus:ring-sky-500">
+                <div>
+                  <h4 class="font-bold text-sm text-white flex items-center gap-2">
+                    <span>Folder / File System / IIS Site</span>
+                    <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-sky-500/20 text-sky-300">VSS SNAPSHOT</span>
+                  </h4>
+                  <p class="text-xs text-slate-400 mt-1">Direct backup of local folders, network shares (UNC), or automated IIS web server directories with live shadow copy protection.</p>
+                </div>
+              </label>
+
+              <!-- Option B: SQL Server Database Engine -->
+              <label class="cursor-pointer border-2 border-slate-800 hover:border-slate-700 bg-slate-800/40 rounded-2xl p-4 flex items-start gap-4 transition" id="sourceSqlCard">
+                <input type="radio" name="sourceType" value="sql" onchange="toggleSourceType('sql')" class="mt-1 text-sky-500 focus:ring-sky-500">
+                <div>
+                  <h4 class="font-bold text-sm text-white flex items-center gap-2">
+                    <span>SQL Server Database Engine</span>
+                    <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300">FULL / DIFF / LOG</span>
+                  </h4>
+                  <p class="text-xs text-slate-400 mt-1">Connect to local or remote Microsoft SQL Server instances. Supports differential, point-in-time transaction log chains, and CHECKSUM verification.</p>
+                </div>
+              </label>
+            </div>
+
+            <!-- Job Name -->
+            <div class="pt-3">
+              <label class="block text-xs font-medium text-slate-300 mb-1.5">Job Name (Identifier / Archive Base Name)</label>
+              <input type="text" id="jobNameInput" value="Daily_Production_Backup" class="w-full bg-slate-800/90 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500">
+            </div>
+          </div>
+
+          <!-- SUB-PANEL: FOLDER CONFIGURATION -->
+          <div id="panelFolderConfig" class="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-4">
+            <h3 class="text-sm font-bold text-white flex items-center gap-2">
+              <svg class="w-4 h-4 text-sky-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+              <span>Folder &amp; File System Source Path</span>
+            </h3>
+
+            <div>
+              <label class="block text-xs font-medium text-slate-300 mb-1.5">Source Directory Path</label>
+              <div class="flex gap-2">
+                <input type="text" value="C:\inetpub\wwwroot" class="flex-1 bg-slate-800/90 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-sky-500">
+                <button class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-semibold text-slate-200">Browse Folder...</button>
+              </div>
+            </div>
+
+            <div class="pt-2 flex items-center gap-3">
+              <input type="checkbox" id="vssCheck" checked class="w-4 h-4 rounded text-sky-500 bg-slate-800 border-slate-700 focus:ring-sky-500">
+              <label for="vssCheck" class="text-xs text-slate-300 font-medium">Use Volume Shadow Copy (VSS) for open and locked files (SQL MDF, Outlook PST, IIS logs)</label>
+            </div>
+          </div>
+
+          <!-- SUB-PANEL: SQL SERVER CONFIGURATION -->
+          <div id="panelSqlConfig" class="hidden bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-5">
+            <h3 class="text-sm font-bold text-white flex items-center gap-2">
+              <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+              <span>Microsoft SQL Server Instance Connection</span>
+            </h3>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <div class="md:col-span-2">
+                <label class="block text-xs font-medium text-slate-300 mb-1.5">SQL Server Instance</label>
+                <input type="text" id="sqlInstance" value="localhost" class="w-full bg-slate-800/90 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-sky-500">
+              </div>
+              <div class="flex items-end">
+                <button onclick="testSqlConnectionSim()" class="w-full py-2.5 rounded-xl bg-indigo-600/30 hover:bg-indigo-600/40 text-indigo-300 border border-indigo-500/30 text-xs font-bold transition flex items-center justify-center gap-2">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                  <span>Test Connection</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- SQL Status Output -->
+            <div id="sqlStatusMsg" class="hidden text-xs font-mono py-2 px-3 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+              Connected to Microsoft SQL Server 2022 (RTM) - 16.0.1000.6 (X64) · 14 user databases discovered.
+            </div>
+
+            <div class="space-y-2">
+              <label class="block text-xs font-medium text-slate-300">Authentication Method</label>
+              <div class="flex items-center gap-6 text-xs text-slate-300">
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <input type="radio" name="sqlAuth" value="windows" checked class="text-sky-500">
+                  <span>Windows Authentication (Integrated Security)</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <input type="radio" name="sqlAuth" value="sql" class="text-sky-500">
+                  <span>SQL Server Authentication (Username &amp; Password)</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- SQL Flags -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
+              <label class="flex items-center gap-2 text-xs text-slate-300 cursor-pointer">
+                <input type="checkbox" checked class="w-4 h-4 rounded text-sky-500 bg-slate-800 border-slate-700">
+                <span>Native Compression</span>
+              </label>
+              <label class="flex items-center gap-2 text-xs text-slate-300 cursor-pointer">
+                <input type="checkbox" checked class="w-4 h-4 rounded text-sky-500 bg-slate-800 border-slate-700">
+                <span>CHECKSUM</span>
+              </label>
+              <label class="flex items-center gap-2 text-xs text-slate-300 cursor-pointer">
+                <input type="checkbox" checked class="w-4 h-4 rounded text-sky-500 bg-slate-800 border-slate-700">
+                <span>RESTORE VERIFYONLY</span>
+              </label>
+              <label class="flex items-center gap-2 text-xs text-slate-300 cursor-pointer">
+                <input type="checkbox" class="w-4 h-4 rounded text-sky-500 bg-slate-800 border-slate-700">
+                <span>Run DBCC CHECKDB</span>
+              </label>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- ======================================== -->
+        <!-- WIZARD STEP 2: SCHEDULE                  -->
+        <!-- ======================================== -->
+        <div id="wizard-step-2" class="wizard-step-content hidden space-y-6">
+          <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-6">
+            <h3 class="text-sm font-bold text-white flex items-center gap-2">
+              <svg class="w-4 h-4 text-sky-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              <span>Full Backup Schedule &amp; Execution Window</span>
+            </h3>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-medium text-slate-300 mb-1.5">Schedule Cadence Frequency</label>
+                <select class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-sky-500">
+                  <option>Daily (Every Day)</option>
+                  <option>Weekly (Selected Days)</option>
+                  <option>Monthly</option>
+                  <option>Manual Trigger Only</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-slate-300 mb-1.5">Run Time (24-hour HH:mm)</label>
+                <input type="text" value="02:00" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-white font-mono focus:outline-none focus:border-sky-500">
+              </div>
+            </div>
+
+            <!-- Active Days Checklist -->
+            <div>
+              <label class="block text-xs font-medium text-slate-300 mb-2">Active Execution Days</label>
+              <div class="flex items-center gap-2 flex-wrap">
+                <span class="px-3 py-1.5 rounded-lg bg-sky-500/20 text-sky-300 font-semibold text-xs border border-sky-500/30 cursor-pointer">Mon</span>
+                <span class="px-3 py-1.5 rounded-lg bg-sky-500/20 text-sky-300 font-semibold text-xs border border-sky-500/30 cursor-pointer">Tue</span>
+                <span class="px-3 py-1.5 rounded-lg bg-sky-500/20 text-sky-300 font-semibold text-xs border border-sky-500/30 cursor-pointer">Wed</span>
+                <span class="px-3 py-1.5 rounded-lg bg-sky-500/20 text-sky-300 font-semibold text-xs border border-sky-500/30 cursor-pointer">Thu</span>
+                <span class="px-3 py-1.5 rounded-lg bg-sky-500/20 text-sky-300 font-semibold text-xs border border-sky-500/30 cursor-pointer">Fri</span>
+                <span class="px-3 py-1.5 rounded-lg bg-sky-500/20 text-sky-300 font-semibold text-xs border border-sky-500/30 cursor-pointer">Sat</span>
+                <span class="px-3 py-1.5 rounded-lg bg-sky-500/20 text-sky-300 font-semibold text-xs border border-sky-500/30 cursor-pointer">Sun</span>
+              </div>
+            </div>
+
+            <!-- High Frequency Sub-Schedule (DIFF / LOG) -->
+            <div class="pt-4 border-t border-slate-800 space-y-4">
+              <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400">High-Frequency Interval Backups (DIFF &amp; Transaction Log)</h4>
+              
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="bg-slate-800/50 border border-slate-700/60 rounded-xl p-4 flex items-center justify-between">
+                  <div>
+                    <span class="text-xs font-bold text-white block">Differential Backups</span>
+                    <span class="text-[11px] text-slate-400">Run differential every 240 mins</span>
+                  </div>
+                  <input type="checkbox" checked class="w-4 h-4 rounded text-sky-500">
+                </div>
+
+                <div class="bg-slate-800/50 border border-slate-700/60 rounded-xl p-4 flex items-center justify-between">
+                  <div>
+                    <span class="text-xs font-bold text-white block">Transaction Log Backups</span>
+                    <span class="text-[11px] text-slate-400">Run log chain backup every 15 mins</span>
+                  </div>
+                  <input type="checkbox" checked class="w-4 h-4 rounded text-sky-500">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ======================================== -->
+        <!-- WIZARD STEP 3: DESTINATIONS CATALOG      -->
+        <!-- ======================================== -->
+        <div id="wizard-step-3" class="wizard-step-content hidden space-y-6">
+          <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-5">
+            <div class="flex items-center justify-between">
+              <div>
+                <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                  <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+                  <span>Select Cloud &amp; Storage Backup Destinations</span>
+                </h3>
+                <p class="text-xs text-slate-400 mt-0.5">All 10 providers are 100% unlocked with zero license restrictions in UniBackup Pro</p>
+              </div>
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">ALL FREE &amp; UNLOCKED</span>
+            </div>
+
+            <!-- Providers Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 pt-2">
+              
+              <!-- 1. Amazon S3 -->
+              <label class="destination-card border border-sky-500/40 bg-sky-500/5 rounded-xl p-3.5 flex items-start gap-3 cursor-pointer transition hover:bg-sky-500/10">
+                <input type="checkbox" checked class="mt-1 text-sky-500 rounded">
+                <div>
+                  <span class="text-xs font-bold text-white block">Amazon S3 / AWS</span>
+                  <span class="text-[11px] text-slate-400">Standard, Glacier, Deep Archive</span>
+                </div>
+              </label>
+
+              <!-- 2. Cloudflare R2 -->
+              <label class="destination-card border border-slate-700 bg-slate-800/40 rounded-xl p-3.5 flex items-start gap-3 cursor-pointer transition hover:bg-slate-800">
+                <input type="checkbox" checked class="mt-1 text-sky-500 rounded">
+                <div>
+                  <span class="text-xs font-bold text-white block">Cloudflare R2 (S3)</span>
+                  <span class="text-[11px] text-slate-400">Zero egress fees, multi-region</span>
+                </div>
+              </label>
+
+              <!-- 3. Google Drive -->
+              <label class="destination-card border border-slate-700 bg-slate-800/40 rounded-xl p-3.5 flex items-start gap-3 cursor-pointer transition hover:bg-slate-800">
+                <input type="checkbox" class="mt-1 text-sky-500 rounded">
+                <div>
+                  <span class="text-xs font-bold text-white block">Google Drive</span>
+                  <span class="text-[11px] text-slate-400">Workspace &amp; Personal Drive</span>
+                </div>
+              </label>
+
+              <!-- 4. Microsoft Azure Blob -->
+              <label class="destination-card border border-slate-700 bg-slate-800/40 rounded-xl p-3.5 flex items-start gap-3 cursor-pointer transition hover:bg-slate-800">
+                <input type="checkbox" class="mt-1 text-sky-500 rounded">
+                <div>
+                  <span class="text-xs font-bold text-white block">Azure Blob Storage</span>
+                  <span class="text-[11px] text-slate-400">Hot, Cool, and Cold Archive</span>
+                </div>
+              </label>
+
+              <!-- 5. Wasabi Hot Cloud -->
+              <label class="destination-card border border-slate-700 bg-slate-800/40 rounded-xl p-3.5 flex items-start gap-3 cursor-pointer transition hover:bg-slate-800">
+                <input type="checkbox" class="mt-1 text-sky-500 rounded">
+                <div>
+                  <span class="text-xs font-bold text-white block">Wasabi Hot Cloud (S3)</span>
+                  <span class="text-[11px] text-slate-400">Ultra fast, no egress charges</span>
+                </div>
+              </label>
+
+              <!-- 6. Backblaze B2 -->
+              <label class="destination-card border border-slate-700 bg-slate-800/40 rounded-xl p-3.5 flex items-start gap-3 cursor-pointer transition hover:bg-slate-800">
+                <input type="checkbox" class="mt-1 text-sky-500 rounded">
+                <div>
+                  <span class="text-xs font-bold text-white block">Backblaze B2 (S3)</span>
+                  <span class="text-[11px] text-slate-400">Low cost cloud object store</span>
+                </div>
+              </label>
+
+              <!-- 7. Dropbox -->
+              <label class="destination-card border border-slate-700 bg-slate-800/40 rounded-xl p-3.5 flex items-start gap-3 cursor-pointer transition hover:bg-slate-800">
+                <input type="checkbox" class="mt-1 text-sky-500 rounded">
+                <div>
+                  <span class="text-xs font-bold text-white block">Dropbox</span>
+                  <span class="text-[11px] text-slate-400">Team &amp; Personal Dropbox API</span>
+                </div>
+              </label>
+
+              <!-- 8. OneDrive -->
+              <label class="destination-card border border-slate-700 bg-slate-800/40 rounded-xl p-3.5 flex items-start gap-3 cursor-pointer transition hover:bg-slate-800">
+                <input type="checkbox" class="mt-1 text-sky-500 rounded">
+                <div>
+                  <span class="text-xs font-bold text-white block">Microsoft OneDrive</span>
+                  <span class="text-[11px] text-slate-400">OneDrive for Business &amp; Personal</span>
+                </div>
+              </label>
+
+              <!-- 9. SFTP / FTP -->
+              <label class="destination-card border border-slate-700 bg-slate-800/40 rounded-xl p-3.5 flex items-start gap-3 cursor-pointer transition hover:bg-slate-800">
+                <input type="checkbox" class="mt-1 text-sky-500 rounded">
+                <div>
+                  <span class="text-xs font-bold text-white block">SFTP / FTPS Server</span>
+                  <span class="text-[11px] text-slate-400">SSH &amp; TLS secure file transfer</span>
+                </div>
+              </label>
+
+              <!-- 10. Local or Network UNC -->
+              <label class="destination-card border border-slate-700 bg-slate-800/40 rounded-xl p-3.5 flex items-start gap-3 cursor-pointer transition hover:bg-slate-800">
+                <input type="checkbox" checked class="mt-1 text-sky-500 rounded">
+                <div>
+                  <span class="text-xs font-bold text-white block">Local / Network UNC</span>
+                  <span class="text-[11px] text-slate-400">Local disks &amp; NAS shares (\\server)</span>
+                </div>
+              </label>
+
+            </div>
+          </div>
+        </div>
+
+        <!-- ======================================== -->
+        <!-- WIZARD STEP 4: SECURITY & GFS            -->
+        <!-- ======================================== -->
+        <div id="wizard-step-4" class="wizard-step-content hidden space-y-6">
+          <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-6">
+            <h3 class="text-sm font-bold text-white flex items-center gap-2">
+              <svg class="w-4 h-4 text-rose-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              <span>AES-256-GCM Streaming Encryption &amp; Ransomware Immutability</span>
+            </h3>
+
+            <!-- Encryption Card -->
+            <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-4 space-y-3">
+              <div class="flex items-center justify-between">
+                <label class="flex items-center gap-2.5 text-xs font-bold text-white cursor-pointer">
+                  <input type="checkbox" id="encryptCheck" checked onchange="toggleEncryptPass()" class="w-4 h-4 rounded text-sky-500">
+                  <span>Encrypt backup archives with AES-256-GCM (.ubenc)</span>
+                </label>
+                <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300">MILITARY-GRADE</span>
+              </div>
+              <div id="encryptPassBox">
+                <label class="block text-[11px] text-slate-400 mb-1">Master Disaster Recovery Passphrase (PBKDF2-SHA256)</label>
+                <input type="password" value="SuperSecretMasterKey2026!" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white font-mono focus:outline-none focus:border-sky-500">
+              </div>
+            </div>
+
+            <!-- GFS Retention -->
+            <div class="pt-4 border-t border-slate-800 space-y-4">
+              <div class="flex items-center justify-between">
+                <div>
+                  <h4 class="text-xs font-bold text-white uppercase tracking-wider">Grandfather-Father-Son (GFS) Long-Term Retention</h4>
+                  <p class="text-xs text-slate-400">Automatically promote backups into daily, weekly, and monthly archival tiers</p>
+                </div>
+                <input type="checkbox" checked class="w-4 h-4 rounded text-sky-500">
+              </div>
+
+              <div class="grid grid-cols-3 gap-4 pt-2">
+                <div class="bg-slate-800/40 border border-slate-700/60 rounded-xl p-3">
+                  <span class="text-[11px] text-slate-400 block">Daily Retention</span>
+                  <span class="text-sm font-bold text-white font-mono">7 Dailies</span>
+                </div>
+                <div class="bg-slate-800/40 border border-slate-700/60 rounded-xl p-3">
+                  <span class="text-[11px] text-slate-400 block">Weekly Retention</span>
+                  <span class="text-sm font-bold text-white font-mono">4 Weeklies</span>
+                </div>
+                <div class="bg-slate-800/40 border border-slate-700/60 rounded-xl p-3">
+                  <span class="text-[11px] text-slate-400 block">Monthly Retention</span>
+                  <span class="text-sm font-bold text-white font-mono">12 Monthlies</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- WORM Lock -->
+            <div class="pt-4 border-t border-slate-800 flex items-center justify-between">
+              <div>
+                <h4 class="text-xs font-bold text-white">S3 Object Lock (WORM Immutability)</h4>
+                <p class="text-xs text-slate-400">Protects archives from ransomware deletion or overwrites in cloud storage</p>
+              </div>
+              <input type="checkbox" checked class="w-4 h-4 rounded text-sky-500">
+            </div>
+          </div>
+        </div>
+
+        <!-- Wizard Navigation Footer -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex items-center justify-between">
+          <button onclick="switchTab('jobs')" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold">Cancel</button>
+          
+          <div class="flex items-center gap-3">
+            <button onclick="wizardPreviousStep()" id="wizardBackBtn" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold disabled:opacity-40" disabled>« Back</button>
+            <button onclick="wizardNextStep()" id="wizardNextBtn" class="px-5 py-2 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold transition">Next »</button>
+            <button onclick="saveJobSim()" class="px-5 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white text-xs font-bold shadow-md shadow-emerald-500/20 transition">Save Backup Job</button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ============================================================== -->
+      <!-- TAB 3: ANALYTICS & HISTORY                                     -->
+      <!-- ============================================================== -->
+      <div id="tab-analytics" class="tab-pane hidden space-y-6">
+        <div>
+          <h1 class="text-2xl font-extrabold text-white tracking-tight">Analytics &amp; Execution History</h1>
+          <p class="text-xs text-slate-400 mt-1">Real-time metrics, transfer throughput, and immutable audit logs</p>
+        </div>
+
+        <!-- KPI Metrics Grid -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4">
+            <span class="text-slate-400 text-xs font-medium">Pipeline Success Rate</span>
+            <div class="text-2xl font-extrabold text-emerald-400 mt-1 font-mono">99.4%</div>
+            <span class="text-[11px] text-emerald-400/80 font-medium">168 / 169 runs OK</span>
+          </div>
+
+          <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4">
+            <span class="text-slate-400 text-xs font-medium">Total Cloud Storage</span>
+            <div class="text-2xl font-extrabold text-sky-400 mt-1 font-mono">4.82 TB</div>
+            <span class="text-[11px] text-slate-400 font-medium">Across 3 repositories</span>
+          </div>
+
+          <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4">
+            <span class="text-slate-400 text-xs font-medium">Avg Streaming Speed</span>
+            <div class="text-2xl font-extrabold text-indigo-400 mt-1 font-mono">142 MB/s</div>
+            <span class="text-[11px] text-slate-400 font-medium">Multipart direct upload</span>
+          </div>
+
+          <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4">
+            <span class="text-slate-400 text-xs font-medium">Disaster Recovery RTO</span>
+            <div class="text-2xl font-extrabold text-purple-400 mt-1 font-mono">2m 14s</div>
+            <span class="text-[11px] text-purple-400/80 font-medium">Tested today at 11:30</span>
+          </div>
+        </div>
+
+        <!-- History Table -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow">
+          <div class="p-4 border-b border-slate-800 flex items-center justify-between">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-300">Recent Backup Executions</h3>
+            <span class="text-xs text-slate-400">Showing last 5 operations</span>
+          </div>
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-800/60 text-slate-400 font-semibold border-b border-slate-800">
+              <tr>
+                <th class="py-3 px-4">Status</th>
+                <th class="py-3 px-4">Job Name</th>
+                <th class="py-3 px-4">Type</th>
+                <th class="py-3 px-4">Archive Size</th>
+                <th class="py-3 px-4">Duration</th>
+                <th class="py-3 px-4">Destination</th>
+                <th class="py-3 px-4">Timestamp</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-800 text-slate-300">
+              <tr>
+                <td class="py-3 px-4"><span class="px-2 py-0.5 rounded font-bold text-[10px] bg-emerald-500/10 text-emerald-400">SUCCESS</span></td>
+                <td class="py-3 px-4 font-bold text-white">SQL_Production_ERP</td>
+                <td class="py-3 px-4"><span class="px-1.5 py-0.5 rounded bg-sky-500/20 text-sky-300 font-mono text-[10px]">LOG</span></td>
+                <td class="py-3 px-4 font-mono">14.2 MB</td>
+                <td class="py-3 px-4 font-mono">3.4s</td>
+                <td class="py-3 px-4">AWS S3, R2</td>
+                <td class="py-3 px-4 text-slate-400">Today 15:30</td>
+              </tr>
+              <tr>
+                <td class="py-3 px-4"><span class="px-2 py-0.5 rounded font-bold text-[10px] bg-emerald-500/10 text-emerald-400">SUCCESS</span></td>
+                <td class="py-3 px-4 font-bold text-white">IIS_WebRoot_Sites</td>
+                <td class="py-3 px-4"><span class="px-1.5 py-0.5 rounded bg-indigo-500/20 text-indigo-300 font-mono text-[10px]">FULL</span></td>
+                <td class="py-3 px-4 font-mono">8.65 GB</td>
+                <td class="py-3 px-4 font-mono">1m 12s</td>
+                <td class="py-3 px-4">Google Drive, NAS</td>
+                <td class="py-3 px-4 text-slate-400">Today 03:30</td>
+              </tr>
+              <tr>
+                <td class="py-3 px-4"><span class="px-2 py-0.5 rounded font-bold text-[10px] bg-emerald-500/10 text-emerald-400">SUCCESS</span></td>
+                <td class="py-3 px-4 font-bold text-white">SQL_Production_ERP</td>
+                <td class="py-3 px-4"><span class="px-1.5 py-0.5 rounded bg-purple-500/20 text-purple-300 font-mono text-[10px]">DIFF</span></td>
+                <td class="py-3 px-4 font-mono">182.4 MB</td>
+                <td class="py-3 px-4 font-mono">18.6s</td>
+                <td class="py-3 px-4">AWS S3, R2</td>
+                <td class="py-3 px-4 text-slate-400">Today 12:00</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ============================================================== -->
+      <!-- TAB 4: NOTIFICATIONS HUB (10 CHANNELS)                         -->
+      <!-- ============================================================== -->
+      <div id="tab-notifications" class="tab-pane hidden space-y-6">
+        <div>
+          <h1 class="text-2xl font-extrabold text-white tracking-tight">Notifications &amp; Alerting Hub</h1>
+          <p class="text-xs text-slate-400 mt-1">Multi-channel instant alerts for backup failures, warnings, and recovery verifications</p>
+        </div>
+
+        <!-- Channels Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          
+          <!-- Slack -->
+          <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="font-bold text-sm text-white flex items-center gap-2">
+                <span class="w-3 h-3 rounded-full bg-emerald-400"></span> Slack Webhook
+              </span>
+              <button onclick="testNotificationSim('Slack')" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-sky-400 border border-slate-700">Test</button>
+            </div>
+            <input type="text" value="https://hooks.slack.com/services/T00/B00/XXXX" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-slate-200 font-mono">
+          </div>
+
+          <!-- Discord -->
+          <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="font-bold text-sm text-white flex items-center gap-2">
+                <span class="w-3 h-3 rounded-full bg-indigo-400"></span> Discord Webhook
+              </span>
+              <button onclick="testNotificationSim('Discord')" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-sky-400 border border-slate-700">Test</button>
+            </div>
+            <input type="text" value="https://discord.com/api/webhooks/000/XXXX" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-slate-200 font-mono">
+          </div>
+
+          <!-- Telegram -->
+          <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="font-bold text-sm text-white flex items-center gap-2">
+                <span class="w-3 h-3 rounded-full bg-cyan-400"></span> Telegram Bot
+              </span>
+              <button onclick="testNotificationSim('Telegram')" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-sky-400 border border-slate-700">Test</button>
+            </div>
+            <input type="text" value="botToken:chatId" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-slate-200 font-mono">
+          </div>
+
+          <!-- Microsoft Teams -->
+          <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="font-bold text-sm text-white flex items-center gap-2">
+                <span class="w-3 h-3 rounded-full bg-blue-500"></span> MS Teams Webhook
+              </span>
+              <button onclick="testNotificationSim('Teams')" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-sky-400 border border-slate-700">Test</button>
+            </div>
+            <input type="text" value="https://outlook.office.com/webhook/..." class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-slate-200 font-mono">
+          </div>
+
+          <!-- Pushover Mobile Push -->
+          <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="font-bold text-sm text-white flex items-center gap-2">
+                <span class="w-3 h-3 rounded-full bg-amber-400"></span> Pushover Priority Push
+              </span>
+              <button onclick="testNotificationSim('Pushover')" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-sky-400 border border-slate-700">Test</button>
+            </div>
+            <input type="text" value="UserKey:AppToken" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-slate-200 font-mono">
+          </div>
+
+          <!-- PagerDuty Incident Trigger -->
+          <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="font-bold text-sm text-white flex items-center gap-2">
+                <span class="w-3 h-3 rounded-full bg-rose-500"></span> PagerDuty V2 Events
+              </span>
+              <button onclick="testNotificationSim('PagerDuty')" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-sky-400 border border-slate-700">Test</button>
+            </div>
+            <input type="text" value="RoutingKey: pd-v2-integration" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-slate-200 font-mono">
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ============================================================== -->
+      <!-- TAB 5: APPLICATION LOGS                                        -->
+      <!-- ============================================================== -->
+      <div id="tab-logs" class="tab-pane hidden space-y-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <h1 class="text-2xl font-extrabold text-white tracking-tight">Application Logs</h1>
+            <p class="text-xs text-slate-400">Live operational events from engine background service</p>
+          </div>
+          <button onclick="clearLogsSim()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-medium text-slate-300">Clear Viewer</button>
+        </div>
+
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 font-mono text-xs text-slate-300 space-y-1.5 max-h-[600px] overflow-y-auto" id="logViewer">
+          <div><span class="text-slate-500">[2026-11-21 15:30:00.124]</span> <span class="text-emerald-400">[INFO]</span> Engine scheduler started task `SQL_Production_ERP` (Type: LOG).</div>
+          <div><span class="text-slate-500">[2026-11-21 15:30:00.812]</span> <span class="text-sky-400">[SQL]</span> Executed `BACKUP LOG [ERP_Core] TO DISK` in 680ms. Size: 14,248,192 bytes.</div>
+          <div><span class="text-slate-500">[2026-11-21 15:30:01.210]</span> <span class="text-indigo-400">[STORAGE]</span> Uploading to S3 bucket `corp-backups-2026/SQL/ERP_Core` via 8 multipart threads.</div>
+          <div><span class="text-slate-500">[2026-11-21 15:30:03.490]</span> <span class="text-emerald-400">[SUCCESS]</span> Task `SQL_Production_ERP` completed in 3.36s with status SUCCESS.</div>
+          <div><span class="text-slate-500">[2026-11-21 15:30:03.510]</span> <span class="text-slate-400">[NOTIFY]</span> Dispatched execution status payload to Slack &amp; Discord channels.</div>
+        </div>
+      </div>
+
+      <!-- ============================================================== -->
+      <!-- TAB 6: SETTINGS & CLOUD RECOVERY                               -->
+      <!-- ============================================================== -->
+      <div id="tab-recovery" class="tab-pane hidden space-y-4">
+        <div>
+          <h1 class="text-2xl font-extrabold text-white tracking-tight">Cloud Disaster Recovery</h1>
+          <p class="text-xs text-slate-400">Point-in-time database restoration and automated drill verification</p>
+        </div>
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 text-center py-12">
+          <p class="text-sm font-semibold text-slate-300">Point-in-Time Restore Wizard</p>
+          <p class="text-xs text-slate-400 max-w-md mx-auto mt-2">Select a database and point-in-time target timestamp to replay transaction log chains directly from cloud repositories.</p>
+        </div>
+      </div>
+
+      <div id="tab-settings" class="tab-pane hidden space-y-4">
+        <div>
+          <h1 class="text-2xl font-extrabold text-white tracking-tight">Settings &amp; Engine Infrastructure</h1>
+          <p class="text-xs text-slate-400">Global cloud credentials, S3 endpoints, and Windows Task Scheduler sync</p>
+        </div>
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 text-center py-12">
+          <p class="text-sm font-semibold text-slate-300">Infrastructure Configuration</p>
+          <p class="text-xs text-slate-400 max-w-md mx-auto mt-2">Centralized settings for AWS S3, Google Drive OAuth tokens, and retention policies.</p>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- ============================================== -->
+  <!-- FLOATING TOAST NOTIFICATION COMPONENT          -->
+  <!-- ============================================== -->
+  <div id="toast" class="fixed bottom-6 right-6 max-w-md bg-slate-900 border border-slate-700/80 rounded-2xl p-4 shadow-2xl flex items-center gap-3.5 transform translate-y-24 opacity-0 transition-all duration-300 pointer-events-none z-50">
+    <div id="toastIcon" class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+    </div>
+    <div>
+      <h5 id="toastTitle" class="font-bold text-xs text-white">Action Completed</h5>
+      <p id="toastMessage" class="text-xs text-slate-400 mt-0.5">Notification triggered successfully.</p>
+    </div>
+  </div>
+
+  <!-- ============================================== -->
+  <!-- LIVE SIMULATED RUN OVERLAY MODAL               -->
+  <!-- ============================================== -->
+  <div id="progressModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center hidden opacity-0 transition-opacity duration-200">
+    <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 max-w-md w-full mx-4 shadow-2xl space-y-5">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-2xl bg-sky-500/10 border border-sky-500/20 text-sky-400 flex items-center justify-center animate-spin">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
+          </svg>
+        </div>
+        <div>
+          <h3 id="modalPhase" class="font-bold text-sm text-white">Executing Backup Pipeline</h3>
+          <p id="modalStatus" class="text-xs text-slate-400">Capturing database VSS snapshot...</p>
+        </div>
+      </div>
+
+      <!-- Progress Bar -->
+      <div class="space-y-1.5">
+        <div class="w-full bg-slate-800 rounded-full h-2.5 overflow-hidden">
+          <div id="progressBar" class="bg-gradient-to-r from-sky-400 to-indigo-500 h-full rounded-full transition-all duration-300" style="width: 0%"></div>
+        </div>
+        <div class="flex justify-between text-[11px] font-mono text-slate-400">
+          <span id="progressDetail">Initializing archive streams...</span>
+          <span id="progressPercent">0%</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================== -->
+  <!-- PROTOTYPE CLIENT JAVASCRIPT LOGIC              -->
+  <!-- ============================================== -->
+  <script>
+    let currentWizardStep = 1;
+
+    // Tab Navigation Switcher
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-pane').forEach(el => el.classList.add('hidden'));
+      const activeTab = document.getElementById('tab-' + tabId);
+      if (activeTab) {
+        activeTab.classList.remove('hidden');
+      }
+
+      // Update Sidebar Active Nav State
+      document.querySelectorAll('.nav-item').forEach(btn => {
+        if (btn.getAttribute('data-tab') === tabId) {
+          btn.className = 'nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold bg-sky-500/10 text-sky-400 border border-sky-500/20 transition-all';
+        } else {
+          btn.className = 'nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800/70 border border-transparent transition-all';
+        }
+      });
+    }
+
+    // Wizard Step Switcher
+    function setWizardStep(step) {
+      currentWizardStep = step;
+      
+      // Update step indicator buttons
+      for (let i = 1; i <= 4; i++) {
+        const btn = document.getElementById('step-btn-' + i);
+        const content = document.getElementById('wizard-step-' + i);
+        
+        if (i === step) {
+          btn.className = 'wizard-step-tab flex items-center justify-center gap-2.5 py-3 rounded-xl bg-sky-600 text-white text-xs font-bold transition shadow-sm';
+          content.classList.remove('hidden');
+        } else if (i < step) {
+          btn.className = 'wizard-step-tab flex items-center justify-center gap-2.5 py-3 rounded-xl bg-emerald-500/10 text-emerald-400 text-xs font-bold transition border border-emerald-500/20';
+          content.classList.add('hidden');
+        } else {
+          btn.className = 'wizard-step-tab flex items-center justify-center gap-2.5 py-3 rounded-xl bg-slate-800/80 text-slate-400 hover:text-white text-xs font-bold transition';
+          content.classList.add('hidden');
+        }
+      }
+
+      // Back & Next Button states
+      document.getElementById('wizardBackBtn').disabled = step === 1;
+      const nextBtn = document.getElementById('wizardNextBtn');
+      if (step === 4) {
+        nextBtn.classList.add('hidden');
+      } else {
+        nextBtn.classList.remove('hidden');
+      }
+    }
+
+    function wizardNextStep() {
+      if (currentWizardStep < 4) setWizardStep(currentWizardStep + 1);
+    }
+
+    function wizardPreviousStep() {
+      if (currentWizardStep > 1) setWizardStep(currentWizardStep - 1);
+    }
+
+    // Toggle Source Type (Folder vs SQL)
+    function toggleSourceType(type) {
+      const folderPanel = document.getElementById('panelFolderConfig');
+      const sqlPanel = document.getElementById('panelSqlConfig');
+      const folderCard = document.getElementById('sourceFolderCard');
+      const sqlCard = document.getElementById('sourceSqlCard');
+      const jobName = document.getElementById('jobNameInput');
+
+      if (type === 'folder') {
+        folderPanel.classList.remove('hidden');
+        sqlPanel.classList.add('hidden');
+        folderCard.className = 'cursor-pointer border-2 border-sky-500 bg-sky-500/5 rounded-2xl p-4 flex items-start gap-4 transition';
+        sqlCard.className = 'cursor-pointer border-2 border-slate-800 hover:border-slate-700 bg-slate-800/40 rounded-2xl p-4 flex items-start gap-4 transition';
+        jobName.value = 'WebRoot_Production_Daily';
+      } else {
+        folderPanel.classList.add('hidden');
+        sqlPanel.classList.remove('hidden');
+        sqlCard.className = 'cursor-pointer border-2 border-sky-500 bg-sky-500/5 rounded-2xl p-4 flex items-start gap-4 transition';
+        folderCard.className = 'cursor-pointer border-2 border-slate-800 hover:border-slate-700 bg-slate-800/40 rounded-2xl p-4 flex items-start gap-4 transition';
+        jobName.value = 'SQL_Instance_Local_Backup';
+      }
+    }
+
+    // Toggle Encryption Passphrase visibility
+    function toggleEncryptPass() {
+      const chk = document.getElementById('encryptCheck');
+      const box = document.getElementById('encryptPassBox');
+      box.style.display = chk.checked ? 'block' : 'none';
+    }
+
+    // Toast Notification helper
+    function showToast(title, message, isSuccess = true) {
+      const toast = document.getElementById('toast');
+      const toastTitle = document.getElementById('toastTitle');
+      const toastMessage = document.getElementById('toastMessage');
+      const toastIcon = document.getElementById('toastIcon');
+
+      toastTitle.textContent = title;
+      toastMessage.textContent = message;
+
+      if (isSuccess) {
+        toastIcon.className = 'w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0';
+      } else {
+        toastIcon.className = 'w-8 h-8 rounded-xl bg-rose-500/20 text-rose-400 flex items-center justify-center shrink-0';
+      }
+
+      toast.classList.remove('translate-y-24', 'opacity-0', 'pointer-events-none');
+      setTimeout(() => {
+        toast.classList.add('translate-y-24', 'opacity-0', 'pointer-events-none');
+      }, 3500);
+    }
+
+    // Simulated SQL Connection Test
+    function testSqlConnectionSim() {
+      showToast('Testing SQL Connection', 'Contacting instance localhost...');
+      setTimeout(() => {
+        document.getElementById('sqlStatusMsg').classList.remove('hidden');
+        showToast('SQL Server Verified', 'Connection test passed! 14 user databases discovered.');
+      }, 700);
+    }
+
+    // Simulated Save Job
+    function saveJobSim() {
+      showToast('Job Saved & Scheduled', 'Pipeline registered in Windows Task Scheduler and jobs.json.', true);
+      setTimeout(() => {
+        switchTab('jobs');
+      }, 800);
+    }
+
+    // Simulated Notification Test
+    function testNotificationSim(channel) {
+      showToast(`${channel} Test Dispatched`, `Simulated test payload delivered to ${channel} successfully.`);
+    }
+
+    // Simulated Health Check
+    function runHealthCheckSim() {
+      showToast('Health Diagnostics Passed', 'Temp disk (45.8GB OK), S3 bucket reachable, VSS provider healthy.');
+    }
+
+    // Simulated Live Run Progress Modal
+    function triggerJobRunSim(jobName) {
+      const modal = document.getElementById('progressModal');
+      const phase = document.getElementById('modalPhase');
+      const status = document.getElementById('modalStatus');
+      const bar = document.getElementById('progressBar');
+      const percent = document.getElementById('progressPercent');
+      const detail = document.getElementById('progressDetail');
+
+      modal.classList.remove('hidden');
+      setTimeout(() => modal.classList.remove('opacity-0'), 10);
+
+      phase.textContent = `Running Job: ${jobName}`;
+      status.textContent = 'Acquiring VSS shadow copy snapshot...';
+      bar.style.width = '15%';
+      percent.textContent = '15%';
+      detail.textContent = 'Volume shadow copy created in 420ms';
+
+      setTimeout(() => {
+        status.textContent = 'Compressing stream with high-speed zstd...';
+        bar.style.width = '45%';
+        percent.textContent = '45%';
+        detail.textContent = 'Processed 480 MB / 1.42 GB';
+      }, 1000);
+
+      setTimeout(() => {
+        status.textContent = 'Uploading to Amazon S3 & Cloudflare R2...';
+        bar.style.width = '85%';
+        percent.textContent = '85%';
+        detail.textContent = 'Streaming via 8 multipart threads (142 MB/s)';
+      }, 2000);
+
+      setTimeout(() => {
+        status.textContent = 'Verifying CHECKSUM & Updating History...';
+        bar.style.width = '100%';
+        percent.textContent = '100%';
+        detail.textContent = 'Archive verified with zero errors.';
+      }, 3000);
+
+      setTimeout(() => {
+        modal.classList.add('opacity-0');
+        setTimeout(() => modal.classList.add('hidden'), 200);
+        showToast('Backup Completed', `Job ${jobName} finished successfully with zero errors!`);
+      }, 3600);
+    }
+
+    function runAllBackupsSim() {
+      triggerJobRunSim('Batch Backup (All Enabled Jobs)');
+    }
+
+    function clearLogsSim() {
+      document.getElementById('logViewer').innerHTML = '<div class="text-slate-500">Log display cleared. Waiting for engine events...</div>';
+      showToast('Logs Cleared', 'Active log buffer reset.');
+    }
+
+    // Theme Toggle Simulator
+    function toggleTheme() {
+      const html = document.documentElement;
+      if (html.classList.contains('dark')) {
+        html.classList.remove('dark');
+        html.classList.add('light');
+        document.body.classList.remove('bg-slate-950', 'text-slate-100');
+        document.body.classList.add('bg-slate-100', 'text-slate-900');
+        showToast('Light Theme Active', 'Modern enterprise light theme applied.');
+      } else {
+        html.classList.remove('light');
+        html.classList.add('dark');
+        document.body.classList.remove('bg-slate-100', 'text-slate-900');
+        document.body.classList.add('bg-slate-950', 'text-slate-100');
+        showToast('Dark Theme Active', 'Deep obsidian dark theme applied.');
+      }
+    }
+  </script>
+</body>
+</html>
