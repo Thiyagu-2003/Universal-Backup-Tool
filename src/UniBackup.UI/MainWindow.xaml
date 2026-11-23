@@ -121,9 +121,9 @@
                     </Grid.RowDefinitions>
 
                     <!-- Brand Header & Host Pill -->
-                    <StackPanel Grid.Row="0" Margin="20,20,20,16">
+                    <StackPanel Grid.Row="0" Margin="20,16,20,12">
                         <!-- Brand Stack -->
-                        <StackPanel Orientation="Horizontal" Margin="0,0,0,14">
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
                             <Image Source="{StaticResource AppLogoDrawingImage}" Width="44" Height="44" VerticalAlignment="Center" Margin="0,0,12,0"/>
                             <StackPanel VerticalAlignment="Center">
                                 <TextBlock Text="UniBackup Pro" FontWeight="SemiBold" FontSize="15" Foreground="#FFFFFF"/>
@@ -145,13 +145,13 @@
                     </StackPanel>
 
                     <!-- Navigation Groups (Protect · Recover and review · Configure) -->
-                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="14,0">
+                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Disabled" HorizontalScrollBarVisibility="Disabled" Padding="14,0">
                         <StackPanel>
                             <!-- GROUP 1: Protect -->
-                            <TextBlock Text="Protect" FontWeight="SemiBold" FontSize="11" Foreground="{DynamicResource BrushRailCaption}" Margin="10,8,10,6"/>
+                            <TextBlock Text="Protect" FontWeight="SemiBold" FontSize="11" Foreground="{DynamicResource BrushRailCaption}" Margin="10,6,10,4"/>
 
                             <!-- Overview -->
-                            <RadioButton x:Name="NavOverviewRadio" Style="{StaticResource NavRailItem}" Checked="NavTab_Checked" Tag="Overview" Height="44" Margin="0,0,0,3">
+                            <RadioButton x:Name="NavOverviewRadio" Style="{StaticResource NavRailItem}" Checked="NavTab_Checked" Tag="Overview" Height="42" Margin="0,0,0,2">
                                 <Grid HorizontalAlignment="Stretch">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="34"/>
@@ -166,7 +166,7 @@
                             </RadioButton>
 
                             <!-- Backup Jobs -->
-                            <RadioButton x:Name="NavBackupsRadio" IsChecked="True" Style="{StaticResource NavRailItem}" Checked="NavTab_Checked" Tag="Backups" Height="44" Margin="0,0,0,3">
+                            <RadioButton x:Name="NavBackupsRadio" IsChecked="True" Style="{StaticResource NavRailItem}" Checked="NavTab_Checked" Tag="Backups" Height="42" Margin="0,0,0,2">
                                 <Grid HorizontalAlignment="Stretch">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="34"/>
@@ -187,7 +187,7 @@
                             </RadioButton>
 
                             <!-- Create Backup Job -->
-                            <RadioButton x:Name="NavNewJobRadio" Style="{StaticResource NavRailItem}" Checked="NavTab_Checked" Tag="NewJob" Height="44" Margin="0,0,0,3">
+                            <RadioButton x:Name="NavNewJobRadio" Style="{StaticResource NavRailItem}" Checked="NavTab_Checked" Tag="NewJob" Height="42" Margin="0,0,0,2">
                                 <Grid HorizontalAlignment="Stretch">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="34"/>
@@ -202,7 +202,7 @@
                             </RadioButton>
 
                             <!-- IIS Sites -->
-                            <RadioButton x:Name="NavIisSitesRadio" Style="{StaticResource NavRailItem}" Checked="NavTab_Checked" Tag="IisSites" Height="44" Margin="0,0,0,14">
+                            <RadioButton x:Name="NavIisSitesRadio" Style="{StaticResource NavRailItem}" Checked="NavTab_Checked" Tag="IisSites" Height="42" Margin="0,0,0,8">
                                 <Grid HorizontalAlignment="Stretch">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="34"/>
@@ -217,10 +217,10 @@
                             </RadioButton>
 
                             <!-- GROUP 2: Recover and review -->
-                            <TextBlock Text="Recover and review" FontWeight="SemiBold" FontSize="11" Foreground="{DynamicResource BrushRailCaption}" Margin="10,4,10,6"/>
+                            <TextBlock Text="Recover and review" FontWeight="SemiBold" FontSize="11" Foreground="{DynamicResource BrushRailCaption}" Margin="10,4,10,4"/>
 
                             <!-- Cloud Recovery -->
-                            <RadioButton x:Name="NavRecoveryRadio" Style="{StaticResource NavRailItem}" Checked="NavTab_Checked" Tag="Recovery" Height="44" Margin="0,0,0,3">
+                            <RadioButton x:Name="NavRecoveryRadio" Style="{StaticResource NavRailItem}" Checked="NavTab_Checked" Tag="Recovery" Height="42" Margin="0,0,0,2">
                                 <Grid HorizontalAlignment="Stretch">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="34"/>
@@ -235,7 +235,7 @@
                             </RadioButton>
 
                             <!-- Analytics & History -->
-                            <RadioButton x:Name="NavSummaryRadio" Style="{StaticResource NavRailItem}" Checked="NavTab_Checked" Tag="Summary" Height="44" Margin="0,0,0,3">
+                            <RadioButton x:Name="NavSummaryRadio" Style="{StaticResource NavRailItem}" Checked="NavTab_Checked" Tag="Summary" Height="42" Margin="0,0,0,2">
                                 <Grid HorizontalAlignment="Stretch">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="34"/>
@@ -250,7 +250,7 @@
                             </RadioButton>
 
                             <!-- Application Logs -->
-                            <RadioButton x:Name="NavLogsRadio" Style="{StaticResource NavRailItem}" Checked="NavTab_Checked" Tag="Logs" Height="44" Margin="0,0,0,14">
+                            <RadioButton x:Name="NavLogsRadio" Style="{StaticResource NavRailItem}" Checked="NavTab_Checked" Tag="Logs" Height="42" Margin="0,0,0,8">
                                 <Grid HorizontalAlignment="Stretch">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="34"/>
@@ -265,10 +265,10 @@
                             </RadioButton>
 
                             <!-- GROUP 3: Configure -->
-                            <TextBlock Text="Configure" FontWeight="SemiBold" FontSize="11" Foreground="{DynamicResource BrushRailCaption}" Margin="10,4,10,6"/>
+                            <TextBlock Text="Configure" FontWeight="SemiBold" FontSize="11" Foreground="{DynamicResource BrushRailCaption}" Margin="10,4,10,4"/>
 
                             <!-- Notifications -->
-                            <RadioButton x:Name="NavNotificationsRadio" Style="{StaticResource NavRailItem}" Checked="NavTab_Checked" Tag="Notifications" Height="44" Margin="0,0,0,3">
+                            <RadioButton x:Name="NavNotificationsRadio" Style="{StaticResource NavRailItem}" Checked="NavTab_Checked" Tag="Notifications" Height="42" Margin="0,0,0,2">
                                 <Grid HorizontalAlignment="Stretch">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="34"/>
@@ -283,7 +283,7 @@
                             </RadioButton>
 
                             <!-- Settings & Engine -->
-                            <RadioButton x:Name="NavSettingsRadio" Style="{StaticResource NavRailItem}" Checked="NavTab_Checked" Tag="Settings" Height="44">
+                            <RadioButton x:Name="NavSettingsRadio" Style="{StaticResource NavRailItem}" Checked="NavTab_Checked" Tag="Settings" Height="42">
                                 <Grid HorizontalAlignment="Stretch">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="34"/>
