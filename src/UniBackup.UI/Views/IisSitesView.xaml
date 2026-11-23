@@ -48,14 +48,14 @@
                     <Border Grid.Column="1" Margin="20,0,0,0" Width="320" HorizontalAlignment="Left">
                         <Grid>
                             <TextBox x:Name="SearchBox" Tag="Filter sites by name, port..." Style="{StaticResource FieldInput}" Padding="34,0,12,0" TextChanged="SearchBox_TextChanged"/>
-                            <Path Data="{StaticResource IconSearch}" Fill="{DynamicResource BrushInkFaint}" Width="14" Height="14" Stretch="Uniform" HorizontalAlignment="Left" Margin="12,0,0,0" IsHitTestVisible="False"/>
+                            <Path Data="{StaticResource IconSearch}" Fill="{DynamicResource BrushInkFaint}" Width="18" Height="18" Stretch="Uniform" HorizontalAlignment="Left" Margin="12,0,0,0" IsHitTestVisible="False"/>
                         </Grid>
                     </Border>
 
                     <!-- Refresh from IIS Button -->
                     <Button Grid.Column="2" Click="Refresh_Click" Style="{StaticResource BtnQuiet}" Height="36" Padding="14,0">
                         <StackPanel Orientation="Horizontal">
-                            <Path Data="{StaticResource IconRefresh}" Fill="{DynamicResource BrushInkMuted}" Width="13" Height="13" Stretch="Uniform" Margin="0,0,8,0"/>
+                            <Path Data="{StaticResource IconRefresh}" Fill="{DynamicResource BrushInkMuted}" Width="18" Height="18" Stretch="Uniform" Margin="0,0,8,0"/>
                             <TextBlock Text="Read from IIS"/>
                         </StackPanel>
                     </Button>
@@ -79,9 +79,9 @@
                                 <!-- Checkbox -->
                                 <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}" IsEnabled="{Binding Available}" VerticalAlignment="Center" Margin="0,0,14,0"/>
 
-                                <!-- 34 px Icon Tile -->
-                                <Border Grid.Column="1" Width="34" Height="34" CornerRadius="8" Background="{Binding TileSoftBrush}" VerticalAlignment="Center" Margin="0,0,14,0">
-                                    <Path Data="{Binding TileIconGeometry}" Fill="{Binding TileBrush}" Width="16" Height="16" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                <!-- 40 px Icon Tile (24 px Icon) -->
+                                <Border Grid.Column="1" Width="40" Height="40" CornerRadius="10" Background="{Binding TileSoftBrush}" VerticalAlignment="Center" Margin="0,0,14,0">
+                                    <Path Data="{Binding TileIconGeometry}" Fill="{Binding TileBrush}" Width="24" Height="24" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                 </Border>
 
                                 <!-- Name, Path, Bindings & Pool -->

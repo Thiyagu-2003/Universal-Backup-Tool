@@ -706,7 +706,7 @@
         <Setter Property="FontFamily" Value="{StaticResource FontBase}"/>
         <Setter Property="FontWeight" Value="Medium"/>
         <Setter Property="FontSize" Value="{StaticResource FontSizeBody}"/>
-        <Setter Property="Height" Value="42"/>
+        <Setter Property="Height" Value="48"/>
         <Setter Property="Padding" Value="10,0"/>
         <Setter Property="Foreground" Value="{DynamicResource BrushInkMuted}"/>
         <Setter Property="Background" Value="Transparent"/>
@@ -777,8 +777,8 @@
          APP ICON CONTROL STYLE (Fluent & Simple Icons Modernization)
          =================================================================== -->
     <Style TargetType="{x:Type controls:AppIcon}">
-        <Setter Property="Width" Value="20"/>
-        <Setter Property="Height" Value="20"/>
+        <Setter Property="Width" Value="26"/>
+        <Setter Property="Height" Value="26"/>
         <Setter Property="Foreground" Value="{DynamicResource BrushInk}"/>
         <Setter Property="Focusable" Value="False"/>
         <Setter Property="IsHitTestVisible" Value="False"/>
