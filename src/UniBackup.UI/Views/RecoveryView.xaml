@@ -58,7 +58,12 @@
                         </StackPanel>
 
                         <!-- Latest Button -->
-                        <Button Grid.Column="1" Content="Latest point" Command="{Binding SetLatestRecoveryPointCommand}" Style="{StaticResource BtnQuiet}" Height="36" VerticalAlignment="Bottom"/>
+                        <Button Grid.Column="1" Command="{Binding SetLatestRecoveryPointCommand}" Style="{StaticResource BtnQuiet}" Height="36" VerticalAlignment="Bottom">
+                            <StackPanel Orientation="Horizontal">
+                                <Path Data="{StaticResource IconClock}" Fill="{DynamicResource BrushCobalt}" Width="14" Height="14" Stretch="Uniform" Margin="0,0,6,0"/>
+                                <TextBlock Text="Latest point"/>
+                            </StackPanel>
+                        </Button>
                     </Grid>
                 </Border>
 
@@ -168,7 +173,12 @@
                                      Tag="Passphrase for decryption (if set)"
                                      Style="{StaticResource FieldInput}" Margin="0,4,0,20"/>
 
-                            <Button Content="Execute database restore" Command="{Binding StartSqlRestoreCommand}" Style="{StaticResource BtnPrimary}" Height="38"/>
+                            <Button Command="{Binding StartSqlRestoreCommand}" Style="{StaticResource BtnPrimary}" Height="38">
+                                <StackPanel Orientation="Horizontal">
+                                    <Path Data="{StaticResource IconCloudArrowDown}" Fill="#FFFFFF" Width="15" Height="15" Stretch="Uniform" Margin="0,0,8,0"/>
+                                    <TextBlock Text="Execute database restore"/>
+                                </StackPanel>
+                            </Button>
                         </StackPanel>
                     </Border>
                 </Grid>
@@ -217,8 +227,13 @@
                                      Style="{StaticResource FieldInputMono}"/>
                             <Button Grid.Column="2" Content="Browse..." Command="{Binding BrowseRestoreDestinationCommand}"
                                     Style="{StaticResource BtnQuiet}" Height="38" Padding="16,0"/>
-                            <Button Grid.Column="4" Content="Extract archive" Command="{Binding ExecuteRestoreCommand}"
-                                    Style="{StaticResource BtnPrimary}" Height="38" Padding="18,0"/>
+                            <Button Grid.Column="4" Command="{Binding ExecuteRestoreCommand}"
+                                    Style="{StaticResource BtnPrimary}" Height="38" Padding="18,0">
+                                <StackPanel Orientation="Horizontal">
+                                    <Path Data="{StaticResource IconCloudArrowDown}" Fill="#FFFFFF" Width="14" Height="14" Stretch="Uniform" Margin="0,0,8,0"/>
+                                    <TextBlock Text="Extract archive"/>
+                                </StackPanel>
+                            </Button>
                         </Grid>
                     </StackPanel>
                 </Border>
@@ -257,7 +272,12 @@
                             </Grid>
                         </Border>
 
-                        <Button Content="Run automated drill now" Command="{Binding ExecuteRestoreDrillCommand}" Style="{StaticResource BtnPrimary}" HorizontalAlignment="Left"/>
+                        <Button Command="{Binding ExecuteRestoreDrillCommand}" Style="{StaticResource BtnPrimary}" HorizontalAlignment="Left">
+                            <StackPanel Orientation="Horizontal">
+                                <Path Data="{StaticResource IconPlay}" Fill="#FFFFFF" Width="13" Height="13" Stretch="Uniform" Margin="0,0,8,0"/>
+                                <TextBlock Text="Run automated drill now"/>
+                            </StackPanel>
+                        </Button>
                     </StackPanel>
                 </Border>
             </StackPanel>

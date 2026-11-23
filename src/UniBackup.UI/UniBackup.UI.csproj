@@ -17,6 +17,7 @@
     <Resource Include="UniBackup.ico" />
     <Resource Include="UniBackup.png" />
     <Resource Include="Fonts\*.ttf" />
+    <Resource Include="Resources\Icons\**\*.svg" />
   </ItemGroup>
 
   <ItemGroup>

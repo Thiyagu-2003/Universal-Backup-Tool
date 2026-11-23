@@ -169,8 +169,10 @@
                             </StackPanel>
                         </Border>
 
-                        <Button Content="✕" Style="{StaticResource SecondaryButton}" Width="28" Height="28" Padding="0" 
-                                HorizontalAlignment="Right" VerticalAlignment="Center" Click="CloseWindow" ToolTip="Exit Application"/>
+                        <Button Style="{StaticResource SecondaryButton}" Width="28" Height="28" Padding="0" 
+                                HorizontalAlignment="Right" VerticalAlignment="Center" Click="CloseWindow" ToolTip="Exit Application">
+                            <Path Data="{StaticResource IconClose}" Fill="{StaticResource TextSecondaryBrush}" Width="10" Height="10" Stretch="Uniform"/>
+                        </Button>
                     </Grid>
 
                     <!-- Centered Sign-In Card -->
@@ -248,7 +250,7 @@
                             <Button Style="{StaticResource PrimaryButton}" Height="42" Margin="0,16,0,0" Click="SignIn_Click">
                                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                                     <TextBlock Text="Sign In" FontWeight="Bold" FontSize="14" Margin="0,0,8,0"/>
-                                    <TextBlock Text="➔" FontWeight="Bold" FontSize="14"/>
+                                    <Path Data="{StaticResource IconChevronRight}" Fill="White" Width="10" Height="10" Stretch="Uniform" VerticalAlignment="Center"/>
                                 </StackPanel>
                             </Button>
                         </StackPanel>

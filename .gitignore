@@ -1,34 +1,125 @@
-# Build & Tooling Output
-bin/
-obj/
-dist/
-.vs/
-packages/
+# ==============================================================================
+#  🛡️ UniBackup Pro — Enterprise .gitignore
+#  Target Platform: .NET 9.0 (C# 13) | WPF Windows x64 | Cloud Backup & DR
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# Build, Compiler, Output & Single-File Bundles
+# ------------------------------------------------------------------------------
+[Bb]in/
+[Oo]bj/
+[Dd]ist/
+[Bb]uild/
+[Oo]ut/
+publish/
+Generated_Code/
 TestResults/
-*.user
 *.suo
+*.user
 *.userosscache
 *.sln.docstates
+*.userprefs
+*.launch
+*.psess
+*.vsp
+*.vspx
+*.sap
+*.nupkg
+*.snupkg
 
-# Archives & Temporary Files
+# ------------------------------------------------------------------------------
+# IDE, Editor & Tooling State (Visual Studio, Rider, VS Code)
+# ------------------------------------------------------------------------------
+.vs/
+.idea/
+*.VisualState.xml
+*.swp
+*.*~
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.history/
+_ReSharper*/
+*.ReSharper
+
+# ------------------------------------------------------------------------------
+# Compressed Archives, Backups & Staging Directories
+# ------------------------------------------------------------------------------
 *.rar
 *.zip
 *.7z
+*.tar
+*.gz
 *.tmp
-*.log
+*.temp
 temp/
+[Tt]emp/
 locks/
+*.lock
+!package-lock.json
+*.bak
+*.trn
+*.mdf
+*.ldf
 
-# Secrets, Credentials & Local Runtime State
+# ------------------------------------------------------------------------------
+# Application Logs, Diagnostics & Crash Dumps
+# ------------------------------------------------------------------------------
+*.log
+logs/
+[Ll]ogs/
+*.log.*
+UniBackup_*.txt
+*.dmp
+*.mdmp
+*.crash
+*.coverage
+*.coveragexml
+
+# ------------------------------------------------------------------------------
+# Secrets, Credentials, OAuth Tokens & Machine-Local Configurations
+# ------------------------------------------------------------------------------
+*credentials*.json
+*token*.json
+gdrive_credentials.json
+gdrive_token.json
 config/config.json
 config/jobs.json
 config/*credentials*.json
 config/*token*.json
-*credentials*.json
-*token*.json
+config.json
+jobs.json
 history.json
+*.ubcfg
+*.pfx
+*.p12
+*.key
+*.pem
+*.cer
+*.crt
+appsettings*.Development.json
+appsettings*.local.json
+*.local.json
+secrets.json
+
+# ------------------------------------------------------------------------------
+# Local Databases, SQLite Engine & Cache Stores
+# ------------------------------------------------------------------------------
 *.db
 *.db-shm
 *.db-wal
-*.bak
-*.trn
+*.sqlite
+*.sqlite3
+
+# ------------------------------------------------------------------------------
+# OS-Specific Metadata & Hidden Artifacts
+# ------------------------------------------------------------------------------
+Thumbs.db
+ehthumbs.db
+[Dd]esktop.ini
+$RECYCLE.BIN/
+.DS_Store
+.Spotlight-V100
+.Trashes

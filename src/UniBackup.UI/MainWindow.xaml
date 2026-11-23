@@ -159,7 +159,7 @@
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
                                     <Border Grid.Column="0" Width="28" Height="28" CornerRadius="7" Background="#332D5BFF" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                        <Path Data="{StaticResource IconOverview}" Fill="{DynamicResource BrushCobalt}" Width="13" Height="13" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        <Path Data="{StaticResource IconOverview}" Fill="{DynamicResource BrushCobalt}" Width="16" Height="16" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                     </Border>
                                     <TextBlock Grid.Column="2" Text="Overview" FontWeight="Medium" FontSize="{StaticResource FontSizeBody}" Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" VerticalAlignment="Center"/>
                                 </Grid>
@@ -175,7 +175,7 @@
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
                                     <Border Grid.Column="0" Width="28" Height="28" CornerRadius="7" Background="#332D5BFF" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                        <Path Data="{StaticResource IconBackups}" Fill="{DynamicResource BrushCobalt}" Width="13" Height="13" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        <Path Data="{StaticResource IconBackups}" Fill="{DynamicResource BrushCobalt}" Width="16" Height="16" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                     </Border>
                                     <TextBlock Grid.Column="2" Text="Backup Jobs" FontWeight="Medium" FontSize="{StaticResource FontSizeBody}" Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" VerticalAlignment="Center"/>
 
@@ -195,7 +195,7 @@
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
                                     <Border Grid.Column="0" Width="28" Height="28" CornerRadius="7" Background="#332D5BFF" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                        <Path Data="{StaticResource IconCreateJob}" Fill="{DynamicResource BrushCobalt}" Width="13" Height="13" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        <Path Data="{StaticResource IconCreateJob}" Fill="{DynamicResource BrushCobalt}" Width="16" Height="16" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                     </Border>
                                     <TextBlock Grid.Column="2" Text="Create Backup Job" FontWeight="Medium" FontSize="{StaticResource FontSizeBody}" Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" VerticalAlignment="Center"/>
                                 </Grid>
@@ -210,7 +210,7 @@
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
                                     <Border Grid.Column="0" Width="28" Height="28" CornerRadius="7" Background="#3300A0AE" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                        <Path Data="{StaticResource IconIisSites}" Fill="{DynamicResource BrushTeal}" Width="13" Height="13" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        <Path Data="{StaticResource IconIisSites}" Fill="{DynamicResource BrushTeal}" Width="16" Height="16" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                     </Border>
                                     <TextBlock Grid.Column="2" Text="IIS Sites" FontWeight="Medium" FontSize="{StaticResource FontSizeBody}" Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" VerticalAlignment="Center"/>
                                 </Grid>
@@ -228,7 +228,7 @@
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
                                     <Border Grid.Column="0" Width="28" Height="28" CornerRadius="7" Background="#337C4DFF" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                        <Path Data="{StaticResource IconRecovery}" Fill="{DynamicResource BrushOrchid}" Width="13" Height="13" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        <Path Data="{StaticResource IconRecovery}" Fill="{DynamicResource BrushOrchid}" Width="16" Height="16" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                     </Border>
                                     <TextBlock Grid.Column="2" Text="Cloud Recovery" FontWeight="Medium" FontSize="{StaticResource FontSizeBody}" Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" VerticalAlignment="Center"/>
                                 </Grid>
@@ -243,7 +243,7 @@
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
                                     <Border Grid.Column="0" Width="28" Height="28" CornerRadius="7" Background="#3300946A" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                        <Path Data="{StaticResource IconSummary}" Fill="{DynamicResource BrushJade}" Width="13" Height="13" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        <Path Data="{StaticResource IconSummary}" Fill="{DynamicResource BrushJade}" Width="16" Height="16" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                     </Border>
                                     <TextBlock Grid.Column="2" Text="Analytics &amp; History" FontWeight="Medium" FontSize="{StaticResource FontSizeBody}" Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" VerticalAlignment="Center"/>
                                 </Grid>
@@ -258,7 +258,7 @@
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
                                     <Border Grid.Column="0" Width="28" Height="28" CornerRadius="7" Background="#332D5BFF" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                        <Path Data="{StaticResource IconLogs}" Fill="{DynamicResource BrushCobalt}" Width="13" Height="13" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        <Path Data="{StaticResource IconLogs}" Fill="{DynamicResource BrushCobalt}" Width="16" Height="16" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                     </Border>
                                     <TextBlock Grid.Column="2" Text="Application Logs" FontWeight="Medium" FontSize="{StaticResource FontSizeBody}" Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" VerticalAlignment="Center"/>
                                 </Grid>
@@ -276,7 +276,7 @@
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
                                     <Border Grid.Column="0" Width="28" Height="28" CornerRadius="7" Background="#33C97A00" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                        <Path Data="{StaticResource IconNotifications}" Fill="{DynamicResource BrushSaffron}" Width="13" Height="13" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        <Path Data="{StaticResource IconNotifications}" Fill="{DynamicResource BrushSaffron}" Width="16" Height="16" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                     </Border>
                                     <TextBlock Grid.Column="2" Text="Notifications" FontWeight="Medium" FontSize="{StaticResource FontSizeBody}" Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" VerticalAlignment="Center"/>
                                 </Grid>
@@ -291,7 +291,7 @@
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
                                     <Border Grid.Column="0" Width="28" Height="28" CornerRadius="7" Background="#33808FA5" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                        <Path Data="{StaticResource IconSettings}" Fill="{DynamicResource BrushRailText}" Width="13" Height="13" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        <Path Data="{StaticResource IconSettings}" Fill="{DynamicResource BrushRailText}" Width="16" Height="16" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                     </Border>
                                     <TextBlock Grid.Column="2" Text="Settings &amp; Engine" FontWeight="Medium" FontSize="{StaticResource FontSizeBody}" Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" VerticalAlignment="Center"/>
                                 </Grid>
@@ -383,8 +383,7 @@
                                          CaretBrush="{DynamicResource BrushCobalt}"
                                          FontSize="{StaticResource FontSizeBody}"
                                          VerticalContentAlignment="Center"
-                                         Padding="36,0,32,0"
-                                         TextChanged="SearchBox_TextChanged"/>
+                                         Padding="36,0,32,0"/>
 
                                 <!-- Clear Button (Appears when text is entered) -->
                                 <Button x:Name="SearchClearButton"

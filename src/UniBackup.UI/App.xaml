@@ -7,6 +7,8 @@
             <ResourceDictionary.MergedDictionaries>
                 <!-- Tokens must be merged first -->
                 <ResourceDictionary Source="pack://application:,,,/UniBackup;component/Themes/Tokens.xaml"/>
+                <!-- Centralized Vector Icon Resources (Fluent System Icons & Brand Logos) -->
+                <ResourceDictionary Source="pack://application:,,,/UniBackup;component/Resources/Dictionaries/IconResources.xaml"/>
                 <!-- Active Theme (Light by default, switched dynamically) -->
                 <ResourceDictionary Source="pack://application:,,,/UniBackup;component/Themes/Light.xaml"/>
                 <!-- Reusable Controls & Component Styles -->

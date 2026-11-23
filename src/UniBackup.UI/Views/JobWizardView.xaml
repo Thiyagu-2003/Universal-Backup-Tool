@@ -382,8 +382,18 @@
 
                                 <!-- Column 1 -->
                                 <StackPanel Grid.Column="0">
-                                    <CheckBox Content="Amazon S3 &amp; S3-compatible" IsChecked="{Binding EnableS3}" Style="{StaticResource Switch}" Margin="0,0,0,14"/>
-                                    <CheckBox Content="Google Drive" IsChecked="{Binding EnableGDrive}" Style="{StaticResource Switch}" Margin="0,0,0,14"/>
+                                    <CheckBox IsChecked="{Binding EnableS3}" Style="{StaticResource Switch}" Margin="0,0,0,14">
+                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                            <Image Source="{StaticResource BrandDrawingAwsS3}" Width="16" Height="16" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                            <TextBlock Text="Amazon S3 &amp; S3-compatible" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </CheckBox>
+                                    <CheckBox IsChecked="{Binding EnableGDrive}" Style="{StaticResource Switch}" Margin="0,0,0,14">
+                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                            <Image Source="{StaticResource BrandDrawingGoogleDrive}" Width="16" Height="16" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                            <TextBlock Text="Google Drive" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </CheckBox>
                                     <CheckBox Content="Azure Blob Storage" IsChecked="{Binding EnableAzure}" Style="{StaticResource Switch}" Margin="0,0,0,14"/>
                                     <CheckBox Content="OneDrive" IsChecked="{Binding EnableOneDrive}" Style="{StaticResource Switch}" Margin="0,0,0,14"/>
                                     <CheckBox Content="Dropbox" IsChecked="{Binding EnableDropbox}" Style="{StaticResource Switch}"/>
@@ -391,7 +401,12 @@
 
                                 <!-- Column 2 -->
                                 <StackPanel Grid.Column="2">
-                                    <CheckBox Content="Local or UNC Network Share" IsChecked="{Binding EnableLocal}" Style="{StaticResource Switch}" Margin="0,0,0,14"/>
+                                    <CheckBox IsChecked="{Binding EnableLocal}" Style="{StaticResource Switch}" Margin="0,0,0,14">
+                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                            <Path Data="{StaticResource IconServer}" Fill="{DynamicResource BrushJade}" Width="15" Height="15" Stretch="Uniform" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                            <TextBlock Text="Local or UNC Network Share" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </CheckBox>
                                     <CheckBox Content="SFTP (SSH File Transfer)" IsChecked="{Binding EnableSftp}" Style="{StaticResource Switch}" Margin="0,0,0,14"/>
                                     <CheckBox Content="FTP / FTPS" IsChecked="{Binding EnableFtp}" Style="{StaticResource Switch}" Margin="0,0,0,14"/>
                                     <CheckBox Content="WebDAV" IsChecked="{Binding EnableWebDav}" Style="{StaticResource Switch}" Margin="0,0,0,14"/>

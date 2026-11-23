@@ -43,7 +43,7 @@
                                   Icon="{StaticResource IconWarningCircle}" TileBrush="{DynamicResource BrushCoral}"/>
 
                 <controls:KpiCard Grid.Column="6" Title="Uploaded" Value="{Binding TotalUploadedDisplay}" SubText="Stored in cloud"
-                                  Icon="{StaticResource IconCloud}" TileBrush="{DynamicResource BrushOrchid}"/>
+                                  Icon="{StaticResource IconCloudArrowUp}" TileBrush="{DynamicResource BrushOrchid}"/>
             </Grid>
 
             <!-- 3. Problems-Per-Day Chart -->
@@ -141,15 +141,15 @@
 
                                         <TextBlock Text="{Binding Timestamp, StringFormat={}{0:yyyy-MM-dd HH:mm:ss}}" FontFamily="{StaticResource FontMono}" FontSize="{StaticResource FontSizeMono}" Foreground="{DynamicResource BrushInkMuted}" VerticalAlignment="Center"/>
                                         <TextBlock Grid.Column="1" Text="{Binding JobName}" FontWeight="SemiBold" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource BrushInk}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
-                                        <TextBlock Grid.Column="2" Text="{Binding BackupType}" FontFamily="{StaticResource FontMono}" FontSize="{StaticResource FontSizeMono}" Foreground="{DynamicResource BrushInkMuted}" VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Column="2" Text="{Binding Kind}" FontFamily="{StaticResource FontMono}" FontSize="{StaticResource FontSizeMono}" Foreground="{DynamicResource BrushInkMuted}" VerticalAlignment="Center"/>
 
                                         <Border Grid.Column="3" Style="{StaticResource BadgePill}" Background="{Binding Status, Converter={StaticResource StatusToBrushConverter}, ConverterParameter=soft}" HorizontalAlignment="Left">
                                             <TextBlock Text="{Binding Status}" FontWeight="SemiBold" FontSize="{StaticResource FontSizeBadge}" Foreground="{Binding Status, Converter={StaticResource StatusToBrushConverter}}"/>
                                         </Border>
 
-                                        <TextBlock Grid.Column="4" Text="{Binding SizeBytes, Converter={StaticResource BytesToStringConverter}}" FontFamily="{StaticResource FontMono}" FontSize="{StaticResource FontSizeMono}" Foreground="{DynamicResource BrushInk}" VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Column="4" Text="{Binding ArchiveSizeBytes, Converter={StaticResource BytesToStringConverter}}" FontFamily="{StaticResource FontMono}" FontSize="{StaticResource FontSizeMono}" Foreground="{DynamicResource BrushInk}" VerticalAlignment="Center"/>
                                         <TextBlock Grid.Column="5" Text="{Binding DurationSeconds, Converter={StaticResource DurationConverter}}" FontFamily="{StaticResource FontMono}" FontSize="{StaticResource FontSizeMono}" Foreground="{DynamicResource BrushInkMuted}" VerticalAlignment="Center"/>
-                                        <TextBlock Grid.Column="6" Text="{Binding OutputSummary}" FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkFaint}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                                        <TextBlock Grid.Column="6" Text="{Binding ArchiveName}" FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkFaint}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
                                     </Grid>
                                 </Border>
                             </DataTemplate>

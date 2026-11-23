@@ -26,12 +26,12 @@
                         <RadioButton IsChecked="True" GroupName="ChannelGroup" Style="{StaticResource ChannelListItem}" Checked="ChannelRadio_Checked" Tag="Email" Margin="0,0,0,4">
                             <Grid HorizontalAlignment="Stretch">
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="24"/>
+                                    <ColumnDefinition Width="26"/>
                                     <ColumnDefinition Width="10"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <Border Grid.Column="0" Width="24" Height="24" CornerRadius="6" Background="{DynamicResource BrushCobaltSoft}" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                    <Path Data="{StaticResource IconNotifications}" Fill="{DynamicResource BrushCobalt}" Width="12" Height="12" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                <Border Grid.Column="0" Width="26" Height="26" CornerRadius="6" Background="{DynamicResource BrushCobaltSoft}" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                    <Path Data="{StaticResource IconEmail}" Fill="{DynamicResource BrushCobalt}" Width="14" Height="14" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                 </Border>
                                 <TextBlock Grid.Column="2" Text="Email (SMTP)" FontWeight="SemiBold" FontSize="{StaticResource FontSizeBody}" VerticalAlignment="Center"/>
                             </Grid>
@@ -41,12 +41,12 @@
                         <RadioButton GroupName="ChannelGroup" Style="{StaticResource ChannelListItem}" Checked="ChannelRadio_Checked" Tag="Slack" Margin="0,0,0,4">
                             <Grid HorizontalAlignment="Stretch">
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="24"/>
+                                    <ColumnDefinition Width="26"/>
                                     <ColumnDefinition Width="10"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <Border Grid.Column="0" Width="24" Height="24" CornerRadius="6" Background="{DynamicResource BrushTealSoft}" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                    <Path Data="{StaticResource IconCloud}" Fill="{DynamicResource BrushTeal}" Width="12" Height="12" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                <Border Grid.Column="0" Width="26" Height="26" CornerRadius="6" Background="#15E01E5A" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                    <Image Source="{StaticResource BrandDrawingSlack}" Width="15" Height="15" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                 </Border>
                                 <TextBlock Grid.Column="2" Text="Slack" FontWeight="SemiBold" FontSize="{StaticResource FontSizeBody}" VerticalAlignment="Center"/>
                             </Grid>
@@ -56,12 +56,12 @@
                         <RadioButton GroupName="ChannelGroup" Style="{StaticResource ChannelListItem}" Checked="ChannelRadio_Checked" Tag="Teams" Margin="0,0,0,4">
                             <Grid HorizontalAlignment="Stretch">
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="24"/>
+                                    <ColumnDefinition Width="26"/>
                                     <ColumnDefinition Width="10"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <Border Grid.Column="0" Width="24" Height="24" CornerRadius="6" Background="{DynamicResource BrushOrchidSoft}" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                    <Path Data="{StaticResource IconCloud}" Fill="{DynamicResource BrushOrchid}" Width="12" Height="12" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                <Border Grid.Column="0" Width="26" Height="26" CornerRadius="6" Background="#155059C9" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                    <Image Source="{StaticResource BrandDrawingTeams}" Width="15" Height="15" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                 </Border>
                                 <TextBlock Grid.Column="2" Text="Microsoft Teams" FontWeight="SemiBold" FontSize="{StaticResource FontSizeBody}" VerticalAlignment="Center"/>
                             </Grid>
@@ -71,12 +71,12 @@
                         <RadioButton GroupName="ChannelGroup" Style="{StaticResource ChannelListItem}" Checked="ChannelRadio_Checked" Tag="Discord" Margin="0,0,0,4">
                             <Grid HorizontalAlignment="Stretch">
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="24"/>
+                                    <ColumnDefinition Width="26"/>
                                     <ColumnDefinition Width="10"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <Border Grid.Column="0" Width="24" Height="24" CornerRadius="6" Background="{DynamicResource BrushCobaltSoft}" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                    <Path Data="{StaticResource IconCloud}" Fill="{DynamicResource BrushCobalt}" Width="12" Height="12" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                <Border Grid.Column="0" Width="26" Height="26" CornerRadius="6" Background="#155865F2" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                    <Image Source="{StaticResource BrandDrawingDiscord}" Width="15" Height="15" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                 </Border>
                                 <TextBlock Grid.Column="2" Text="Discord" FontWeight="SemiBold" FontSize="{StaticResource FontSizeBody}" VerticalAlignment="Center"/>
                             </Grid>
@@ -86,12 +86,12 @@
                         <RadioButton GroupName="ChannelGroup" Style="{StaticResource ChannelListItem}" Checked="ChannelRadio_Checked" Tag="Telegram" Margin="0,0,0,4">
                             <Grid HorizontalAlignment="Stretch">
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="24"/>
+                                    <ColumnDefinition Width="26"/>
                                     <ColumnDefinition Width="10"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <Border Grid.Column="0" Width="24" Height="24" CornerRadius="6" Background="{DynamicResource BrushSky}" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                    <Path Data="{StaticResource IconCloud}" Fill="#FFFFFF" Width="12" Height="12" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                <Border Grid.Column="0" Width="26" Height="26" CornerRadius="6" Background="#1524A1DE" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                    <Image Source="{StaticResource BrandDrawingTelegram}" Width="15" Height="15" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                 </Border>
                                 <TextBlock Grid.Column="2" Text="Telegram" FontWeight="SemiBold" FontSize="{StaticResource FontSizeBody}" VerticalAlignment="Center"/>
                             </Grid>
@@ -101,12 +101,12 @@
                         <RadioButton GroupName="ChannelGroup" Style="{StaticResource ChannelListItem}" Checked="ChannelRadio_Checked" Tag="Pushover" Margin="0,0,0,4">
                             <Grid HorizontalAlignment="Stretch">
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="24"/>
+                                    <ColumnDefinition Width="26"/>
                                     <ColumnDefinition Width="10"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <Border Grid.Column="0" Width="24" Height="24" CornerRadius="6" Background="{DynamicResource BrushJadeSoft}" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                    <Path Data="{StaticResource IconNotifications}" Fill="{DynamicResource BrushJade}" Width="12" Height="12" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                <Border Grid.Column="0" Width="26" Height="26" CornerRadius="6" Background="#15249DF1" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                    <Image Source="{StaticResource BrandDrawingPushover}" Width="15" Height="15" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                 </Border>
                                 <TextBlock Grid.Column="2" Text="Pushover" FontWeight="SemiBold" FontSize="{StaticResource FontSizeBody}" VerticalAlignment="Center"/>
                             </Grid>
@@ -116,12 +116,12 @@
                         <RadioButton GroupName="ChannelGroup" Style="{StaticResource ChannelListItem}" Checked="ChannelRadio_Checked" Tag="Ntfy" Margin="0,0,0,4">
                             <Grid HorizontalAlignment="Stretch">
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="24"/>
+                                    <ColumnDefinition Width="26"/>
                                     <ColumnDefinition Width="10"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <Border Grid.Column="0" Width="24" Height="24" CornerRadius="6" Background="{DynamicResource BrushCobaltSoft}" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                    <Path Data="{StaticResource IconNotifications}" Fill="{DynamicResource BrushCobalt}" Width="12" Height="12" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                <Border Grid.Column="0" Width="26" Height="26" CornerRadius="6" Background="#15317F6F" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                    <Image Source="{StaticResource BrandDrawingNtfy}" Width="15" Height="15" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                 </Border>
                                 <TextBlock Grid.Column="2" Text="ntfy" FontWeight="SemiBold" FontSize="{StaticResource FontSizeBody}" VerticalAlignment="Center"/>
                             </Grid>
@@ -131,12 +131,12 @@
                         <RadioButton GroupName="ChannelGroup" Style="{StaticResource ChannelListItem}" Checked="ChannelRadio_Checked" Tag="PagerDuty" Margin="0,0,0,4">
                             <Grid HorizontalAlignment="Stretch">
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="24"/>
+                                    <ColumnDefinition Width="26"/>
                                     <ColumnDefinition Width="10"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <Border Grid.Column="0" Width="24" Height="24" CornerRadius="6" Background="{DynamicResource BrushJadeSoft}" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                    <Path Data="{StaticResource IconWarningCircle}" Fill="{DynamicResource BrushJade}" Width="12" Height="12" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                <Border Grid.Column="0" Width="26" Height="26" CornerRadius="6" Background="#1506AC38" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                    <Image Source="{StaticResource BrandDrawingPagerDuty}" Width="15" Height="15" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                 </Border>
                                 <TextBlock Grid.Column="2" Text="PagerDuty" FontWeight="SemiBold" FontSize="{StaticResource FontSizeBody}" VerticalAlignment="Center"/>
                             </Grid>
@@ -146,12 +146,12 @@
                         <RadioButton GroupName="ChannelGroup" Style="{StaticResource ChannelListItem}" Checked="ChannelRadio_Checked" Tag="CustomWebhook" Margin="0,0,0,4">
                             <Grid HorizontalAlignment="Stretch">
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="24"/>
+                                    <ColumnDefinition Width="26"/>
                                     <ColumnDefinition Width="10"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <Border Grid.Column="0" Width="24" Height="24" CornerRadius="6" Background="{DynamicResource BrushSunken}" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                    <Path Data="{StaticResource IconSettings}" Fill="{DynamicResource BrushInkMuted}" Width="12" Height="12" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                <Border Grid.Column="0" Width="26" Height="26" CornerRadius="6" Background="{DynamicResource BrushSunken}" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                    <Path Data="{StaticResource IconCustomWebhook}" Fill="{DynamicResource BrushInkMuted}" Width="14" Height="14" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                 </Border>
                                 <TextBlock Grid.Column="2" Text="Custom webhook" FontWeight="SemiBold" FontSize="{StaticResource FontSizeBody}" VerticalAlignment="Center"/>
                             </Grid>
@@ -161,12 +161,12 @@
                         <RadioButton GroupName="ChannelGroup" Style="{StaticResource ChannelListItem}" Checked="ChannelRadio_Checked" Tag="Heartbeat">
                             <Grid HorizontalAlignment="Stretch">
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="24"/>
+                                    <ColumnDefinition Width="26"/>
                                     <ColumnDefinition Width="10"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <Border Grid.Column="0" Width="24" Height="24" CornerRadius="6" Background="{DynamicResource BrushJadeSoft}" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                    <Path Data="{StaticResource IconCheck}" Fill="{DynamicResource BrushJade}" Width="12" Height="12" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                <Border Grid.Column="0" Width="26" Height="26" CornerRadius="6" Background="{DynamicResource BrushJadeSoft}" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                    <Path Data="{StaticResource IconHeartbeat}" Fill="{DynamicResource BrushJade}" Width="14" Height="14" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                 </Border>
                                 <TextBlock Grid.Column="2" Text="Heartbeat monitor" FontWeight="SemiBold" FontSize="{StaticResource FontSizeBody}" VerticalAlignment="Center"/>
                             </Grid>
@@ -486,21 +486,21 @@
 
                             <!-- Row 1: Full -->
                             <TextBlock Grid.Row="1" Grid.Column="0" Text="Full backup" FontWeight="Medium" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource BrushInk}" VerticalAlignment="Center" Margin="0,12,0,0"/>
-                            <CheckBox Grid.Row="1" Grid.Column="1" IsChecked="{Binding Config.Email.NotifyOnSuccess}" HorizontalAlignment="Center" Margin="0,12,0,0"/>
-                            <CheckBox Grid.Row="1" Grid.Column="2" IsChecked="True" HorizontalAlignment="Center" Margin="0,12,0,0"/>
-                            <CheckBox Grid.Row="1" Grid.Column="3" IsChecked="{Binding Config.Email.NotifyOnFailure}" HorizontalAlignment="Center" Margin="0,12,0,0"/>
+                            <CheckBox Grid.Row="1" Grid.Column="1" IsChecked="{Binding Config.NotificationMatrix.FullSuccess, Mode=TwoWay}" HorizontalAlignment="Center" Margin="0,12,0,0"/>
+                            <CheckBox Grid.Row="1" Grid.Column="2" IsChecked="{Binding Config.NotificationMatrix.FullWarning, Mode=TwoWay}" HorizontalAlignment="Center" Margin="0,12,0,0"/>
+                            <CheckBox Grid.Row="1" Grid.Column="3" IsChecked="{Binding Config.NotificationMatrix.FullFailure, Mode=TwoWay}" HorizontalAlignment="Center" Margin="0,12,0,0"/>
 
                             <!-- Row 2: Differential -->
                             <TextBlock Grid.Row="2" Grid.Column="0" Text="Differential backup" FontWeight="Medium" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource BrushInk}" VerticalAlignment="Center" Margin="0,12,0,0"/>
-                            <CheckBox Grid.Row="2" Grid.Column="1" IsChecked="False" HorizontalAlignment="Center" Margin="0,12,0,0"/>
-                            <CheckBox Grid.Row="2" Grid.Column="2" IsChecked="True" HorizontalAlignment="Center" Margin="0,12,0,0"/>
-                            <CheckBox Grid.Row="2" Grid.Column="3" IsChecked="True" HorizontalAlignment="Center" Margin="0,12,0,0"/>
+                            <CheckBox Grid.Row="2" Grid.Column="1" IsChecked="{Binding Config.NotificationMatrix.DiffSuccess, Mode=TwoWay}" HorizontalAlignment="Center" Margin="0,12,0,0"/>
+                            <CheckBox Grid.Row="2" Grid.Column="2" IsChecked="{Binding Config.NotificationMatrix.DiffWarning, Mode=TwoWay}" HorizontalAlignment="Center" Margin="0,12,0,0"/>
+                            <CheckBox Grid.Row="2" Grid.Column="3" IsChecked="{Binding Config.NotificationMatrix.DiffFailure, Mode=TwoWay}" HorizontalAlignment="Center" Margin="0,12,0,0"/>
 
                             <!-- Row 3: Transaction Log -->
                             <TextBlock Grid.Row="3" Grid.Column="0" Text="Transaction log" FontWeight="Medium" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource BrushInk}" VerticalAlignment="Center" Margin="0,12,0,0"/>
-                            <CheckBox Grid.Row="3" Grid.Column="1" IsChecked="False" HorizontalAlignment="Center" Margin="0,12,0,0"/>
-                            <CheckBox Grid.Row="3" Grid.Column="2" IsChecked="True" HorizontalAlignment="Center" Margin="0,12,0,0"/>
-                            <CheckBox Grid.Row="3" Grid.Column="3" IsChecked="True" HorizontalAlignment="Center" Margin="0,12,0,0"/>
+                            <CheckBox Grid.Row="3" Grid.Column="1" IsChecked="{Binding Config.NotificationMatrix.LogSuccess, Mode=TwoWay}" HorizontalAlignment="Center" Margin="0,12,0,0"/>
+                            <CheckBox Grid.Row="3" Grid.Column="2" IsChecked="{Binding Config.NotificationMatrix.LogWarning, Mode=TwoWay}" HorizontalAlignment="Center" Margin="0,12,0,0"/>
+                            <CheckBox Grid.Row="3" Grid.Column="3" IsChecked="{Binding Config.NotificationMatrix.LogFailure, Mode=TwoWay}" HorizontalAlignment="Center" Margin="0,12,0,0"/>
                         </Grid>
                     </Border>
                 </StackPanel>
