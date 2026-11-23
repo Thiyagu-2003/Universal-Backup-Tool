@@ -150,6 +150,18 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty]
     private string _jobsSummaryHeader = "0 jobs · 0 on a schedule";
 
+    [ObservableProperty]
+    private int _totalJobsCount;
+
+    [ObservableProperty]
+    private int _enabledJobsCount;
+
+    [ObservableProperty]
+    private int _scheduledJobsCount;
+
+    [ObservableProperty]
+    private int _needsAttentionJobsCount;
+
     private string _currentFilterCategory = "All";
 
     // SQL Recovery Parameters (§4.5)
@@ -525,8 +537,13 @@ public partial class MainViewModel : ObservableObject
         }
 
         HasNoJobs = Jobs.Count == 0;
-        var scheduledCount = loadedJobs.Count(j => j.Enabled);
-        JobsSummaryHeader = $"{loadedJobs.Count} {(loadedJobs.Count == 1 ? "job" : "jobs")} · {scheduledCount} on a schedule";
+        TotalJobsCount = loadedJobs.Count;
+        EnabledJobsCount = loadedJobs.Count(j => j.Enabled);
+        ScheduledJobsCount = loadedJobs.Count(j => j.Enabled && !string.Equals(j.Schedule?.Freq, "manual", StringComparison.OrdinalIgnoreCase));
+        NeedsAttentionJobsCount = loadedJobs.Count(j =>
+            string.Equals(j.LastRunStatus, "FAILED", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(j.LastRunStatus, "PARTIAL", StringComparison.OrdinalIgnoreCase));
+        JobsSummaryHeader = $"{TotalJobsCount} {(TotalJobsCount == 1 ? "job" : "jobs")} · {ScheduledJobsCount} on a schedule";
         ComputeStaleJobs();
     }
 
@@ -686,6 +703,49 @@ public partial class MainViewModel : ObservableObject
 
         await _schedulerService.SyncJobTaskAsync(card.Model);
         card.NotifyStateChanged();
+        await RefreshJobsAsync();
+    }
+
+    [RelayCommand]
+    public void EditJob(JobCardViewModel? card)
+    {
+        if (card == null) return;
+        NewJob = new NewBackupViewModel(_configService, _iisService, _schedulerService)
+        {
+            CloseAction = () =>
+            {
+                ActiveTab = "Backups";
+                _ = RefreshJobsAsync();
+            }
+        };
+        NewJob.LoadFromJob(card.Model);
+        ActiveTab = "NewJob";
+    }
+
+    [RelayCommand]
+    public async Task DuplicateJobAsync(JobCardViewModel? card)
+    {
+        if (card == null) return;
+        var allJobs = await _configService.LoadJobsAsync();
+        var original = allJobs.FirstOrDefault(j => j.Id == card.Id) ?? card.Model;
+
+        var json = System.Text.Json.JsonSerializer.Serialize(original);
+        var clone = System.Text.Json.JsonSerializer.Deserialize<BackupJob>(json);
+        if (clone != null)
+        {
+            clone.Id = Guid.NewGuid().ToString("N")[..8];
+            clone.Name = $"{original.Name} (Copy)";
+            clone.LastRunTime = null;
+            clone.LastRunStatus = null;
+            clone.LastRunSizeBytes = null;
+            clone.LastRunDurationSeconds = null;
+
+            allJobs.Add(clone);
+            await _configService.SaveJobsAsync(allJobs);
+            await _schedulerService.SyncJobTaskAsync(clone);
+            await RefreshJobsAsync();
+            NotificationHub.ShowSuccess($"Duplicated job '{original.Name}' as '{clone.Name}'.", "Job Duplicated");
+        }
     }
 
     [RelayCommand]

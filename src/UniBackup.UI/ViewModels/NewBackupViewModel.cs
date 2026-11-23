@@ -30,6 +30,16 @@ public partial class NewBackupViewModel : ObservableObject
     [NotifyPropertyChangedFor(nameof(IsStep4))]
     private int _currentStep = 1;
 
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsEditing))]
+    [NotifyPropertyChangedFor(nameof(WizardPageTitle))]
+    [NotifyPropertyChangedFor(nameof(SaveButtonText))]
+    private string? _editingJobId;
+
+    public bool IsEditing => !string.IsNullOrEmpty(EditingJobId);
+    public string WizardPageTitle => IsEditing ? "Edit backup job" : "Create backup job";
+    public string SaveButtonText => IsEditing ? "Update job" : "Save job";
+
     public bool CanGoPrevious => CurrentStep > 1;
     public bool CanGoNext => CurrentStep < 4;
     public bool IsStep1 => CurrentStep == 1;
@@ -702,7 +712,7 @@ public partial class NewBackupViewModel : ObservableObject
 
         var job = new BackupJob
         {
-            Id = Guid.NewGuid().ToString("N")[..8],
+            Id = !string.IsNullOrEmpty(EditingJobId) ? EditingJobId : Guid.NewGuid().ToString("N")[..8],
             Name = JobName,
             Kind = Kind,
             SourceFolder = SourceFolder,
@@ -742,11 +752,34 @@ public partial class NewBackupViewModel : ObservableObject
         try
         {
             var jobs = await _configService.LoadJobsAsync();
-            jobs.Add(job);
-            await _configService.SaveJobsAsync(jobs);
-            await _schedulerService.SyncJobTaskAsync(job);
-
-            NotificationHub.ShowSuccess($"Created {job.Name}. First run scheduled for {ScheduledTime}.", "Job Created");
+            if (!string.IsNullOrEmpty(EditingJobId))
+            {
+                var existingIndex = jobs.FindIndex(j => j.Id == EditingJobId);
+                if (existingIndex >= 0)
+                {
+                    job.Pinned = jobs[existingIndex].Pinned;
+                    job.Enabled = jobs[existingIndex].Enabled;
+                    job.LastRunTime = jobs[existingIndex].LastRunTime;
+                    job.LastRunStatus = jobs[existingIndex].LastRunStatus;
+                    job.LastRunSizeBytes = jobs[existingIndex].LastRunSizeBytes;
+                    job.LastRunDurationSeconds = jobs[existingIndex].LastRunDurationSeconds;
+                    jobs[existingIndex] = job;
+                }
+                else
+                {
+                    jobs.Add(job);
+                }
+                await _configService.SaveJobsAsync(jobs);
+                await _schedulerService.SyncJobTaskAsync(job);
+                NotificationHub.ShowSuccess($"Updated {job.Name}.", "Job Updated");
+            }
+            else
+            {
+                jobs.Add(job);
+                await _configService.SaveJobsAsync(jobs);
+                await _schedulerService.SyncJobTaskAsync(job);
+                NotificationHub.ShowSuccess($"Created {job.Name}. First run scheduled for {ScheduledTime}.", "Job Created");
+            }
 
             DialogResult = true;
             CloseAction?.Invoke();
@@ -755,5 +788,74 @@ public partial class NewBackupViewModel : ObservableObject
         {
             SetValidationError($"Failed to save backup job: {ex.Message}");
         }
+    }
+
+    public void LoadFromJob(BackupJob job)
+    {
+        EditingJobId = job.Id;
+        JobName = job.Name;
+        Kind = job.Kind;
+        SourceFolder = job.SourceFolder;
+        Subfolder = job.Subfolder ?? "";
+        CloudFolder = job.CloudFolder ?? "";
+        UseVss = job.UseVss;
+        IncludeInRunAll = job.IncludeInRunAll;
+
+        EnableS3 = job.Destinations.Any(d => d.Equals("s3", StringComparison.OrdinalIgnoreCase));
+        EnableGDrive = job.Destinations.Any(d => d.Equals("gdrive", StringComparison.OrdinalIgnoreCase));
+        EnableAzure = job.Destinations.Any(d => d.Equals("azure", StringComparison.OrdinalIgnoreCase));
+        EnableLocal = job.Destinations.Any(d => d.Equals("local", StringComparison.OrdinalIgnoreCase));
+        EnableFtp = job.Destinations.Any(d => d.Equals("ftp", StringComparison.OrdinalIgnoreCase));
+        EnableSftp = job.Destinations.Any(d => d.Equals("sftp", StringComparison.OrdinalIgnoreCase));
+        EnableWebDav = job.Destinations.Any(d => d.Equals("webdav", StringComparison.OrdinalIgnoreCase));
+        EnableDropbox = job.Destinations.Any(d => d.Equals("dropbox", StringComparison.OrdinalIgnoreCase));
+        EnableOneDrive = job.Destinations.Any(d => d.Equals("onedrive", StringComparison.OrdinalIgnoreCase));
+        EnableBox = job.Destinations.Any(d => d.Equals("box", StringComparison.OrdinalIgnoreCase));
+
+        SelectedFrequency = job.Schedule?.Freq ?? "daily";
+        ScheduledTime = job.Schedule?.Time ?? "01:00";
+        if (job.Schedule?.Days != null && job.Schedule.Days.Count > 0)
+        {
+            Monday = job.Schedule.Days.Contains("MON", StringComparer.OrdinalIgnoreCase);
+            Tuesday = job.Schedule.Days.Contains("TUE", StringComparer.OrdinalIgnoreCase);
+            Wednesday = job.Schedule.Days.Contains("WED", StringComparer.OrdinalIgnoreCase);
+            Thursday = job.Schedule.Days.Contains("THU", StringComparer.OrdinalIgnoreCase);
+            Friday = job.Schedule.Days.Contains("FRI", StringComparer.OrdinalIgnoreCase);
+            Saturday = job.Schedule.Days.Contains("SAT", StringComparer.OrdinalIgnoreCase);
+            Sunday = job.Schedule.Days.Contains("SUN", StringComparer.OrdinalIgnoreCase);
+        }
+
+        if (job.Schedule?.Diff != null)
+        {
+            DiffEnabled = job.Schedule.Diff.Enabled;
+            DiffMinutes = job.Schedule.Diff.EveryMinutes;
+        }
+        if (job.Schedule?.Log != null)
+        {
+            LogEnabled = job.Schedule.Log.Enabled;
+            LogMinutes = job.Schedule.Log.EveryMinutes;
+        }
+
+        RetentionDays = job.RetentionDaysOverride ?? job.Retention?.KeepDays ?? 30;
+
+        EncryptionEnabled = !string.IsNullOrWhiteSpace(job.EncryptionPassphrase);
+        EncryptionPassphrase = job.EncryptionPassphrase ?? "";
+
+        if (job.Sql != null)
+        {
+            SqlServer = job.Sql.Server;
+            SqlUseWindowsAuth = job.Sql.UseWindowsAuth;
+            SqlUsername = job.Sql.Username ?? "";
+            SqlTrustServerCert = job.Sql.TrustServerCertificate;
+            SqlAllDatabases = job.Sql.AllUserDatabases;
+            SqlExcludePatterns = string.Join(", ", job.Sql.ExcludePatterns);
+            SqlNativeCompression = job.Sql.NativeCompression;
+            SqlChecksum = job.Sql.Checksum;
+            SqlVerify = job.Sql.Verify;
+            SqlRunCheckDb = job.Sql.RunCheckDb;
+            SqlDirectToUrl = job.Sql.DirectToUrl;
+        }
+
+        NotifyKindProps();
     }
 }

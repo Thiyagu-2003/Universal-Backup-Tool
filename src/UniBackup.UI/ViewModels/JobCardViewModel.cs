@@ -108,6 +108,110 @@ public partial class JobCardViewModel : ObservableObject
             _ => "IconClock"
         }) as Geometry) ?? Geometry.Empty;
 
+    public string StatusBadgeText
+    {
+        get
+        {
+            if (IsRunning) return "Running";
+            if (!Model.Enabled) return "Paused";
+            return (Model.LastRunStatus?.ToUpperInvariant()) switch
+            {
+                "SUCCESS" => "Succeeded",
+                "PARTIAL" => "Partial",
+                "FAILED" => "Failed",
+                _ => "Idle"
+            };
+        }
+    }
+
+    public Brush StatusBadgeBrush => (Application.Current?.TryFindResource(
+        IsRunning ? "BrushCobalt" :
+        (!Model.Enabled ? "BrushInkMuted" :
+        ((Model.LastRunStatus?.ToUpperInvariant()) switch
+        {
+            "SUCCESS" => "BrushJade",
+            "PARTIAL" => "BrushSaffron",
+            "FAILED" => "BrushCoral",
+            _ => "BrushInkMuted"
+        }))) as Brush) ?? Brushes.Gray;
+
+    public Brush StatusBadgeSoftBrush => (Application.Current?.TryFindResource(
+        IsRunning ? "BrushCobaltSoft" :
+        (!Model.Enabled ? "BrushSunken" :
+        ((Model.LastRunStatus?.ToUpperInvariant()) switch
+        {
+            "SUCCESS" => "BrushJadeSoft",
+            "PARTIAL" => "BrushSaffronSoft",
+            "FAILED" => "BrushCoralSoft",
+            _ => "BrushSunken"
+        }))) as Brush) ?? Brushes.LightGray;
+
+    public string ToggleActionText => Enabled ? "Pause schedule" : "Enable schedule";
+
+    public string NextRunDisplay
+    {
+        get
+        {
+            if (!Model.Enabled) return "Paused";
+            if (string.Equals(Model.Schedule.Freq, "manual", StringComparison.OrdinalIgnoreCase)) return "Manual only";
+
+            var sched = Model.Schedule;
+            if (!TimeSpan.TryParse(sched.Time, out var timeOfDay))
+            {
+                return sched.Freq;
+            }
+
+            var now = DateTime.Now;
+            var todayRun = now.Date + timeOfDay;
+
+            if (string.Equals(sched.Freq, "daily", StringComparison.OrdinalIgnoreCase))
+            {
+                if (now < todayRun)
+                    return $"Today at {sched.Time}";
+                return $"Tomorrow at {sched.Time}";
+            }
+
+            if (string.Equals(sched.Freq, "weekly", StringComparison.OrdinalIgnoreCase))
+            {
+                if (sched.Days == null || sched.Days.Count == 0)
+                {
+                    return $"Weekly at {sched.Time}";
+                }
+                for (int i = 0; i < 7; i++)
+                {
+                    var testDate = now.Date.AddDays(i);
+                    var testRun = testDate + timeOfDay;
+                    if (testRun <= now) continue;
+
+                    var dayAbbr = testDate.ToString("ddd", System.Globalization.CultureInfo.InvariantCulture);
+                    if (sched.Days.Any(d => d.Equals(dayAbbr, StringComparison.OrdinalIgnoreCase)))
+                    {
+                        if (i == 0) return $"Today at {sched.Time}";
+                        if (i == 1) return $"Tomorrow at {sched.Time}";
+                        return $"{testDate:ddd} at {sched.Time}";
+                    }
+                }
+                return $"Weekly at {sched.Time}";
+            }
+
+            if (string.Equals(sched.Freq, "monthly", StringComparison.OrdinalIgnoreCase))
+            {
+                if (int.TryParse(sched.Day, out var dayNum))
+                {
+                    var thisMonthRun = new DateTime(now.Year, now.Month, Math.Min(dayNum, DateTime.DaysInMonth(now.Year, now.Month))) + timeOfDay;
+                    if (now < thisMonthRun)
+                        return $"{thisMonthRun:MMM d} at {sched.Time}";
+                    var nextMonth = now.AddMonths(1);
+                    var nextMonthRun = new DateTime(nextMonth.Year, nextMonth.Month, Math.Min(dayNum, DateTime.DaysInMonth(nextMonth.Year, nextMonth.Month))) + timeOfDay;
+                    return $"{nextMonthRun:MMM d} at {sched.Time}";
+                }
+                return $"Monthly at {sched.Time}";
+            }
+
+            return sched.ToDisplayString();
+        }
+    }
+
     public string LastRunDisplay
     {
         get
@@ -152,7 +256,12 @@ public partial class JobCardViewModel : ObservableObject
         OnPropertyChanged(nameof(StatusBrush));
         OnPropertyChanged(nameof(StatusSoftBrush));
         OnPropertyChanged(nameof(StatusGlyph));
+        OnPropertyChanged(nameof(StatusBadgeText));
+        OnPropertyChanged(nameof(StatusBadgeBrush));
+        OnPropertyChanged(nameof(StatusBadgeSoftBrush));
         OnPropertyChanged(nameof(LastRunDisplay));
+        OnPropertyChanged(nameof(NextRunDisplay));
+        OnPropertyChanged(nameof(ToggleActionText));
         OnPropertyChanged(nameof(ArchiveSizeDisplay));
         OnPropertyChanged(nameof(DurationDisplay));
         OnPropertyChanged(nameof(RetentionDisplay));

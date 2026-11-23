@@ -3,37 +3,72 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:controls="clr-namespace:UniBackup.UI.Controls"
              xmlns:vm="clr-namespace:UniBackup.UI.ViewModels">
-    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="28,24">
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="24,20">
         <StackPanel MaxWidth="1280" HorizontalAlignment="Stretch">
 
-            <!-- 1. Header & Summary line: "5 jobs · 4 on a schedule" -->
-            <Grid Margin="0,0,0,18">
+            <!-- 1. Header: Page Title and Summary (Duplicate Create Button Removed) -->
+            <StackPanel Margin="0,0,0,18">
+                <TextBlock Text="Backup Jobs"
+                           FontWeight="SemiBold"
+                           FontSize="{StaticResource FontSizePageTitle}"
+                           Foreground="{DynamicResource BrushInk}"/>
+                <TextBlock Text="{Binding JobsSummaryHeader}"
+                           FontSize="{StaticResource FontSizeBody}"
+                           Foreground="{DynamicResource BrushInkMuted}"
+                           Margin="0,4,0,0"/>
+            </StackPanel>
+
+            <!-- 2. Four KPI Summary Cards Grid (Real Data from MainViewModel) -->
+            <Grid Margin="0,0,0,20">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="14"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="14"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="14"/>
+                    <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
-                <StackPanel>
-                    <TextBlock Text="Backup Jobs"
-                               FontWeight="SemiBold"
-                               FontSize="{StaticResource FontSizePageTitle}"
-                               Foreground="{DynamicResource BrushInk}"/>
-                    <TextBlock Text="{Binding JobsSummaryHeader}"
-                               FontSize="{StaticResource FontSizeBody}"
-                               Foreground="{DynamicResource BrushInkMuted}"
-                               Margin="0,3,0,0"/>
-                </StackPanel>
+                <!-- KPI 1: Total Jobs -->
+                <controls:KpiCard Grid.Column="0"
+                                  Title="Total jobs"
+                                  Value="{Binding TotalJobsCount, StringFormat={}{0}}"
+                                  NumericValue="{Binding TotalJobsCount}"
+                                  SubText="Configured backup definitions"
+                                  Icon="{StaticResource IconBackups}"
+                                  TileBrush="{DynamicResource BrushCobalt}"/>
 
-                <!-- Action Button in Header -->
-                <Button Grid.Column="1"
-                        Content="Create backup job"
-                        Command="{Binding OpenNewJobCommand}"
-                        Style="{StaticResource BtnPrimary}"
-                        VerticalAlignment="Center"/>
+                <!-- KPI 2: Enabled Jobs -->
+                <controls:KpiCard Grid.Column="2"
+                                  Title="Enabled jobs"
+                                  Value="{Binding EnabledJobsCount, StringFormat={}{0}}"
+                                  NumericValue="{Binding EnabledJobsCount}"
+                                  SubText="Active for execution"
+                                  Icon="{StaticResource IconCheckCircle}"
+                                  TileBrush="{DynamicResource BrushJade}"/>
+
+                <!-- KPI 3: Scheduled Jobs -->
+                <controls:KpiCard Grid.Column="4"
+                                  Title="Scheduled jobs"
+                                  Value="{Binding ScheduledJobsCount, StringFormat={}{0}}"
+                                  NumericValue="{Binding ScheduledJobsCount}"
+                                  SubText="Automated cron triggers"
+                                  Icon="{StaticResource IconClock}"
+                                  TileBrush="{DynamicResource BrushOrchid}"/>
+
+                <!-- KPI 4: Needs Attention -->
+                <controls:KpiCard Grid.Column="6"
+                                  Title="Needs attention"
+                                  Value="{Binding NeedsAttentionJobsCount, StringFormat={}{0}}"
+                                  NumericValue="{Binding NeedsAttentionJobsCount}"
+                                  SubText="Failed or degraded jobs"
+                                  Icon="{StaticResource IconWarningCircle}"
+                                  TileBrush="{DynamicResource BrushCoral}"/>
             </Grid>
 
-            <!-- 2. Toolbar: Segmented Filter + Search -->
-            <Border Style="{StaticResource Card}" Padding="16,12" Margin="0,0,0,20">
+            <!-- 3. Toolbar: Segmented Category Filter + Contextual Search (Duplicate Run All Removed) -->
+            <Border Style="{StaticResource Card}" Padding="16,12" Margin="0,0,0,16">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
@@ -41,8 +76,8 @@
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
 
-                    <!-- Segmented Filter: All / SQL Server / Folders and sites / Needs attention -->
-                    <Border Style="{StaticResource SegmentedContainer}">
+                    <!-- Segmented Category Filters: All / SQL Server / Folders and sites / Needs attention -->
+                    <Border Grid.Column="0" Style="{StaticResource SegmentedContainer}">
                         <StackPanel Orientation="Horizontal">
                             <RadioButton Content="All" Style="{StaticResource SegmentedItem}" IsChecked="True" Checked="Filter_Checked" Tag="All"/>
                             <RadioButton Content="SQL Server" Style="{StaticResource SegmentedItem}" Checked="Filter_Checked" Tag="SqlServer"/>
@@ -51,8 +86,8 @@
                         </StackPanel>
                     </Border>
 
-                    <!-- Search Box -->
-                    <Border Grid.Column="1" Margin="20,0,0,0" Width="320" HorizontalAlignment="Left">
+                    <!-- Contextual Search Box -->
+                    <Border Grid.Column="2" Width="300" HorizontalAlignment="Right">
                         <Grid>
                             <TextBox x:Name="SearchBox"
                                      Text="{Binding SearchQuery, UpdateSourceTrigger=PropertyChanged}"
@@ -68,21 +103,10 @@
                                   IsHitTestVisible="False"/>
                         </Grid>
                     </Border>
-
-                    <!-- Run All Enabled Button (Jade) -->
-                    <Button Grid.Column="2"
-                            Command="{Binding RunAllCommand}"
-                            Style="{StaticResource BtnGo}"
-                            Height="36">
-                        <StackPanel Orientation="Horizontal">
-                            <Path Data="{StaticResource IconRunAll}" Fill="#FFFFFF" Width="18" Height="18" Stretch="Uniform" Margin="0,0,8,0"/>
-                            <TextBlock Text="Run all enabled"/>
-                        </StackPanel>
-                    </Button>
                 </Grid>
             </Border>
 
-            <!-- 3. Empty State (When no jobs exist) -->
+            <!-- 4. Empty State (When no jobs exist) -->
             <controls:EmptyState Visibility="{Binding HasNoJobs, Converter={StaticResource BoolToVis}}"
                                  Title="No backup jobs yet"
                                  Description="Protect folders, IIS websites, or SQL Server databases with automated schedules and cloud storage retention."
@@ -91,7 +115,47 @@
                                  Icon="{StaticResource IconBackups}"
                                  Margin="0,30,0,0"/>
 
-            <!-- 4. One Card Per Job (9 px apart) -->
+            <!-- 5. Column Headers (Visible when jobs exist, padding exactly aligns with card row) -->
+            <Border Margin="0,0,0,8" Padding="18,0" Visibility="{Binding HasNoJobs, Converter={StaticResource InverseBoolToVis}}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="54"/>             <!-- Space for 40px icon + 14px margin -->
+                        <ColumnDefinition Width="*" MinWidth="180"/> <!-- Job & Source -->
+                        <ColumnDefinition Width="130"/>            <!-- Schedule -->
+                        <ColumnDefinition Width="130"/>            <!-- Next Run -->
+                        <ColumnDefinition Width="130"/>            <!-- Last Run -->
+                        <ColumnDefinition Width="105"/>            <!-- Status -->
+                        <ColumnDefinition Width="110"/>            <!-- Actions -->
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Grid.Column="1" Text="JOB &amp; SOURCE"
+                               FontWeight="SemiBold" FontSize="{StaticResource FontSizeSecondary}"
+                               Foreground="{DynamicResource BrushInkFaint}"/>
+
+                    <TextBlock Grid.Column="2" Text="SCHEDULE"
+                               FontWeight="SemiBold" FontSize="{StaticResource FontSizeSecondary}"
+                               Foreground="{DynamicResource BrushInkFaint}"/>
+
+                    <TextBlock Grid.Column="3" Text="NEXT RUN"
+                               FontWeight="SemiBold" FontSize="{StaticResource FontSizeSecondary}"
+                               Foreground="{DynamicResource BrushInkFaint}"/>
+
+                    <TextBlock Grid.Column="4" Text="LAST RUN"
+                               FontWeight="SemiBold" FontSize="{StaticResource FontSizeSecondary}"
+                               Foreground="{DynamicResource BrushInkFaint}"/>
+
+                    <TextBlock Grid.Column="5" Text="STATUS"
+                               FontWeight="SemiBold" FontSize="{StaticResource FontSizeSecondary}"
+                               Foreground="{DynamicResource BrushInkFaint}"/>
+
+                    <TextBlock Grid.Column="6" Text="ACTIONS"
+                               FontWeight="SemiBold" FontSize="{StaticResource FontSizeSecondary}"
+                               Foreground="{DynamicResource BrushInkFaint}"
+                               HorizontalAlignment="Right"/>
+                </Grid>
+            </Border>
+
+            <!-- 6. One Card Per Job (9 px apart) -->
             <ItemsControl ItemsSource="{Binding Jobs}" Visibility="{Binding HasNoJobs, Converter={StaticResource InverseBoolToVis}}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate DataType="{x:Type vm:JobCardViewModel}">
@@ -117,21 +181,22 @@
                                         CornerRadius="14,0,0,14"/>
 
                                 <!-- Main Job Row (Click to expand) -->
-                                <Border Grid.Row="0" Padding="20,16" Cursor="Hand" Background="Transparent" MouseLeftButtonUp="JobRow_Click">
+                                <Border Grid.Row="0" Padding="18,15" Cursor="Hand" Background="Transparent" MouseLeftButtonUp="JobRow_Click">
                                     <Grid>
                                         <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="Auto"/> <!-- Status Tile -->
-                                            <ColumnDefinition Width="220"/>  <!-- Name & Kind & Source -->
-                                            <ColumnDefinition Width="140"/>  <!-- Schedule -->
-                                            <ColumnDefinition Width="*"/>    <!-- 24h Activity Strip -->
-                                            <ColumnDefinition Width="150"/>  <!-- Last Run & Duration -->
-                                            <ColumnDefinition Width="Auto"/> <!-- Actions: Run & Menu -->
+                                            <ColumnDefinition Width="54"/>             <!-- Status Tile (40px + 14px) -->
+                                            <ColumnDefinition Width="*" MinWidth="180"/> <!-- Name & Kind & Source -->
+                                            <ColumnDefinition Width="130"/>            <!-- Schedule -->
+                                            <ColumnDefinition Width="130"/>            <!-- Next Run -->
+                                            <ColumnDefinition Width="130"/>            <!-- Last Run & Size -->
+                                            <ColumnDefinition Width="105"/>            <!-- Status Badge Pill -->
+                                            <ColumnDefinition Width="110"/>            <!-- Actions: Run & Menu -->
                                         </Grid.ColumnDefinitions>
 
                                         <!-- 40 px Status Tile (22 px Icon) -->
-                                        <Border Width="40" Height="40" CornerRadius="10"
+                                        <Border Grid.Column="0" Width="40" Height="40" CornerRadius="10"
                                                 Background="{Binding StatusSoftBrush}"
-                                                VerticalAlignment="Center" Margin="0,0,16,0">
+                                                VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0,0,14,0">
                                             <Path Data="{Binding StatusGlyph}"
                                                   Fill="{Binding StatusBrush}"
                                                   Width="22" Height="22"
@@ -140,23 +205,24 @@
                                         </Border>
 
                                         <!-- Name, Kind Chip, and Mono Source Path -->
-                                        <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="0,0,16,0">
+                                        <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="0,0,14,0">
                                             <StackPanel Orientation="Horizontal">
-                                                <TextBlock Text="{Binding Name}"
+                                                <TextBlock Text="{Binding Name, Mode=OneWay}"
                                                            FontWeight="SemiBold"
                                                            FontSize="{StaticResource FontSizeCardHeader}"
                                                            Foreground="{DynamicResource BrushInk}"
                                                            TextTrimming="CharacterEllipsis"
-                                                           MaxWidth="140"/>
+                                                           MaxWidth="180"/>
 
                                                 <!-- Kind Chip -->
                                                 <Border Style="{StaticResource BadgePill}"
                                                         Background="{Binding KindSoftBrush}"
-                                                        Margin="8,0,0,0">
+                                                        Margin="6,0,0,0"
+                                                        VerticalAlignment="Center">
                                                     <StackPanel Orientation="Horizontal">
                                                         <Path Data="{Binding KindIconGeometry}"
                                                               Fill="{Binding KindBrush}"
-                                                              Width="13" Height="13"
+                                                              Width="12" Height="12"
                                                               Stretch="Uniform"
                                                               VerticalAlignment="Center"
                                                               Margin="0,0,4,0"/>
@@ -178,64 +244,86 @@
                                         </StackPanel>
 
                                         <!-- Schedule Column -->
-                                        <StackPanel Grid.Column="2" VerticalAlignment="Center" Margin="0,0,16,0">
+                                        <StackPanel Grid.Column="2" VerticalAlignment="Center" Margin="0,0,12,0">
                                             <TextBlock Text="{Binding ScheduleDisplay}"
                                                        FontWeight="Medium"
                                                        FontSize="{StaticResource FontSizeBody}"
-                                                       Foreground="{DynamicResource BrushInk}"/>
-                                            <TextBlock Text="Automatic trigger"
+                                                       Foreground="{DynamicResource BrushInk}"
+                                                       TextTrimming="CharacterEllipsis"/>
+                                            <TextBlock Text="Trigger frequency"
                                                        FontSize="{StaticResource FontSizeSecondary}"
                                                        Foreground="{DynamicResource BrushInkFaint}"
                                                        Margin="0,2,0,0"/>
                                         </StackPanel>
 
-                                        <!-- 24-hour Activity Strip -->
-                                        <StackPanel Grid.Column="3" VerticalAlignment="Center" Margin="0,0,20,0">
-                                            <controls:ActivityStrip Runs="{Binding RecentRuns}"
-                                                                    IsJobRunning="{Binding IsRunning}"/>
-                                            <!-- Axis: 24 h ago · 12 h · now -->
-                                            <Grid Margin="4,2,4,0">
-                                                <TextBlock Text="24 h ago" FontFamily="{StaticResource FontFamilyMono}" FontSize="10" Foreground="{DynamicResource BrushInkFaint}" HorizontalAlignment="Left"/>
-                                                <TextBlock Text="12 h" FontFamily="{StaticResource FontFamilyMono}" FontSize="10" Foreground="{DynamicResource BrushInkFaint}" HorizontalAlignment="Center"/>
-                                                <TextBlock Text="now" FontFamily="{StaticResource FontFamilyMono}" FontSize="10" Foreground="{DynamicResource BrushInkFaint}" HorizontalAlignment="Right"/>
-                                            </Grid>
-                                        </StackPanel>
-
-                                        <!-- Last-run Column (relative time in 500, size and duration muted) -->
-                                        <StackPanel Grid.Column="4" VerticalAlignment="Center" Margin="0,0,16,0">
-                                            <TextBlock Text="{Binding LastRunDisplay}"
+                                        <!-- Next Run Column -->
+                                        <StackPanel Grid.Column="3" VerticalAlignment="Center" Margin="0,0,12,0">
+                                            <TextBlock Text="{Binding NextRunDisplay}"
                                                        FontWeight="Medium"
                                                        FontSize="{StaticResource FontSizeBody}"
-                                                       Foreground="{DynamicResource BrushInk}"/>
-                                            <TextBlock Text="{Binding ArchiveSizeDisplay, StringFormat={}{0} completed}"
+                                                       Foreground="{DynamicResource BrushInk}"
+                                                       TextTrimming="CharacterEllipsis"/>
+                                            <TextBlock Text="Upcoming run"
                                                        FontSize="{StaticResource FontSizeSecondary}"
-                                                       Foreground="{DynamicResource BrushInkMuted}"
+                                                       Foreground="{DynamicResource BrushInkFaint}"
                                                        Margin="0,2,0,0"/>
                                         </StackPanel>
 
-                                        <!-- Actions: Run & Menu -->
-                                        <StackPanel Grid.Column="5" Orientation="Horizontal" VerticalAlignment="Center">
+                                        <!-- Last-run Column -->
+                                        <StackPanel Grid.Column="4" VerticalAlignment="Center" Margin="0,0,12,0">
+                                            <TextBlock Text="{Binding LastRunDisplay}"
+                                                       FontWeight="Medium"
+                                                       FontSize="{StaticResource FontSizeBody}"
+                                                       Foreground="{DynamicResource BrushInk}"
+                                                       TextTrimming="CharacterEllipsis"/>
+                                            <TextBlock Text="{Binding ArchiveSizeDisplay, StringFormat={}{0} completed}"
+                                                       FontSize="{StaticResource FontSizeSecondary}"
+                                                       Foreground="{DynamicResource BrushInkMuted}"
+                                                       Margin="0,2,0,0"
+                                                       TextTrimming="CharacterEllipsis"/>
+                                        </StackPanel>
+
+                                        <!-- Execution Status Badge Column -->
+                                        <Border Grid.Column="5" Style="{StaticResource BadgePill}"
+                                                Background="{Binding StatusBadgeSoftBrush}"
+                                                Padding="8,4"
+                                                HorizontalAlignment="Left"
+                                                VerticalAlignment="Center">
+                                            <StackPanel Orientation="Horizontal">
+                                                <Ellipse Width="7" Height="7" Fill="{Binding StatusBadgeBrush}" Margin="0,0,6,0" VerticalAlignment="Center"/>
+                                                <TextBlock Text="{Binding StatusBadgeText}"
+                                                           FontWeight="SemiBold"
+                                                           FontSize="{StaticResource FontSizeBadge}"
+                                                           Foreground="{Binding StatusBadgeBrush}"/>
+                                            </StackPanel>
+                                        </Border>
+
+                                        <!-- Actions: Single Primary Run & ⋯ Context Menu -->
+                                        <StackPanel Grid.Column="6" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right">
                                             <!-- Run Button -->
                                             <Button Command="{Binding DataContext.RunJobCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
                                                     CommandParameter="{Binding}"
                                                     Style="{StaticResource BtnQuiet}"
-                                                    Height="34" Padding="12,0" Margin="0,0,6,0">
+                                                    Height="32" Padding="10,0" Margin="0,0,6,0"
+                                                    ToolTip="Run this backup job now">
                                                 <StackPanel Orientation="Horizontal">
-                                                    <Path Data="{StaticResource IconPlay}" Fill="{DynamicResource BrushInkMuted}" Width="15" Height="15" Stretch="Uniform" Margin="0,0,6,0"/>
-                                                    <TextBlock Text="Run" FontSize="{StaticResource FontSizeBadge}"/>
+                                                    <Path Data="{StaticResource IconPlay}" Fill="{DynamicResource BrushInkMuted}" Width="14" Height="14" Stretch="Uniform" Margin="0,0,5,0"/>
+                                                    <TextBlock Text="Run" FontSize="{StaticResource FontSizeBadge}" FontWeight="SemiBold"/>
                                                 </StackPanel>
                                             </Button>
 
                                             <!-- ⋯ Context Menu Button -->
-                                            <Button Style="{StaticResource IconBtn}" Click="MenuButton_Click">
-                                                <Path Data="{StaticResource IconDotsHorizontal}" Fill="{DynamicResource BrushInkMuted}" Width="19" Height="19" Stretch="Uniform"/>
+                                            <Button Style="{StaticResource IconBtn}" Click="MenuButton_Click" ToolTip="More job actions" Width="32" Height="32">
+                                                <Path Data="{StaticResource IconDotsHorizontal}" Fill="{DynamicResource BrushInkMuted}" Width="18" Height="18" Stretch="Uniform"/>
                                                 <Button.ContextMenu>
                                                     <ContextMenu>
                                                         <MenuItem Header="Run full backup" Click="RunFull_Click"/>
                                                         <MenuItem Header="Run differential backup" Click="RunDiff_Click" Visibility="{Binding IsSqlServer, Converter={StaticResource BoolToVis}}"/>
                                                         <MenuItem Header="Run log backup" Click="RunLog_Click" Visibility="{Binding IsSqlServer, Converter={StaticResource BoolToVis}}"/>
                                                         <Separator/>
-                                                        <MenuItem Header="Pause schedule" Click="TogglePause_Click"/>
+                                                        <MenuItem Header="Edit job" Click="EditJob_Click"/>
+                                                        <MenuItem Header="Duplicate job" Click="DuplicateJob_Click"/>
+                                                        <MenuItem Header="{Binding ToggleActionText}" Click="TogglePause_Click"/>
                                                         <MenuItem Header="View history" Click="ViewHistory_Click"/>
                                                         <Separator/>
                                                         <MenuItem Header="Delete job" Click="DeleteJob_Click" Foreground="{DynamicResource BrushCoral}"/>
@@ -248,7 +336,7 @@
 
                                 <!-- Inline Progress Bar (When running) -->
                                 <Border Grid.Row="1" Visibility="{Binding IsRunning, Converter={StaticResource BoolToVis}}"
-                                        Background="{DynamicResource BrushRaised}" Padding="20,8">
+                                        Background="{DynamicResource BrushRaised}" Padding="18,8">
                                     <Grid>
                                         <Grid.RowDefinitions>
                                             <RowDefinition Height="Auto"/>
@@ -268,7 +356,7 @@
 
                                 <!-- Inline Delete Confirmation -->
                                 <Border Grid.Row="2" Visibility="{Binding IsDeletingInline, Converter={StaticResource BoolToVis}}"
-                                        Background="{DynamicResource BrushCoralSoft}" BorderBrush="{DynamicResource BrushCoral}" BorderThickness="0,1,0,0" Padding="20,14">
+                                        Background="{DynamicResource BrushCoralSoft}" BorderBrush="{DynamicResource BrushCoral}" BorderThickness="0,1,0,0" Padding="18,14">
                                     <Grid>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="*"/>
@@ -289,7 +377,7 @@
 
                                 <!-- Expanded Drawer -->
                                 <Border Grid.Row="3" Visibility="{Binding IsExpanded, Converter={StaticResource BoolToVis}}"
-                                        Background="{DynamicResource BrushRaised}" BorderBrush="{DynamicResource BrushLine}" BorderThickness="0,1,0,0" Padding="24,18">
+                                        Background="{DynamicResource BrushRaised}" BorderBrush="{DynamicResource BrushLine}" BorderThickness="0,1,0,0" Padding="22,18">
                                     <StackPanel>
                                         <!-- Error block if last run failed -->
                                         <Border Visibility="{Binding HasFailed, Converter={StaticResource BoolToVis}}"
@@ -305,8 +393,19 @@
                                             </Grid>
                                         </Border>
 
+                                        <!-- Recent Activity Strip inside Expanded Details -->
+                                        <StackPanel Margin="0,0,0,16">
+                                            <TextBlock Text="Recent 24-hour activity" FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushInkMuted}" Margin="0,0,0,6"/>
+                                            <controls:ActivityStrip Runs="{Binding RecentRuns}" IsJobRunning="{Binding IsRunning}"/>
+                                            <Grid Margin="4,3,4,0">
+                                                <TextBlock Text="24 h ago" FontFamily="{StaticResource FontFamilyMono}" FontSize="10" Foreground="{DynamicResource BrushInkFaint}" HorizontalAlignment="Left"/>
+                                                <TextBlock Text="12 h" FontFamily="{StaticResource FontFamilyMono}" FontSize="10" Foreground="{DynamicResource BrushInkFaint}" HorizontalAlignment="Center"/>
+                                                <TextBlock Text="now" FontFamily="{StaticResource FontFamilyMono}" FontSize="10" Foreground="{DynamicResource BrushInkFaint}" HorizontalAlignment="Right"/>
+                                            </Grid>
+                                        </StackPanel>
+
                                         <!-- Definition Grid -->
-                                        <Grid Margin="0,0,0,10">
+                                        <Grid Margin="0,0,0,6">
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="*"/>
                                                 <ColumnDefinition Width="*"/>

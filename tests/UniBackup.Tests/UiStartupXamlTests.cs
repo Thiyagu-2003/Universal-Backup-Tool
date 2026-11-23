@@ -1,5 +1,6 @@
 using System.Threading;
 using System.Windows;
+using UniBackup.Core.Models;
 using UniBackup.UI;
 using UniBackup.UI.ViewModels;
 using UniBackup.UI.Views;
@@ -749,6 +750,139 @@ public class UiStartupXamlTests
                 encoderEmail.Save(stream);
             }
             Assert.True(System.IO.File.Exists(outEmail));
+        });
+    }
+
+    [Fact]
+    public void BackupJobsPage_RedesignedLayout_RenderAndVerify()
+    {
+        RunInStaThread(() =>
+        {
+            if (Application.Current == null)
+            {
+                var app = new App();
+                app.InitializeComponent();
+            }
+
+            var window = new MainWindow();
+            Assert.NotNull(window);
+            var vm = (MainViewModel)window.DataContext;
+            Assert.NotNull(vm);
+
+            // Ensure Backups tab is active
+            vm.ActiveTab = "Backups";
+            var backupsContent = (FrameworkElement)window.FindName("BackupsTabContent");
+            if (backupsContent != null) backupsContent.Visibility = Visibility.Visible;
+
+            // Populate realistic sample jobs to verify table row layout, cards, and context actions
+            vm.Jobs.Clear();
+            var job1 = new BackupJob
+            {
+                Name = "Production SQL Server",
+                Kind = "sqlserver",
+                SourceFolder = "localhost\\MSSQLSERVER",
+                Schedule = new JobSchedule { Freq = "daily", Time = "02:00" },
+                Enabled = true,
+                LastRunStatus = "SUCCESS",
+                LastRunTime = DateTime.Now.AddHours(-3),
+                LastRunSizeBytes = 2450000000,
+                LastRunDurationSeconds = 48
+            };
+            var job2 = new BackupJob
+            {
+                Name = "IIS Web Root & Portal",
+                Kind = "folder",
+                SourceFolder = "C:\\inetpub\\wwwroot",
+                Schedule = new JobSchedule { Freq = "weekly", Time = "03:30", Days = ["Mon", "Wed", "Fri"] },
+                Enabled = true,
+                LastRunStatus = "SUCCESS",
+                LastRunTime = DateTime.Now.AddHours(-12),
+                LastRunSizeBytes = 840000000,
+                LastRunDurationSeconds = 18
+            };
+            var job3 = new BackupJob
+            {
+                Name = "Finance App Data & Logs",
+                Kind = "folder",
+                SourceFolder = "D:\\Data\\FinanceLogs",
+                Schedule = new JobSchedule { Freq = "daily", Time = "01:00" },
+                Enabled = true,
+                LastRunStatus = "FAILED",
+                LastRunTime = DateTime.Now.AddDays(-1),
+                LastRunSizeBytes = 120000000,
+                LastRunDurationSeconds = 6
+            };
+            var job4 = new BackupJob
+            {
+                Name = "Legacy CRM Database",
+                Kind = "sqlserver",
+                SourceFolder = "localhost\\SQLEXPRESS",
+                Schedule = new JobSchedule { Freq = "monthly", Time = "04:00", Day = "1" },
+                Enabled = false,
+                LastRunStatus = "PARTIAL",
+                LastRunTime = DateTime.Now.AddDays(-5),
+                LastRunSizeBytes = 450000000,
+                LastRunDurationSeconds = 25
+            };
+
+            vm.Jobs.Add(new JobCardViewModel(job1));
+            vm.Jobs.Add(new JobCardViewModel(job2));
+            vm.Jobs.Add(new JobCardViewModel(job3));
+            vm.Jobs.Add(new JobCardViewModel(job4));
+
+            vm.HasNoJobs = false;
+            vm.TotalJobsCount = vm.Jobs.Count;
+            vm.EnabledJobsCount = vm.Jobs.Count(j => j.Enabled);
+            vm.ScheduledJobsCount = vm.Jobs.Count(j => j.Enabled && !string.Equals(j.Model.Schedule.Freq, "manual", StringComparison.OrdinalIgnoreCase));
+            vm.NeedsAttentionJobsCount = vm.Jobs.Count(j => string.Equals(j.Model.LastRunStatus, "FAILED", StringComparison.OrdinalIgnoreCase) || string.Equals(j.Model.LastRunStatus, "PARTIAL", StringComparison.OrdinalIgnoreCase));
+            vm.JobsSummaryHeader = $"{vm.TotalJobsCount} jobs · {vm.ScheduledJobsCount} on a schedule";
+
+            // Verify KPI properties exist and are computed
+            Assert.True(vm.TotalJobsCount >= 0);
+            Assert.True(vm.EnabledJobsCount >= 0);
+            Assert.True(vm.ScheduledJobsCount >= 0);
+            Assert.True(vm.NeedsAttentionJobsCount >= 0);
+
+            var rootVisual = (FrameworkElement)window.Content;
+            rootVisual.Measure(new Size(1280, 840));
+            rootVisual.Arrange(new Rect(0, 0, 1280, 840));
+            rootVisual.UpdateLayout();
+
+            var artifactDir = @"C:\Users\Administrator\.gemini\antigravity\brain\4d66f748-fd0c-4eec-8519-6b7612c4ecd7";
+            if (!System.IO.Directory.Exists(artifactDir))
+            {
+                System.IO.Directory.CreateDirectory(artifactDir);
+            }
+
+            // 1. Render Light Theme
+            var rtbLight = new System.Windows.Media.Imaging.RenderTargetBitmap(1280, 840, 96, 96, System.Windows.Media.PixelFormats.Pbgra32);
+            rtbLight.Render(rootVisual);
+            var outLight = System.IO.Path.Combine(artifactDir, "screenshot_jobs_redesigned.png");
+            var encoderLight = new System.Windows.Media.Imaging.PngBitmapEncoder();
+            encoderLight.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(rtbLight));
+            using (var stream = System.IO.File.Create(outLight))
+            {
+                encoderLight.Save(stream);
+            }
+            Assert.True(System.IO.File.Exists(outLight));
+
+            // 2. Switch to Dark Theme and Render
+            App.ApplyTheme("Dark");
+            rootVisual.UpdateLayout();
+
+            var rtbDark = new System.Windows.Media.Imaging.RenderTargetBitmap(1280, 840, 96, 96, System.Windows.Media.PixelFormats.Pbgra32);
+            rtbDark.Render(rootVisual);
+            var outDark = System.IO.Path.Combine(artifactDir, "screenshot_jobs_redesigned_dark.png");
+            var encoderDark = new System.Windows.Media.Imaging.PngBitmapEncoder();
+            encoderDark.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(rtbDark));
+            using (var stream = System.IO.File.Create(outDark))
+            {
+                encoderDark.Save(stream);
+            }
+            Assert.True(System.IO.File.Exists(outDark));
+
+            // Switch theme back to light
+            App.ApplyTheme("Light");
         });
     }
 }

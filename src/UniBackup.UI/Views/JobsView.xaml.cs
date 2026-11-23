@@ -35,13 +35,26 @@ public partial class JobsView : UserControl
         if (sender is Button btn && btn.ContextMenu != null)
         {
             btn.ContextMenu.PlacementTarget = btn;
+            btn.ContextMenu.DataContext = btn.DataContext;
             btn.ContextMenu.IsOpen = true;
         }
     }
 
+    private JobCardViewModel? GetCardVm(object sender)
+    {
+        if (sender is MenuItem mi)
+        {
+            return mi.DataContext as JobCardViewModel
+                ?? (mi.Parent as FrameworkElement)?.DataContext as JobCardViewModel
+                ?? ((mi.Parent as ContextMenu)?.PlacementTarget as FrameworkElement)?.DataContext as JobCardViewModel;
+        }
+        return null;
+    }
+
     private void RunFull_Click(object sender, RoutedEventArgs e)
     {
-        if (sender is MenuItem mi && mi.DataContext is JobCardViewModel vm && DataContext is MainViewModel mvm)
+        var vm = GetCardVm(sender);
+        if (vm != null && DataContext is MainViewModel mvm)
         {
             _ = mvm.RunJobWithTypeAsync(vm, SqlBackupType.Full);
         }
@@ -49,7 +62,8 @@ public partial class JobsView : UserControl
 
     private void RunDiff_Click(object sender, RoutedEventArgs e)
     {
-        if (sender is MenuItem mi && mi.DataContext is JobCardViewModel vm && DataContext is MainViewModel mvm)
+        var vm = GetCardVm(sender);
+        if (vm != null && DataContext is MainViewModel mvm)
         {
             _ = mvm.RunJobWithTypeAsync(vm, SqlBackupType.Diff);
         }
@@ -57,7 +71,8 @@ public partial class JobsView : UserControl
 
     private void RunLog_Click(object sender, RoutedEventArgs e)
     {
-        if (sender is MenuItem mi && mi.DataContext is JobCardViewModel vm && DataContext is MainViewModel mvm)
+        var vm = GetCardVm(sender);
+        if (vm != null && DataContext is MainViewModel mvm)
         {
             _ = mvm.RunJobWithTypeAsync(vm, SqlBackupType.Log);
         }
@@ -65,9 +80,28 @@ public partial class JobsView : UserControl
 
     private void TogglePause_Click(object sender, RoutedEventArgs e)
     {
-        if (sender is MenuItem mi && mi.DataContext is JobCardViewModel vm && DataContext is MainViewModel mvm)
+        var vm = GetCardVm(sender);
+        if (vm != null && DataContext is MainViewModel mvm)
         {
             _ = mvm.ToggleJobCommand.ExecuteAsync(vm);
+        }
+    }
+
+    private void EditJob_Click(object sender, RoutedEventArgs e)
+    {
+        var vm = GetCardVm(sender);
+        if (vm != null && DataContext is MainViewModel mvm)
+        {
+            mvm.EditJob(vm);
+        }
+    }
+
+    private void DuplicateJob_Click(object sender, RoutedEventArgs e)
+    {
+        var vm = GetCardVm(sender);
+        if (vm != null && DataContext is MainViewModel mvm)
+        {
+            _ = mvm.DuplicateJobCommand.ExecuteAsync(vm);
         }
     }
 
@@ -81,7 +115,8 @@ public partial class JobsView : UserControl
 
     private void DeleteJob_Click(object sender, RoutedEventArgs e)
     {
-        if (sender is MenuItem mi && mi.DataContext is JobCardViewModel vm)
+        var vm = GetCardVm(sender);
+        if (vm != null)
         {
             vm.IsDeletingInline = true;
         }

@@ -36,14 +36,14 @@
 
                 <!-- Title & Subtitle -->
                 <StackPanel Grid.Column="2" VerticalAlignment="Center">
-                    <TextBlock Text="Create backup job" FontWeight="SemiBold" FontSize="{StaticResource FontSizePageTitle}" Foreground="{DynamicResource BrushInk}"/>
+                    <TextBlock Text="{Binding WizardPageTitle, FallbackValue='Create backup job'}" FontWeight="SemiBold" FontSize="{StaticResource FontSizePageTitle}" Foreground="{DynamicResource BrushInk}"/>
                     <TextBlock Text="Source, schedule, destinations, then retention and encryption" FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushInkMuted}" Margin="0,2,0,0"/>
                 </StackPanel>
 
                 <!-- Cancel & Save Actions -->
                 <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center">
                     <Button Content="Cancel" Command="{Binding CancelCommand}" Style="{StaticResource BtnQuiet}" Margin="0,0,10,0"/>
-                    <Button Content="Save job" Command="{Binding SaveJobCommand}" Style="{StaticResource BtnPrimary}"/>
+                    <Button Content="{Binding SaveButtonText, FallbackValue='Save job'}" Command="{Binding SaveJobCommand}" Style="{StaticResource BtnPrimary}"/>
                 </StackPanel>
             </Grid>
         </Border>
