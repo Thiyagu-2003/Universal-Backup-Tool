@@ -443,9 +443,39 @@ public class AppConfig
 
 public class SecuritySettings
 {
-    [JsonPropertyName("access_password")]
-    public string AccessPassword { get; set; } = "adminupsddmmyyyy";
-
     [JsonPropertyName("require_login")]
-    public bool RequireLogin { get; set; } = true;
+    public bool RequireLogin { get; set; } = false;
+
+    [JsonPropertyName("auth_mode")]
+    public string AuthMode { get; set; } = "Static"; // "Static" or "DateBased"
+
+    [JsonPropertyName("access_password")]
+    public string AccessPassword { get; set; } = "";
+
+    [JsonPropertyName("date_prefix")]
+    public string DatePrefix { get; set; } = "admin(";
+
+    [JsonPropertyName("date_format")]
+    public string DateFormat { get; set; } = "dd-MM-yyyy";
+
+    [JsonPropertyName("date_suffix")]
+    public string DateSuffix { get; set; } = ")";
+
+    public string GenerateExpectedPassword(DateTime? when = null)
+    {
+        if (string.Equals(AuthMode, "DateBased", StringComparison.OrdinalIgnoreCase))
+        {
+            var date = when ?? DateTime.Now;
+            var format = string.IsNullOrWhiteSpace(DateFormat) ? "dd-MM-yyyy" : DateFormat;
+            try
+            {
+                return $"{DatePrefix ?? ""}{date.ToString(format)}{DateSuffix ?? ""}";
+            }
+            catch
+            {
+                return $"{DatePrefix ?? ""}{date:dd-MM-yyyy}{DateSuffix ?? ""}";
+            }
+        }
+        return AccessPassword ?? "";
+    }
 }

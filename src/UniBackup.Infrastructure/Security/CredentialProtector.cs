@@ -83,6 +83,9 @@ public class CredentialProtector : ICredentialProtector
 
         if (!string.IsNullOrEmpty(config.Email.Password))
             config.Email.Password = Seal(config.Email.Password);
+
+        if (!string.IsNullOrEmpty(config.Security?.AccessPassword))
+            config.Security.AccessPassword = Seal(config.Security.AccessPassword);
     }
 
     public void UnsealConfig(AppConfig config)
@@ -95,6 +98,9 @@ public class CredentialProtector : ICredentialProtector
 
         if (!string.IsNullOrEmpty(config.Email.Password))
             config.Email.Password = Unseal(config.Email.Password);
+
+        if (!string.IsNullOrEmpty(config.Security?.AccessPassword))
+            config.Security.AccessPassword = Unseal(config.Security.AccessPassword);
     }
 
     public string ExpectedPassword(DateTime? when = null)

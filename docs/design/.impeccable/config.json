@@ -1,0 +1,17 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "cramped-padding",
+        "value": "*",
+        "files": [
+          "docs/design/ui-prototype.html"
+        ],
+        "createdAt": "2026-11-21T10:51:04.815Z",
+        "reason": "Claude triage: only findings are the WPF window frame (.win) and Windows 11 caption bar (.titlebar), full-bleed by platform convention; verified in screenshots"
+      }
+    ]
+  }
+}

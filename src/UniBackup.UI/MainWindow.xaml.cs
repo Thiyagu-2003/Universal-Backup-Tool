@@ -1,5 +1,6 @@
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using UniBackup.Core.Interfaces;
@@ -13,7 +14,6 @@ using UniBackup.Infrastructure.Storage;
 using UniBackup.Infrastructure.Windows;
 using UniBackup.UI.Services;
 using UniBackup.UI.ViewModels;
-using UniBackup.UI.Views;
 
 namespace UniBackup.UI;
 
@@ -23,10 +23,17 @@ public partial class MainWindow : Window
     private readonly ConfigurationService _configService;
     private readonly IIisDiscoveryService _iisService;
     private readonly ISchedulerService _schedulerService;
+    private bool _isDarkMode;
+    private RoutedEventHandler? _toastActionHandler;
 
     public MainWindow()
     {
         InitializeComponent();
+
+        if (InnerLogsView?.LogViewerList != null)
+        {
+            RegisterName("LogViewerList", InnerLogsView.LogViewerList);
+        }
 
         // 1. Dependency wiring
         var crypto = new CredentialProtector();
@@ -79,17 +86,6 @@ public partial class MainWindow : Window
                 Dispatcher.InvokeAsync(() => SwitchToTab(_viewModel.ActiveTab));
             }
         };
-        _viewModel.Logs.ScrollRequested += (_, line) =>
-        {
-            Dispatcher.InvokeAsync(() =>
-            {
-                if (LogViewerList != null)
-                {
-                    LogViewerList.ScrollIntoView(line);
-                    LogViewerList.SelectedItem = line;
-                }
-            });
-        };
 
         NotificationHub.ToastRequested += (_, toast) =>
         {
@@ -99,113 +95,58 @@ public partial class MainWindow : Window
         Loaded += MainWindow_Loaded;
     }
 
-    private bool _syncingSmtpPassword;
-
     private async void MainWindow_Loaded(object sender, RoutedEventArgs e)
     {
         await _viewModel.InitializeAsync();
-        SyncSmtpPassword();
-        SyncAwsSecret();
-        _viewModel.PropertyChanged += (s, args) =>
-        {
-            if (args.PropertyName == nameof(MainViewModel.IsSmtpPasswordVisible) || args.PropertyName == nameof(MainViewModel.Config))
-            {
-                SyncSmtpPassword();
-            }
-            if (args.PropertyName == nameof(MainViewModel.IsAwsSecretVisible) || args.PropertyName == nameof(MainViewModel.Config))
-            {
-                SyncAwsSecret();
-            }
-        };
     }
 
-    private void SyncSmtpPassword()
-    {
-        if (_syncingSmtpPassword || SmtpPasswordInput == null || _viewModel.Config?.Email == null) return;
-        _syncingSmtpPassword = true;
-        try
-        {
-            var pwd = _viewModel.Config.Email.Password ?? "";
-            if (SmtpPasswordInput.Password != pwd)
-            {
-                SmtpPasswordInput.Password = pwd;
-            }
-        }
-        finally
-        {
-            _syncingSmtpPassword = false;
-        }
-    }
+    // Titlebar Caption Buttons
+    private void Minimize_Click(object sender, RoutedEventArgs e) => WindowState = WindowState.Minimized;
 
-    private void SmtpPasswordInput_PasswordChanged(object sender, RoutedEventArgs e)
-    {
-        if (_syncingSmtpPassword || _viewModel?.Config?.Email == null) return;
-        _syncingSmtpPassword = true;
-        try
-        {
-            _viewModel.Config.Email.Password = SmtpPasswordInput.Password;
-        }
-        finally
-        {
-            _syncingSmtpPassword = false;
-        }
-    }
+    private void Maximize_Click(object sender, RoutedEventArgs e) =>
+        WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
 
-    private bool _syncingAwsSecret;
-
-    private void SyncAwsSecret()
-    {
-        if (_syncingAwsSecret || AwsSecretKeyInput == null || _viewModel.Config?.Aws == null) return;
-        _syncingAwsSecret = true;
-        try
-        {
-            var secret = _viewModel.Config.Aws.SecretAccessKey ?? "";
-            if (AwsSecretKeyInput.Password != secret)
-            {
-                AwsSecretKeyInput.Password = secret;
-            }
-        }
-        finally
-        {
-            _syncingAwsSecret = false;
-        }
-    }
-
-    private void AwsSecretKeyInput_PasswordChanged(object sender, RoutedEventArgs e)
-    {
-        if (_syncingAwsSecret || _viewModel?.Config?.Aws == null) return;
-        _syncingAwsSecret = true;
-        try
-        {
-            _viewModel.Config.Aws.SecretAccessKey = AwsSecretKeyInput.Password;
-        }
-        finally
-        {
-            _syncingAwsSecret = false;
-        }
-    }
+    private void Close_Click(object sender, RoutedEventArgs e) => Close();
 
     public void SwitchToTab(string tag)
     {
-        if (BackupsTabContent == null || SummaryTabContent == null ||
-            RecoveryTabContent == null || LogsTabContent == null || 
-            NotificationsTabContent == null || SettingsTabContent == null ||
-            NewJobTabContent == null) return;
+        if (OverviewTabContent == null || BackupsTabContent == null || NewJobTabContent == null ||
+            IisSitesTabContent == null || RecoveryTabContent == null || SummaryTabContent == null ||
+            LogsTabContent == null || NotificationsTabContent == null || SettingsTabContent == null) return;
 
+        // Animate view transition (fade + translateY 8 -> 0 over 320 ms EaseOut, §2.4)
+        UIElement? targetElement = tag switch
+        {
+            "Overview" => OverviewTabContent,
+            "Backups" => BackupsTabContent,
+            "NewJob" => NewJobTabContent,
+            "IisSites" => IisSitesTabContent,
+            "Recovery" => RecoveryTabContent,
+            "Summary" => SummaryTabContent,
+            "Logs" => LogsTabContent,
+            "Notifications" => NotificationsTabContent,
+            "Settings" => SettingsTabContent,
+            _ => BackupsTabContent
+        };
+
+        OverviewTabContent.Visibility = tag == "Overview" ? Visibility.Visible : Visibility.Collapsed;
         BackupsTabContent.Visibility = tag == "Backups" ? Visibility.Visible : Visibility.Collapsed;
         NewJobTabContent.Visibility = tag == "NewJob" ? Visibility.Visible : Visibility.Collapsed;
-        SummaryTabContent.Visibility = tag == "Summary" ? Visibility.Visible : Visibility.Collapsed;
+        IisSitesTabContent.Visibility = tag == "IisSites" ? Visibility.Visible : Visibility.Collapsed;
         RecoveryTabContent.Visibility = tag == "Recovery" ? Visibility.Visible : Visibility.Collapsed;
+        SummaryTabContent.Visibility = tag == "Summary" ? Visibility.Visible : Visibility.Collapsed;
         LogsTabContent.Visibility = tag == "Logs" ? Visibility.Visible : Visibility.Collapsed;
         NotificationsTabContent.Visibility = tag == "Notifications" ? Visibility.Visible : Visibility.Collapsed;
         SettingsTabContent.Visibility = tag == "Settings" ? Visibility.Visible : Visibility.Collapsed;
 
         _viewModel.ActiveTab = tag;
 
+        if (NavOverviewRadio != null && tag == "Overview") NavOverviewRadio.IsChecked = true;
         if (NavBackupsRadio != null && tag == "Backups") NavBackupsRadio.IsChecked = true;
         if (NavNewJobRadio != null && tag == "NewJob") NavNewJobRadio.IsChecked = true;
-        if (NavSummaryRadio != null && tag == "Summary") NavSummaryRadio.IsChecked = true;
+        if (NavIisSitesRadio != null && tag == "IisSites") NavIisSitesRadio.IsChecked = true;
         if (NavRecoveryRadio != null && tag == "Recovery") NavRecoveryRadio.IsChecked = true;
+        if (NavSummaryRadio != null && tag == "Summary") NavSummaryRadio.IsChecked = true;
         if (NavLogsRadio != null && tag == "Logs") NavLogsRadio.IsChecked = true;
         if (NavNotificationsRadio != null && tag == "Notifications") NavNotificationsRadio.IsChecked = true;
         if (NavSettingsRadio != null && tag == "Settings") NavSettingsRadio.IsChecked = true;
@@ -229,6 +170,15 @@ public partial class MainWindow : Window
         {
             _ = _viewModel.Logs.RefreshLogsCommand.ExecuteAsync(null);
         }
+
+        if (targetElement != null && SystemParameters.ClientAreaAnimation)
+        {
+            var fadeIn = new DoubleAnimation(0.0, 1.0, new Duration(TimeSpan.FromMilliseconds(320)))
+            {
+                EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
+            };
+            targetElement.BeginAnimation(OpacityProperty, fadeIn);
+        }
     }
 
     private void NavTab_Checked(object sender, RoutedEventArgs e)
@@ -244,35 +194,45 @@ public partial class MainWindow : Window
 
     private void NewBackup_Click(object sender, RoutedEventArgs e)
     {
-        try
+        _viewModel.OpenNewJob();
+        if (_viewModel.NewJob != null)
         {
-            _viewModel.OpenNewJob();
-            if (_viewModel.NewJob != null)
-            {
-                _viewModel.NewJob.CloseAction = () => SwitchToTab("Backups");
-            }
-            SwitchToTab("NewJob");
+            _viewModel.NewJob.CloseAction = () => SwitchToTab("Backups");
         }
-        catch (Exception ex)
-        {
-            Serilog.Log.Error(ex, "Failed to navigate to Create Backup Job screen: {Message}", ex.Message);
-            MessageBox.Show($"Unable to open Create Backup Job screen:\n\n{ex.Message}", "UniBackup Pro", MessageBoxButton.OK, MessageBoxImage.Error);
-        }
+        SwitchToTab("NewJob");
     }
 
-    private void BrowseRestoreDir_Click(object sender, RoutedEventArgs e)
+    private void ValidateHealth_Click(object sender, RoutedEventArgs e)
     {
-        var dialog = new Microsoft.Win32.OpenFolderDialog
-        {
-            Title = "Select Destination Folder for Restore"
-        };
+        SwitchToTab("Settings");
+        _ = _viewModel.RunValidateServerCommand.ExecuteAsync(null);
+    }
 
-        if (dialog.ShowDialog() == true)
+    private void ToggleTheme_Click(object sender, RoutedEventArgs e)
+    {
+        _isDarkMode = !_isDarkMode;
+        App.ApplyTheme(_isDarkMode ? "Dark" : "Light");
+    }
+
+    private void Window_SizeChanged(object sender, SizeChangedEventArgs e)
+    {
+        var w = e.NewSize.Width;
+
+        // Responsive Breakpoints (§7)
+        if (w < 1080)
         {
-            _viewModel.RestoreDestinationPath = dialog.FolderName;
+            // Rail collapses to 72 px icons
+            if (NavRailColumn != null) NavRailColumn.Width = new GridLength(72);
+        }
+        else
+        {
+            if (NavRailColumn != null) NavRailColumn.Width = new GridLength(244);
         }
     }
 
+    // ===================================================================
+    // TOAST NOTIFICATIONS (§2.4, §6)
+    // ===================================================================
     private System.Windows.Threading.DispatcherTimer? _toastTimer;
 
     private void ShowToastUi(ToastNotification toast)
@@ -282,23 +242,23 @@ public partial class MainWindow : Window
         switch (toast.Type)
         {
             case ToastType.Success:
-                ToastIconBd.Background = new SolidColorBrush(Color.FromRgb(6, 78, 59));
-                ToastIconPath.Fill = new SolidColorBrush(Color.FromRgb(52, 211, 153));
+                ToastIconBd.Background = TryFindResource("BrushJadeSoft") as Brush ?? Brushes.LightGreen;
+                ToastIconPath.Fill = TryFindResource("BrushJade") as Brush ?? Brushes.Green;
                 ToastIconPath.Data = (Geometry)FindResource("IconCheckCircle");
                 break;
             case ToastType.Info:
-                ToastIconBd.Background = new SolidColorBrush(Color.FromRgb(30, 58, 138));
-                ToastIconPath.Fill = new SolidColorBrush(Color.FromRgb(96, 165, 250));
+                ToastIconBd.Background = TryFindResource("BrushCobaltSoft") as Brush ?? Brushes.LightBlue;
+                ToastIconPath.Fill = TryFindResource("BrushCobalt") as Brush ?? Brushes.Blue;
                 ToastIconPath.Data = (Geometry)FindResource("IconInfoCircle");
                 break;
             case ToastType.Warning:
-                ToastIconBd.Background = new SolidColorBrush(Color.FromRgb(120, 53, 15));
-                ToastIconPath.Fill = new SolidColorBrush(Color.FromRgb(251, 191, 36));
+                ToastIconBd.Background = TryFindResource("BrushSaffronSoft") as Brush ?? Brushes.LightYellow;
+                ToastIconPath.Fill = TryFindResource("BrushSaffron") as Brush ?? Brushes.Orange;
                 ToastIconPath.Data = (Geometry)FindResource("IconWarningCircle");
                 break;
             case ToastType.Error:
-                ToastIconBd.Background = new SolidColorBrush(Color.FromRgb(136, 19, 55));
-                ToastIconPath.Fill = new SolidColorBrush(Color.FromRgb(248, 113, 113));
+                ToastIconBd.Background = TryFindResource("BrushCoralSoft") as Brush ?? Brushes.Pink;
+                ToastIconPath.Fill = TryFindResource("BrushCoral") as Brush ?? Brushes.Red;
                 ToastIconPath.Data = (Geometry)FindResource("IconCloseCircle");
                 break;
         }
@@ -306,17 +266,50 @@ public partial class MainWindow : Window
         ToastTitleText.Text = toast.Title;
         ToastMessageText.Text = toast.Message;
 
+        if (ToastActionButton != null)
+        {
+            if (_toastActionHandler != null)
+            {
+                ToastActionButton.Click -= _toastActionHandler;
+                _toastActionHandler = null;
+            }
+
+            if (toast.HasAction)
+            {
+                ToastActionButton.Visibility = Visibility.Visible;
+                ToastActionButton.Content = toast.ActionLabel;
+                _toastActionHandler = (_, _) =>
+                {
+                    toast.Action?.Invoke();
+                    DismissToast();
+                };
+                ToastActionButton.Click += _toastActionHandler;
+            }
+            else
+            {
+                ToastActionButton.Visibility = Visibility.Collapsed;
+            }
+        }
+
         _toastTimer?.Stop();
         ToastNotificationCard.Visibility = Visibility.Visible;
 
-        var fadeIn = new DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(220));
-        var slideIn = new DoubleAnimation(30, 0, TimeSpan.FromMilliseconds(220))
+        if (SystemParameters.ClientAreaAnimation)
         {
-            EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
-        };
+            var fadeIn = new DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(400));
+            var slideIn = new DoubleAnimation(16, 0, TimeSpan.FromMilliseconds(400))
+            {
+                EasingFunction = new BackEase { Amplitude = 0.3, EasingMode = EasingMode.EaseOut }
+            };
 
-        ToastNotificationCard.BeginAnimation(UIElement.OpacityProperty, fadeIn);
-        ToastTransform.BeginAnimation(TranslateTransform.YProperty, slideIn);
+            ToastNotificationCard.BeginAnimation(UIElement.OpacityProperty, fadeIn);
+            ToastTransform.BeginAnimation(TranslateTransform.YProperty, slideIn);
+        }
+        else
+        {
+            ToastNotificationCard.Opacity = 1;
+            ToastTransform.Y = 0;
+        }
 
         _toastTimer = new System.Windows.Threading.DispatcherTimer
         {
@@ -340,17 +333,24 @@ public partial class MainWindow : Window
     {
         if (ToastNotificationCard == null || ToastNotificationCard.Visibility != Visibility.Visible) return;
 
-        var fadeOut = new DoubleAnimation(1, 0, TimeSpan.FromMilliseconds(200));
-        var slideOut = new DoubleAnimation(0, 20, TimeSpan.FromMilliseconds(200))
+        if (SystemParameters.ClientAreaAnimation)
         {
-            EasingFunction = new CubicEase { EasingMode = EasingMode.EaseIn }
-        };
-        fadeOut.Completed += (_, _) =>
+            var fadeOut = new DoubleAnimation(1, 0, TimeSpan.FromMilliseconds(200));
+            var slideOut = new DoubleAnimation(0, 20, TimeSpan.FromMilliseconds(200))
+            {
+                EasingFunction = new CubicEase { EasingMode = EasingMode.EaseIn }
+            };
+            fadeOut.Completed += (_, _) =>
+            {
+                ToastNotificationCard.Visibility = Visibility.Collapsed;
+            };
+
+            ToastNotificationCard.BeginAnimation(UIElement.OpacityProperty, fadeOut);
+            ToastTransform.BeginAnimation(TranslateTransform.YProperty, slideOut);
+        }
+        else
         {
             ToastNotificationCard.Visibility = Visibility.Collapsed;
-        };
-
-        ToastNotificationCard.BeginAnimation(UIElement.OpacityProperty, fadeOut);
-        ToastTransform.BeginAnimation(TranslateTransform.YProperty, slideOut);
+        }
     }
 }

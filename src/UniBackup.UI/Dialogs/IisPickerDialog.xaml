@@ -1,0 +1,341 @@
+<Window x:Class="UniBackup.UI.Dialogs.IisPickerDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="clr-namespace:UniBackup.UI.ViewModels"
+        Title="Select IIS Sites"
+        Width="960" Height="680"
+        WindowStartupLocation="CenterOwner"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
+        SnapsToDevicePixels="True"
+        KeyDown="Window_KeyDown">
+
+    <!-- Scrim / Backdrop overlay -->
+    <Border Background="#7A0B1420" Padding="20">
+        <!-- Dialog Container (Radius 18, Panel background, Sh3 shadow) -->
+        <Border x:Name="DialogCard"
+                Background="{DynamicResource BrushPanel}"
+                BorderBrush="{DynamicResource BrushLine}"
+                BorderThickness="1"
+                CornerRadius="{StaticResource RadiusDialog}"
+                Effect="{StaticResource Sh3}"
+                ClipToBounds="True"
+                RenderTransformOrigin="0.5,0.5">
+            <Border.RenderTransform>
+                <ScaleTransform x:Name="DialogScale" ScaleX="1" ScaleY="1"/>
+            </Border.RenderTransform>
+
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/> <!-- Header -->
+                    <RowDefinition Height="Auto"/> <!-- Toolbar & Filters -->
+                    <RowDefinition Height="*"/>    <!-- Sites List -->
+                    <RowDefinition Height="Auto"/> <!-- Config export option -->
+                    <RowDefinition Height="Auto"/> <!-- Footer -->
+                </Grid.RowDefinitions>
+
+                <!-- 1. Header (40 px Teal Icon Tile + Subline + Close button) -->
+                <Border Grid.Row="0" BorderBrush="{DynamicResource BrushLine}" BorderThickness="0,0,0,1" Padding="24,20">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- 40 px Teal Tile -->
+                        <Border Width="40" Height="40" CornerRadius="10"
+                                Background="{DynamicResource BrushTealSoft}"
+                                VerticalAlignment="Center" Margin="0,0,16,0">
+                            <Path Data="{StaticResource IconIisSites}"
+                                  Fill="{DynamicResource BrushTeal}"
+                                  Width="20" Height="20"
+                                  Stretch="Uniform"
+                                  HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+
+                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                            <TextBlock Text="Select IIS sites"
+                                       FontWeight="SemiBold"
+                                       FontSize="{StaticResource FontSizeH1}"
+                                       Foreground="{DynamicResource BrushInk}"/>
+                            <TextBlock x:Name="SublineTextBlock"
+                                       Text="Read live from IIS on local host. Sites whose physical folder is missing cannot be selected."
+                                       FontSize="{StaticResource FontSizeHelp}"
+                                       Foreground="{DynamicResource BrushInkMuted}"
+                                       Margin="0,3,0,0"/>
+                        </StackPanel>
+
+                        <!-- Close Button -->
+                        <Button Grid.Column="2" Click="Cancel_Click" Style="{StaticResource IconBtn}" VerticalAlignment="Center">
+                            <Path Data="{StaticResource IconClose}" Fill="{DynamicResource BrushInkMuted}" Width="14" Height="14" Stretch="Uniform"/>
+                        </Button>
+                    </Grid>
+                </Border>
+
+                <!-- 2. Toolbar (Segmented Filters + Search + Refresh) -->
+                <Border Grid.Row="1" Background="{DynamicResource BrushRaised}" BorderBrush="{DynamicResource BrushLine}" BorderThickness="0,0,0,1" Padding="24,12">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Segmented Filter: All / Running / Stopped / Unavailable -->
+                        <Border Style="{StaticResource SegmentedContainer}">
+                            <StackPanel Orientation="Horizontal">
+                                <RadioButton Content="All sites" Style="{StaticResource SegmentedItem}" IsChecked="True" Checked="Filter_Checked" Tag="All"/>
+                                <RadioButton Content="Running" Style="{StaticResource SegmentedItem}" Checked="Filter_Checked" Tag="Running"/>
+                                <RadioButton Content="Stopped" Style="{StaticResource SegmentedItem}" Checked="Filter_Checked" Tag="Stopped"/>
+                                <RadioButton Content="Unavailable" Style="{StaticResource SegmentedItem}" Checked="Filter_Checked" Tag="Unavailable"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Search Box -->
+                        <Border Grid.Column="1" Margin="16,0" MaxWidth="320" HorizontalAlignment="Left">
+                            <Grid>
+                                <TextBox x:Name="SearchInput"
+                                         Style="{StaticResource FieldInput}"
+                                         Padding="34,0,12,0"
+                                         TextChanged="SearchInput_TextChanged"/>
+                                <Path Data="{StaticResource IconSearch}"
+                                      Fill="{DynamicResource BrushInkFaint}"
+                                      Width="14" Height="14"
+                                      Stretch="Uniform"
+                                      HorizontalAlignment="Left"
+                                      Margin="12,0,0,0"
+                                      IsHitTestVisible="False"/>
+                            </Grid>
+                        </Border>
+
+                        <!-- Actions: Select All + Refresh -->
+                        <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                            <CheckBox x:Name="SelectAllCheckBox"
+                                      Content="Select all available"
+                                      Click="SelectAll_Click"
+                                      FontWeight="Medium"
+                                      FontSize="{StaticResource FontSizeBody}"
+                                      Foreground="{DynamicResource BrushInkMuted}"
+                                      VerticalAlignment="Center"
+                                      Margin="0,0,16,0"/>
+
+                            <Button Click="Refresh_Click" Style="{StaticResource BtnQuiet}" Padding="12,0" Height="34">
+                                <StackPanel Orientation="Horizontal">
+                                    <Path Data="{StaticResource IconRefresh}" Fill="{DynamicResource BrushInkMuted}" Width="13" Height="13" Stretch="Uniform" Margin="0,0,6,0"/>
+                                    <TextBlock Text="Read from IIS" FontSize="{StaticResource FontSizeBadge}"/>
+                                </StackPanel>
+                            </Button>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <!-- 3. Sites List -->
+                <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="24,16">
+                    <ItemsControl x:Name="SitesItemsControl">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate DataType="{x:Type vm:IisSiteVm}">
+                                <Border Margin="0,0,0,9"
+                                        CornerRadius="14"
+                                        BorderThickness="1"
+                                        Padding="14,12"
+                                        SnapsToDevicePixels="True">
+                                    <Border.Style>
+                                        <Style TargetType="{x:Type Border}">
+                                            <Setter Property="Background" Value="{DynamicResource BrushPanel}"/>
+                                            <Setter Property="BorderBrush" Value="{DynamicResource BrushLine}"/>
+                                            <Style.Triggers>
+                                                <!-- Selected State: cobalt border, soft cobalt fill, 2px ring -->
+                                                <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                                                    <Setter Property="Background" Value="{DynamicResource BrushCobaltSoft}"/>
+                                                    <Setter Property="BorderBrush" Value="{DynamicResource BrushCobalt}"/>
+                                                    <Setter Property="BorderThickness" Value="1.5"/>
+                                                </DataTrigger>
+                                                <!-- Stopped State: subtle saffron tint -->
+                                                <MultiDataTrigger>
+                                                    <MultiDataTrigger.Conditions>
+                                                        <Condition Binding="{Binding IsStopped}" Value="True"/>
+                                                        <Condition Binding="{Binding IsSelected}" Value="False"/>
+                                                    </MultiDataTrigger.Conditions>
+                                                    <Setter Property="Background" Value="{DynamicResource BrushSaffronSoft}"/>
+                                                    <Setter Property="Opacity" Value="0.9"/>
+                                                </MultiDataTrigger>
+                                                <!-- Unavailable State: subtle coral tint, disabled feel -->
+                                                <DataTrigger Binding="{Binding Available}" Value="False">
+                                                    <Setter Property="Background" Value="{DynamicResource BrushCoralSoft}"/>
+                                                    <Setter Property="BorderBrush" Value="{DynamicResource BrushLineStrong}"/>
+                                                    <Setter Property="Opacity" Value="0.82"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Border.Style>
+
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/> <!-- Checkbox -->
+                                            <ColumnDefinition Width="Auto"/> <!-- Icon Tile -->
+                                            <ColumnDefinition Width="*"/>    <!-- Name, Path, Bindings -->
+                                            <ColumnDefinition Width="140"/>  <!-- Size & Share Bar -->
+                                            <ColumnDefinition Width="110"/>  <!-- State Badge -->
+                                        </Grid.ColumnDefinitions>
+
+                                        <!-- Checkbox (disabled when unavailable) -->
+                                        <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}"
+                                                  IsEnabled="{Binding Available}"
+                                                  Click="SiteCheckBox_Click"
+                                                  VerticalAlignment="Center"
+                                                  Margin="0,0,14,0"
+                                                  Cursor="{Binding Available, Converter={x:Null}}"/>
+
+                                        <!-- 34 px Icon Tile -->
+                                        <Border Grid.Column="1" Width="34" Height="34" CornerRadius="8"
+                                                Background="{Binding TileSoftBrush}"
+                                                VerticalAlignment="Center" Margin="0,0,14,0">
+                                            <Path Data="{Binding TileIconGeometry}"
+                                                  Fill="{Binding TileBrush}"
+                                                  Width="16" Height="16"
+                                                  Stretch="Uniform"
+                                                  HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </Border>
+
+                                        <!-- Name, Physical Path, Bindings & AppPool -->
+                                        <StackPanel Grid.Column="2" VerticalAlignment="Center" Margin="0,0,16,0">
+                                            <!-- Site Name -->
+                                            <TextBlock Text="{Binding Name}"
+                                                       FontWeight="SemiBold"
+                                                       FontSize="13.5"
+                                                       Foreground="{DynamicResource BrushInk}"/>
+
+                                            <!-- Physical Path in Mono -->
+                                            <TextBlock Text="{Binding Path}"
+                                                       FontFamily="{StaticResource FontMono}"
+                                                       FontSize="{StaticResource FontSizeMono}"
+                                                       Foreground="{DynamicResource BrushInkMuted}"
+                                                       TextTrimming="CharacterEllipsis"
+                                                       Margin="0,2,0,4"/>
+
+                                            <!-- Bindings & Pool -->
+                                            <StackPanel Orientation="Horizontal" Visibility="{Binding Available, Converter={StaticResource BoolToVis}}">
+                                                <!-- Lock icon if HTTPS -->
+                                                <Path Data="{StaticResource IconLock}"
+                                                      Fill="{DynamicResource BrushTeal}"
+                                                      Width="11" Height="11"
+                                                      Stretch="Uniform"
+                                                      VerticalAlignment="Center"
+                                                      Margin="0,0,5,0"
+                                                      Visibility="{Binding HasHttps, Converter={StaticResource BoolToVis}}"/>
+
+                                                <TextBlock Text="{Binding PrimaryBinding}"
+                                                           FontFamily="{StaticResource FontMono}"
+                                                           FontSize="{StaticResource FontSizeHelp}"
+                                                           Foreground="{DynamicResource BrushInkMuted}"
+                                                           Margin="0,0,8,0"/>
+
+                                                <TextBlock Text="·" Foreground="{DynamicResource BrushInkFaint}" Margin="0,0,8,0"/>
+
+                                                <TextBlock Text="{Binding Pool}"
+                                                           FontSize="{StaticResource FontSizeHelp}"
+                                                           Foreground="{DynamicResource BrushInkMuted}"
+                                                           Margin="0,0,4,0"/>
+
+                                                <TextBlock Text="·" Foreground="{DynamicResource BrushInkFaint}" Margin="0,0,4,0"/>
+
+                                                <TextBlock Text="{Binding Runtime}"
+                                                           FontSize="{StaticResource FontSizeHelp}"
+                                                           Foreground="{DynamicResource BrushInkFaint}"/>
+                                            </StackPanel>
+
+                                            <!-- Reason if Unavailable -->
+                                            <TextBlock Text="{Binding Reason}"
+                                                       FontSize="{StaticResource FontSizeHelp}"
+                                                       Foreground="{DynamicResource BrushCoral}"
+                                                       FontWeight="Medium"
+                                                       Visibility="{Binding Available, Converter={StaticResource InverseBoolToVis}}"/>
+                                        </StackPanel>
+
+                                        <!-- Size Column & Share Bar -->
+                                        <StackPanel Grid.Column="3" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,16,0">
+                                            <!-- Size Text -->
+                                            <TextBlock Text="{Binding SizeDisplay}"
+                                                       FontWeight="SemiBold"
+                                                       FontSize="{StaticResource FontSizeRowTitle}"
+                                                       Foreground="{DynamicResource BrushInk}"
+                                                       HorizontalAlignment="Right"/>
+
+                                            <TextBlock Text="{Binding FilesDisplay}"
+                                                       FontSize="{StaticResource FontSizeHelp}"
+                                                       Foreground="{DynamicResource BrushInkFaint}"
+                                                       HorizontalAlignment="Right"
+                                                       Margin="0,1,0,4"/>
+
+                                            <!-- 5 px Proportion Bar -->
+                                            <Border Width="80" Height="5" CornerRadius="2.5" Background="{DynamicResource BrushSunken}" HorizontalAlignment="Right">
+                                                <Border Height="5" CornerRadius="2.5" Background="{DynamicResource BrushTeal}"
+                                                        HorizontalAlignment="Left">
+                                                    <Border.Width>
+                                                        <MultiBinding Converter="{StaticResource RatioToWidthConverter}">
+                                                            <Binding Path="SizeRatio"/>
+                                                            <Binding Source="{StaticResource DoubleOne}"/>
+                                                            <Binding Source="80.0"/>
+                                                        </MultiBinding>
+                                                    </Border.Width>
+                                                </Border>
+                                            </Border>
+                                        </StackPanel>
+
+                                        <!-- State Badge -->
+                                        <Border Grid.Column="4"
+                                                Style="{StaticResource BadgePill}"
+                                                Background="{Binding StateBadgeSoftBrush}"
+                                                HorizontalAlignment="Right">
+                                            <TextBlock Text="{Binding StateBadgeText}"
+                                                       FontWeight="SemiBold"
+                                                       FontSize="{StaticResource FontSizeBadge}"
+                                                       Foreground="{Binding StateBadgeBrush}"/>
+                                        </Border>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+
+                <!-- 4. Export Configuration Option -->
+                <Border Grid.Row="3" Background="{DynamicResource BrushRaised}" BorderBrush="{DynamicResource BrushLine}" BorderThickness="0,1,0,1" Padding="24,12">
+                    <CheckBox x:Name="ExportConfigCheckBox" IsChecked="True">
+                        <StackPanel Margin="6,0,0,0">
+                            <TextBlock Text="Also export site configuration" FontWeight="SemiBold" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource BrushInk}"/>
+                            <TextBlock Text="Writes the applicationHost section, bindings and app pool settings next to the archive, so a site can be rebuilt on a new server."
+                                       FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkMuted}" Margin="0,2,0,0"/>
+                        </StackPanel>
+                    </CheckBox>
+                </Border>
+
+                <!-- 5. Footer (Live Total + Actions) -->
+                <Border Grid.Row="4" Background="{DynamicResource BrushPanel}" Padding="24,16">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Live Selection Summary -->
+                        <TextBlock x:Name="FooterSummaryText"
+                                   VerticalAlignment="Center"
+                                   FontSize="{StaticResource FontSizeBody}"
+                                   Foreground="{DynamicResource BrushInkMuted}">
+                            <Bold Foreground="{DynamicResource BrushInk}"><Run x:Name="SelectedCountRun" Text="0"/></Bold> of <Run x:Name="AvailableCountRun" Text="0"/> available sites · <Bold Foreground="{DynamicResource BrushInk}"><Run x:Name="SelectedSizeRun" Text="0 B"/></Bold> to archive
+                        </TextBlock>
+
+                        <!-- Cancel and Submit -->
+                        <StackPanel Grid.Column="1" Orientation="Horizontal">
+                            <Button Content="Cancel" Click="Cancel_Click" Style="{StaticResource BtnQuiet}" Margin="0,0,10,0"/>
+                            <Button x:Name="SubmitButton" Content="Add sites" Click="Submit_Click" Style="{StaticResource BtnPrimary}"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+            </Grid>
+        </Border>
+    </Border>
+</Window>

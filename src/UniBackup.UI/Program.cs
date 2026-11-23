@@ -37,32 +37,30 @@ public static class Program
 
     private static void EnsureConsoleOutput()
     {
-        if (AttachConsole(AttachParentProcess))
+        AttachConsole(AttachParentProcess);
+        try
         {
-            try
+            var outHandle = GetStdHandle(StdOutputHandle);
+            if (outHandle != IntPtr.Zero && outHandle != new IntPtr(-1))
             {
-                var outHandle = GetStdHandle(StdOutputHandle);
-                if (outHandle != IntPtr.Zero && outHandle != new IntPtr(-1))
-                {
-                    var safeOut = new Microsoft.Win32.SafeHandles.SafeFileHandle(outHandle, ownsHandle: false);
-                    var fsOut = new FileStream(safeOut, FileAccess.Write);
-                    var writer = new StreamWriter(fsOut, System.Text.Encoding.UTF8) { AutoFlush = true };
-                    Console.SetOut(writer);
-                }
+                var safeOut = new Microsoft.Win32.SafeHandles.SafeFileHandle(outHandle, ownsHandle: false);
+                var fsOut = new FileStream(safeOut, FileAccess.Write);
+                var writer = new StreamWriter(fsOut, System.Text.Encoding.UTF8) { AutoFlush = true };
+                Console.SetOut(writer);
+            }
 
-                var errHandle = GetStdHandle(StdErrorHandle);
-                if (errHandle != IntPtr.Zero && errHandle != new IntPtr(-1))
-                {
-                    var safeErr = new Microsoft.Win32.SafeHandles.SafeFileHandle(errHandle, ownsHandle: false);
-                    var fsErr = new FileStream(safeErr, FileAccess.Write);
-                    var writerErr = new StreamWriter(fsErr, System.Text.Encoding.UTF8) { AutoFlush = true };
-                    Console.SetError(writerErr);
-                }
-            }
-            catch
+            var errHandle = GetStdHandle(StdErrorHandle);
+            if (errHandle != IntPtr.Zero && errHandle != new IntPtr(-1))
             {
-                // Ignore fallback errors
+                var safeErr = new Microsoft.Win32.SafeHandles.SafeFileHandle(errHandle, ownsHandle: false);
+                var fsErr = new FileStream(safeErr, FileAccess.Write);
+                var writerErr = new StreamWriter(fsErr, System.Text.Encoding.UTF8) { AutoFlush = true };
+                Console.SetError(writerErr);
             }
+        }
+        catch
+        {
+            // Ignore fallback errors
         }
     }
 
@@ -97,16 +95,24 @@ public static class Program
 
             app.ShutdownMode = ShutdownMode.OnExplicitShutdown;
 
-            // Prompt administrator login dialog
-            if (config.Security?.RequireLogin != false)
+            // Prompt administrator login dialog only if explicitly enabled in Security Settings
+            var requireLogin = config.Security?.RequireLogin == true;
+            if (requireLogin)
             {
-                var loginVm = new LoginViewModel(configService);
-                var loginWindow = new LoginWindow(loginVm);
-                var loginResult = loginWindow.ShowDialog();
-                if (loginResult != true && !loginVm.IsAuthenticated)
+                bool hasConfiguredPassword = string.Equals(config.Security!.AuthMode, "DateBased", StringComparison.OrdinalIgnoreCase)
+                    ? !string.IsNullOrWhiteSpace(config.Security.DateFormat)
+                    : !string.IsNullOrWhiteSpace(config.Security.AccessPassword);
+
+                if (hasConfiguredPassword)
                 {
-                    app.Shutdown(0);
-                    return 0;
+                    var loginVm = new LoginViewModel(configService);
+                    var loginWindow = new LoginWindow(loginVm);
+                    var loginResult = loginWindow.ShowDialog();
+                    if (loginResult != true && !loginVm.IsAuthenticated)
+                    {
+                        app.Shutdown(0);
+                        return 0;
+                    }
                 }
             }
 

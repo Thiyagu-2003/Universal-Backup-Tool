@@ -1,0 +1,350 @@
+<UserControl x:Class="UniBackup.UI.Views.JobsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="clr-namespace:UniBackup.UI.Controls"
+             xmlns:vm="clr-namespace:UniBackup.UI.ViewModels">
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="28,24">
+        <StackPanel MaxWidth="1280" HorizontalAlignment="Stretch">
+
+            <!-- 1. Header & Summary line: "5 jobs · 4 on a schedule" -->
+            <Grid Margin="0,0,0,18">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel>
+                    <TextBlock Text="Backup Jobs"
+                               FontWeight="SemiBold"
+                               FontSize="{StaticResource FontSizeH1}"
+                               Foreground="{DynamicResource BrushInk}"/>
+                    <TextBlock Text="{Binding JobsSummaryHeader}"
+                               FontSize="{StaticResource FontSizeBody}"
+                               Foreground="{DynamicResource BrushInkMuted}"
+                               Margin="0,3,0,0"/>
+                </StackPanel>
+
+                <!-- Action Button in Header -->
+                <Button Grid.Column="1"
+                        Content="Create backup job"
+                        Command="{Binding OpenNewJobCommand}"
+                        Style="{StaticResource BtnPrimary}"
+                        VerticalAlignment="Center"/>
+            </Grid>
+
+            <!-- 2. Toolbar: Segmented Filter + Search -->
+            <Border Style="{StaticResource Card}" Padding="16,12" Margin="0,0,0,20">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Segmented Filter: All / SQL Server / Folders and sites / Needs attention -->
+                    <Border Style="{StaticResource SegmentedContainer}">
+                        <StackPanel Orientation="Horizontal">
+                            <RadioButton Content="All" Style="{StaticResource SegmentedItem}" IsChecked="True" Checked="Filter_Checked" Tag="All"/>
+                            <RadioButton Content="SQL Server" Style="{StaticResource SegmentedItem}" Checked="Filter_Checked" Tag="SqlServer"/>
+                            <RadioButton Content="Folders and sites" Style="{StaticResource SegmentedItem}" Checked="Filter_Checked" Tag="FoldersAndSites"/>
+                            <RadioButton Content="Needs attention" Style="{StaticResource SegmentedItem}" Checked="Filter_Checked" Tag="NeedsAttention"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Search Box -->
+                    <Border Grid.Column="1" Margin="20,0,0,0" MaxWidth="360" HorizontalAlignment="Left">
+                        <Grid>
+                            <TextBox x:Name="SearchBox"
+                                     Text="{Binding SearchQuery, UpdateSourceTrigger=PropertyChanged}"
+                                     Style="{StaticResource FieldInput}"
+                                     Padding="34,0,12,0"/>
+                            <Path Data="{StaticResource IconSearch}"
+                                  Fill="{DynamicResource BrushInkFaint}"
+                                  Width="14" Height="14"
+                                  Stretch="Uniform"
+                                  HorizontalAlignment="Left"
+                                  Margin="12,0,0,0"
+                                  IsHitTestVisible="False"/>
+                        </Grid>
+                    </Border>
+
+                    <!-- Run All Enabled Button (Jade) -->
+                    <Button Grid.Column="2"
+                            Command="{Binding RunAllCommand}"
+                            Style="{StaticResource BtnGo}"
+                            Height="36">
+                        <StackPanel Orientation="Horizontal">
+                            <Path Data="{StaticResource IconRunAll}" Fill="#FFFFFF" Width="14" Height="14" Stretch="Uniform" Margin="0,0,8,0"/>
+                            <TextBlock Text="Run all enabled"/>
+                        </StackPanel>
+                    </Button>
+                </Grid>
+            </Border>
+
+            <!-- 3. Empty State (When no jobs exist) -->
+            <controls:EmptyState Visibility="{Binding HasNoJobs, Converter={StaticResource BoolToVis}}"
+                                 Title="No backup jobs yet"
+                                 Description="Protect folders, IIS websites, or SQL Server databases with automated schedules and cloud storage retention."
+                                 ButtonText="Create backup job"
+                                 ActionCommand="{Binding OpenNewJobCommand}"
+                                 Icon="{StaticResource IconBackups}"
+                                 Margin="0,30,0,0"/>
+
+            <!-- 4. One Card Per Job (9 px apart) -->
+            <ItemsControl ItemsSource="{Binding Jobs}" Visibility="{Binding HasNoJobs, Converter={StaticResource InverseBoolToVis}}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate DataType="{x:Type vm:JobCardViewModel}">
+                        <Border Margin="0,0,0,9"
+                                Background="{DynamicResource BrushPanel}"
+                                BorderBrush="{DynamicResource BrushLine}"
+                                BorderThickness="1"
+                                CornerRadius="{StaticResource RadiusCard}"
+                                SnapsToDevicePixels="True"
+                                ClipToBounds="True">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/> <!-- Main Job Row -->
+                                    <RowDefinition Height="Auto"/> <!-- Inline Progress Bar (When running) -->
+                                    <RowDefinition Height="Auto"/> <!-- Inline Delete Confirmation -->
+                                    <RowDefinition Height="Auto"/> <!-- Expanded Details Drawer -->
+                                </Grid.RowDefinitions>
+
+                                <!-- 3 px Left Edge in Status Colour -->
+                                <Border Grid.Row="0" Grid.RowSpan="4"
+                                        Width="3" HorizontalAlignment="Left"
+                                        Background="{Binding StatusBrush}"
+                                        CornerRadius="14,0,0,14"/>
+
+                                <!-- Main Job Row (Click to expand) -->
+                                <Border Grid.Row="0" Padding="20,16" Cursor="Hand" Background="Transparent" MouseLeftButtonUp="JobRow_Click">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/> <!-- Status Tile -->
+                                            <ColumnDefinition Width="220"/>  <!-- Name & Kind & Source -->
+                                            <ColumnDefinition Width="140"/>  <!-- Schedule -->
+                                            <ColumnDefinition Width="*"/>    <!-- 24h Activity Strip -->
+                                            <ColumnDefinition Width="150"/>  <!-- Last Run & Duration -->
+                                            <ColumnDefinition Width="Auto"/> <!-- Actions: Run & Menu -->
+                                        </Grid.ColumnDefinitions>
+
+                                        <!-- 34 px Status Tile -->
+                                        <Border Width="34" Height="34" CornerRadius="8"
+                                                Background="{Binding StatusSoftBrush}"
+                                                VerticalAlignment="Center" Margin="0,0,16,0">
+                                            <Path Data="{Binding StatusGlyph}"
+                                                  Fill="{Binding StatusBrush}"
+                                                  Width="16" Height="16"
+                                                  Stretch="Uniform"
+                                                  HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </Border>
+
+                                        <!-- Name, Kind Chip, and Mono Source Path -->
+                                        <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="0,0,16,0">
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Text="{Binding Name}"
+                                                           FontWeight="SemiBold"
+                                                           FontSize="{StaticResource FontSizeRowTitle}"
+                                                           Foreground="{DynamicResource BrushInk}"
+                                                           TextTrimming="CharacterEllipsis"
+                                                           MaxWidth="140"/>
+
+                                                <!-- Kind Chip -->
+                                                <Border Style="{StaticResource BadgePill}"
+                                                        Background="{Binding KindSoftBrush}"
+                                                        Margin="8,0,0,0">
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <Path Data="{Binding KindIconGeometry}"
+                                                              Fill="{Binding KindBrush}"
+                                                              Width="10" Height="10"
+                                                              Stretch="Uniform"
+                                                              VerticalAlignment="Center"
+                                                              Margin="0,0,4,0"/>
+                                                        <TextBlock Text="{Binding KindChipName}"
+                                                                   FontWeight="SemiBold"
+                                                                   FontSize="{StaticResource FontSizeBadge}"
+                                                                   Foreground="{Binding KindBrush}"/>
+                                                    </StackPanel>
+                                                </Border>
+                                            </StackPanel>
+
+                                            <!-- Source Path in Mono, Ellipsised -->
+                                            <TextBlock Text="{Binding EffectiveSourcePath}"
+                                                       FontFamily="{StaticResource FontMono}"
+                                                       FontSize="{StaticResource FontSizeMono}"
+                                                       Foreground="{DynamicResource BrushInkMuted}"
+                                                       TextTrimming="CharacterEllipsis"
+                                                       Margin="0,3,0,0"/>
+                                        </StackPanel>
+
+                                        <!-- Schedule Column -->
+                                        <StackPanel Grid.Column="2" VerticalAlignment="Center" Margin="0,0,16,0">
+                                            <TextBlock Text="{Binding ScheduleDisplay}"
+                                                       FontWeight="Medium"
+                                                       FontSize="{StaticResource FontSizeBody}"
+                                                       Foreground="{DynamicResource BrushInk}"/>
+                                            <TextBlock Text="Automatic trigger"
+                                                       FontSize="{StaticResource FontSizeHelp}"
+                                                       Foreground="{DynamicResource BrushInkFaint}"
+                                                       Margin="0,2,0,0"/>
+                                        </StackPanel>
+
+                                        <!-- 24-hour Activity Strip -->
+                                        <StackPanel Grid.Column="3" VerticalAlignment="Center" Margin="0,0,20,0">
+                                            <controls:ActivityStrip Runs="{Binding RecentRuns}"
+                                                                    IsJobRunning="{Binding IsRunning}"/>
+                                            <!-- Axis: 24 h ago · 12 h · now -->
+                                            <Grid Margin="4,2,4,0">
+                                                <TextBlock Text="24 h ago" FontFamily="{StaticResource FontMono}" FontSize="10" Foreground="{DynamicResource BrushInkFaint}" HorizontalAlignment="Left"/>
+                                                <TextBlock Text="12 h" FontFamily="{StaticResource FontMono}" FontSize="10" Foreground="{DynamicResource BrushInkFaint}" HorizontalAlignment="Center"/>
+                                                <TextBlock Text="now" FontFamily="{StaticResource FontMono}" FontSize="10" Foreground="{DynamicResource BrushInkFaint}" HorizontalAlignment="Right"/>
+                                            </Grid>
+                                        </StackPanel>
+
+                                        <!-- Last-run Column (relative time in 500, size and duration muted) -->
+                                        <StackPanel Grid.Column="4" VerticalAlignment="Center" Margin="0,0,16,0">
+                                            <TextBlock Text="{Binding LastRunDisplay}"
+                                                       FontWeight="Medium"
+                                                       FontSize="{StaticResource FontSizeBody}"
+                                                       Foreground="{DynamicResource BrushInk}"/>
+                                            <TextBlock Text="{Binding ArchiveSizeDisplay, StringFormat={}{0} completed}"
+                                                       FontSize="{StaticResource FontSizeHelp}"
+                                                       Foreground="{DynamicResource BrushInkMuted}"
+                                                       Margin="0,2,0,0"/>
+                                        </StackPanel>
+
+                                        <!-- Actions: Run & Menu -->
+                                        <StackPanel Grid.Column="5" Orientation="Horizontal" VerticalAlignment="Center">
+                                            <!-- Run Button -->
+                                            <Button Command="{Binding DataContext.RunJobCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
+                                                    CommandParameter="{Binding}"
+                                                    Style="{StaticResource BtnQuiet}"
+                                                    Height="34" Padding="12,0" Margin="0,0,6,0">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <Path Data="{StaticResource IconPlay}" Fill="{DynamicResource BrushInkMuted}" Width="11" Height="11" Stretch="Uniform" Margin="0,0,5,0"/>
+                                                    <TextBlock Text="Run" FontSize="{StaticResource FontSizeBadge}"/>
+                                                </StackPanel>
+                                            </Button>
+
+                                            <!-- ⋯ Context Menu Button -->
+                                            <Button Style="{StaticResource IconBtn}" Click="MenuButton_Click">
+                                                <Path Data="{StaticResource IconDotsHorizontal}" Fill="{DynamicResource BrushInkMuted}" Width="15" Height="15" Stretch="Uniform"/>
+                                                <Button.ContextMenu>
+                                                    <ContextMenu>
+                                                        <MenuItem Header="Run full backup" Click="RunFull_Click"/>
+                                                        <MenuItem Header="Run differential backup" Click="RunDiff_Click" Visibility="{Binding IsSqlServer, Converter={StaticResource BoolToVis}}"/>
+                                                        <MenuItem Header="Run log backup" Click="RunLog_Click" Visibility="{Binding IsSqlServer, Converter={StaticResource BoolToVis}}"/>
+                                                        <Separator/>
+                                                        <MenuItem Header="Pause schedule" Click="TogglePause_Click"/>
+                                                        <MenuItem Header="View history" Click="ViewHistory_Click"/>
+                                                        <Separator/>
+                                                        <MenuItem Header="Delete job" Click="DeleteJob_Click" Foreground="{DynamicResource BrushCoral}"/>
+                                                    </ContextMenu>
+                                                </Button.ContextMenu>
+                                            </Button>
+                                        </StackPanel>
+                                    </Grid>
+                                </Border>
+
+                                <!-- Inline Progress Bar (When running) -->
+                                <Border Grid.Row="1" Visibility="{Binding IsRunning, Converter={StaticResource BoolToVis}}"
+                                        Background="{DynamicResource BrushRaised}" Padding="20,8">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+
+                                        <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+                                            <TextBlock Text="{Binding CurrentPhase}" FontWeight="SemiBold" FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushCobalt}"/>
+                                            <TextBlock Text=" — in progress" FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkMuted}"/>
+                                        </StackPanel>
+
+                                        <!-- 6 px progress bar with sheen -->
+                                        <ProgressBar Grid.Row="1" Height="6" Value="{Binding CurrentPercent}" Maximum="100"
+                                                     Foreground="{DynamicResource BrushCobalt}" Background="{DynamicResource BrushSunken}"/>
+                                    </Grid>
+                                </Border>
+
+                                <!-- Inline Delete Confirmation -->
+                                <Border Grid.Row="2" Visibility="{Binding IsDeletingInline, Converter={StaticResource BoolToVis}}"
+                                        Background="{DynamicResource BrushCoralSoft}" BorderBrush="{DynamicResource BrushCoral}" BorderThickness="0,1,0,0" Padding="20,14">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <TextBlock VerticalAlignment="Center" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource BrushCoral}">
+                                            Delete <Bold><Run Text="{Binding Name}"/></Bold>? Backups already in the cloud stay where they are.
+                                        </TextBlock>
+
+                                        <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                            <Button Content="Cancel" Command="{Binding CancelInlineDeleteCommand}" Style="{StaticResource BtnQuiet}" Margin="0,0,10,0"/>
+                                            <Button Content="Delete job" Command="{Binding DataContext.DeleteJobConfirmedCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
+                                                    CommandParameter="{Binding}" Style="{StaticResource BtnDanger}"/>
+                                        </StackPanel>
+                                    </Grid>
+                                </Border>
+
+                                <!-- Expanded Drawer -->
+                                <Border Grid.Row="3" Visibility="{Binding IsExpanded, Converter={StaticResource BoolToVis}}"
+                                        Background="{DynamicResource BrushRaised}" BorderBrush="{DynamicResource BrushLine}" BorderThickness="0,1,0,0" Padding="24,18">
+                                    <StackPanel>
+                                        <!-- Error block if last run failed -->
+                                        <Border Visibility="{Binding HasFailed, Converter={StaticResource BoolToVis}}"
+                                                Background="{DynamicResource BrushCoralSoft}" BorderBrush="{DynamicResource BrushCoral}" BorderThickness="1"
+                                                CornerRadius="8" Padding="14,10" Margin="0,0,0,16">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <Path Data="{StaticResource IconClose}" Fill="{DynamicResource BrushCoral}" Width="14" Height="14" Stretch="Uniform" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                                <TextBlock Grid.Column="1" Text="{Binding LastErrorDetails}" FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushCoral}" TextWrapping="Wrap"/>
+                                            </Grid>
+                                        </Border>
+
+                                        <!-- Definition Grid -->
+                                        <Grid Margin="0,0,0,10">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+
+                                            <!-- Source -->
+                                            <StackPanel Grid.Column="0">
+                                                <TextBlock Text="Source" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
+                                                <TextBlock Text="{Binding EffectiveSourcePath}" FontFamily="{StaticResource FontMono}" FontSize="{StaticResource FontSizeMono}" Foreground="{DynamicResource BrushInk}" Margin="0,3,0,0" TextTrimming="CharacterEllipsis"/>
+                                            </StackPanel>
+
+                                            <!-- Destinations -->
+                                            <StackPanel Grid.Column="1">
+                                                <TextBlock Text="Destinations" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
+                                                <TextBlock Text="{Binding DestinationsDisplay}" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource BrushInk}" Margin="0,3,0,0"/>
+                                            </StackPanel>
+
+                                            <!-- Retention -->
+                                            <StackPanel Grid.Column="2">
+                                                <TextBlock Text="Retention" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
+                                                <TextBlock Text="{Binding RetentionDisplay}" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource BrushInk}" Margin="0,3,0,0"/>
+                                            </StackPanel>
+
+                                            <!-- Protection -->
+                                            <StackPanel Grid.Column="3">
+                                                <TextBlock Text="Protection" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
+                                                <TextBlock Text="{Binding EncryptionDisplay}" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource BrushInk}" Margin="0,3,0,0"/>
+                                            </StackPanel>
+                                        </Grid>
+                                    </StackPanel>
+                                </Border>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

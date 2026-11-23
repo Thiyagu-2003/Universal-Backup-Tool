@@ -1,0 +1,49 @@
+<UserControl x:Class="UniBackup.UI.Controls.EmptyState"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Name="Root">
+    <Border Background="{DynamicResource BrushPanel}"
+            BorderBrush="{DynamicResource BrushLine}"
+            BorderThickness="1"
+            CornerRadius="{StaticResource RadiusCard}"
+            Padding="40"
+            HorizontalAlignment="Stretch"
+            VerticalAlignment="Center">
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="440">
+            <!-- 64 px Tinted Icon Tile -->
+            <Border Width="64" Height="64" CornerRadius="16"
+                    Background="{DynamicResource BrushCobaltSoft}"
+                    HorizontalAlignment="Center" Margin="0,0,0,20">
+                <Path Data="{Binding Icon, ElementName=Root}"
+                      Fill="{DynamicResource BrushCobalt}"
+                      Width="28" Height="28"
+                      Stretch="Uniform"
+                      HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            </Border>
+
+            <!-- Title: 15.5 / 600 -->
+            <TextBlock Text="{Binding Title, ElementName=Root}"
+                       FontWeight="SemiBold"
+                       FontSize="{StaticResource FontSizeH2}"
+                       Foreground="{DynamicResource BrushInk}"
+                       TextAlignment="Center"
+                       HorizontalAlignment="Center"/>
+
+            <!-- Sentence: 14 / 400 -->
+            <TextBlock Text="{Binding Description, ElementName=Root}"
+                       FontSize="{StaticResource FontSizeBody}"
+                       Foreground="{DynamicResource BrushInkMuted}"
+                       TextAlignment="Center"
+                       TextWrapping="Wrap"
+                       Margin="0,8,0,24"
+                       HorizontalAlignment="Center"/>
+
+            <!-- Action Button -->
+            <Button Content="{Binding ButtonText, ElementName=Root}"
+                    Command="{Binding ActionCommand, ElementName=Root}"
+                    Style="{DynamicResource BtnPrimary}"
+                    HorizontalAlignment="Center"
+                    Visibility="{Binding HasAction, ElementName=Root, Converter={StaticResource BoolToVis}}"/>
+        </StackPanel>
+    </Border>
+</UserControl>

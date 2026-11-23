@@ -7,6 +7,8 @@ using UniBackup.Core.Models;
 using UniBackup.Engine.Services;
 using UniBackup.Infrastructure.Security;
 using UniBackup.Infrastructure.Sql;
+using UniBackup.UI.Dialogs;
+using UniBackup.UI.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
@@ -36,45 +38,56 @@ public partial class NewBackupViewModel : ObservableObject
     public bool IsStep4 => CurrentStep == 4;
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(IsSqlServer))]
-    [NotifyPropertyChangedFor(nameof(IsFolder))]
-    private string _kind = "folder"; // "folder" | "sqlserver"
+    private string _kind = "folder"; // "folder" | "sqlserver" | "iis"
 
     public bool IsSqlServer
     {
         get => Kind.Equals("sqlserver", StringComparison.OrdinalIgnoreCase);
         set
         {
-            if (value)
-            {
-                Kind = "sqlserver";
-            }
-            else
-            {
-                Kind = "folder";
-            }
-            OnPropertyChanged(nameof(IsSqlServer));
-            OnPropertyChanged(nameof(IsFolder));
+            if (value) Kind = "sqlserver";
+            else if (Kind == "sqlserver") Kind = "folder";
+            NotifyKindProps();
+        }
+    }
+
+    public bool IsIisSite
+    {
+        get => Kind.Equals("iis", StringComparison.OrdinalIgnoreCase);
+        set
+        {
+            if (value) Kind = "iis";
+            else if (Kind == "iis") Kind = "folder";
+            NotifyKindProps();
         }
     }
 
     public bool IsFolder
     {
-        get => !IsSqlServer;
+        get => !IsSqlServer && !IsIisSite;
         set
         {
-            if (value)
-            {
-                Kind = "folder";
-            }
-            else
-            {
-                Kind = "sqlserver";
-            }
-            OnPropertyChanged(nameof(IsSqlServer));
-            OnPropertyChanged(nameof(IsFolder));
+            if (value) Kind = "folder";
+            else if (Kind == "folder") Kind = "sqlserver";
+            NotifyKindProps();
         }
     }
+
+    private void NotifyKindProps()
+    {
+        OnPropertyChanged(nameof(Kind));
+        OnPropertyChanged(nameof(IsSqlServer));
+        OnPropertyChanged(nameof(IsIisSite));
+        OnPropertyChanged(nameof(IsFolder));
+        UpdateLiveScheduleSummary();
+    }
+
+    // Inline Validation (§4.3, §12)
+    [ObservableProperty]
+    private string _validationError = "";
+
+    [ObservableProperty]
+    private bool _hasValidationError;
 
     // Job Common Details
     [ObservableProperty]
@@ -85,6 +98,16 @@ public partial class NewBackupViewModel : ObservableObject
 
     [ObservableProperty]
     private string _subfolder = "";
+
+    // IIS Selection
+    [ObservableProperty]
+    private ObservableCollection<IisSiteVm> _selectedIisSites = [];
+
+    [ObservableProperty]
+    private string _iisSummaryDisplay = "0 sites · 0 B before compression";
+
+    [ObservableProperty]
+    private bool _exportIisConfiguration = true;
 
     // SQL Server Settings
     [ObservableProperty]
@@ -99,14 +122,7 @@ public partial class NewBackupViewModel : ObservableObject
         get => !SqlUseWindowsAuth;
         set
         {
-            if (value)
-            {
-                SqlUseWindowsAuth = false;
-            }
-            else
-            {
-                SqlUseWindowsAuth = true;
-            }
+            SqlUseWindowsAuth = !value;
             OnPropertyChanged(nameof(SqlUseSqlAuth));
             OnPropertyChanged(nameof(SqlUseWindowsAuth));
         }
@@ -193,10 +209,10 @@ public partial class NewBackupViewModel : ObservableObject
 
     // Schedule Settings (Schedule v2)
     [ObservableProperty]
-    private string _selectedFrequency = "daily";
+    private string _selectedFrequency = "daily"; // "daily" | "selected_days" | "manual"
 
     [ObservableProperty]
-    private string _scheduledTime = "02:00";
+    private string _scheduledTime = "01:00";
 
     [ObservableProperty]
     private bool _monday = true;
@@ -219,17 +235,18 @@ public partial class NewBackupViewModel : ObservableObject
     [ObservableProperty]
     private bool _sunday = false;
 
+    // SQL Sub-intervals (Diff / Log)
     [ObservableProperty]
-    private bool _diffEnabled = false;
+    private bool _diffEnabled = true;
 
     [ObservableProperty]
-    private int _diffMinutes = 240; // Every 4 hours
+    private int _diffMinutes = 240; // 4 hours
 
     [ObservableProperty]
-    private bool _logEnabled = false;
+    private bool _logEnabled = true;
 
     [ObservableProperty]
-    private int _logMinutes = 15; // Every 15 minutes
+    private int _logMinutes = 15; // 15 mins
 
     [ObservableProperty]
     private bool _windowEnabled = false;
@@ -240,7 +257,10 @@ public partial class NewBackupViewModel : ObservableObject
     [ObservableProperty]
     private string _windowEnd = "20:00";
 
-    // Options (Retention, Encryption, Object Lock)
+    [ObservableProperty]
+    private string _liveScheduleSummary = "Full backup every day at 01:00.";
+
+    // Retention & Encryption (Step 4)
     [ObservableProperty]
     private int _retentionDays = 30;
 
@@ -263,22 +283,16 @@ public partial class NewBackupViewModel : ObservableObject
     private string _encryptionPassphrase = "";
 
     [ObservableProperty]
+    private string _encryptionPassphraseConfirm = "";
+
+    [ObservableProperty]
     private bool _objectLockEnabled = false;
 
     [ObservableProperty]
     private int _objectLockDays = 30;
 
-    [ObservableProperty]
-    private ObservableCollection<IisSiteInfo> _iisSites = [];
-
-    [ObservableProperty]
-    private IisSiteInfo? _selectedIisSite;
-
-    [ObservableProperty]
-    private bool _isIisLoaded;
-
     public Action? CloseAction { get; set; }
-    public bool DialogResult { get; private set; }
+    public bool DialogResult { get; set; }
 
     public NewBackupViewModel(
         ConfigurationService configService,
@@ -288,94 +302,228 @@ public partial class NewBackupViewModel : ObservableObject
         _configService = configService;
         _iisService = iisService;
         _schedulerService = schedulerService;
+        UpdateLiveScheduleSummary();
+    }
+
+    [RelayCommand]
+    public void SetStep(object? stepObj)
+    {
+        int step = 0;
+        if (stepObj is int i) step = i;
+        else if (stepObj is string s && int.TryParse(s, out var parsed)) step = parsed;
+
+        if (step >= 1 && step <= 4)
+        {
+            ClearValidation();
+            CurrentStep = step;
+        }
     }
 
     [RelayCommand]
     public void NextStep()
     {
-        if (CurrentStep < 4)
+        if (ValidateCurrentStep())
         {
-            CurrentStep++;
+            ClearValidation();
+            if (CurrentStep < 4)
+            {
+                CurrentStep++;
+            }
+            else
+            {
+                _ = SaveJobAsync();
+            }
         }
     }
 
     [RelayCommand]
     public void PreviousStep()
     {
+        ClearValidation();
         if (CurrentStep > 1)
         {
             CurrentStep--;
         }
     }
 
-    [RelayCommand]
-    public void SetStep(object? stepParam)
+    public bool ValidateCurrentStep()
     {
-        var step = 1;
-        if (stepParam is int i) step = i;
-        else if (stepParam is string s && int.TryParse(s, out var parsed)) step = parsed;
+        ClearValidation();
 
-        if (step >= 1 && step <= 4)
+        if (CurrentStep == 1)
         {
-            CurrentStep = step;
+            if (string.IsNullOrWhiteSpace(JobName))
+            {
+                SetValidationError("Enter a job name to identify this backup.");
+                return false;
+            }
+
+            if (IsFolder)
+            {
+                if (string.IsNullOrWhiteSpace(SourceFolder))
+                {
+                    SetValidationError(@"Enter a full source path, like D:\Data or \\server\share.");
+                    return false;
+                }
+            }
+            else if (IsIisSite)
+            {
+                if (SelectedIisSites.Count == 0)
+                {
+                    SetValidationError("Select at least one IIS website from the picker dialog.");
+                    return false;
+                }
+            }
+            else if (IsSqlServer)
+            {
+                if (string.IsNullOrWhiteSpace(SqlServer))
+                {
+                    SetValidationError(@"Enter a SQL Server instance name, like localhost or SRV-DB01\SQL2022.");
+                    return false;
+                }
+            }
         }
+        else if (CurrentStep == 3)
+        {
+            var hasDest = EnableS3 || EnableGDrive || EnableAzure || EnableLocal ||
+                          EnableFtp || EnableSftp || EnableWebDav || EnableDropbox ||
+                          EnableOneDrive || EnableBox;
+            if (!hasDest)
+            {
+                SetValidationError("Select at least one destination storage provider.");
+                return false;
+            }
+        }
+        else if (CurrentStep == 4)
+        {
+            if (EncryptionEnabled)
+            {
+                if (string.IsNullOrWhiteSpace(EncryptionPassphrase))
+                {
+                    SetValidationError("Enter an AES-256 encryption passphrase.");
+                    return false;
+                }
+                if (EncryptionPassphrase != EncryptionPassphraseConfirm)
+                {
+                    SetValidationError("The passphrases do not match. Re-enter passphrase to confirm.");
+                    return false;
+                }
+            }
+        }
+
+        return true;
     }
 
-    [RelayCommand]
-    public async Task TestSqlConnectionAsync()
+    private void SetValidationError(string msg)
     {
-        IsTestingConnection = true;
-        SqlConnectionStatus = "Testing connection to " + SqlServer + "...";
-        try
-        {
-            var crypto = new CredentialProtector();
-            var sqlService = new SqlServerBackupService(crypto);
-            var source = new SqlServerSource
-            {
-                Server = SqlServer,
-                UseWindowsAuth = SqlUseWindowsAuth,
-                Username = SqlUseWindowsAuth ? null : SqlUsername,
-                PasswordSealed = SqlUseWindowsAuth ? null : crypto.Seal(SqlPassword),
-                TrustServerCertificate = SqlTrustServerCert
-            };
+        ValidationError = msg;
+        HasValidationError = true;
+    }
 
-            var dbs = await sqlService.ListDatabasesAsync(source, CancellationToken.None);
-            if (dbs.IsSuccess)
+    private void ClearValidation()
+    {
+        ValidationError = "";
+        HasValidationError = false;
+    }
+
+    public void UpdateLiveScheduleSummary()
+    {
+        var summary = $"Full backup every day at {ScheduledTime}";
+        if (SelectedFrequency == "selected_days")
+        {
+            var daysList = new List<string>();
+            if (Monday) daysList.Add("Mon");
+            if (Tuesday) daysList.Add("Tue");
+            if (Wednesday) daysList.Add("Wed");
+            if (Thursday) daysList.Add("Thu");
+            if (Friday) daysList.Add("Fri");
+            if (Saturday) daysList.Add("Sat");
+            if (Sunday) daysList.Add("Sun");
+            summary = $"Full backup on {string.Join(", ", daysList)} at {ScheduledTime}";
+        }
+
+        if (IsSqlServer)
+        {
+            if (DiffEnabled)
             {
-                AvailableDatabases.Clear();
-                foreach (var db in dbs.Value)
-                {
-                    AvailableDatabases.Add(db.Name);
-                }
-                SqlConnectionStatus = $"Connected! Found {dbs.Value.Count} database(s).";
-                if (string.IsNullOrWhiteSpace(JobName))
-                {
-                    JobName = $"SQL_{SqlServer.Replace('\\', '_')}";
-                }
+                summary += $", then a differential every {DiffMinutes / 60} hours";
+            }
+            if (LogEnabled)
+            {
+                summary += $", and a log backup every {LogMinutes} minutes.";
             }
             else
             {
-                SqlConnectionStatus = "Connection failed: " + dbs.Error;
+                summary += ".";
             }
         }
-        catch (Exception ex)
+        else
         {
-            SqlConnectionStatus = "Error: " + ex.Message;
+            summary += ".";
         }
-        finally
+
+        LiveScheduleSummary = summary;
+    }
+
+    [RelayCommand]
+    public void OpenIisPicker()
+    {
+        var dialog = new IisPickerDialog
         {
-            IsTestingConnection = false;
+            Owner = Application.Current?.MainWindow
+        };
+
+        if (dialog.ShowDialog() == true)
+        {
+            SelectedIisSites.Clear();
+            foreach (var site in dialog.SelectedSites)
+            {
+                SelectedIisSites.Add(site);
+            }
+
+            ExportIisConfiguration = dialog.ExportConfiguration;
+            UpdateIisSelectionSummary();
+
+            if (SelectedIisSites.Count > 0)
+            {
+                if (string.IsNullOrWhiteSpace(JobName))
+                {
+                    JobName = SelectedIisSites.Count == 1 ? SelectedIisSites[0].Name : $"{SelectedIisSites.Count} IIS sites";
+                }
+                SourceFolder = $"IIS:{string.Join(";", SelectedIisSites.Select(s => s.Name))}";
+            }
         }
     }
 
     [RelayCommand]
-    public void BrowseSourceFolder()
+    public void RemoveIisSite(IisSiteVm site)
+    {
+        SelectedIisSites.Remove(site);
+        UpdateIisSelectionSummary();
+        if (SelectedIisSites.Count == 0)
+        {
+            SourceFolder = "";
+        }
+        else
+        {
+            SourceFolder = $"IIS:{string.Join(";", SelectedIisSites.Select(s => s.Name))}";
+        }
+    }
+
+    private void UpdateIisSelectionSummary()
+    {
+        var count = SelectedIisSites.Count;
+        var bytes = SelectedIisSites.Sum(s => s.SizeBytes);
+        IisSummaryDisplay = $"{count} {(count == 1 ? "site" : "sites")} · {FormattingUtils.FormatBytes(bytes)} before compression";
+    }
+
+    [RelayCommand]
+    public void BrowseFolder()
     {
         var dialog = new Microsoft.Win32.OpenFolderDialog
         {
-            Title = "Select Source Folder to Backup"
+            Title = "Select Source Folder to Back Up"
         };
-
         if (dialog.ShowDialog() == true)
         {
             SourceFolder = dialog.FolderName;
@@ -387,31 +535,46 @@ public partial class NewBackupViewModel : ObservableObject
     }
 
     [RelayCommand]
-    public async Task LoadIisSitesAsync()
+    public async Task TestSqlConnectionAsync()
     {
-        var result = await _iisService.DiscoverSitesAsync();
-        IisSites.Clear();
-
-        if (result.IsSuccess)
+        IsTestingConnection = true;
+        SqlConnectionStatus = "Testing connection...";
+        try
         {
-            foreach (var site in result.Value)
+            var crypto = new CredentialProtector();
+            var sqlBackup = new SqlServerBackupService(crypto);
+            var src = new SqlServerSource
             {
-                IisSites.Add(site);
-            }
-            IsIisLoaded = true;
-        }
-        else
-        {
-            MessageBox.Show(result.Error, "IIS Discovery", MessageBoxButton.OK, MessageBoxImage.Warning);
-        }
-    }
+                Server = SqlServer,
+                UseWindowsAuth = SqlUseWindowsAuth,
+                Username = SqlUseWindowsAuth ? null : SqlUsername,
+                PasswordSealed = SqlUseWindowsAuth ? null : crypto.Seal(SqlPassword),
+                TrustServerCertificate = SqlTrustServerCert
+            };
 
-    partial void OnSelectedIisSiteChanged(IisSiteInfo? value)
-    {
-        if (value != null)
+            var res = await sqlBackup.ListDatabasesAsync(src, CancellationToken.None);
+            if (res.IsSuccess)
+            {
+                AvailableDatabases.Clear();
+                foreach (var db in res.Value)
+                {
+                    AvailableDatabases.Add(db.Name);
+                }
+
+                SqlConnectionStatus = $"Connected: {res.Value.Count} databases detected.";
+            }
+            else
+            {
+                SqlConnectionStatus = $"Connection failed: {res.Error}";
+            }
+        }
+        catch (Exception ex)
         {
-            JobName = value.Name;
-            SourceFolder = value.PhysicalPath;
+            SqlConnectionStatus = $"Connection failed: {ex.Message}";
+        }
+        finally
+        {
+            IsTestingConnection = false;
         }
     }
 
@@ -425,30 +588,45 @@ public partial class NewBackupViewModel : ObservableObject
     [RelayCommand]
     public async Task SaveJobAsync()
     {
+        ClearValidation();
+
+        // 1. Validate Step 1: Name and source target
+        if (string.IsNullOrWhiteSpace(JobName))
+        {
+            SetValidationError("Enter a job name to identify this backup.");
+            CurrentStep = 1;
+            return;
+        }
+
         if (IsFolder)
         {
             if (string.IsNullOrWhiteSpace(SourceFolder))
             {
-                MessageBox.Show("Please select a valid source folder.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
+                SetValidationError(@"Enter a full source path, like D:\Data or \\server\share.");
+                CurrentStep = 1;
                 return;
             }
-
-            if (!Directory.Exists(SourceFolder))
+        }
+        else if (IsIisSite)
+        {
+            if (SelectedIisSites.Count == 0 && string.IsNullOrWhiteSpace(SourceFolder))
             {
-                var res = MessageBox.Show($"Source folder does not exist on disk:\n{SourceFolder}\n\nDo you still want to save this job?",
-                    "Missing Folder", MessageBoxButton.YesNo, MessageBoxImage.Question);
-                if (res != MessageBoxResult.Yes) return;
+                SetValidationError("Select at least one IIS website from the picker dialog.");
+                CurrentStep = 1;
+                return;
             }
         }
-        else
+        else if (IsSqlServer)
         {
             if (string.IsNullOrWhiteSpace(SqlServer))
             {
-                MessageBox.Show("Please specify a valid SQL Server instance.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
+                SetValidationError(@"Enter a SQL Server instance name, like localhost or SRV-DB01\SQL2022.");
+                CurrentStep = 1;
                 return;
             }
         }
 
+        // 2. Validate Step 3: Destinations
         var destinations = new List<string>();
         if (EnableS3) destinations.Add("s3");
         if (EnableGDrive) destinations.Add("gdrive");
@@ -463,8 +641,26 @@ public partial class NewBackupViewModel : ObservableObject
 
         if (destinations.Count == 0)
         {
-            MessageBox.Show("Please enable at least one backup destination.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
+            SetValidationError("Select at least one destination storage provider.");
+            CurrentStep = 3;
             return;
+        }
+
+        // 3. Validate Step 4: Encryption
+        if (EncryptionEnabled)
+        {
+            if (string.IsNullOrWhiteSpace(EncryptionPassphrase))
+            {
+                SetValidationError("Enter an AES-256 encryption passphrase.");
+                CurrentStep = 4;
+                return;
+            }
+            if (EncryptionPassphrase != EncryptionPassphraseConfirm)
+            {
+                SetValidationError("The passphrases do not match. Re-enter passphrase to confirm.");
+                CurrentStep = 4;
+                return;
+            }
         }
 
         var days = new List<string>();
@@ -507,9 +703,9 @@ public partial class NewBackupViewModel : ObservableObject
         var job = new BackupJob
         {
             Id = Guid.NewGuid().ToString("N")[..8],
-            Name = string.IsNullOrWhiteSpace(JobName) ? (IsSqlServer ? $"SQL_{SqlServer}" : Path.GetFileName(SourceFolder)) : JobName,
+            Name = JobName,
             Kind = Kind,
-            SourceFolder = IsFolder ? SourceFolder : "",
+            SourceFolder = SourceFolder,
             Subfolder = IsFolder && !string.IsNullOrWhiteSpace(Subfolder) ? Subfolder : null,
             Destinations = destinations,
             CloudFolder = string.IsNullOrWhiteSpace(CloudFolder) ? null : CloudFolder,
@@ -543,12 +739,21 @@ public partial class NewBackupViewModel : ObservableObject
             };
         }
 
-        var jobs = await _configService.LoadJobsAsync();
-        jobs.Add(job);
-        await _configService.SaveJobsAsync(jobs);
-        await _schedulerService.SyncJobTaskAsync(job);
+        try
+        {
+            var jobs = await _configService.LoadJobsAsync();
+            jobs.Add(job);
+            await _configService.SaveJobsAsync(jobs);
+            await _schedulerService.SyncJobTaskAsync(job);
 
-        DialogResult = true;
-        CloseAction?.Invoke();
+            NotificationHub.ShowSuccess($"Created {job.Name}. First run scheduled for {ScheduledTime}.", "Job Created");
+
+            DialogResult = true;
+            CloseAction?.Invoke();
+        }
+        catch (Exception ex)
+        {
+            SetValidationError($"Failed to save backup job: {ex.Message}");
+        }
     }
 }

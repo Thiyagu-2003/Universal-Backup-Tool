@@ -1,0 +1,1385 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>UniBackup Pro prototype</title>
+<meta name="description" content="Clickable prototype of the redesigned UniBackup Pro desktop UI.">
+<link rel="icon" href="../../src/UniBackup.UI/UniBackup.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css">
+<style>
+/* ---------- Tokens ----------
+   Radius rule: controls 6px, panels 10px, badges and ticks 3-4px. Nothing is pill-shaped.
+   Colour rule: neutral ink for healthy state, accent for live/interactive, warn/fail only for trouble. */
+:root{
+  --font:"IBM Plex Sans","Segoe UI",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",Consolas,monospace;
+  --r-sm:4px;--r-md:6px;--r-lg:10px;
+  --ease:cubic-bezier(.2,.8,.2,1);
+  --spring:cubic-bezier(.34,1.35,.5,1);
+  --z-sheet:40;--z-scrim:30;--z-pop:50;--z-toast:60;
+
+  --bg:#F1F3F4;--panel:#FFFFFF;--raised:#F7F9FA;--sunken:#E8ECEE;
+  --line:#DFE4E7;--line-strong:#C5CED3;
+  --text:#11181C;--text-2:#46555D;--text-3:#64717A;
+  --accent:#1C7BA6;--accent-ink:#FFFFFF;--accent-soft:#E2F0F6;--accent-hover:#166A90;
+  --ok:#1E7A56;--ok-soft:#E1F3EB;--warn:#8C5C0E;--warn-soft:#FAEFD9;--fail:#B03A29;--fail-soft:#FBE6E2;
+  --tick-full:#11181C;--tick-diff:#62727B;--tick-log:#AAB6BC;
+  --shadow:0 1px 2px rgba(20,44,56,.06),0 10px 28px -14px rgba(20,44,56,.22);
+  --shadow-sheet:-24px 0 60px -30px rgba(20,44,56,.35);
+  --desk:#C9D3D8;--win-shadow:0 0 0 1px rgba(20,44,56,.10),0 24px 64px -16px rgba(20,44,56,.45);
+}
+html[data-theme="dark"]{
+  --bg:#0D1215;--panel:#12191D;--raised:#172025;--sunken:#0A0F12;
+  --line:#1F2A30;--line-strong:#2D3A42;
+  --text:#E2E9EC;--text-2:#A2B0B7;--text-3:#808F98;
+  --accent:#5CB2D8;--accent-ink:#06141A;--accent-soft:rgba(92,178,216,.13);--accent-hover:#7AC3E3;
+  --ok:#4DBE8E;--ok-soft:rgba(77,190,142,.12);--warn:#E0AC52;--warn-soft:rgba(224,172,82,.13);--fail:#EE6F5D;--fail-soft:rgba(238,111,93,.13);
+  --tick-full:#DCE4E8;--tick-diff:#8695A0;--tick-log:#46555E;
+  --shadow:0 0 0 1px rgba(255,255,255,.02),0 14px 34px -16px rgba(0,0,0,.7);
+  --shadow-sheet:-24px 0 60px -24px rgba(0,0,0,.8);
+  --desk:#05080A;--win-shadow:0 0 0 1px rgba(255,255,255,.06),0 24px 64px -16px rgba(0,0,0,.9);
+  color-scheme:dark;
+}
+
+/* ---------- Base ---------- */
+*,*::before,*::after{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;font:400 14px/1.5 var(--font);color:var(--text);background:var(--desk);-webkit-font-smoothing:antialiased;font-variant-numeric:tabular-nums;
+  display:grid;place-items:center;padding:16px 16px 64px;overflow:auto}
+/* Windows 11 style thin scrollbars */
+::-webkit-scrollbar{width:12px;height:12px}
+::-webkit-scrollbar-thumb{background:var(--line-strong);border:4px solid transparent;border-radius:8px;background-clip:padding-box}
+::-webkit-scrollbar-thumb:hover{background-color:var(--text-3)}
+::-webkit-scrollbar-track{background:transparent}
+
+/* ---------- Windows (WPF: LoginWindow 920x560 borderless, MainWindow 1240x840, min 1000x700) ---------- */
+.win{position:relative;overflow:hidden;display:flex;flex-direction:column;background:var(--bg);border-radius:8px;box-shadow:var(--win-shadow);animation:winOpen .22s var(--ease)}
+@keyframes winOpen{from{opacity:0;transform:scale(.96)}}
+.win-login{width:920px;height:560px;flex:none}
+.win-main{width:min(1240px,calc(100vw - 32px));height:min(840px,calc(100dvh - 80px));min-width:1000px;min-height:640px}
+.win-main.max{position:fixed;inset:0 0 48px 0;width:auto;height:auto;min-width:0;border-radius:0;animation:none}
+.win.minimizing{animation:winMin .2s var(--ease) forwards}
+@keyframes winMin{to{opacity:0;transform:translateY(40%) scale(.6)}}
+.titlebar{display:flex;align-items:center;gap:10px;height:36px;padding-left:12px;flex:none;font-size:12.5px;background:var(--panel);border-bottom:1px solid var(--line);user-select:none}
+.titlebar img{width:16px;height:16px;border-radius:3px}
+.caption{margin-left:auto;display:flex;align-self:stretch}
+.caption button{width:46px;border:0;background:none;display:grid;place-items:center;color:var(--text);cursor:default;transition:background-color .1s}
+.caption button i{font-size:14px}
+.caption button:hover{background:var(--sunken)}
+.caption button.close:hover{background:#C42B1C;color:#fff}
+.win-x{position:absolute;top:0;right:0;z-index:2;width:46px;height:32px;border:0;background:none;display:grid;place-items:center;color:var(--text-2);border-top-right-radius:8px}
+.win-x:hover{background:#C42B1C;color:#fff}
+.taskbar{position:fixed;left:0;right:0;bottom:0;height:48px;display:flex;justify-content:center;align-items:center;gap:4px;background:var(--panel);border-top:1px solid var(--line)}
+.taskbar button{position:relative;width:40px;height:40px;border:0;border-radius:var(--r-md);background:none;display:grid;place-items:center}
+.taskbar button:hover{background:var(--sunken)}
+.taskbar button img{width:24px;height:24px;border-radius:5px}
+.taskbar button::after{content:"";position:absolute;bottom:2px;left:50%;width:6px;height:3px;margin-left:-3px;border-radius:2px;background:var(--text-3);opacity:0;transition:width .2s var(--ease),margin .2s var(--ease)}
+.taskbar button.running::after{opacity:1}
+.taskbar button.active::after{width:16px;margin-left:-8px;background:var(--accent)}
+.closed-msg{display:grid;justify-items:center;gap:12px;text-align:center;color:var(--text-2);max-width:40ch}
+button,input,select,textarea{font:inherit;color:inherit}
+h1,h2,h3,h4,p{margin:0}
+h1{font-size:20px;font-weight:600;letter-spacing:-.01em}
+h2{font-size:16px;font-weight:600;letter-spacing:-.005em}
+h3{font-size:14px;font-weight:600}
+.mono{font-family:var(--mono);font-size:12.5px}
+.muted{color:var(--text-2)}
+.faint{color:var(--text-3)}
+.small{font-size:12.5px}
+[hidden]{display:none!important}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:var(--r-sm)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+/* ---------- Controls ---------- */
+.btn{display:inline-flex;align-items:center;gap:8px;height:34px;padding:0 14px;border-radius:var(--r-md);border:1px solid transparent;background:none;font-weight:500;cursor:pointer;white-space:nowrap;transition:background-color .18s var(--ease),border-color .18s var(--ease),transform .12s var(--ease),color .18s}
+.btn:active{transform:translateY(1px)}
+.btn i{font-size:16px}
+.btn-primary{background:var(--accent);color:var(--accent-ink)}
+.btn-primary:hover{background:var(--accent-hover)}
+.btn-quiet{border-color:var(--line-strong);background:var(--panel)}
+.btn-quiet:hover{border-color:var(--text-3);background:var(--raised)}
+.btn-ghost:hover{background:var(--sunken)}
+.btn-danger{background:var(--fail);color:#fff}
+.btn-danger:hover{filter:brightness(1.08)}
+.btn.sm{height:28px;padding:0 10px;font-size:13px}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
+.icon-btn{display:inline-grid;place-items:center;width:30px;height:30px;border-radius:var(--r-md);border:0;background:none;cursor:pointer;color:var(--text-2);transition:background-color .15s}
+.icon-btn:hover{background:var(--sunken);color:var(--text)}
+.icon-btn i{font-size:18px}
+
+.field{display:grid;gap:6px;align-content:start}
+.field > span{font-size:13px;font-weight:500;color:var(--text)}
+.field .help{font-size:12.5px;color:var(--text-3)}
+.field .err{font-size:12.5px;color:var(--fail);display:flex;gap:6px;align-items:center}
+.input,select.input,textarea.input{height:34px;width:100%;padding:0 10px;border-radius:var(--r-md);border:1px solid var(--line-strong);background:var(--panel);transition:border-color .15s,box-shadow .15s}
+textarea.input{height:auto;min-height:80px;padding:8px 10px;resize:vertical}
+.input::placeholder{color:var(--text-3)}
+.input:hover{border-color:var(--text-3)}
+.input:focus{outline:0;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.input.bad{border-color:var(--fail);box-shadow:0 0 0 3px var(--fail-soft)}
+.input-wrap{position:relative}
+.input-wrap .icon-btn{position:absolute;right:2px;top:2px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.stack{display:grid;gap:16px}
+
+.seg{display:inline-flex;max-width:100%;overflow-x:auto;padding:3px;gap:2px;border-radius:var(--r-md);background:var(--sunken)}
+.seg button{border:0;background:none;height:28px;padding:0 12px;border-radius:var(--r-sm);cursor:pointer;color:var(--text-2);font-weight:500;display:inline-flex;align-items:center;gap:6px;transition:background-color .15s,color .15s}
+.seg button[aria-pressed="true"]{background:var(--panel);color:var(--text);box-shadow:0 1px 2px rgba(0,0,0,.12)}
+
+.switch{position:relative;display:inline-flex;align-items:center;gap:10px;cursor:pointer}
+.switch input{appearance:none;width:34px;height:20px;border-radius:10px;background:var(--line-strong);position:relative;cursor:pointer;transition:background-color .2s;margin:0}
+.switch input::after{content:"";position:absolute;left:3px;top:3px;width:14px;height:14px;border-radius:50%;background:#fff;transition:transform .25s var(--spring)}
+.switch input:checked{background:var(--accent)}
+.switch input:checked::after{transform:translateX(14px)}
+
+.check{display:inline-flex;align-items:center;gap:8px;cursor:pointer}
+.check input{accent-color:var(--accent);width:16px;height:16px;margin:0}
+
+.badge{display:inline-flex;align-items:center;gap:4px;height:20px;padding:0 6px;border-radius:var(--r-sm);font-size:12px;font-weight:500;background:var(--sunken);color:var(--text-2)}
+.badge.ok{background:var(--ok-soft);color:var(--ok)}
+.badge.warn{background:var(--warn-soft);color:var(--warn)}
+.badge.fail{background:var(--fail-soft);color:var(--fail)}
+.badge.live{background:var(--accent-soft);color:var(--accent)}
+
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--r-lg)}
+.panel-pad{padding:20px}
+.section-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:12px}
+.section-head p{color:var(--text-2);font-size:13px;margin-top:2px}
+
+/* ---------- Login ---------- */
+#login{height:100%;display:grid;grid-template-columns:minmax(0,1.1fr) minmax(360px,.9fr)}
+.login-brand{padding:40px 44px;display:flex;flex-direction:column;justify-content:space-between;background:var(--panel);border-right:1px solid var(--line)}
+.brand-row{display:flex;align-items:center;gap:12px}
+.brand-row img{width:40px;height:40px;border-radius:9px}
+.brand-row b{display:block;font-size:17px;font-weight:600;letter-spacing:-.01em}
+.brand-row span{font-size:12.5px;color:var(--text-3)}
+.login-copy h2{font-size:30px;line-height:1.15;letter-spacing:-.025em;font-weight:600;max-width:20ch;text-wrap:balance}
+.login-copy ul{list-style:none;padding:0;margin:28px 0 0;display:grid;gap:16px;max-width:46ch}
+.login-copy li{display:grid;grid-template-columns:24px 1fr;gap:10px;color:var(--text-2)}
+.login-copy li i{font-size:20px;color:var(--text);margin-top:1px}
+.login-copy li b{display:block;color:var(--text);font-weight:500}
+.login-form{display:grid;place-items:center;padding:40px 24px}
+.login-form form{width:min(340px,100%);display:grid;gap:18px}
+.login-form .server{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text-2)}
+.live-dot{width:8px;height:8px;border-radius:50%;background:var(--ok);flex:none}
+.login-out{animation:fadeOut .28s var(--ease) forwards}
+@keyframes fadeOut{to{opacity:0;transform:scale(.985)}}
+
+/* ---------- App shell ---------- */
+#app{display:grid;grid-template-columns:216px minmax(0,1fr);flex:1;min-height:0}
+.rail{display:flex;flex-direction:column;gap:20px;padding:18px 12px 14px;background:var(--panel);border-right:1px solid var(--line)}
+.nav{display:grid;gap:2px}
+.nav button{position:relative;display:flex;align-items:center;gap:10px;height:36px;padding:0 10px;border:0;border-radius:var(--r-md);background:none;color:var(--text-2);cursor:pointer;text-align:left;font-weight:500;transition:background-color .15s,color .15s}
+.nav button i{font-size:18px}
+.nav button:hover{background:var(--sunken);color:var(--text)}
+.nav button[aria-current="page"]{background:var(--accent-soft);color:var(--text)}
+.nav button[aria-current="page"] i{color:var(--accent)}
+.nav button::before{content:"";position:absolute;left:-12px;top:8px;bottom:8px;width:3px;border-radius:0 3px 3px 0;background:var(--accent);transform:scaleY(0);transition:transform .25s var(--spring)}
+.nav button[aria-current="page"]::before{transform:scaleY(1)}
+.nav .count{margin-left:auto;font-size:12px;color:var(--fail);font-weight:600}
+.rail-foot{margin-top:auto;display:grid;gap:12px;padding:12px;border-radius:var(--r-lg);background:var(--raised);border:1px solid var(--line);font-size:12.5px}
+.rail-foot .row{display:flex;align-items:center;gap:8px;color:var(--text-2)}
+.meter{height:4px;border-radius:2px;background:var(--sunken);overflow:hidden}
+.meter i{display:block;height:100%;width:100%;background:var(--text-3);transform-origin:left}
+
+.main-col{display:flex;flex-direction:column;min-width:0}
+.topbar{display:flex;align-items:center;gap:12px;height:64px;padding:0 28px;border-bottom:1px solid var(--line);background:var(--panel)}
+.topbar h1{margin-right:auto}
+main{flex:1;overflow:auto;padding:24px 28px 48px;scroll-behavior:smooth}
+main:focus{outline:0}
+.view{max-width:1320px;margin:0 auto}
+.view.enter{animation:viewIn .32s var(--ease)}
+@keyframes viewIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.app-in .rail{animation:railIn .55s var(--ease) both}
+.app-in .topbar{animation:viewIn .45s .08s var(--ease) both}
+.app-in main{animation:viewIn .5s .14s var(--ease) both}
+@keyframes railIn{from{opacity:0;transform:translateX(-14px)}to{opacity:1;transform:none}}
+
+/* ---------- Jobs ---------- */
+.notice{display:grid;grid-template-columns:22px 1fr auto;gap:12px;align-items:center;padding:12px 16px;border-radius:var(--r-lg);margin-bottom:20px;background:var(--fail-soft);color:var(--text)}
+.notice > i{font-size:20px;color:var(--fail)}
+.notice b{font-weight:600}
+.jobs-tools{display:flex;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.jobs-tools .summary{margin-right:auto;color:var(--text-2)}
+.search{position:relative;width:280px}
+.search i{position:absolute;left:10px;top:9px;font-size:16px;color:var(--text-3)}
+.search .input{padding-left:32px}
+.joblist{background:var(--panel);border:1px solid var(--line);border-radius:var(--r-lg);overflow:hidden}
+.jl-cols{display:grid;grid-template-columns:28px minmax(210px,1.5fr) minmax(150px,1fr) minmax(220px,2fr) 150px 116px;gap:16px;align-items:center}
+.jl-head{padding:10px 18px;font-size:12.5px;color:var(--text-3);border-bottom:1px solid var(--line);background:var(--raised)}
+.jl-head .axis{display:flex;justify-content:space-between}
+.job{border-bottom:1px solid var(--line);transition:background-color .2s,opacity .3s var(--ease),transform .3s var(--ease)}
+.job:last-child{border-bottom:0}
+.job:hover{background:var(--raised)}
+.job.off .job-name,.job.off .ribbon{opacity:.55}
+.job.removing{opacity:0;transform:translateX(16px)}
+.job.flash{animation:flash 1.6s var(--ease)}
+@keyframes flash{from{background:var(--accent-soft)}to{background:transparent}}
+.job-main{padding:14px 18px}
+.st{display:grid;place-items:center;font-size:20px}
+.st .ph-check-circle{color:var(--ok)}
+.st .ph-warning{color:var(--warn)}
+.st .ph-x-circle{color:var(--fail)}
+.st .ph-circle-dashed,.st .ph-pause-circle{color:var(--text-3)}
+.st .ph-circle-notch{color:var(--accent);animation:spin .9s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.job-name{border:0;background:none;padding:0;text-align:left;cursor:pointer;min-width:0;display:grid;gap:2px}
+.job-name b{font-weight:600;display:flex;align-items:center;gap:8px}
+.job-name b i{font-size:14px;color:var(--text-3);transition:transform .2s var(--ease)}
+.job.open .job-name b i{transform:rotate(90deg)}
+.job-name .mono{color:var(--text-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sched{display:grid;font-size:13px;line-height:1.4}
+.sched .faint{font-size:12.5px}
+.last{display:grid;font-size:13px;line-height:1.4}
+.acts{display:flex;justify-content:flex-end;gap:4px}
+
+.ribbon{position:relative;height:30px;border-radius:var(--r-sm);
+  background-image:linear-gradient(to right,var(--line) 1px,transparent 1px);background-size:calc(100% / 6) 100%;border-bottom:1px solid var(--line-strong)}
+.tk{position:absolute;bottom:0;width:2px;margin-left:-1px;height:8px;border-radius:1px 1px 0 0;background:var(--tick-log);transform-origin:bottom}
+.tk.diff{height:15px;background:var(--tick-diff)}
+.tk.full{height:24px;width:3px;margin-left:-1.5px;background:var(--tick-full)}
+.tk.part{background:var(--warn)}
+.tk.bad{background:var(--fail)}
+.tk.new{animation:drop .7s var(--spring)}
+@keyframes drop{0%{transform:scaleY(0);background:var(--accent)}60%{background:var(--accent)}100%{transform:scaleY(1)}}
+.ribbon .run-ghost{position:absolute;right:0;bottom:0;width:3px;height:24px;background:var(--accent);opacity:.9;transform-origin:bottom;animation:grow 1.2s var(--ease) infinite alternate}
+@keyframes grow{from{transform:scaleY(.2)}to{transform:scaleY(1)}}
+
+.run-line{display:grid;grid-template-columns:1fr 220px;gap:16px;align-items:center;padding:0 18px 12px 62px;font-size:12.5px;color:var(--text-2)}
+.run-line .bar{height:3px;border-radius:2px;background:var(--sunken);overflow:hidden}
+.run-line .bar i{display:block;height:100%;background:var(--accent);transform-origin:left;transform:scaleX(0);transition:transform .25s linear}
+
+.job-detail{display:grid;grid-template-rows:0fr;transition:grid-template-rows .3s var(--ease)}
+.job.open .job-detail{grid-template-rows:1fr}
+.job-detail > div{overflow:hidden}
+.detail-inner{padding:4px 18px 18px 62px;display:grid;gap:14px}
+.detail-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px 24px;font-size:13px}
+.detail-grid dt{color:var(--text-3);font-size:12.5px}
+.detail-grid dd{margin:0}
+.err-box{display:grid;grid-template-columns:20px 1fr;gap:10px;padding:10px 12px;border-radius:var(--r-md);background:var(--fail-soft);font-size:13px}
+.err-box i{color:var(--fail);font-size:18px}
+.mini{width:100%;border-collapse:collapse;font-size:13px}
+.mini th{text-align:left;font-weight:500;color:var(--text-3);font-size:12.5px;padding:6px 10px 6px 0}
+.mini td{padding:7px 10px 7px 0;border-top:1px solid var(--line)}
+.confirm{display:flex;align-items:center;gap:12px;padding:12px 18px 14px 62px;background:var(--fail-soft);font-size:13px}
+.confirm span{margin-right:auto}
+
+.empty{display:grid;justify-items:start;gap:10px;padding:48px 40px;max-width:520px}
+.empty i{font-size:32px;color:var(--text-3)}
+
+.menu{position:fixed;z-index:var(--z-pop);min-width:180px;padding:4px;background:var(--panel);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--shadow);animation:pop .16s var(--ease);transform-origin:top right}
+@keyframes pop{from{opacity:0;transform:scale(.96)}}
+.menu button{display:flex;align-items:center;gap:10px;width:100%;height:32px;padding:0 10px;border:0;border-radius:var(--r-md);background:none;cursor:pointer;text-align:left}
+.menu button:hover,.menu button:focus-visible{background:var(--sunken)}
+.menu button.danger{color:var(--fail)}
+.menu hr{border:0;border-top:1px solid var(--line);margin:4px}
+
+/* ---------- Analytics ---------- */
+.figures{display:grid;grid-template-columns:repeat(4,1fr);margin-bottom:28px}
+.figures div{padding:4px 24px;border-left:1px solid var(--line)}
+.figures div:first-child{padding-left:0;border-left:0}
+.figures b{display:block;font-size:28px;font-weight:500;letter-spacing:-.03em;line-height:1.2}
+.figures span{color:var(--text-2);font-size:13px}
+.chart{display:flex;align-items:flex-end;gap:4px;height:150px;padding-top:8px}
+.chart .col{flex:1;display:flex;flex-direction:column-reverse;height:100%;cursor:default;border-radius:2px 2px 0 0;overflow:hidden}
+.chart .col i{display:block;transform-origin:bottom;animation:barIn .6s var(--ease) both}
+.chart .col.zero{height:2px!important;background:var(--line-strong)}
+.chart .col .p{background:var(--warn)}
+.chart .col .f{background:var(--fail)}
+.chart .col:hover{filter:brightness(1.15)}
+@keyframes barIn{from{transform:scaleY(0)}}
+.chart-axis{display:flex;justify-content:space-between;font-size:12px;color:var(--text-3);margin-top:6px}
+.legend{display:flex;gap:16px;font-size:12.5px;color:var(--text-2)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:-1px}
+.table-wrap{overflow-x:auto}
+.table{width:100%;border-collapse:collapse;font-size:13px}
+.table th{text-align:left;font-weight:500;color:var(--text-3);font-size:12.5px;padding:10px 12px;border-bottom:1px solid var(--line);white-space:nowrap}
+.table td{padding:9px 12px;border-bottom:1px solid var(--line);white-space:nowrap}
+.table tbody tr:hover{background:var(--raised)}
+.table tr.sel{background:var(--accent-soft)}
+
+/* ---------- Recovery ---------- */
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:24px}
+.tabs button{position:relative;height:40px;padding:0 14px;border:0;background:none;color:var(--text-2);font-weight:500;cursor:pointer}
+.tabs button[aria-selected="true"]{color:var(--text)}
+.tabs button::after{content:"";position:absolute;left:10px;right:10px;bottom:-1px;height:2px;background:var(--accent);transform:scaleX(0);transition:transform .25s var(--spring)}
+.tabs button[aria-selected="true"]::after{transform:scaleX(1)}
+.pit-top{display:flex;gap:14px;align-items:flex-end;flex-wrap:wrap;margin-bottom:18px}
+.pit-top .field{min-width:200px}
+.when{margin-left:auto;text-align:right}
+.when b{display:block;font-size:26px;font-weight:500;letter-spacing:-.02em;line-height:1.1}
+.when span{font-size:13px;color:var(--text-2)}
+.tl{position:relative;user-select:none;touch-action:none}
+.tl-lanes{display:grid;grid-template-columns:92px 1fr;row-gap:0}
+.tl-lane-label{font-size:12.5px;color:var(--text-3);display:flex;align-items:center;height:34px}
+.tl-lane{position:relative;height:34px;border-bottom:1px solid var(--line);background-image:linear-gradient(to right,var(--line) 1px,transparent 1px);background-size:calc(100% / 8) 100%;cursor:crosshair}
+.tl-item{position:absolute;top:50%;transform:translate(-50%,-50%);border-radius:2px;background:var(--tick-log);opacity:.55;transition:background-color .2s,opacity .2s,transform .25s var(--spring)}
+.tl-item.full{width:10px;height:22px;background:var(--tick-full)}
+.tl-item.diff{width:7px;height:16px;background:var(--tick-diff)}
+.tl-item.log{width:3px;height:12px}
+.tl-item.in{background:var(--accent);opacity:1;transform:translate(-50%,-50%) scaleY(1.18)}
+.tl-axis{display:grid;grid-template-columns:92px 1fr}
+.tl-axis div{position:relative;height:22px;font-size:12px;color:var(--text-3)}
+.tl-axis div span{position:absolute;transform:translateX(-50%);top:4px;white-space:nowrap}
+.tl-thumb{position:absolute;top:-8px;bottom:22px;width:0;z-index:2;pointer-events:none}
+.tl-thumb::before{content:"";position:absolute;left:-1px;top:0;bottom:0;width:2px;background:var(--accent)}
+.tl-thumb button{pointer-events:auto;position:absolute;top:-6px;left:-9px;width:18px;height:18px;border-radius:50%;background:var(--accent);border:3px solid var(--panel);box-shadow:var(--shadow);cursor:grab}
+.tl-thumb button:active{cursor:grabbing}
+.tl-shade{position:absolute;top:0;bottom:22px;right:0;background:color-mix(in srgb,var(--bg) 55%,transparent);pointer-events:none}
+.pit-body{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(300px,.8fr);gap:24px;margin-top:24px;align-items:start}
+.chain{list-style:none;margin:0;padding:0;counter-reset:c}
+.chain li{display:grid;grid-template-columns:28px 1fr auto;gap:12px;padding:10px 0;border-bottom:1px solid var(--line);align-items:center;animation:viewIn .3s var(--ease) both}
+.chain li::before{counter-increment:c;content:counter(c);display:grid;place-items:center;width:24px;height:24px;border-radius:var(--r-sm);background:var(--sunken);font-size:12px;font-weight:600;color:var(--text-2)}
+.chain li.stop::before{background:var(--accent);color:var(--accent-ink)}
+.chain .t{font-size:12.5px;color:var(--text-3)}
+.steps{list-style:none;margin:0;padding:0;display:grid;gap:8px;font-size:13px}
+.steps li{display:flex;align-items:center;gap:10px;color:var(--text-3)}
+.steps li i{font-size:16px}
+.steps li.doing{color:var(--text)}
+.steps li.doing i{color:var(--accent);animation:spin .9s linear infinite}
+.steps li.done{color:var(--text-2)}
+.steps li.done i{color:var(--ok)}
+
+/* ---------- Logs ---------- */
+.log-tools{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+.log-tools .day{display:flex;align-items:center;gap:4px;margin-right:8px}
+.log-tools .day b{min-width:120px;text-align:center;font-weight:500}
+.lvl{display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 10px;border-radius:var(--r-md);border:1px solid var(--line-strong);background:var(--panel);cursor:pointer;font-size:13px;font-weight:500;color:var(--text-2)}
+.lvl[aria-pressed="false"]{opacity:.5;text-decoration:line-through}
+.lvl b{font-weight:600}
+.lvl.e b{color:var(--fail)} .lvl.w b{color:var(--warn)}
+.log-box{height:calc(100% - 50px);min-height:320px;overflow:auto;background:var(--panel);border:1px solid var(--line);border-radius:var(--r-lg);padding:8px 0;font-family:var(--mono);font-size:12.5px;line-height:1.7}
+.ll{display:grid;grid-template-columns:110px 40px 1fr;gap:12px;padding:0 16px;white-space:pre-wrap;word-break:break-word}
+.ll:hover{background:var(--raised)}
+.ll .lv{font-weight:500;color:var(--text-3)}
+.ll.ERR .lv,.ll.ERR .msg{color:var(--fail)}
+.ll.WRN .lv{color:var(--warn)}
+.ll .ts{color:var(--text-3)}
+mark{background:color-mix(in srgb,var(--accent) 30%,transparent);color:inherit;border-radius:2px}
+
+/* ---------- Master/detail (notifications) ---------- */
+.md{display:grid;grid-template-columns:260px minmax(0,1fr);gap:24px;align-items:start}
+.md-list{display:grid;gap:2px;position:sticky;top:0}
+.md-list button{display:grid;grid-template-columns:22px 1fr auto;gap:10px;align-items:center;height:40px;padding:0 10px;border:0;border-radius:var(--r-md);background:none;cursor:pointer;text-align:left;color:var(--text)}
+.md-list button i{font-size:18px;color:var(--text-2)}
+.md-list button:hover{background:var(--sunken)}
+.md-list button[aria-current="true"]{background:var(--panel);box-shadow:0 0 0 1px var(--line)}
+.md-list .state{font-size:12px;color:var(--text-3)}
+.md-list .state.on{color:var(--ok)}
+.matrix td,.matrix th{text-align:center}
+.matrix td:first-child,.matrix th:first-child{text-align:left}
+
+/* ---------- Settings ---------- */
+.settings{display:grid;gap:28px;max-width:880px}
+.settings > section{display:grid;gap:14px}
+.choice{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.choice label{display:grid;grid-template-columns:20px 1fr;gap:10px;padding:14px;border:1px solid var(--line-strong);border-radius:var(--r-lg);background:var(--panel);cursor:pointer;transition:border-color .15s,box-shadow .15s}
+.choice label:has(input:checked){border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.choice input{accent-color:var(--accent);margin:3px 0 0}
+.choice b{font-weight:600;display:block}
+.choice span{font-size:13px;color:var(--text-2)}
+.svc{display:flex;align-items:center;gap:12px;padding:12px 16px}
+.svc .grow{margin-right:auto}
+.dests{background:var(--panel);border:1px solid var(--line);border-radius:var(--r-lg)}
+.dest{border-bottom:1px solid var(--line)}
+.dest:last-child{border-bottom:0}
+.dest > button{display:grid;grid-template-columns:24px 1fr auto 18px;gap:12px;align-items:center;width:100%;padding:12px 16px;border:0;background:none;cursor:pointer;text-align:left}
+.dest > button:hover{background:var(--raised)}
+.dest > button i:first-child{font-size:20px;color:var(--text-2)}
+.dest > button .ph-caret-right{transition:transform .2s var(--ease);color:var(--text-3)}
+.dest.open > button .ph-caret-right{transform:rotate(90deg)}
+.dest .body{display:grid;grid-template-rows:0fr;transition:grid-template-rows .3s var(--ease)}
+.dest.open .body{grid-template-rows:1fr}
+.dest .body > div{overflow:hidden}
+.dest .inner{padding:4px 16px 18px 52px;display:grid;gap:14px}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{height:26px;padding:0 10px;border-radius:var(--r-sm);border:1px solid var(--line-strong);background:var(--panel);cursor:pointer;font-size:12.5px}
+.chip:hover{border-color:var(--accent);color:var(--accent)}
+.diag{list-style:none;margin:0;padding:0}
+.diag li{display:grid;grid-template-columns:22px 220px 1fr;gap:12px;padding:10px 16px;border-bottom:1px solid var(--line);font-size:13px;align-items:center}
+.diag li:last-child{border-bottom:0}
+.diag .ph-check-circle{color:var(--ok)} .diag .ph-warning{color:var(--warn)} .diag .ph-x-circle{color:var(--fail)}
+.skel{height:12px;border-radius:3px;background:linear-gradient(90deg,var(--sunken) 25%,var(--raised) 50%,var(--sunken) 75%);background-size:300% 100%;animation:shimmer 1.2s infinite linear}
+@keyframes shimmer{from{background-position:100% 0}to{background-position:-200% 0}}
+.savebar{position:sticky;bottom:-48px;margin:0 -28px -48px;padding:14px 28px;display:flex;gap:10px;justify-content:flex-end;background:var(--bg);border-top:1px solid var(--line)}
+
+/* ---------- Sheet (wizard) ---------- */
+.scrim{position:absolute;inset:36px 0 0 0;z-index:var(--z-scrim);background:rgba(8,16,20,.32);opacity:0;pointer-events:none;transition:opacity .25s var(--ease)}
+.scrim.on{opacity:1;pointer-events:auto}
+.sheet{position:absolute;z-index:var(--z-sheet);top:36px;right:0;bottom:0;width:min(580px,100%);display:flex;flex-direction:column;background:var(--panel);box-shadow:var(--shadow-sheet);transform:translateX(104%);transition:transform .38s var(--ease);visibility:hidden}
+.sheet.on{transform:none;visibility:visible}
+.sheet-head{padding:20px 24px 0;display:grid;gap:16px}
+.sheet-head .top{display:flex;align-items:center;justify-content:space-between}
+.stepper{list-style:none;margin:0;padding:0 0 0;display:grid;grid-template-columns:repeat(4,1fr);gap:8px;border-bottom:1px solid var(--line)}
+.stepper li{display:grid;gap:6px;padding-bottom:12px;font-size:12.5px;color:var(--text-3);position:relative}
+.stepper li::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:2px;background:var(--accent);transform:scaleX(0);transform-origin:left;transition:transform .35s var(--ease)}
+.stepper li.cur,.stepper li.done{color:var(--text)}
+.stepper li.cur::after,.stepper li.done::after{transform:scaleX(1)}
+.stepper li.done::after{opacity:.4}
+.stepper b{font-weight:600;font-size:12px;color:var(--text-3)}
+.stepper li.cur b{color:var(--accent)}
+.sheet-body{flex:1;overflow:auto;padding:24px}
+.sheet-body .step{animation:stepIn .3s var(--ease)}
+@keyframes stepIn{from{opacity:0;transform:translateX(10px)}}
+.sheet-foot{display:flex;gap:10px;padding:16px 24px;border-top:1px solid var(--line)}
+.sheet-foot .grow{margin-right:auto}
+.kinds{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.kinds label{display:grid;gap:6px;padding:14px;border:1px solid var(--line-strong);border-radius:var(--r-lg);cursor:pointer;transition:border-color .15s,box-shadow .15s}
+.kinds label:has(input:checked){border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.kinds input{position:absolute;opacity:0}
+.kinds i{font-size:22px}
+.kinds span{font-size:12.5px;color:var(--text-2)}
+.days{display:flex;gap:6px}
+.days label{display:grid;place-items:center;width:40px;height:32px;border:1px solid var(--line-strong);border-radius:var(--r-md);cursor:pointer;font-size:13px;font-weight:500;transition:background-color .15s,color .15s}
+.days input{position:absolute;opacity:0}
+.days label:has(input:checked){background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.days label:has(input:focus-visible){outline:2px solid var(--accent);outline-offset:2px}
+.opt{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:start;padding:12px 14px;border:1px solid var(--line);border-radius:var(--r-lg)}
+.opt b{font-weight:500}
+.opt span{font-size:12.5px;color:var(--text-2)}
+
+/* ---------- Toasts ---------- */
+#toasts{position:absolute;right:20px;bottom:20px;z-index:var(--z-toast);display:grid;gap:8px;width:380px}
+.toast{display:grid;grid-template-columns:20px 1fr auto;gap:10px;align-items:start;padding:12px 14px;background:var(--panel);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--shadow);animation:toastIn .4s var(--spring);font-size:13px}
+.toast > i{font-size:18px;margin-top:1px}
+.toast.ok > i{color:var(--ok)} .toast.warn > i{color:var(--warn)} .toast.fail > i{color:var(--fail)} .toast.info > i{color:var(--accent)}
+.toast.out{animation:toastOut .25s var(--ease) forwards}
+.toast .btn{margin-top:-4px}
+@keyframes toastIn{from{opacity:0;transform:translateY(12px) scale(.98)}}
+@keyframes toastOut{to{opacity:0;transform:translateX(16px)}}
+
+/* ---------- Responsive ---------- */
+@media (max-width:1100px){
+  .jl-cols{grid-template-columns:28px minmax(180px,1.4fr) minmax(200px,2fr) 130px 104px}
+  .jl-cols .sched{display:none}
+  .pit-body{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}
+}
+</style>
+</head>
+<body>
+
+<!-- ================= Login ================= -->
+<div class="win win-login" id="loginWin" role="dialog" aria-label="UniBackup sign in">
+<button class="win-x" id="loginClose" aria-label="Close"><i class="ph ph-x"></i></button>
+<section id="login">
+  <div class="login-brand">
+    <div class="brand-row"><img src="../../src/UniBackup.UI/UniBackup.png" alt="UniBackup logo"><div><b>UniBackup Pro</b><span>Universal Cloud Edition</span></div></div>
+    <div class="login-copy">
+      <h2>Folders, IIS sites and SQL Server, backed up to the storage you choose.</h2>
+      <ul>
+        <li><i class="ph ph-clock-counter-clockwise"></i><div><b>Restore any database to the second</b>Full, differential and log chains are tracked for you.</div></li>
+        <li><i class="ph ph-lock-simple"></i><div><b>Credentials never stored in plain text</b>Sealed with AES-256-GCM and Windows DPAPI.</div></li>
+        <li><i class="ph ph-bell-simple"></i><div><b>Know when a run fails</b>Email, Slack, Teams, PagerDuty and seven more channels.</div></li>
+      </ul>
+    </div>
+    <span class="faint small">Uniprotech</span>
+  </div>
+  <div class="login-form">
+    <form id="loginForm" novalidate>
+      <div class="server"><span class="live-dot" aria-hidden="true"></span>Service running on SRV-APP01</div>
+      <div><h1>Sign in</h1><p class="muted">Enter the administrator password for this server.</p></div>
+      <label class="field"><span>Password</span>
+        <div class="input-wrap"><input class="input" id="pw" type="password" autocomplete="current-password" aria-describedby="pwErr">
+          <button type="button" class="icon-btn" id="pwToggle" aria-label="Show password"><i class="ph ph-eye"></i></button></div>
+        <span class="err" id="pwErr" hidden><i class="ph ph-warning-circle"></i>Enter the password to continue.</span>
+      </label>
+      <button class="btn btn-primary" type="submit" style="justify-content:center">Sign in</button>
+      <p class="faint small">Prototype: any password signs in.</p>
+    </form>
+  </div>
+</section>
+</div>
+
+<!-- ================= App ================= -->
+<div class="win win-main" id="mainWin" hidden>
+<div class="titlebar" id="titlebar"><img src="../../src/UniBackup.UI/UniBackup.png" alt=""><span>UniBackup Pro</span>
+  <div class="caption"><button data-cap="min" aria-label="Minimize"><i class="ph ph-minus"></i></button><button data-cap="max" aria-label="Maximize"><i class="ph ph-square"></i></button><button data-cap="close" class="close" aria-label="Close"><i class="ph ph-x"></i></button></div></div>
+<div id="app">
+  <nav class="rail" aria-label="Main">
+    <div class="nav" id="nav">
+      <button data-view="jobs" aria-current="page"><i class="ph ph-archive-box"></i><span>Backup jobs</span><b class="count" id="navFail"></b></button>
+      <button data-view="new"><i class="ph ph-plus-square"></i><span>Create backup job</span></button>
+      <button data-view="analytics"><i class="ph ph-chart-bar"></i><span>Analytics &amp; history</span></button>
+      <button data-view="recovery"><i class="ph ph-clock-counter-clockwise"></i><span>Cloud recovery</span></button>
+      <button data-view="logs"><i class="ph ph-scroll"></i><span>Application logs</span></button>
+      <button data-view="notifications"><i class="ph ph-bell-simple"></i><span>Notifications</span></button>
+      <button data-view="settings"><i class="ph ph-gear-six"></i><span>Settings &amp; engine</span></button>
+    </div>
+    <div class="rail-foot">
+      <div class="row"><span class="live-dot" aria-hidden="true"></span><span>SRV-APP01</span></div>
+      <div style="display:grid;gap:6px">
+        <div class="row" style="justify-content:space-between"><span>Temp disk</span><b style="color:var(--text);font-weight:500">148.2 GB free</b></div>
+        <div class="meter" aria-hidden="true"><i style="transform:scaleX(.62)"></i></div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="main-col">
+    <header class="topbar">
+      <h1 id="viewTitle">Backup jobs</h1>
+      <button class="btn btn-quiet hide-sm" id="validateBtn"><i class="ph ph-pulse"></i>Validate health</button>
+      <button class="btn btn-quiet" id="runAllBtn"><i class="ph ph-play"></i>Run all enabled</button>
+      <button class="btn btn-primary" id="newBtn"><i class="ph ph-plus"></i>New job</button>
+    </header>
+    <main id="main" tabindex="-1">
+      <section class="view" id="view-jobs"></section>
+      <section class="view" id="view-analytics" hidden></section>
+      <section class="view" id="view-recovery" hidden></section>
+      <section class="view" id="view-logs" hidden></section>
+      <section class="view" id="view-notifications" hidden></section>
+      <section class="view" id="view-settings" hidden></section>
+    </main>
+  </div>
+</div>
+
+<div class="scrim" id="scrim"></div>
+<aside class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+  <div class="sheet-head">
+    <div class="top"><h2 id="sheetTitle">New backup job</h2><button class="icon-btn" id="sheetClose" aria-label="Close"><i class="ph ph-x"></i></button></div>
+    <ol class="stepper" id="stepper">
+      <li><b>1</b>Source</li><li><b>2</b>Schedule</li><li><b>3</b>Destinations</li><li><b>4</b>Retention</li>
+    </ol>
+  </div>
+  <div class="sheet-body" id="sheetBody"></div>
+  <div class="sheet-foot">
+    <button class="btn btn-ghost grow" id="wizCancel">Cancel</button>
+    <button class="btn btn-quiet" id="wizBack">Back</button>
+    <button class="btn btn-primary" id="wizNext">Next</button>
+  </div>
+</aside>
+<div id="toasts" aria-live="polite"></div>
+</div>
+<div class="closed-msg" id="closedMsg" hidden><p>UniBackup is closed. Scheduled backups keep running in the Windows service.</p><button class="btn btn-quiet" id="reopen">Open UniBackup</button></div>
+<nav class="taskbar" aria-label="Taskbar"><button id="taskBtn" class="running active" aria-label="UniBackup Pro" title="UniBackup Pro"><img src="../../src/UniBackup.UI/UniBackup.png" alt=""></button></nav>
+
+<script>
+"use strict";
+/* ================= Helpers ================= */
+const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
+const MIN=6e4,HOUR=36e5,DAY=864e5,NOW=Date.now();
+let seed=20261121; const rnd=()=>((seed=(seed*16807)%2147483647)-1)/2147483646;
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const pad=n=>String(n).padStart(2,'0');
+const hm=t=>{const d=new Date(t);return pad(d.getHours())+':'+pad(d.getMinutes())};
+const hms=t=>hm(t)+':'+pad(new Date(t).getSeconds());
+const day=t=>new Date(t).toLocaleDateString('en-GB',{day:'numeric',month:'short'});
+const dayTime=t=>day(t)+', '+hm(t);
+const stamp=t=>{const d=new Date(t);return `${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}_${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}`};
+const ago=t=>{if(!t)return 'Never run';const m=Math.round((Date.now()-t)/MIN);if(m<1)return 'Just now';if(m<60)return m+' min ago';const h=Math.floor(m/60);if(h<24)return h+' h '+(m%60?m%60+' min ':'')+'ago';return Math.floor(h/24)+' days ago'};
+const bytes=b=>{if(!b)return '0 B';const u=['B','KB','MB','GB','TB'];let i=0;while(b>=1024&&i<4){b/=1024;i++}return (b<10&&i?b.toFixed(2):b<100&&i?b.toFixed(1):Math.round(b))+' '+u[i]};
+const dur=s=>s<60?Math.round(s)+' s':Math.floor(s/60)+' min '+pad(Math.round(s%60))+' s';
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const STATUS={SUCCESS:['Succeeded','ok','ph-check-circle'],PARTIAL:['Partial','warn','ph-warning'],FAILED:['Failed','fail','ph-x-circle']};
+
+/* ================= Data ================= */
+const destinations=[
+  {id:'s3',name:'Amazon S3',icon:'ph-amazon-logo',on:true,summary:'srv-backups-mumbai, ap-south-1',fields:[['Bucket name','srv-backups-mumbai',1],['Region','ap-south-1',1],['Endpoint','',0,'Leave blank for AWS. Set it for Wasabi, R2, B2 or MinIO.'],['Storage class','STANDARD_IA',0],['Access key ID','AKIA4XQ7T2LM9PZK3R',0],['Secret access key','sealed',0,'',1],['Retention days','30',0]]},
+  {id:'gdrive',name:'Google Drive',icon:'ph-google-drive-logo',on:true,summary:'it-backups account, folder UniBackup',fields:[['Drive account','it-backups',1],['Retention days','45',0]]},
+  {id:'nas',name:'Local or network folder',icon:'ph-hard-drives',on:true,summary:'\\\\nas01\\backup\\SRV-APP01',fields:[['Folder or UNC path','\\\\nas01\\backup\\SRV-APP01',1],['Retention days','14',0]]},
+  {id:'azure',name:'Azure Blob Storage',icon:'ph-cloud',on:false,fields:[['Connection string','',1,'',1],['Container','',1],['Access tier','Cool',0],['Retention days','30',0]]},
+  {id:'dropbox',name:'Dropbox',icon:'ph-dropbox-logo',on:false,fields:[['Access token','',1,'',1],['Remote folder','/UniBackup',0]]},
+  {id:'onedrive',name:'OneDrive',icon:'ph-cloud',on:false,fields:[['Microsoft Graph token','',1,'',1],['Account type','business',0],['Remote folder','/UniBackup',0]]},
+  {id:'box',name:'Box',icon:'ph-package',on:false,fields:[['Developer token','',1,'',1],['Folder ID','0',0]]},
+  {id:'webdav',name:'WebDAV (Nextcloud, ownCloud, NAS)',icon:'ph-globe-simple',on:false,fields:[['Server URL','',1],['Username','',1],['Password','',1,'',1]]},
+  {id:'ftp',name:'FTP or FTPS',icon:'ph-swap',on:false,fields:[['Host','',1],['Port','21',0],['Username','',1],['Password','',1,'',1]]},
+  {id:'sftp',name:'SFTP',icon:'ph-terminal-window',on:false,fields:[['Host','',1],['Port','22',0],['Username','',1],['Password or key passphrase','',1,'',1]]},
+];
+const destName=id=>destinations.find(d=>d.id===id)?.name??id;
+
+const jobs=[
+  {id:'j1',name:'Sales ledger SQL',kind:'sql',source:'SRV-DB01\\SQL2022',dbs:[['SalesLedger',1.62e9],['Inventory',3.84e8],['HRPayroll',1.41e8]],schedule:{freq:'daily',time:'01:00',diffH:4,logM:15},enabled:true,dest:['s3','gdrive'],encrypt:true,retention:30},
+  {id:'j2',name:'IIS sites',kind:'iis',source:'D:\\inetpub\\sites',size:4.12e8,schedule:{freq:'daily',time:'02:30'},enabled:true,dest:['s3'],vss:true,retention:30},
+  {id:'j3',name:'Finance shares',kind:'folder',source:'\\\\fs02\\finance',size:6.83e9,schedule:{freq:'daily',time:'23:00'},enabled:true,dest:['s3','nas'],vss:true,retention:60},
+  {id:'j4',name:'Reporting warehouse',kind:'sql',source:'SRV-DW\\BI',dbs:[['ReportingDW',8.9e9],['StagingDW',2.2e9]],schedule:{freq:'daily',time:'00:30',diffH:0,logM:30},enabled:true,dest:['gdrive'],retention:30,failSince:NOW-6.4*HOUR,error:'Cannot reach the staging share \\\\SRV-DW\\UBStage (network path not found). Check that the share exists and the UniBackup service account can write to it.'},
+  {id:'j5',name:'Dev scratch',kind:'folder',source:'E:\\dev\\scratch',size:9.4e8,schedule:{freq:'daily',time:'21:00'},enabled:false,dest:['nas'],retention:7,neverRun:true},
+];
+const KIND={sql:['SQL Server','ph-database'],folder:['Folder','ph-folder-simple'],iis:['IIS site','ph-globe-simple']};
+
+function slots(from,to,stepMin,offsetMin){const out=[];const d=new Date(from);d.setHours(0,0,0,0);
+  for(let t=d.getTime()+(offsetMin%stepMin)*MIN;t<=to;t+=stepMin*MIN)if(t>from)out.push(t);return out}
+function planned(job,from,to){
+  const s=job.schedule,[h,m]=s.time.split(':').map(Number),fo=h*60+m,ev=[],taken=new Set();
+  slots(from,to,1440,fo).forEach(t=>{taken.add(t);ev.push({t,type:'FULL'})});
+  if(job.kind==='sql'){
+    if(s.diffH)slots(from,to,s.diffH*60,fo).forEach(t=>{if(!taken.has(t)){taken.add(t);ev.push({t,type:'DIFF'})}});
+    if(s.logM)slots(from,to,s.logM,0).forEach(t=>{if(!taken.has(t))ev.push({t,type:'LOG'})});
+  }
+  return ev.sort((a,b)=>a.t-b.t);
+}
+function makeRecord(job,t,type,status){
+  let size,secs,files=[];
+  if(job.kind==='sql'){
+    job.dbs.forEach(([db,s])=>{const f=type==='FULL'?s*(.42+rnd()*.03):type==='DIFF'?s*(.03+rnd()*.05):s*(.004+rnd()*.012);
+      files.push({db,type,size:f,file:`${db}_${type}_${stamp(t+2000)}.${type==='LOG'?'trn':'bak'}`})});
+    size=files.reduce((a,f)=>a+f.size,0);secs=size/(42e6+rnd()*30e6)+4;
+  }else{size=job.size*(.97+rnd()*.06);secs=size/(55e6+rnd()*20e6)+6}
+  const archive=job.kind==='sql'?`${files.length} databases`:`${job.name.replace(/\s+/g,'-')}_${stamp(t)}.zip`;
+  return {t,jobId:job.id,type,status,size:status==='FAILED'?0:size,secs:status==='FAILED'?2+rnd()*6:secs,archive,files};
+}
+const history=[];
+jobs.forEach(job=>{
+  if(job.neverRun)return;
+  planned(job,NOW-30*DAY,NOW-60e3).forEach(({t,type})=>{
+    let st='SUCCESS';
+    if(job.failSince&&t>=job.failSince)st='FAILED';
+    else if(job.id==='j3'&&t>NOW-DAY)st='PARTIAL';
+    else{const r=rnd();if(r<.006)st='FAILED';else if(r<.014)st='PARTIAL'}
+    history.push(makeRecord(job,t,type,st));
+  });
+});
+history.sort((a,b)=>a.t-b.t);
+const runsOf=id=>history.filter(r=>r.jobId===id);
+const lastRun=id=>{for(let i=history.length-1;i>=0;i--)if(history[i].jobId===id)return history[i];return null};
+
+/* ================= State & shell ================= */
+const state={view:'jobs',q:'',filter:'all',open:new Set(),confirm:null,running:new Map(),queue:[]};
+const TITLES={jobs:'Backup jobs',analytics:'Analytics & history',recovery:'Cloud recovery',logs:'Application logs',notifications:'Notifications',settings:'Settings & engine'};
+
+function toast(msg,kind='ok',action){
+  const icons={ok:'ph-check-circle',warn:'ph-warning',fail:'ph-x-circle',info:'ph-info'};
+  const el=document.createElement('div');el.className='toast '+kind;el.setAttribute('role',kind==='fail'?'alert':'status');
+  el.innerHTML=`<i class="ph ${icons[kind]}"></i><div>${msg}</div>${action?`<button class="btn btn-quiet sm">${esc(action[0])}</button>`:'<span></span>'}`;
+  if(action)el.querySelector('button').onclick=()=>{action[1]();close()};
+  $('#toasts').append(el);
+  const close=()=>{el.classList.add('out');setTimeout(()=>el.remove(),260)};
+  setTimeout(close,action?7000:4500);
+}
+
+function show(view){
+  if(view==='new'){openWizard();return}
+  state.view=view;
+  $$('#nav button').forEach(b=>b.setAttribute('aria-current',b.dataset.view===view?'page':'false'));
+  $$('.view').forEach(v=>{const on=v.id==='view-'+view;v.hidden=!on;if(on){v.classList.remove('enter');void v.offsetWidth;v.classList.add('enter')}});
+  $('#viewTitle').textContent=TITLES[view];
+  ({jobs:renderJobs,analytics:renderAnalytics,recovery:renderRecovery,logs:renderLogs,notifications:renderNotifications,settings:renderSettings})[view]();
+  $('#main').scrollTop=0;
+}
+$('#nav').addEventListener('click',e=>{const b=e.target.closest('button');if(b)show(b.dataset.view)});
+
+/* ================= Login ================= */
+$('#pwToggle').onclick=()=>{const i=$('#pw'),v=i.type==='password';i.type=v?'text':'password';$('#pwToggle').innerHTML=`<i class="ph ${v?'ph-eye-slash':'ph-eye'}"></i>`;$('#pwToggle').setAttribute('aria-label',v?'Hide password':'Show password')};
+$('#loginForm').onsubmit=e=>{
+  e.preventDefault();
+  if(!$('#pw').value){$('#pwErr').hidden=false;$('#pw').classList.add('bad');$('#pw').focus();return}
+  $('#loginWin').classList.add('login-out');
+  setTimeout(()=>{setWin('main');$('#app').classList.add('app-in');show('jobs');$('#main').focus({preventScroll:true})},260);
+};
+$('#pw').oninput=()=>{$('#pwErr').hidden=true;$('#pw').classList.remove('bad')};
+
+/* ================= Windows ================= */
+// win: 'login' | 'main' | 'min' | 'closed'. Signed-in state survives minimize but not close.
+let win='login';
+function setWin(next){
+  win=next;
+  $('#loginWin').hidden=next!=='login';$('#loginWin').classList.remove('login-out');
+  $('#mainWin').hidden=next!=='main';$('#mainWin').classList.remove('minimizing');
+  $('#closedMsg').hidden=next!=='closed';
+  $('#taskBtn').classList.toggle('running',next!=='closed');
+  $('#taskBtn').classList.toggle('active',next==='login'||next==='main');
+  if(next==='login'){$('#pw').value='';$('#pw').focus()}
+}
+$('#titlebar').addEventListener('click',e=>{const b=e.target.closest('[data-cap]');if(!b)return;
+  if(b.dataset.cap==='min'){$('#mainWin').classList.add('minimizing');setTimeout(()=>setWin('min'),190)}
+  if(b.dataset.cap==='max')toggleMax();
+  if(b.dataset.cap==='close'){closeWizard();setWin('closed')}});
+$('#titlebar').addEventListener('dblclick',e=>{if(!e.target.closest('.caption'))toggleMax()});
+function toggleMax(){const m=$('#mainWin').classList.toggle('max'),b=$('[data-cap="max"]');
+  b.innerHTML=`<i class="ph ${m?'ph-copy':'ph-square'}"></i>`;b.setAttribute('aria-label',m?'Restore':'Maximize')}
+$('#loginClose').onclick=()=>setWin('closed');
+$('#reopen').onclick=()=>setWin('login');
+$('#taskBtn').onclick=()=>{if(win==='closed')setWin('login');else if(win==='min')setWin('main');else if(win==='main')$('[data-cap="min"]').click()};
+
+/* ================= Jobs ================= */
+function jobStatus(j){
+  if(state.running.has(j.id))return {key:'RUN',icon:'ph-circle-notch',label:'Running'};
+  if(!j.enabled)return {key:'OFF',icon:'ph-pause-circle',label:'Paused'};
+  const r=lastRun(j.id);if(!r)return {key:'NEW',icon:'ph-circle-dashed',label:'Never run'};
+  const [label,,icon]=STATUS[r.status];return {key:r.status,icon,label};
+}
+const needsAttention=j=>{const s=jobStatus(j).key;return s==='FAILED'||s==='PARTIAL'};
+function schedText(j){
+  if(!j.enabled)return `<span>Paused</span><span class="faint">Was ${j.schedule.freq} at ${j.schedule.time}</span>`;
+  const s=j.schedule,first=(s.freq==='weekly'?`${j.kind==='sql'?'Full ':''}${(s.days||[]).join(', ')}`:j.kind==='sql'?'Full daily':'Daily')+` at ${s.time}`;
+  const extra=j.kind==='sql'?[s.diffH&&`diff every ${s.diffH} h`,s.logM&&`log every ${s.logM} min`].filter(Boolean).join(', '):'';
+  return `<span>${first}</span>${extra?`<span class="faint">${extra[0].toUpperCase()+extra.slice(1)}</span>`:''}`;
+}
+function ribbon(j){
+  const from=Date.now()-DAY,span=DAY;
+  const ticks=runsOf(j.id).filter(r=>r.t>from).map(r=>{
+    const cls=(r.type==='FULL'?'full':r.type==='DIFF'?'diff':'log')+(r.status==='FAILED'?' bad':r.status==='PARTIAL'?' part':'')+(r.fresh?' new':'');
+    return `<i class="tk ${cls}" style="left:${((r.t-from)/span*100).toFixed(2)}%" title="${j.kind==='sql'?r.type:'Archive'} at ${hm(r.t)}: ${STATUS[r.status][0].toLowerCase()}"></i>`}).join('');
+  const n=runsOf(j.id).filter(r=>r.t>from),bad=n.filter(r=>r.status!=='SUCCESS').length;
+  return `<div class="ribbon" role="img" aria-label="${n.length} runs in the last 24 hours, ${bad} with problems">${ticks}${state.running.has(j.id)?'<i class="run-ghost"></i>':''}</div>`;
+}
+function detail(j){
+  const r=lastRun(j.id),items=[];
+  items.push(['Source',`<span class="mono">${esc(j.source)}</span>`]);
+  items.push(['Destinations',j.dest.map(destName).join(', ')]);
+  items.push(['Retention',j.kind==='sql'?'Kept until chain-aware retention ships':`${j.retention} days`]);
+  items.push(['Protection',[j.vss&&'VSS snapshot',j.encrypt&&'AES-256-GCM encrypted'].filter(Boolean).join(', ')||'None']);
+  let extra='';
+  if(j.error&&r?.status==='FAILED')extra+=`<div class="err-box"><i class="ph ph-x-circle"></i><div><b>Last ${runsOf(j.id).filter(x=>x.t>=j.failSince).length} runs failed.</b> ${esc(j.error)} The next run that succeeds takes a full backup, because the log chain was interrupted.</div></div>`;
+  if(j.kind==='sql'){
+    const lastFull=[...runsOf(j.id)].reverse().find(x=>x.type==='FULL'&&x.status==='SUCCESS');
+    const since=lastFull?runsOf(j.id).filter(x=>x.t>lastFull.t&&x.status==='SUCCESS'):[];
+    extra+=`<table class="mini"><thead><tr><th>Database</th><th>Data size</th><th>Last full</th><th>Chain since then</th></tr></thead><tbody>${j.dbs.map(([db,s])=>`<tr><td>${esc(db)}</td><td>${bytes(s)}</td><td>${lastFull?dayTime(lastFull.t):'None yet'}</td><td>${lastFull?`${since.filter(x=>x.type==='DIFF').length} diff, ${since.filter(x=>x.type==='LOG').length} log`:'Next run takes a full'}</td></tr>`).join('')}</tbody></table>`;
+  }else if(r){items.push(['Last archive',`<span class="mono">${esc(r.archive)}</span>`])}
+  return `<div class="detail-inner"><dl class="detail-grid">${items.map(([a,b])=>`<div><dt>${a}</dt><dd>${b}</dd></div>`).join('')}</dl>${extra}</div>`;
+}
+function rowHTML(j){
+  const st=jobStatus(j),r=lastRun(j.id),run=state.running.get(j.id),open=state.open.has(j.id);
+  return `<article class="job${open?' open':''}${j.enabled?'':' off'}" data-id="${j.id}">
+    <div class="job-main jl-cols">
+      <span class="st" title="${st.label}"><i class="ph ${st.icon}" aria-hidden="true"></i><span class="sr">${st.label}</span></span>
+      <button class="job-name" data-act="expand" aria-expanded="${open}"><b>${esc(j.name)}<i class="ph ph-caret-right"></i></b><span class="mono">${KIND[j.kind][0]}: ${esc(j.source)}</span></button>
+      <div class="sched">${schedText(j)}</div>
+      ${ribbon(j)}
+      <div class="last">${run?`<span style="color:var(--accent)">Running now</span><span class="faint">${run.type}</span>`:r?`<span>${ago(r.t)}</span><span class="faint">${r.status==='FAILED'?'Failed after '+dur(r.secs):bytes(r.size)+' in '+dur(r.secs)}</span>`:'<span class="faint">Never run</span>'}</div>
+      <div class="acts">
+        <button class="btn btn-quiet sm" data-act="run" ${run||!j.enabled?'disabled':''}><i class="ph ph-play"></i>Run</button>
+        <button class="icon-btn" data-act="menu" aria-label="More actions for ${esc(j.name)}" aria-haspopup="menu"><i class="ph ph-dots-three"></i></button>
+      </div>
+    </div>
+    ${run?`<div class="run-line"><span class="phase">${esc(run.phase)}</span><span class="bar"><i style="transform:scaleX(${run.p})"></i></span></div>`:''}
+    ${state.confirm===j.id?`<div class="confirm"><span>Delete <b>${esc(j.name)}</b>? Backups already in the cloud stay where they are.</span><button class="btn btn-danger sm" data-act="del-yes">Delete job</button><button class="btn btn-quiet sm" data-act="del-no">Cancel</button></div>`:''}
+    <div class="job-detail"><div>${detail(j)}</div></div>
+  </article>`;
+}
+function updateRow(j,flash){const el=$(`.job[data-id="${j.id}"]`);if(!el)return;el.outerHTML=rowHTML(j);if(flash)$(`.job[data-id="${j.id}"]`).classList.add('flash');updateNavCount()}
+function updateNavCount(){const n=jobs.filter(needsAttention).length;$('#navFail').textContent=n||'';$('#navFail').title=n?n+' jobs need attention':''}
+function renderJobs(){
+  const v=$('#view-jobs'),q=state.q.toLowerCase();
+  const list=jobs.filter(j=>(!q||(j.name+' '+j.source).toLowerCase().includes(q))&&(state.filter==='all'||(state.filter==='sql'&&j.kind==='sql')||(state.filter==='files'&&j.kind!=='sql')||(state.filter==='attention'&&needsAttention(j))));
+  const failing=jobs.filter(j=>j.enabled&&jobStatus(j).key==='FAILED');
+  const enabled=jobs.filter(j=>j.enabled).length;
+  v.innerHTML=`
+    ${failing.map(j=>`<div class="notice" role="alert"><i class="ph ph-x-circle"></i><div><b>${esc(j.name)}</b> has failed every run since ${hm(j.failSince||lastRun(j.id).t)}. Its newest restorable backup is ${ago([...runsOf(j.id)].reverse().find(r=>r.status==='SUCCESS')?.t)}.</div><button class="btn btn-quiet sm" data-goto="${j.id}">Show details</button></div>`).join('')}
+    <div class="jobs-tools">
+      <p class="summary">${jobs.length} jobs, ${enabled} on a schedule</p>
+      <div class="seg" role="group" aria-label="Filter jobs">${[['all','All'],['sql','SQL Server'],['files','Folders and sites'],['attention','Needs attention']].map(([k,l])=>`<button data-filter="${k}" aria-pressed="${state.filter===k}">${l}</button>`).join('')}</div>
+      <label class="search"><i class="ph ph-magnifying-glass"></i><span class="sr">Search jobs</span><input class="input" id="jobSearch" placeholder="Search by name or path" value="${esc(state.q)}"></label>
+    </div>
+    ${list.length?`<div class="joblist">
+      <div class="jl-head jl-cols"><span></span><span>Job</span><span class="sched">Schedule</span><span class="axis"><span>24 h ago</span><span>12 h</span><span>Now</span></span><span class="last">Last run</span><span></span></div>
+      ${list.map(rowHTML).join('')}
+    </div>`:`<div class="empty panel">${jobs.length?`<i class="ph ph-magnifying-glass"></i><h2>No jobs match${state.q?` "${esc(state.q)}"`:' this filter'}</h2><p class="muted">Clear the search or pick another filter.</p><button class="btn btn-quiet" data-act="clear">Show all jobs</button>`:`<i class="ph ph-archive-box"></i><h2>No backup jobs yet</h2><p class="muted">Create a job to back up a folder, an IIS site or a SQL Server instance on a schedule.</p><button class="btn btn-primary" data-act="new"><i class="ph ph-plus"></i>New job</button>`}</div>`}`;
+  const s=$('#jobSearch');s.oninput=()=>{state.q=s.value;renderJobs();const n=$('#jobSearch');n.focus();n.setSelectionRange(n.value.length,n.value.length)};
+  updateNavCount();
+}
+$('#view-jobs').addEventListener('click',e=>{
+  const f=e.target.closest('[data-filter]');if(f){state.filter=f.dataset.filter;renderJobs();return}
+  const g=e.target.closest('[data-goto]');if(g){state.open.add(g.dataset.goto);renderJobs();$(`.job[data-id="${g.dataset.goto}"]`)?.scrollIntoView({behavior:'smooth',block:'center'});return}
+  const b=e.target.closest('[data-act]');if(!b)return;
+  const row=b.closest('.job'),j=row&&jobs.find(x=>x.id===row.dataset.id);
+  switch(b.dataset.act){
+    case 'expand':state.open.has(j.id)?state.open.delete(j.id):state.open.add(j.id);row.classList.toggle('open');b.setAttribute('aria-expanded',state.open.has(j.id));break;
+    case 'run':enqueue(j);break;
+    case 'menu':openMenu(b,j);break;
+    case 'del-no':state.confirm=null;updateRow(j);break;
+    case 'del-yes':row.classList.add('removing');setTimeout(()=>{jobs.splice(jobs.indexOf(j),1);state.confirm=null;renderJobs();toast(`Deleted ${esc(j.name)}.`,'ok',['Undo',()=>{jobs.push(j);renderJobs()}])},280);break;
+    case 'clear':state.q='';state.filter='all';renderJobs();break;
+    case 'new':openWizard();break;
+  }
+});
+function openMenu(anchor,j){
+  closeMenu();
+  const m=document.createElement('div');m.className='menu';m.setAttribute('role','menu');
+  const types=j.kind==='sql'?[['FULL','Run full backup'],['DIFF','Run differential'],['LOG','Run log backup']]:[];
+  m.innerHTML=`${types.map(([t,l])=>`<button role="menuitem" data-t="${t}"><i class="ph ph-play"></i>${l}</button>`).join('')}${types.length?'<hr>':''}
+    <button role="menuitem" data-m="edit"><i class="ph ph-pencil-simple"></i>Edit job</button>
+    <button role="menuitem" data-m="toggle"><i class="ph ${j.enabled?'ph-pause':'ph-play-circle'}"></i>${j.enabled?'Pause schedule':'Resume schedule'}</button>
+    <button role="menuitem" data-m="history"><i class="ph ph-list-bullets"></i>View history</button><hr>
+    <button role="menuitem" class="danger" data-m="delete"><i class="ph ph-trash"></i>Delete job</button>`;
+  document.body.append(m);
+  const r=anchor.getBoundingClientRect();m.style.top=Math.min(r.bottom+4,innerHeight-m.offsetHeight-8)+'px';m.style.left=Math.max(8,r.right-m.offsetWidth)+'px';
+  m.querySelector('button').focus();
+  m.onclick=e=>{const b=e.target.closest('button');if(!b)return;closeMenu();
+    if(b.dataset.t){if(!j.enabled)return toast('Resume the schedule before running this job.','warn');return enqueue(j,b.dataset.t)}
+    ({edit:()=>openWizard(j),toggle:()=>{j.enabled=!j.enabled;updateRow(j,true);toast(j.enabled?`${esc(j.name)} will run on schedule again.`:`${esc(j.name)} is paused. It won't run until you resume it.`,'info')},
+      history:()=>{show('analytics');$('#hJob').value=j.id;renderHistoryTable()},delete:()=>{state.confirm=j.id;updateRow(j)}})[b.dataset.m]();
+  };
+  m.onkeydown=e=>{const items=$$('button',m),i=items.indexOf(document.activeElement);
+    if(e.key==='ArrowDown'){e.preventDefault();items[(i+1)%items.length].focus()}
+    if(e.key==='ArrowUp'){e.preventDefault();items[(i-1+items.length)%items.length].focus()}
+    if(e.key==='Escape'){closeMenu();anchor.focus()}};
+}
+function closeMenu(){$('.menu')?.remove()}
+document.addEventListener('pointerdown',e=>{if(!e.target.closest('.menu,[data-act="menu"]'))closeMenu()});
+
+/* ---------- Simulated run engine ---------- */
+function enqueue(j,forced){
+  if(state.running.has(j.id)||state.queue.some(q=>q.j===j))return;
+  state.queue.push({j,forced});
+  if(state.queue.length===1&&!state.busy)pump();
+  else toast(`${esc(j.name)} is queued. It starts when the current run finishes.`,'info');
+}
+async function pump(){
+  state.busy=true;
+  while(state.queue.length){const {j,forced}=state.queue.shift();await runJob(j,forced)}
+  state.busy=false;
+}
+async function runJob(j,forced){
+  let type=forced||'FULL',note='';
+  if(j.kind==='sql'&&!forced){const s=j.schedule;type=s.logM?'LOG':s.diffH?'DIFF':'FULL'}
+  if(j.kind==='sql'&&type!=='FULL'&&lastRun(j.id)?.status==='FAILED'){note=`${type} promoted to FULL: the last backup in the chain never reached every destination.`;type='FULL'}
+  const phases=[];
+  if(j.kind==='sql'){j.dbs.forEach(([db])=>{phases.push([`Backing up ${db} (${type})`,3],[`Verifying ${db}`,1],...j.dest.map(d=>[`Uploading ${db} to ${destName(d)}`,2]))})}
+  else{phases.push(['Checking source folder',1]);if(j.vss)phases.push(['Taking VSS snapshot',1]);phases.push(['Compressing',5],...j.dest.map(d=>[`Uploading to ${destName(d)}`,3]),['Applying retention',1])}
+  const total=phases.reduce((a,p)=>a+p[1],0),ms=j.kind==='sql'?7000:6000;
+  const run={type:j.kind==='sql'?`${type} backup`:'Archive',phase:phases[0][0],p:0};
+  state.running.set(j.id,run);updateRow(j);
+  if(note)toast(note,'info');
+  let done=0;
+  for(const [label,w] of phases){
+    run.phase=label;const el=$(`.job[data-id="${j.id}"] .phase`);if(el)el.textContent=label;
+    const steps=Math.max(4,w*5);
+    for(let i=1;i<=steps;i++){await sleep(ms*w/total/steps);run.p=(done+w*i/steps)/total;const b=$(`.job[data-id="${j.id}"] .bar i`);if(b)b.style.transform=`scaleX(${run.p})`}
+    done+=w;
+  }
+  state.running.delete(j.id);
+  const rec=makeRecord(j,Date.now(),type,'SUCCESS');rec.fresh=true;history.push(rec);
+  delete j.neverRun;
+  if(state.view==='jobs'){const failingBefore=$$('.notice').length;if(failingBefore&&j.failSince){j.failSince=null;renderJobs()}else updateRow(j,true)}
+  setTimeout(()=>{rec.fresh=false},1200);
+  toast(`${esc(j.name)} finished. ${bytes(rec.size)} uploaded to ${j.dest.map(destName).join(' and ')} in ${dur(rec.secs)}.`,'ok');
+}
+$('#runAllBtn').onclick=()=>{const list=jobs.filter(j=>j.enabled);if(state.view!=='jobs')show('jobs');list.forEach(j=>{if(!state.running.has(j.id))state.queue.push({j})});toast(`Running ${list.length} enabled jobs, one after another.`,'info');if(!state.busy)pump()};
+$('#newBtn').onclick=()=>openWizard();
+$('#validateBtn').onclick=()=>{show('settings');runDiagnostics(true)};
+
+/* ================= Wizard ================= */
+const W={};
+function openWizard(job){
+  Object.assign(W,{step:1,edit:job||null,kind:job?.kind||'folder',name:job?.name||'',path:job&&job.kind!=='sql'?job.source:'',instance:job?.kind==='sql'?job.source:'',auth:'windows',user:'',pass:'',dbMode:'all',exclude:'',
+    freq:job?.schedule.freq||'daily',time:job?.schedule.time||'01:00',days:job?.schedule.days||['Mon','Tue','Wed','Thu','Fri'],diffH:job?.schedule.diffH??4,logM:job?.schedule.logM??15,
+    dest:new Set(job?.dest||['s3']),prefix:'',retention:job?.retention||30,gfs:[7,4,12],encrypt:!!job?.encrypt,p1:'',p2:'',lock:0,errors:{}});
+  $('#sheetTitle').textContent=job?`Edit ${job.name}`:'New backup job';
+  renderStep();
+  $('#scrim').classList.add('on');$('#sheet').classList.add('on');
+  W.returnFocus=document.activeElement;
+  setTimeout(()=>$('#sheetBody input, #sheetBody select')?.focus(),300);
+}
+function closeWizard(){$('#scrim').classList.remove('on');$('#sheet').classList.remove('on');W.returnFocus?.focus?.()}
+$('#sheetClose').onclick=closeWizard;$('#wizCancel').onclick=closeWizard;$('#scrim').onclick=closeWizard;
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('#sheet').classList.contains('on'))closeWizard()});
+const errHTML=k=>W.errors[k]?`<span class="err" id="e-${k}"><i class="ph ph-warning-circle"></i>${W.errors[k]}</span>`:'';
+const bad=k=>W.errors[k]?` bad" aria-invalid="true" aria-describedby="e-${k}`:'';
+function renderStep(){
+  $$('#stepper li').forEach((li,i)=>{li.className=i+1<W.step?'done':i+1===W.step?'cur':'';li.toggleAttribute('aria-current',i+1===W.step)});
+  $('#wizBack').hidden=W.step===1;
+  $('#wizNext').textContent=W.step<4?'Next':W.edit?'Save changes':'Create job';
+  const sql=W.kind==='sql';let h='';
+  if(W.step===1)h=`
+    <fieldset class="kinds" style="border:0;padding:0;margin:0"><legend class="sr">What to back up</legend>
+      ${[['folder','Folder','Files and folders on a disk or share'],['iis','IIS site','A website folder and its config'],['sql','SQL Server','Full, differential and log backups']].map(([k,l,d])=>`<label><input type="radio" name="kind" value="${k}" ${W.kind===k?'checked':''}><i class="ph ${KIND[k][1]}"></i><b>${l}</b><span>${d}</span></label>`).join('')}
+    </fieldset>
+    <label class="field"><span>Job name</span><input class="input${bad('name')}" data-w="name" value="${esc(W.name)}" placeholder="${sql?'Sales ledger SQL':'Finance shares'}"><span class="help">Used in archive file names and alerts.</span>${errHTML('name')}</label>
+    ${sql?`
+      <label class="field"><span>SQL Server instance</span><input class="input${bad('instance')}" data-w="instance" value="${esc(W.instance)}" placeholder="localhost\\SQL2022">${errHTML('instance')}</label>
+      <div class="field"><span>Sign in with</span><div class="seg" role="group">${[['windows','Windows account'],['sql','SQL login']].map(([k,l])=>`<button type="button" data-auth="${k}" aria-pressed="${W.auth===k}">${l}</button>`).join('')}</div></div>
+      ${W.auth==='sql'?`<div class="grid2"><label class="field"><span>Username</span><input class="input${bad('user')}" data-w="user" value="${esc(W.user)}">${errHTML('user')}</label><label class="field"><span>Password</span><input class="input" type="password" data-w="pass" value="${esc(W.pass)}"></label></div>`:''}
+      <label class="field"><span>Databases</span><select class="input" data-w="dbMode"><option value="all" ${W.dbMode==='all'?'selected':''}>All user databases</option><option value="all+sys" ${W.dbMode==='all+sys'?'selected':''}>All databases, including system</option></select></label>
+      <label class="field"><span>Skip databases matching</span><input class="input" data-w="exclude" value="${esc(W.exclude)}" placeholder="*test*, report_*"><span class="help">Comma-separated wildcards.</span></label>`
+    :`<label class="field"><span>${W.kind==='iis'?'Site folder':'Folder to back up'}</span><input class="input mono${bad('path')}" data-w="path" value="${esc(W.path)}" placeholder="${W.kind==='iis'?'D:\\inetpub\\sites':'D:\\Data or \\\\server\\share'}">${errHTML('path')}</label>
+      <label class="check"><input type="checkbox" checked> Use a VSS snapshot so open and locked files are copied</label>`}`;
+  if(W.step===2)h=`
+    <div class="grid2">
+      <label class="field"><span>${sql?'Full backup':'Run'}</span><select class="input" data-w="freq"><option value="daily" ${W.freq==='daily'?'selected':''}>Every day</option><option value="weekly" ${W.freq==='weekly'?'selected':''}>On selected days</option></select></label>
+      <label class="field"><span>At</span><input class="input${bad('time')}" type="time" data-w="time" value="${W.time}">${errHTML('time')}</label>
+    </div>
+    ${W.freq==='weekly'?`<fieldset class="field" style="border:0;padding:0;margin:0"><legend style="font-size:13px;font-weight:500;margin-bottom:6px">Days</legend><div class="days">${['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].map(d=>`<label><input type="checkbox" data-day="${d}" ${W.days.includes(d)?'checked':''}>${d[0]+d.slice(1,2)}</label>`).join('')}</div>${errHTML('days')}</fieldset>`:''}
+    ${sql?`<div class="stack" style="margin-top:20px"><h3>Between full backups</h3>
+      <div class="grid2"><label class="field"><span>Differential every</span><select class="input" data-w="diffH">${[[0,'Off'],[2,'2 hours'],[4,'4 hours'],[6,'6 hours'],[12,'12 hours']].map(([v,l])=>`<option value="${v}" ${+W.diffH===v?'selected':''}>${l}</option>`).join('')}</select></label>
+      <label class="field"><span>Transaction log every</span><select class="input" data-w="logM">${[[0,'Off'],[5,'5 minutes'],[15,'15 minutes'],[30,'30 minutes'],[60,'1 hour']].map(([v,l])=>`<option value="${v}" ${+W.logM===v?'selected':''}>${l}</option>`).join('')}</select><span class="help">Needs the full recovery model. Databases in simple recovery are skipped for log backups.</span></label></div></div>`:''}
+    <p class="muted small" style="margin-top:18px">${scheduleSentence()}</p>`;
+  if(W.step===3)h=`
+    <div class="stack">${destinations.filter(d=>d.on).map(d=>`<label class="opt"><input type="checkbox" class="check" data-dest="${d.id}" ${W.dest.has(d.id)?'checked':''} style="accent-color:var(--accent);width:16px;height:16px;margin-top:3px"><div><b>${d.name}</b><br><span class="mono">${esc(d.summary)}</span></div></label>`).join('')}
+    ${errHTML('dest')}
+    <p class="faint small">Uploads go to every selected destination. Set up more destinations in Settings.</p>
+    <label class="field"><span>Folder inside each destination</span><input class="input mono" data-w="prefix" value="${esc(W.prefix)}" placeholder="SRV-APP01/${esc(W.name||'job-name')}"><span class="help">Leave blank to use the server's default folder.</span></label></div>`;
+  if(W.step===4)h=`
+    <div class="stack">
+      ${sql?`<div class="opt"><i class="ph ph-info" style="font-size:18px;color:var(--accent)"></i><div><b>SQL backups are kept for now</b><br><span>Age-based deletion would break restore chains. Chain-aware retention arrives in a later release.</span></div></div>`
+      :`<label class="field"><span>Keep backups for</span><div style="display:flex;gap:8px;align-items:center"><input class="input${bad('retention')}" type="number" min="1" data-w="retention" value="${W.retention}" style="width:100px"> days</div>${errHTML('retention')}</label>
+      <div class="field"><span>Also keep (grandfather-father-son)</span><div class="grid3">${['Daily','Weekly','Monthly'].map((l,i)=>`<label class="field"><span class="faint small">${l}</span><input class="input" type="number" min="0" data-gfs="${i}" value="${W.gfs[i]}"></label>`).join('')}</div></div>`}
+      <label class="switch"><input type="checkbox" data-w="encrypt" ${W.encrypt?'checked':''}><span><b style="font-weight:500">Encrypt backups</b><br><span class="faint small">AES-256-GCM before upload. Without the passphrase, nobody can restore them, including you.</span></span></label>
+      ${W.encrypt?`<div class="grid2"><label class="field"><span>Passphrase</span><input class="input${bad('p1')}" type="password" data-w="p1" value="${esc(W.p1)}">${errHTML('p1')}</label><label class="field"><span>Type it again</span><input class="input${bad('p2')}" type="password" data-w="p2" value="${esc(W.p2)}">${errHTML('p2')}</label></div>`:''}
+      <label class="field"><span>Lock against deletion (S3 Object Lock)</span><div style="display:flex;gap:8px;align-items:center"><input class="input" type="number" min="0" data-w="lock" value="${W.lock}" style="width:100px"> days</div><span class="help">0 turns it off. Locked backups can't be deleted or changed, even by ransomware with your keys.</span></label>
+    </div>`;
+  $('#sheetBody').innerHTML=`<div class="step stack">${h}</div>`;
+}
+function scheduleSentence(){
+  const sql=W.kind==='sql',base=W.freq==='daily'?`every day at ${W.time}`:`on ${W.days.join(', ')||'no days yet'} at ${W.time}`;
+  if(!sql)return `Runs ${base}.`;
+  const parts=[+W.diffH&&`a differential every ${W.diffH} hours`,+W.logM&&`a log backup every ${W.logM} minutes`].filter(Boolean);
+  return `Full backup ${base}${parts.length?', then '+parts.join(' and '):''}.`;
+}
+$('#sheetBody').addEventListener('input',e=>{
+  const t=e.target;
+  if(t.dataset.w){W[t.dataset.w]=t.type==='checkbox'?t.checked:t.value;if(W.errors[t.dataset.w]){delete W.errors[t.dataset.w];t.classList.remove('bad');t.parentElement.querySelector('.err')?.remove()}}
+  if(t.dataset.gfs)W.gfs[t.dataset.gfs]=t.value;
+  if(t.dataset.day){W.days=$$('[data-day]:checked').map(x=>x.dataset.day)}
+  if(t.dataset.dest){t.checked?W.dest.add(t.dataset.dest):W.dest.delete(t.dataset.dest)}
+  if(t.name==='kind'){W.kind=t.value;W.errors={};renderStep()}
+  if(['freq','encrypt','diffH','logM'].includes(t.dataset.w))renderStep();
+  else if(W.step===2){const p=$('#sheetBody p.muted');if(p)p.textContent=scheduleSentence()}
+});
+$('#sheetBody').addEventListener('click',e=>{const a=e.target.closest('[data-auth]');if(a){W.auth=a.dataset.auth;renderStep()}});
+function validate(){
+  const e={},sql=W.kind==='sql';
+  if(W.step===1){
+    if(!W.name.trim())e.name='Give the job a name.';
+    else if(jobs.some(j=>j!==W.edit&&j.name.toLowerCase()===W.name.trim().toLowerCase()))e.name='Another job already uses this name.';
+    if(sql&&!W.instance.trim())e.instance='Enter the instance, like localhost or SRV-DB01\\SQL2022.';
+    if(sql&&W.auth==='sql'&&!W.user.trim())e.user='Enter the SQL login.';
+    if(!sql&&!/^([a-zA-Z]:\\|\\\\[^\\]+\\)/.test(W.path.trim()))e.path='Enter a full path, like D:\\Data or \\\\server\\share.';
+  }
+  if(W.step===2){if(!/^\d\d:\d\d$/.test(W.time))e.time='Pick a time.';if(W.freq==='weekly'&&!W.days.length)e.days='Pick at least one day.'}
+  if(W.step===3&&!W.dest.size)e.dest='Pick at least one destination.';
+  if(W.step===4){
+    if(!sql&&!(+W.retention>=1))e.retention='Keep backups for at least 1 day.';
+    if(W.encrypt&&W.p1.length<12)e.p1='Use at least 12 characters.';
+    else if(W.encrypt&&W.p1!==W.p2)e.p2="The passphrases don't match.";
+  }
+  W.errors=e;return !Object.keys(e).length;
+}
+$('#wizBack').onclick=()=>{W.errors={};W.step--;renderStep()};
+$('#wizNext').onclick=()=>{
+  if(!validate()){renderStep();$('#sheetBody .bad, #sheetBody .err')?.focus?.();return}
+  if(W.step<4){W.step++;renderStep();$('#sheetBody input:not([type=radio]), #sheetBody select')?.focus();return}
+  const sql=W.kind==='sql',sched={freq:W.freq,time:W.time,days:W.days,...(sql?{diffH:+W.diffH,logM:+W.logM}:{})};
+  let j=W.edit;
+  if(j){Object.assign(j,{name:W.name.trim(),kind:W.kind,source:sql?W.instance.trim():W.path.trim(),schedule:sched,dest:[...W.dest],retention:+W.retention,encrypt:W.encrypt})}
+  else{j={id:'j'+Date.now(),name:W.name.trim(),kind:W.kind,source:sql?W.instance.trim():W.path.trim(),schedule:sched,enabled:true,dest:[...W.dest],retention:+W.retention,encrypt:W.encrypt,neverRun:true,
+    size:3e8+rnd()*9e8,dbs:sql?[['AppMain',2.4e9],['AppAudit',3.1e8]]:undefined};jobs.unshift(j)}
+  closeWizard();show('jobs');$(`.job[data-id="${j.id}"]`)?.classList.add('flash');
+  toast(W.edit?`Saved changes to ${esc(j.name)}.`:`Created ${esc(j.name)}. First run at ${W.time}.`,'ok',W.edit?null:['Run now',()=>enqueue(j)]);
+};
+
+/* ================= Analytics ================= */
+function renderAnalytics(){
+  const from=Date.now()-30*DAY,rs=history.filter(r=>r.t>from);
+  const ok=rs.filter(r=>r.status==='SUCCESS').length,badN=rs.length-ok,up=rs.reduce((a,r)=>a+r.size,0);
+  const days=[...Array(30)].map((_,i)=>{const d=new Date(Date.now()-(29-i)*DAY);d.setHours(0,0,0,0);return d.getTime()});
+  const per=days.map(d=>{const x=rs.filter(r=>r.t>=d&&r.t<d+DAY);return [d,x.length,x.filter(r=>r.status==='PARTIAL').length,x.filter(r=>r.status==='FAILED').length]});
+  const max=Math.max(1,...per.map(p=>p[2]+p[3]));
+  $('#view-analytics').innerHTML=`
+    <div class="figures">
+      <div><b>${rs.length.toLocaleString('en')}</b><span>Runs in the last 30 days</span></div>
+      <div><b>${(ok/rs.length*100).toFixed(1)}%</b><span>Succeeded</span></div>
+      <div><b style="color:${badN?'var(--fail)':'inherit'}">${badN}</b><span>Failed or partial</span></div>
+      <div><b>${bytes(up)}</b><span>Uploaded after compression</span></div>
+    </div>
+    <div class="panel panel-pad" style="margin-bottom:28px">
+      <div class="section-head"><div><h2>Problems per day</h2><p>Failed and partial runs. Point at a day to see its totals.</p></div><div class="legend"><span><i style="background:var(--warn)"></i>Partial</span><span><i style="background:var(--fail)"></i>Failed</span></div></div>
+      <div class="chart">${per.map(([d,n,p,f],i)=>`<div class="col${p+f?'':' zero'}" title="${day(d)}: ${n} runs, ${p} partial, ${f} failed" style="height:${((p+f)/max*100).toFixed(1)}%">${[['p',p],['f',f]].map(([c,k])=>k?`<i class="${c}" style="height:${(k/(p+f)*100).toFixed(2)}%;animation-delay:${i*14}ms"></i>`:'').join('')}</div>`).join('')}</div>
+      <div class="chart-axis"><span>${day(days[0])}</span><span>${day(days[14])}</span><span>Today</span></div>
+    </div>
+    <div class="section-head"><div><h2>Run history</h2><p>Every run, newest first.</p></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <select class="input" id="hJob" style="width:200px" aria-label="Job"><option value="">All jobs</option>${jobs.map(j=>`<option value="${j.id}">${esc(j.name)}</option>`).join('')}</select>
+        <select class="input" id="hStatus" style="width:150px" aria-label="Result"><option value="">Any result</option><option value="SUCCESS">Succeeded</option><option value="PARTIAL">Partial</option><option value="FAILED">Failed</option></select>
+        <button class="btn btn-quiet" id="csvBtn"><i class="ph ph-download-simple"></i>Export CSV</button>
+      </div></div>
+    <div class="panel table-wrap"><table class="table"><thead><tr><th>Started</th><th>Job</th><th>Type</th><th>Result</th><th>Size</th><th>Duration</th><th>Output</th></tr></thead><tbody id="hBody"></tbody></table></div>
+    <div style="margin-top:12px"><button class="btn btn-quiet" id="hMore">Show 25 more</button></div>`;
+  state.hLimit=25;
+  $('#hJob').onchange=$('#hStatus').onchange=()=>{state.hLimit=25;renderHistoryTable()};
+  $('#hMore').onclick=()=>{state.hLimit+=25;renderHistoryTable()};
+  $('#csvBtn').onclick=exportCsv;
+  renderHistoryTable();
+}
+function filteredHistory(){const j=$('#hJob')?.value,s=$('#hStatus')?.value;return history.filter(r=>(!j||r.jobId===j)&&(!s||r.status===s)).reverse()}
+function renderHistoryTable(){
+  const rows=filteredHistory(),name=id=>jobs.find(j=>j.id===id)?.name||'Deleted job';
+  $('#hBody').innerHTML=rows.length?rows.slice(0,state.hLimit).map(r=>{const [l,c]=STATUS[r.status];const k=jobs.find(j=>j.id===r.jobId)?.kind;
+    return `<tr><td>${dayTime(r.t)}</td><td>${esc(name(r.jobId))}</td><td>${k==='sql'?r.type:'Archive'}</td><td><span class="badge ${c}">${l}</span></td><td>${r.size?bytes(r.size):''}</td><td>${dur(r.secs)}</td><td class="mono">${esc(r.archive)}</td></tr>`}).join('')
+    :`<tr><td colspan="7" style="padding:32px 12px;color:var(--text-2)">No runs match these filters.</td></tr>`;
+  $('#hMore').hidden=rows.length<=state.hLimit;
+}
+function exportCsv(){
+  const rows=filteredHistory(),name=id=>jobs.find(j=>j.id===id)?.name||'Deleted job';
+  const q=v=>`"${String(v).replace(/"/g,'""')}"`;
+  const csv=['timestamp,job_name,type,status,size_bytes,duration_seconds,archive',...rows.map(r=>[new Date(r.t).toISOString(),name(r.jobId),r.type,r.status,Math.round(r.size),r.secs.toFixed(1),r.archive].map(q).join(','))].join('\r\n');
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='unibackup-history.csv';a.click();
+  toast(`Exported ${rows.length.toLocaleString('en')} runs to unibackup-history.csv.`,'ok');
+}
+
+/* ================= Recovery ================= */
+/* Restore chain: newest FULL at or before t, newest DIFF after that FULL, then every LOG after the anchor
+   up to t, plus the first LOG past t (it holds the transactions up to t). STOPAT only when t is not a backup end. */
+function resolveChain(items,t){
+  const upto=items.filter(b=>b.t<=t);
+  const full=[...upto].reverse().find(b=>b.type==='FULL');if(!full)return null;
+  const diff=[...upto].reverse().find(b=>b.type==='DIFF'&&b.t>full.t);
+  const anchor=diff||full;
+  const logs=items.filter(b=>b.type==='LOG'&&b.t>anchor.t&&b.t<=t);
+  const lastT=logs.length?logs[logs.length-1].t:anchor.t,stop=t>lastT;
+  if(stop){const next=items.find(b=>b.type==='LOG'&&b.t>t);if(!next)return null;logs.push(next)}
+  return {full,diff,logs,stopAt:stop?t:null};
+}
+(()=>{const I=[{t:0,type:'FULL'},{t:10,type:'LOG'},{t:20,type:'LOG'},{t:30,type:'DIFF'},{t:40,type:'LOG'}];
+  const a=resolveChain(I,25),b=resolveChain(I,35),c=resolveChain(I,30);
+  console.assert(a.full.t===0&&!a.diff&&a.logs.map(l=>l.t).join()==='10,20,40'&&a.stopAt===25,'chain before diff');
+  console.assert(b.diff.t===30&&b.logs.map(l=>l.t).join()==='40'&&b.stopAt===35,'chain after diff');
+  console.assert(c.diff.t===30&&!c.logs.length&&c.stopAt===null,'exact diff point');
+  console.assert(resolveChain(I,-1)===null,'no full yet');})();
+
+const rec={tab:'pit',job:'j1',db:'SalesLedger',t:0,items:[],from:0,to:0,snap:null};
+function pitItems(){
+  const j=jobs.find(x=>x.id===rec.job);if(!j)return [];
+  const from=Date.now()-2*DAY;
+  return runsOf(j.id).filter(r=>r.t>from&&r.status==='SUCCESS').map(r=>{const f=r.files.find(f=>f.db===rec.db);return f&&{t:r.t,type:r.type,file:f.file,size:f.size}}).filter(Boolean);
+}
+function renderRecovery(){
+  const sqlJobs=jobs.filter(j=>j.kind==='sql');
+  if(!sqlJobs.some(j=>j.id===rec.job)&&sqlJobs[0]){rec.job=sqlJobs[0].id;rec.db=sqlJobs[0].dbs[0][0]}
+  $('#view-recovery').innerHTML=`
+    <div class="tabs" role="tablist">${[['pit','SQL point in time'],['files','Files and folders'],['drill','Restore drills']].map(([k,l])=>`<button role="tab" data-tab="${k}" aria-selected="${rec.tab===k}">${l}</button>`).join('')}</div>
+    <div id="recBody"></div>`;
+  ({pit:renderPit,files:renderFiles,drill:renderDrill})[rec.tab]();
+}
+$('#view-recovery').addEventListener('click',e=>{const t=e.target.closest('[data-tab]');if(t){rec.tab=t.dataset.tab;renderRecovery()}});
+function renderPit(){
+  const sqlJobs=jobs.filter(j=>j.kind==='sql'),j=jobs.find(x=>x.id===rec.job);
+  if(!j){$('#recBody').innerHTML='<div class="empty panel"><i class="ph ph-database"></i><h2>No SQL Server jobs</h2><p class="muted">Create a SQL Server job to restore databases to a point in time.</p></div>';return}
+  rec.items=pitItems();rec.from=Date.now()-2*DAY;rec.to=Date.now();
+  const first=rec.items.find(b=>b.type==='FULL'),last=rec.items[rec.items.length-1];
+  rec.min=first?.t;rec.max=last?.t;if(!rec.t||rec.t>rec.max||rec.t<rec.min)rec.t=rec.max;
+  const pos=t=>((t-rec.from)/(rec.to-rec.from)*100).toFixed(3)+'%';
+  const lane=(type,cls)=>rec.items.map((b,i)=>b.type===type?`<i class="tl-item ${cls}" data-i="${i}" style="left:${pos(b.t)}"></i>`:'').join('');
+  const marks=[];for(let t=Math.ceil(rec.from/(6*HOUR))*6*HOUR;t<rec.to;t+=6*HOUR)marks.push(t);
+  const staleNote=j.failSince&&lastRun(j.id)?.status==='FAILED'?`<div class="err-box" style="margin-bottom:16px"><i class="ph ph-warning"></i><div>Runs since ${hm(j.failSince)} failed, so the newest point you can restore is ${dayTime(rec.max)}.</div></div>`:'';
+  $('#recBody').innerHTML=`
+    ${staleNote}
+    <div class="pit-top">
+      <label class="field"><span>Job</span><select class="input" id="pJob">${sqlJobs.map(x=>`<option value="${x.id}" ${x.id===rec.job?'selected':''}>${esc(x.name)}</option>`).join('')}</select></label>
+      <label class="field"><span>Database</span><select class="input" id="pDb">${j.dbs.map(([d])=>`<option ${d===rec.db?'selected':''}>${esc(d)}</option>`).join('')}</select></label>
+      <label class="field"><span>Restore to</span><input class="input" type="datetime-local" step="1" id="pWhen"></label>
+      <button class="btn btn-quiet" id="pLatest">Latest</button>
+      <div class="when"><b id="pBig"></b><span id="pSub"></span></div>
+    </div>
+    <div class="panel panel-pad">
+      <div class="tl" id="tl">
+        <div class="tl-lanes" id="lanes">
+          <span class="tl-lane-label">Full</span><div class="tl-lane">${lane('FULL','full')}</div>
+          <span class="tl-lane-label">Differential</span><div class="tl-lane">${lane('DIFF','diff')}</div>
+          <span class="tl-lane-label">Log</span><div class="tl-lane">${lane('LOG','log')}</div>
+        </div>
+        <div class="tl-axis"><span></span><div>${marks.map(t=>`<span style="left:${pos(t)}">${new Date(t).getHours()===0?day(t):hm(t)}</span>`).join('')}</div></div>
+        <div id="thumbLayer" style="position:absolute;left:92px;right:0;top:0;bottom:0;pointer-events:none">
+          <div class="tl-shade" id="shade"></div>
+          <div class="tl-thumb" id="thumb"><button role="slider" aria-label="Restore point" aria-valuemin="${rec.min}" aria-valuemax="${rec.max}" id="thumbBtn"></button></div>
+        </div>
+      </div>
+      <p class="faint small" style="margin-top:10px">Drag the marker or click the timeline. Arrow keys move 1 minute, Shift moves 1 hour.</p>
+    </div>
+    <div class="pit-body">
+      <div><div class="section-head"><div><h2>Files SQL Server will restore</h2><p id="chainSum"></p></div></div><ol class="chain" id="chain"></ol></div>
+      <div class="panel panel-pad stack" id="restoreForm">
+        <h2>Restore</h2>
+        <label class="field"><span>Target instance</span><input class="input mono" id="rInst" value="${esc(j.source)}"></label>
+        <label class="field"><span>Restore as</span><input class="input mono" id="rAs" placeholder="${esc(rec.db)}"><span class="help">Leave blank to overwrite the original database.</span></label>
+        ${j.encrypt?`<label class="field"><span>Encryption passphrase</span><input class="input" type="password" id="rPass"></label>`:''}
+        <div id="rConfirm"></div>
+        <button class="btn btn-primary" id="rGo" style="justify-content:center"><i class="ph ph-clock-counter-clockwise"></i>Restore database</button>
+        <ul class="steps" id="rSteps" hidden></ul>
+      </div>
+    </div>`;
+  $('#pJob').onchange=e=>{rec.job=e.target.value;rec.db=jobs.find(x=>x.id===rec.job).dbs[0][0];rec.t=0;renderPit()};
+  $('#pDb').onchange=e=>{rec.db=e.target.value;renderPit()};
+  $('#pLatest').onclick=()=>setT(rec.max);
+  $('#pWhen').onchange=e=>{const t=new Date(e.target.value).getTime();if(!isNaN(t))setT(t)};
+  const lanes=$('#lanes'),fromX=x=>{const L=$$('.tl-lane',lanes)[0].getBoundingClientRect();return rec.from+(x-L.left)/L.width*(rec.to-rec.from)};
+  let drag=false;
+  lanes.onpointerdown=e=>{drag=true;lanes.setPointerCapture(e.pointerId);setT(fromX(e.clientX))};
+  $('#thumbBtn').onpointerdown=e=>{drag=true;e.target.setPointerCapture(e.pointerId)};
+  const move=e=>{if(drag)setT(fromX(e.clientX))},up=()=>drag=false;
+  lanes.onpointermove=move;$('#thumbBtn').onpointermove=move;lanes.onpointerup=up;$('#thumbBtn').onpointerup=up;
+  $('#thumbBtn').onkeydown=e=>{const s=e.shiftKey?HOUR:MIN;const m={ArrowLeft:-s,ArrowDown:-s,ArrowRight:s,ArrowUp:s}[e.key];
+    if(m){e.preventDefault();setT(rec.t+m)}if(e.key==='Home'){e.preventDefault();setT(rec.min)}if(e.key==='End'){e.preventDefault();setT(rec.max)}};
+  $('#rGo').onclick=startRestore;
+  setT(rec.t);
+}
+function setT(t){
+  if(!rec.min)return;
+  rec.t=Math.round(Math.min(rec.max,Math.max(rec.min,t))/1000)*1000;
+  const p=(rec.t-rec.from)/(rec.to-rec.from)*100;
+  $('#thumb').style.left=p+'%';$('#shade').style.left=p+'%';
+  const btn=$('#thumbBtn');btn.setAttribute('aria-valuenow',rec.t);btn.setAttribute('aria-valuetext',dayTime(rec.t)+':'+pad(new Date(rec.t).getSeconds()));
+  const d=new Date(rec.t);$('#pWhen').value=`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${hms(rec.t)}`;
+  $('#pBig').textContent=hms(rec.t);$('#pSub').textContent=day(rec.t)+(rec.t===rec.max?', newest restorable point':'');
+  const c=resolveChain(rec.items,rec.t),inSet=new Set(c?[c.full,c.diff,...c.logs].filter(Boolean):[]);
+  $$('.tl-item').forEach(el=>el.classList.toggle('in',inSet.has(rec.items[+el.dataset.i])));
+  if(!c){$('#chain').innerHTML='';$('#chainSum').textContent='No full backup before this point.';return}
+  const files=[c.full,c.diff,...c.logs].filter(Boolean),total=files.reduce((a,f)=>a+f.size,0);
+  $('#chainSum').textContent=`${files.length} files, ${bytes(total)} to download.`;
+  $('#chain').innerHTML=files.map(f=>`<li><div><span class="mono">${esc(f.file)}</span><br><span class="t">${f.type==='FULL'?'Full':f.type==='DIFF'?'Differential':'Log'} backup, ${dayTime(f.t)}</span></div><span class="faint small">${bytes(f.size)}</span></li>`).join('')+
+    `<li class="stop"><div>${c.stopAt?`Stop at <b>${dayTime(c.stopAt)}:${pad(new Date(c.stopAt).getSeconds())}</b> and bring the database online`:'Bring the database online'}</div><span class="faint small mono">${c.stopAt?'STOPAT':'RECOVERY'}</span></li>`;
+}
+async function startRestore(){
+  const as=$('#rAs').value.trim(),overwrite=!as||as===rec.db,box=$('#rConfirm');
+  const j=jobs.find(x=>x.id===rec.job);
+  if(j.encrypt&&!$('#rPass').value){$('#rPass').classList.add('bad');box.innerHTML=`<span class="err"><i class="ph ph-warning-circle"></i>These backups are encrypted. Enter the passphrase.</span>`;return}
+  if(overwrite&&!box.dataset.ok){
+    box.innerHTML=`<label class="field"><span style="color:var(--fail)">This replaces ${esc(rec.db)} on ${esc($('#rInst').value)}. Type the database name to confirm.</span><input class="input" id="rTyped" autocomplete="off"></label>`;
+    $('#rTyped').focus();$('#rTyped').oninput=e=>{box.dataset.ok=e.target.value===rec.db?'1':''};$('#rGo').innerHTML='<i class="ph ph-clock-counter-clockwise"></i>Replace database';return}
+  if(overwrite&&box.dataset.ok!=='1')return;
+  const c=resolveChain(rec.items,rec.t),target=as||rec.db;
+  const steps=[`Download ${1+!!c.diff+c.logs.length} files from ${destName(j.dest[0])}`,`Restore full backup from ${hm(c.full.t)}`,...(c.diff?[`Restore differential from ${hm(c.diff.t)}`]:[]),...(c.logs.length?[`Apply ${c.logs.length} log backups`]:[]),c.stopAt?`Stop at ${hms(c.stopAt)} and bring ${target} online`:`Bring ${target} online`];
+  const ul=$('#rSteps');ul.hidden=false;$('#rGo').disabled=true;
+  ul.innerHTML=steps.map(s=>`<li><i class="ph ph-circle"></i>${esc(s)}</li>`).join('');
+  for(const li of $$('li',ul)){li.className='doing';li.firstChild.className='ph ph-circle-notch';await sleep(900+rnd()*700);li.className='done';li.firstChild.className='ph ph-check-circle'}
+  $('#rGo').disabled=false;$('#rGo').innerHTML='<i class="ph ph-clock-counter-clockwise"></i>Restore database';box.innerHTML='';delete box.dataset.ok;
+  toast(`Restored ${esc(target)} to ${dayTime(rec.t)}:${pad(new Date(rec.t).getSeconds())}.`,'ok');
+}
+function renderFiles(){
+  const snaps=history.filter(r=>r.status!=='FAILED'&&jobs.find(j=>j.id===r.jobId&&j.kind!=='sql')).slice(-14).reverse();
+  rec.snap=rec.snap||snaps[0];
+  $('#recBody').innerHTML=`
+    <div class="section-head"><div><h2>Archives in the cloud</h2><p>Pick an archive, then choose where to put the files.</p></div><button class="btn btn-quiet" id="snapRefresh"><i class="ph ph-arrow-clockwise"></i>Refresh</button></div>
+    <div class="panel table-wrap" id="snapTable"><table class="table"><thead><tr><th></th><th>Archive</th><th>Job</th><th>Stored in</th><th>Taken</th><th>Size</th></tr></thead><tbody>
+    ${snaps.map((r,i)=>{const j=jobs.find(x=>x.id===r.jobId);return `<tr class="${r===rec.snap?'sel':''}" data-snap="${history.indexOf(r)}"><td><input type="radio" name="snap" aria-label="Select ${esc(r.archive)}" ${r===rec.snap?'checked':''} style="accent-color:var(--accent)"></td><td class="mono">${esc(r.archive)}</td><td>${esc(j.name)}</td><td>${j.dest.map(destName).join(', ')}</td><td>${dayTime(r.t)}</td><td>${bytes(r.size)}</td></tr>`}).join('')}
+    </tbody></table></div>
+    <div class="panel panel-pad" style="margin-top:20px;display:grid;grid-template-columns:2fr 1fr auto;gap:14px;align-items:end">
+      <label class="field"><span>Restore to folder</span><input class="input mono" id="fDest" value="D:\\Restore"></label>
+      <label class="field"><span>If a file already exists</span><select class="input" id="fMode"><option>Keep both, rename the restored copy</option><option>Skip it</option><option>Overwrite it</option></select></label>
+      <button class="btn btn-primary" id="fGo"><i class="ph ph-download-simple"></i>Restore archive</button>
+    </div>
+    <div class="run-line" id="fProg" hidden style="padding:12px 0 0"><span class="phase"></span><span class="bar"><i></i></span></div>`;
+  $('#snapTable').onclick=e=>{const tr=e.target.closest('[data-snap]');if(!tr)return;rec.snap=history[+tr.dataset.snap];$$('#snapTable tr').forEach(r=>r.classList.toggle('sel',r===tr));tr.querySelector('input').checked=true};
+  $('#snapRefresh').onclick=()=>{$('#snapTable tbody').innerHTML=[...Array(5)].map(()=>`<tr><td colspan="6"><div class="skel" style="width:${50+rnd()*40}%"></div></td></tr>`).join('');setTimeout(renderFiles,900)};
+  $('#fGo').onclick=async()=>{
+    const d=$('#fDest');if(!/^([a-zA-Z]:\\|\\\\)/.test(d.value)){d.classList.add('bad');toast('Enter a full folder path, like D:\\Restore.','fail');return}
+    d.classList.remove('bad');const p=$('#fProg');p.hidden=false;$('#fGo').disabled=true;
+    for(const [l,n] of [['Downloading archive',10],['Checking integrity',4],['Extracting files',10]]){$('.phase',p).textContent=l;for(let i=0;i<n;i++){await sleep(90);const b=$('.bar i',p);b.style.transform=`scaleX(${Math.min(1,parseFloat(b.style.transform.slice(7)||0)+1/24)})`}}
+    p.hidden=true;$('#fGo').disabled=false;$('.bar i',p).style.transform='scaleX(0)';
+    toast(`Restored ${esc(rec.snap.archive)} to ${esc(d.value)}.`,'ok');
+  };
+}
+const drill={last:{db:'SalesLedger',at:NOW-3*DAY-5*HOUR,secs:252,ok:true}};
+function renderDrill(){
+  const l=drill.last;
+  $('#recBody').innerHTML=`
+    <div class="pit-body" style="margin-top:0">
+      <div class="stack">
+        <div><h2>Prove your backups restore</h2><p class="muted" style="max-width:62ch;margin-top:4px">A drill downloads the newest chain, restores it into a scratch database, runs DBCC CHECKDB and then drops the copy. Production databases are never touched.</p></div>
+        <div class="panel panel-pad stack">
+          <div style="display:flex;gap:12px;align-items:center"><i class="ph ${l.ok?'ph-check-circle':'ph-x-circle'}" style="font-size:28px;color:var(--${l.ok?'ok':'fail'})"></i>
+          <div><b>Last drill ${l.ok?'passed':'failed'}</b><br><span class="muted small">${esc(l.db)}, ${ago(l.at)}. Restored and checked in ${dur(l.secs)}.</span></div></div>
+          <dl class="detail-grid"><div><dt>Measured recovery time</dt><dd>${dur(l.secs)}</dd></div><div><dt>CHECKDB</dt><dd>No consistency errors</dd></div><div><dt>Scratch database</dt><dd class="mono">UniBackup_Drill_${esc(l.db)}</dd></div></dl>
+        </div>
+      </div>
+      <div class="panel panel-pad stack">
+        <label class="field"><span>Database to drill</span><select class="input" id="dDb">${jobs.filter(j=>j.kind==='sql').flatMap(j=>j.dbs.map(([d])=>`<option>${esc(d)}</option>`)).join('')}</select></label>
+        <button class="btn btn-primary" id="dGo" style="justify-content:center"><i class="ph ph-test-tube"></i>Run restore drill</button>
+        <ul class="steps" id="dSteps" hidden></ul>
+      </div>
+    </div>`;
+  $('#dGo').onclick=async()=>{
+    const db=$('#dDb').value,ul=$('#dSteps'),t0=Date.now();ul.hidden=false;$('#dGo').disabled=true;
+    ul.innerHTML=['Download newest chain','Restore to UniBackup_Drill_'+db,'Run DBCC CHECKDB','Drop the scratch database'].map(s=>`<li><i class="ph ph-circle"></i>${esc(s)}</li>`).join('');
+    for(const li of $$('li',ul)){li.className='doing';li.firstChild.className='ph ph-circle-notch';await sleep(1000+rnd()*900);li.className='done';li.firstChild.className='ph ph-check-circle'}
+    drill.last={db,at:Date.now(),secs:180+rnd()*140,ok:true};toast(`Drill passed. ${esc(db)} restored and checked in ${dur(drill.last.secs)}.`,'ok');renderDrill();
+  };
+}
+
+/* ================= Logs ================= */
+const logState={day:0,levels:{ERR:true,WRN:true,INF:true},q:''};
+function logLines(offset){
+  const d=new Date(Date.now()-offset*DAY);d.setHours(0,0,0,0);const a=d.getTime(),b=a+DAY,out=[];
+  let s=a%997;const r=()=>((s=(s*16807)%2147483647)%1000)/1000;
+  out.push([a+1200,'INF','Log file opened. UniBackup service 2.0.0 on SRV-APP01']);
+  history.filter(x=>x.t>=a&&x.t<b).forEach(x=>{
+    const j=jobs.find(y=>y.id===x.jobId);if(!j)return;const ms=n=>Math.round(x.t+n*1000+r()*900);
+    out.push([ms(0),'INF',`Job "${j.name}" started (${j.kind==='sql'?x.type:'archive'})`]);
+    if(x.status==='FAILED'){out.push([ms(2),'ERR',`Job "${j.name}": ${j.error||'Upload to '+destName(j.dest[0])+' timed out after 3 retries'}`]);out.push([ms(x.secs),'WRN',`Job "${j.name}" finished: FAILED`]);return}
+    if(j.kind==='sql')x.files.forEach(f=>j.dest.forEach(dd=>out.push([ms(x.secs*.6),'INF',`Uploaded ${f.file} to ${destName(dd)} (${bytes(f.size)})`])));
+    else{out.push([ms(x.secs*.5),'INF',`Created ${x.archive} (${bytes(x.size)})`]);if(x.status==='PARTIAL')out.push([ms(x.secs*.55),'WRN',`Skipped ${j.source}\\Q4\\forecast-v3.xlsx: access denied`])}
+    out.push([ms(x.secs),'INF',`Job "${j.name}" finished: ${x.status} in ${dur(x.secs)}`]);
+  });
+  return out.sort((p,q)=>p[0]-q[0]);
+}
+function renderLogs(){
+  const lines=logLines(logState.day),c={ERR:0,WRN:0,INF:0};lines.forEach(l=>c[l[1]]++);
+  const d=Date.now()-logState.day*DAY;
+  $('#view-logs').innerHTML=`
+    <div class="log-tools">
+      <div class="day"><button class="icon-btn" id="lPrev" aria-label="Previous day" ${logState.day>=29?'disabled':''}><i class="ph ph-caret-left"></i></button><b>${logState.day?day(d):'Today'}</b><button class="icon-btn" id="lNext" aria-label="Next day" ${logState.day?'':'disabled'}><i class="ph ph-caret-right"></i></button></div>
+      ${[['ERR','e','Errors'],['WRN','w','Warnings'],['INF','i','Info']].map(([k,cl,l])=>`<button class="lvl ${cl}" data-lvl="${k}" aria-pressed="${logState.levels[k]}"><b>${c[k]}</b>${l}</button>`).join('')}
+      <label class="search" style="margin-left:auto;width:240px"><i class="ph ph-magnifying-glass"></i><span class="sr">Find in this log</span><input class="input" id="lFind" placeholder="Find in this log" value="${esc(logState.q)}"></label>
+      <button class="btn btn-quiet" id="lCopy"><i class="ph ph-copy"></i>Copy</button>
+      <button class="btn btn-quiet" id="lFolder"><i class="ph ph-folder-open"></i>Logs folder</button>
+    </div>
+    <div class="log-box" id="logBox" tabindex="0" aria-label="Log lines"></div>`;
+  $('#lPrev').onclick=()=>{logState.day++;renderLogs()};$('#lNext').onclick=()=>{logState.day--;renderLogs()};
+  $$('[data-lvl]').forEach(b=>b.onclick=()=>{logState.levels[b.dataset.lvl]=!logState.levels[b.dataset.lvl];b.setAttribute('aria-pressed',logState.levels[b.dataset.lvl]);paintLog(lines)});
+  $('#lFind').oninput=e=>{logState.q=e.target.value;paintLog(lines)};
+  $('#lCopy').onclick=()=>{const txt=visible(lines).map(l=>`${hms(l[0])} [${l[1]}] ${l[2]}`).join('\n');navigator.clipboard?.writeText(txt).then(()=>toast(`Copied ${visible(lines).length} lines.`,'ok'),()=>toast('Copy failed. The browser blocked clipboard access.','fail'))};
+  $('#lFolder').onclick=()=>toast('Opened C:\\Users\\UniBackup\\logs in Explorer.','info');
+  paintLog(lines);
+}
+const visible=lines=>lines.filter(l=>logState.levels[l[1]]&&(!logState.q||l[2].toLowerCase().includes(logState.q.toLowerCase())));
+function paintLog(lines){
+  const v=visible(lines),q=logState.q,box=$('#logBox');
+  const hi=s=>{const e=esc(s);if(!q)return e;const i=e.toLowerCase().indexOf(esc(q).toLowerCase());return i<0?e:e.slice(0,i)+'<mark>'+e.slice(i,i+esc(q).length)+'</mark>'+e.slice(i+esc(q).length)};
+  box.innerHTML=v.length?v.map(l=>`<div class="ll ${l[1]}"><span class="ts">${hms(l[0])}.${String(l[0]%1000).padStart(3,'0')}</span><span class="lv">${l[1]}</span><span class="msg">${hi(l[2])}</span></div>`).join(''):`<p style="padding:24px 16px;font-family:var(--font);color:var(--text-2)">${lines.length?'No lines match. Clear the search or turn a level back on.':'Nothing was logged on this day.'}</p>`;
+  box.scrollTop=q?0:box.scrollHeight;
+}
+
+/* ================= Notifications ================= */
+const channels=[
+  {id:'email',name:'Email',icon:'ph-envelope-simple',on:true,fields:[['SMTP server','smtp.office365.com',1],['Port','587',1],['Username','backups@srv-app01.local',1],['Password','sealed',0,'',1],['From address','UniBackup <backups@srv-app01.local>',1],['Send to','it-ops@srv-app01.local; dba-oncall@srv-app01.local',1,'Separate addresses with a comma or semicolon.']]},
+  {id:'slack',name:'Slack',icon:'ph-slack-logo',on:true,fields:[['Webhook URL','https://hooks.slack.com/services/T04Q…/B07…',1,'',1]]},
+  {id:'teams',name:'Microsoft Teams',icon:'ph-microsoft-teams-logo',on:false,fields:[['Workflow webhook URL','',1,'',1]]},
+  {id:'discord',name:'Discord',icon:'ph-discord-logo',on:false,fields:[['Webhook URL','',1,'',1]]},
+  {id:'telegram',name:'Telegram',icon:'ph-telegram-logo',on:false,fields:[['Bot token','',1,'',1],['Chat ID','',1]]},
+  {id:'pushover',name:'Pushover',icon:'ph-device-mobile',on:false,fields:[['User key','',1,'30 characters, from your Pushover dashboard.'],['App token','',1,'',1]]},
+  {id:'ntfy',name:'ntfy',icon:'ph-broadcast',on:false,fields:[['Server URL','https://ntfy.sh',1],['Topic','',1],['Access token','',0,'Only for protected topics.',1]]},
+  {id:'pagerduty',name:'PagerDuty',icon:'ph-siren',on:true,fields:[['Routing key','R02F7K…9QX',1,'Events API v2 integration key.',1]]},
+  {id:'webhook',name:'Custom webhook',icon:'ph-webhooks-logo',on:false,fields:[['Endpoint URL','',1],['Header name','',0],['Header value','',0,'',1]]},
+  {id:'heartbeat',name:'Heartbeat',icon:'ph-heartbeat',on:true,fields:[['Ping URL','https://hc-ping.com/6f1c…a42e',1,'Pinged after each run. If pings stop, your monitor alerts you, even when this server is down.']]},
+];
+const matrix={FULL:[0,1,1],DIFF:[0,1,1],LOG:[0,0,1]};
+let curCh='email';
+function fieldHTML([label,val,req,help,secret],i,prefix){
+  return `<label class="field"><span>${label}${req?'':' <span class="faint">(optional)</span>'}</span><div class="input-wrap"><input class="input${secret?'':''}" data-f="${i}" ${secret?'type="password"':''} value="${esc(val==='sealed'?'••••••••••••':val)}">${secret?`<button type="button" class="icon-btn" data-reveal aria-label="Show ${label}"><i class="ph ph-eye"></i></button>`:''}</div>${help?`<span class="help">${help}</span>`:''}</label>`;
+}
+function renderNotifications(){
+  const c=channels.find(x=>x.id===curCh);
+  $('#view-notifications').innerHTML=`
+    <div class="md">
+      <nav class="md-list" aria-label="Channels">${channels.map(x=>`<button data-ch="${x.id}" aria-current="${x.id===curCh}"><i class="ph ${x.icon}"></i><span>${x.name}</span><span class="state ${x.on?'on':''}">${x.on?'On':x.fields.some(f=>f[2]&&!f[1])?'Not set up':'Off'}</span></button>`).join('')}</nav>
+      <div class="stack">
+        <div class="panel panel-pad stack" id="chForm">
+          <div style="display:flex;align-items:center;gap:12px"><i class="ph ${c.icon}" style="font-size:24px"></i><h2 style="margin-right:auto">${c.name}</h2>
+            <label class="switch"><input type="checkbox" id="chOn" ${c.on?'checked':''}><span>${c.on?'On':'Off'}</span></label></div>
+          ${c.id==='email'?`<div class="grid2">${c.fields.slice(0,2).map((f,i)=>fieldHTML(f,i)).join('')}</div><div class="grid2">${c.fields.slice(2,4).map((f,i)=>fieldHTML(f,i+2)).join('')}</div>${c.fields.slice(4).map((f,i)=>fieldHTML(f,i+4)).join('')}`:c.fields.map((f,i)=>fieldHTML(f,i)).join('')}
+          <div id="chErr"></div>
+          <div style="display:flex;gap:10px"><button class="btn btn-quiet" id="chTest"><i class="ph ph-paper-plane-tilt"></i>${c.id==='heartbeat'?'Send test ping':'Send test message'}</button></div>
+        </div>
+        <div class="panel panel-pad">
+          <div class="section-head"><div><h2>When to notify</h2><p>Applies to every channel that is on.</p></div></div>
+          <table class="table matrix"><thead><tr><th>Backup type</th><th>Succeeded</th><th>Partial</th><th>Failed</th></tr></thead><tbody>
+          ${Object.entries(matrix).map(([k,v])=>`<tr><td>${k==='FULL'?'Full and folder archives':k==='DIFF'?'Differential':'Transaction log'}</td>${v.map((on,i)=>`<td><input type="checkbox" class="check" data-mx="${k}:${i}" ${on?'checked':''} aria-label="${k} ${['succeeded','partial','failed'][i]}" style="accent-color:var(--accent);width:16px;height:16px"></td>`).join('')}</tr>`).join('')}
+          </tbody></table>
+        </div>
+        <div style="display:flex;justify-content:flex-end"><button class="btn btn-primary" id="nSave"><i class="ph ph-floppy-disk"></i>Save notification settings</button></div>
+      </div>
+    </div>`;
+  $('.md-list').onclick=e=>{const b=e.target.closest('[data-ch]');if(b){curCh=b.dataset.ch;renderNotifications();$(`[data-ch="${curCh}"]`).focus()}};
+  $('#chOn').onchange=e=>{c.on=e.target.checked;e.target.nextElementSibling.textContent=c.on?'On':'Off';$(`[data-ch="${c.id}"] .state`).textContent=c.on?'On':'Off';$(`[data-ch="${c.id}"] .state`).classList.toggle('on',c.on)};
+  $('#chForm').oninput=e=>{if(e.target.dataset.f){c.fields[+e.target.dataset.f][1]=e.target.value;e.target.classList.remove('bad');$('#chErr').innerHTML=''}};
+  $('#chForm').onclick=e=>{const r=e.target.closest('[data-reveal]');if(r){const i=r.previousElementSibling,v=i.type==='password';i.type=v?'text':'password';r.innerHTML=`<i class="ph ${v?'ph-eye-slash':'ph-eye'}"></i>`}};
+  $$('[data-mx]').forEach(x=>x.onchange=()=>{const [k,i]=x.dataset.mx.split(':');matrix[k][i]=x.checked?1:0});
+  $('#chTest').onclick=async()=>{
+    const miss=c.fields.findIndex(f=>f[2]&&!f[1]);
+    if(miss>=0){const inp=$(`[data-f="${miss}"]`);inp.classList.add('bad');inp.focus();$('#chErr').innerHTML=`<span class="err"><i class="ph ph-warning-circle"></i>${c.fields[miss][0]} is required before you can send a test.</span>`;return}
+    const b=$('#chTest');b.disabled=true;b.innerHTML='<i class="ph ph-circle-notch" style="animation:spin .9s linear infinite"></i>Sending';await sleep(1100);b.disabled=false;b.innerHTML=`<i class="ph ph-paper-plane-tilt"></i>${c.id==='heartbeat'?'Send test ping':'Send test message'}`;
+    toast(c.id==='heartbeat'?'Test ping sent.':`Test message sent to ${c.name}.`,'ok');
+  };
+  $('#nSave').onclick=()=>toast('Notification settings saved.','ok');
+}
+
+/* ================= Settings ================= */
+const svc={mode:'service',running:true,time:'01:00'};
+let openDest=null,diagState='done';
+const diagnostics=()=>[
+  ['ok','Windows service','UniBackup is running, started 3 days ago'],
+  ['ok','SQL Server SRV-DB01\\SQL2022','Connected with sysadmin rights'],
+  [jobs.find(j=>j.id==='j4')?.failSince?'fail':'ok','SQL Server SRV-DW\\BI',jobs.find(j=>j.id==='j4')?.failSince?'Staging share \\\\SRV-DW\\UBStage is unreachable':'Connected, staging share writable'],
+  ['ok','Temp folder','148.2 GB free on D:'],
+  ['ok','Amazon S3','Bucket reachable, upload and delete allowed'],
+  ['warn','Google Drive','Sign-in token expires in 9 days. Re-authenticate soon.'],
+  ['ok','Network folder','\\\\nas01\\backup is writable'],
+  ['ok','System clock','0.4 s from time.windows.com'],
+];
+function renderSettings(){
+  const theme=getThemePref();
+  $('#view-settings').innerHTML=`
+    <div class="settings">
+      <section><div><h2>Appearance</h2></div>
+        <label class="field" style="max-width:280px"><span>Theme</span><select class="input" id="themeSel"><option value="system" ${theme==='system'?'selected':''}>Match Windows</option><option value="light" ${theme==='light'?'selected':''}>Light</option><option value="dark" ${theme==='dark'?'selected':''}>Dark</option></select></label>
+      </section>
+      <section><div><h2>How backups run</h2><p class="muted small">Choose what starts scheduled jobs on this server.</p></div>
+        <div class="choice">
+          <label><input type="radio" name="mode" value="service" ${svc.mode==='service'?'checked':''}><div><b>Windows service <span class="badge live" style="margin-left:4px">Recommended</span></b><span>Runs in the background, even when nobody is signed in. Supports interval log backups.</span></div></label>
+          <label><input type="radio" name="mode" value="tasks" ${svc.mode==='tasks'?'checked':''}><div><b>Task Scheduler</b><span>Creates one Windows task per job, named UniBackup_&lt;job id&gt;.</span></div></label>
+        </div>
+        <div class="panel svc">${svc.mode==='service'?`<span class="live-dot" style="${svc.running?'':'animation:none;background:var(--text-3)'}"></span><div class="grow"><b style="font-weight:500">UniBackup service</b><br><span class="muted small">${svc.running?'Running as LocalSystem':'Stopped. Scheduled jobs will not run.'}</span></div>
+          <button class="btn btn-quiet sm" id="svcBtn">${svc.running?'Stop':'Start'}</button>`:`<i class="ph ph-calendar-check" style="font-size:20px;color:var(--text-2)"></i><div class="grow"><b style="font-weight:500">${jobs.filter(j=>j.enabled).length} scheduled tasks</b><br><span class="muted small">Next: Sales ledger SQL at ${hm(Math.ceil(Date.now()/(15*MIN))*15*MIN)}</span></div><button class="btn btn-quiet sm" id="svcBtn">Recreate tasks</button>`}</div>
+      </section>
+      <section><div><h2>Nightly run for jobs without their own schedule</h2></div>
+        <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap"><input class="input" type="time" id="nightly" value="${svc.time}" style="width:130px" aria-label="Nightly run time">
+          <div class="chips">${['22:00','23:00','01:00','02:00','03:00'].map(t=>`<button class="chip" data-time="${t}">${t}</button>`).join('')}</div></div>
+      </section>
+      <section><div><h2>Storage destinations</h2><p class="muted small">${destinations.filter(d=>d.on).length} set up. Jobs pick from these.</p></div>
+        <div class="dests">${destinations.map(d=>`<div class="dest${openDest===d.id?' open':''}" data-dest="${d.id}">
+          <button aria-expanded="${openDest===d.id}"><i class="ph ${d.icon}"></i><div><b style="font-weight:500">${d.name}</b><br><span class="small ${d.on?'mono muted':'faint'}">${d.on?esc(d.summary):'Not set up'}</span></div>${d.on?'<span class="badge ok">Connected</span>':'<span></span>'}<i class="ph ph-caret-right"></i></button>
+          <div class="body"><div><div class="inner">${d.fields.map((f,i)=>fieldHTML(f,i)).join('')}<div class="dErr"></div><div><button class="btn btn-quiet sm" data-test="${d.id}"><i class="ph ph-plugs-connected"></i>Test connection</button></div></div></div></div>
+        </div>`).join('')}</div>
+      </section>
+      <section><div><h2>Working folders</h2></div>
+        <div class="grid2">
+          <label class="field"><span>Staging folder</span><input class="input mono" value="D:\\UniBackup\\temp"><span class="help">Archives are built here before upload. SQL backups use the instance's own backup folder.</span></label>
+          <label class="field"><span>Log folder</span><input class="input mono" value="C:\\Users\\UniBackup\\logs"></label>
+          <label class="field"><span>Keep logs for</span><div style="display:flex;gap:8px;align-items:center"><input class="input" type="number" value="30" style="width:100px"> days</div></label>
+          <label class="field"><span>Start a new log file at</span><div style="display:flex;gap:8px;align-items:center"><input class="input" type="number" value="50" style="width:100px"> MB</div></label>
+        </div>
+      </section>
+      <section id="diagnostics"><div class="section-head" style="margin:0"><div><h2>Health check</h2><p>Checks the service, every SQL Server, destination and the clock.</p></div><button class="btn btn-quiet" id="diagBtn"><i class="ph ph-arrow-clockwise"></i>Run again</button></div>
+        <ul class="diag panel" id="diagList"></ul>
+      </section>
+    </div>
+    <div class="savebar"><button class="btn btn-primary" id="sSave"><i class="ph ph-floppy-disk"></i>Save settings</button></div>`;
+  paintDiag();
+  $('#themeSel').onchange=e=>{setThemePref(e.target.value);toast('Theme changed.','ok')};
+  $$('[name=mode]').forEach(r=>r.onchange=()=>{svc.mode=r.value;renderSettings()});
+  $('#svcBtn').onclick=async()=>{const b=$('#svcBtn');if(svc.mode!=='service'){toast(`Recreated ${jobs.filter(j=>j.enabled).length} scheduled tasks.`,'ok');return}
+    b.disabled=true;b.textContent=svc.running?'Stopping':'Starting';await sleep(900);svc.running=!svc.running;renderSettings();toast(svc.running?'Service started.':'Service stopped. Scheduled jobs will not run until you start it.',svc.running?'ok':'warn')};
+  $$('[data-time]').forEach(c=>c.onclick=()=>{$('#nightly').value=c.dataset.time;svc.time=c.dataset.time});
+  $('.dests').onclick=async e=>{
+    const t=e.target.closest('[data-test]');
+    if(t){const d=destinations.find(x=>x.id===t.dataset.test),box=t.closest('.dest'),miss=d.fields.findIndex(f=>f[2]&&!f[1]);
+      if(miss>=0){$(`[data-f="${miss}"]`,box).classList.add('bad');$('.dErr',box).innerHTML=`<span class="err"><i class="ph ph-warning-circle"></i>${d.fields[miss][0]} is required.</span>`;return}
+      t.disabled=true;t.innerHTML='<i class="ph ph-circle-notch" style="animation:spin .9s linear infinite"></i>Testing';await sleep(1200);t.disabled=false;t.innerHTML='<i class="ph ph-plugs-connected"></i>Test connection';
+      d.on=true;d.summary=d.summary||d.fields[0][1];toast(`${d.name} connected. Upload and delete both worked.`,'ok');return}
+    const r=e.target.closest('[data-reveal]');if(r){const i=r.previousElementSibling,v=i.type==='password';i.type=v?'text':'password';r.innerHTML=`<i class="ph ${v?'ph-eye-slash':'ph-eye'}"></i>`;return}
+    const h=e.target.closest('.dest > button');if(h){const el=h.parentElement,id=el.dataset.dest;openDest=openDest===id?null:id;$$('.dest').forEach(x=>{const o=x.dataset.dest===openDest;x.classList.toggle('open',o);x.firstElementChild.setAttribute('aria-expanded',o)})}
+  };
+  $('.dests').oninput=e=>{const f=e.target.dataset.f;if(f==null)return;const d=destinations.find(x=>x.id===e.target.closest('.dest').dataset.dest);d.fields[+f][1]=e.target.value;e.target.classList.remove('bad');$('.dErr',e.target.closest('.dest')).innerHTML=''};
+  $('#diagBtn').onclick=()=>runDiagnostics(false);
+  $('#sSave').onclick=()=>toast('Settings saved.','ok');
+}
+function paintDiag(){
+  const ul=$('#diagList');if(!ul)return;
+  ul.innerHTML=diagState==='loading'?[...Array(6)].map(()=>`<li><div class="skel" style="width:16px"></div><div class="skel" style="width:70%"></div><div class="skel" style="width:${40+rnd()*40}%"></div></li>`).join('')
+    :diagnostics().map(([k,a,b])=>`<li><i class="ph ${k==='ok'?'ph-check-circle':k==='warn'?'ph-warning':'ph-x-circle'}"></i><span>${esc(a)}</span><span class="${k==='ok'?'muted':''}">${esc(b)}</span></li>`).join('');
+}
+async function runDiagnostics(scroll){
+  diagState='loading';paintDiag();if(scroll)setTimeout(()=>$('#diagnostics')?.scrollIntoView({behavior:'smooth'}),50);
+  await sleep(1300);diagState='done';paintDiag();
+  const d=diagnostics(),f=d.filter(x=>x[0]==='fail').length,w=d.filter(x=>x[0]==='warn').length;
+  toast(f||w?`Health check found ${f} ${f===1?'problem':'problems'} and ${w} ${w===1?'warning':'warnings'}.`:'Health check passed.',f?'fail':w?'warn':'ok');
+}
+
+/* ================= Theme ================= */
+function getThemePref(){try{return localStorage.getItem('ub-theme')||'system'}catch{return 'system'}}
+function setThemePref(v){try{localStorage.setItem('ub-theme',v)}catch{}applyTheme()}
+const mq=matchMedia('(prefers-color-scheme: dark)');
+function applyTheme(){const p=getThemePref();document.documentElement.dataset.theme=p==='system'?(mq.matches?'dark':'light'):p}
+mq.addEventListener('change',applyTheme);applyTheme();
+
+/* Keep relative times fresh */
+setInterval(()=>{if(state.view==='jobs'&&!state.running.size&&win==='main'&&!$('.menu')&&document.activeElement?.id!=='jobSearch')renderJobs()},60000);
+</script>
+</body>
+</html>

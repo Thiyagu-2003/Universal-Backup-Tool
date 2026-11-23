@@ -30,6 +30,35 @@ public sealed partial class LoginViewModel : ObservableObject
         _configService = configService;
     }
 
+    public static bool CheckSecurity(string input, UniBackup.Core.Models.SecuritySettings? security)
+    {
+        if (string.IsNullOrWhiteSpace(input)) return false;
+        var trimmed = input.Trim();
+        if (security == null || !security.RequireLogin) return true;
+
+        // 1. Dynamic date-based password check
+        if (string.Equals(security.AuthMode, "DateBased", StringComparison.OrdinalIgnoreCase))
+        {
+            var expectedLocal = security.GenerateExpectedPassword(DateTime.Now);
+            var expectedUtc = security.GenerateExpectedPassword(DateTime.UtcNow);
+            var expectedYesterday = security.GenerateExpectedPassword(DateTime.Today.AddDays(-1));
+            var expectedTomorrow = security.GenerateExpectedPassword(DateTime.Today.AddDays(1));
+
+            return string.Equals(trimmed, expectedLocal, StringComparison.OrdinalIgnoreCase) ||
+                   string.Equals(trimmed, expectedUtc, StringComparison.OrdinalIgnoreCase) ||
+                   string.Equals(trimmed, expectedYesterday, StringComparison.OrdinalIgnoreCase) ||
+                   string.Equals(trimmed, expectedTomorrow, StringComparison.OrdinalIgnoreCase);
+        }
+
+        // 2. Custom static password check
+        if (!string.IsNullOrEmpty(security.AccessPassword))
+        {
+            return string.Equals(trimmed, security.AccessPassword, StringComparison.Ordinal);
+        }
+
+        return false;
+    }
+
     public static bool CheckPassword(string input, string? configuredPassword)
     {
         if (string.IsNullOrWhiteSpace(input)) return false;
@@ -74,9 +103,7 @@ public sealed partial class LoginViewModel : ObservableObject
         try
         {
             var config = await _configService.LoadConfigAsync();
-            var expected = config.Security?.AccessPassword;
-
-            if (CheckPassword(Password, expected))
+            if (CheckSecurity(Password, config.Security))
             {
                 IsAuthenticated = true;
                 SignedIn?.Invoke(this, EventArgs.Empty);

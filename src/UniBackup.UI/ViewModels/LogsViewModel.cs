@@ -75,6 +75,7 @@ public sealed record LogFileRow(
 public sealed partial class LogLine : ObservableObject
 {
     public string Raw { get; }
+    public string RawText => Raw;
     public int Number { get; }
     public string Level { get; }
     public string Time { get; }
@@ -194,10 +195,29 @@ public sealed partial class LogsViewModel : ObservableObject
     [ObservableProperty]
     private string _problemLabel = "0 problems";
 
-    public bool ShowAll => ActiveLevelFilter == "ALL";
-    public bool ShowErrors => ActiveLevelFilter == "ERR";
-    public bool ShowWarnings => ActiveLevelFilter == "WRN";
-    public bool ShowInfo => ActiveLevelFilter == "INF";
+    public bool ShowAll
+    {
+        get => ActiveLevelFilter == "ALL";
+        set { if (value) ActiveLevelFilter = "ALL"; }
+    }
+
+    public bool ShowErrors
+    {
+        get => ActiveLevelFilter == "ERR";
+        set { if (value) ActiveLevelFilter = "ERR"; }
+    }
+
+    public bool ShowWarnings
+    {
+        get => ActiveLevelFilter == "WRN";
+        set { if (value) ActiveLevelFilter = "WRN"; }
+    }
+
+    public bool ShowInfo
+    {
+        get => ActiveLevelFilter == "INF";
+        set { if (value) ActiveLevelFilter = "INF"; }
+    }
 
     public event EventHandler<LogLine>? ScrollRequested;
 
@@ -504,6 +524,12 @@ public sealed partial class LogsViewModel : ObservableObject
         ActiveLevelFilter = filter ?? "ALL";
     }
 
+    public string SearchFilter
+    {
+        get => SearchInLog;
+        set => SearchInLog = value;
+    }
+
     [RelayCommand]
     public void CopyAll()
     {
@@ -512,6 +538,9 @@ public sealed partial class LogsViewModel : ObservableObject
         Clipboard.SetText(text);
         NotificationHub.ShowSuccess($"Copied {VisibleLines.Count} lines to clipboard.", "Copied to Clipboard");
     }
+
+    [RelayCommand]
+    public void CopyFiltered() => CopyAll();
 
     [RelayCommand]
     public void OpenInNotepad()
@@ -529,4 +558,7 @@ public sealed partial class LogsViewModel : ObservableObject
         Directory.CreateDirectory(logsDir);
         Process.Start(new ProcessStartInfo("explorer.exe", logsDir) { UseShellExecute = true });
     }
+
+    [RelayCommand]
+    public void OpenLogsFolder() => OpenFolder();
 }

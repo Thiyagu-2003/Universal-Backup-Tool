@@ -179,6 +179,85 @@ public class UiStartupXamlTests
     }
 
     [Fact]
+    public void SecuritySettings_Default_HasNoPassword_AndRequireLoginIsFalse()
+    {
+        var sec = new UniBackup.Core.Models.SecuritySettings();
+        Assert.False(sec.RequireLogin);
+        Assert.Equal("", sec.AccessPassword);
+        Assert.Equal("Static", sec.AuthMode);
+    }
+
+    [Fact]
+    public void SecuritySettings_DynamicDateBased_GeneratesConfiguredPatterns()
+    {
+        var testDate = new DateTime(2026, 11, 23);
+
+        // Pattern 1: admin(23-11-2026)
+        var sec1 = new UniBackup.Core.Models.SecuritySettings
+        {
+            AuthMode = "DateBased",
+            DatePrefix = "admin(",
+            DateFormat = "dd-MM-yyyy",
+            DateSuffix = ")"
+        };
+        Assert.Equal("admin(23-11-2026)", sec1.GenerateExpectedPassword(testDate));
+
+        // Pattern 2: ups(2026-11-23)
+        var sec2 = new UniBackup.Core.Models.SecuritySettings
+        {
+            AuthMode = "DateBased",
+            DatePrefix = "ups(",
+            DateFormat = "yyyy-MM-dd",
+            DateSuffix = ")"
+        };
+        Assert.Equal("ups(2026-11-23)", sec2.GenerateExpectedPassword(testDate));
+
+        // Pattern 3: backup_23112026
+        var sec3 = new UniBackup.Core.Models.SecuritySettings
+        {
+            AuthMode = "DateBased",
+            DatePrefix = "backup_",
+            DateFormat = "ddMMyyyy",
+            DateSuffix = ""
+        };
+        Assert.Equal("backup_23112026", sec3.GenerateExpectedPassword(testDate));
+    }
+
+    [Fact]
+    public void LoginViewModel_Validates_CustomDateBased_And_StaticPassword()
+    {
+        // 1. Static Mode
+        var staticSec = new UniBackup.Core.Models.SecuritySettings
+        {
+            RequireLogin = true,
+            AuthMode = "Static",
+            AccessPassword = "MyCustomPassword456!"
+        };
+        Assert.True(LoginViewModel.CheckSecurity("MyCustomPassword456!", staticSec));
+        Assert.False(LoginViewModel.CheckSecurity("WrongPassword", staticSec));
+        // Verify no backdoors bypass custom static password
+        Assert.False(LoginViewModel.CheckSecurity("adminupsddmmyyyy", staticSec));
+        Assert.False(LoginViewModel.CheckSecurity($"adminups{DateTime.Now:ddMMyyyy}", staticSec));
+
+        // 2. Date-based Mode
+        var dateSec = new UniBackup.Core.Models.SecuritySettings
+        {
+            RequireLogin = true,
+            AuthMode = "DateBased",
+            DatePrefix = "admin(",
+            DateFormat = "dd-MM-yyyy",
+            DateSuffix = ")"
+        };
+        var todayPass = dateSec.GenerateExpectedPassword(DateTime.Now);
+        Assert.True(LoginViewModel.CheckSecurity(todayPass, dateSec));
+        Assert.True(LoginViewModel.CheckSecurity(todayPass.ToLowerInvariant(), dateSec));
+        Assert.False(LoginViewModel.CheckSecurity("admin(wrong-date)", dateSec));
+        // Verify no backdoors bypass custom date-based formula
+        Assert.False(LoginViewModel.CheckSecurity("adminupsddmmyyyy", dateSec));
+        Assert.False(LoginViewModel.CheckSecurity($"adminups{DateTime.Now:ddMMyyyy}", dateSec));
+    }
+
+    [Fact]
     public void LoginWindow_CanBeInstantiated_WithoutXamlExceptions()
     {
         RunInStaThread(() =>

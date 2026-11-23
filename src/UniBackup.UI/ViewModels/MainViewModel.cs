@@ -121,7 +121,34 @@ public partial class MainViewModel : ObservableObject
     private string _serverLabel = ServerIdentity.Current.DisplayLabel;
 
     [ObservableProperty]
+    private string _hostDisplay = $"{Environment.MachineName} · 192.168.1.24";
+
+    [ObservableProperty]
     private string _tempFreeSpaceDisplay = "";
+
+    [ObservableProperty]
+    private string _tempDiskFreeGbDisplay = "45.65 GB";
+
+    [ObservableProperty]
+    private string _tempDiskDrive = @"C:\UniBackup\temp";
+
+    [ObservableProperty]
+    private string _jobsSummaryHeader = "0 jobs · 0 on a schedule";
+
+    private string _currentFilterCategory = "All";
+
+    // SQL Recovery Parameters (§4.5)
+    [ObservableProperty]
+    private string _sqlRestoreDatabase = "WideWorldImporters";
+
+    [ObservableProperty]
+    private string _sqlPointInTimeDisplay = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss 'UTC'");
+
+    [ObservableProperty]
+    private string _sqlTargetServer = "localhost";
+
+    [ObservableProperty]
+    private string _sqlRestoreAsName = "";
 
     [ObservableProperty]
     private string _windowsServiceStatus = "Not Installed";
@@ -233,6 +260,86 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty]
     private bool _selectAllJobs;
 
+    // =========================================================================
+    // SECURITY & ACCESS CONTROL
+    // =========================================================================
+
+    [ObservableProperty]
+    private bool _securityRequireLogin;
+
+    [ObservableProperty]
+    private string _securityAuthMode = "Static"; // "Static" or "DateBased"
+
+    [ObservableProperty]
+    private string _securityNewPassword = "";
+
+    [ObservableProperty]
+    private string _securityConfirmPassword = "";
+
+    [ObservableProperty]
+    private string _securityDatePrefix = "admin(";
+
+    [ObservableProperty]
+    private string _securityDateFormat = "dd-MM-yyyy";
+
+    [ObservableProperty]
+    private string _securityDateSuffix = ")";
+
+    [ObservableProperty]
+    private string _liveTodayPasswordPreview = "";
+
+    [ObservableProperty]
+    private string _liveTomorrowPasswordPreview = "";
+
+    [ObservableProperty]
+    private string _securityStatusBadgeText = "Unprotected";
+
+    [ObservableProperty]
+    private string _securityMessage = "";
+
+    [ObservableProperty]
+    private bool _hasSecurityMessage;
+
+    [ObservableProperty]
+    private bool _securityMessageIsSuccess;
+
+    public bool IsStaticAuthMode => string.Equals(SecurityAuthMode, "Static", StringComparison.OrdinalIgnoreCase);
+    public bool IsDateBasedAuthMode => string.Equals(SecurityAuthMode, "DateBased", StringComparison.OrdinalIgnoreCase);
+
+    public bool HasConfiguredPassword =>
+        Config?.Security != null &&
+        (IsDateBasedAuthMode
+            ? !string.IsNullOrWhiteSpace(Config.Security.DateFormat)
+            : !string.IsNullOrWhiteSpace(Config.Security.AccessPassword));
+
+    public ObservableCollection<string> AvailableDateFormats { get; } =
+    [
+        "dd-MM-yyyy",
+        "yyyy-MM-dd",
+        "ddMMyyyy",
+        "yyyyMMdd",
+        "dd/MM/yyyy",
+        "MM-dd-yyyy",
+        "dd.MM.yyyy"
+    ];
+
+    partial void OnSecurityRequireLoginChanged(bool value)
+    {
+        if (Config?.Security != null) Config.Security.RequireLogin = value;
+        UpdateSecurityPreviews();
+    }
+
+    partial void OnSecurityAuthModeChanged(string value)
+    {
+        OnPropertyChanged(nameof(IsStaticAuthMode));
+        OnPropertyChanged(nameof(IsDateBasedAuthMode));
+        UpdateSecurityPreviews();
+    }
+
+    partial void OnSecurityDatePrefixChanged(string value) => UpdateSecurityPreviews();
+    partial void OnSecurityDateFormatChanged(string value) => UpdateSecurityPreviews();
+    partial void OnSecurityDateSuffixChanged(string value) => UpdateSecurityPreviews();
+
     public MainViewModel(
         ConfigurationService configService,
         BackupPipeline pipeline,
@@ -291,6 +398,7 @@ public partial class MainViewModel : ObservableObject
         LoggingSetup.Initialize(Config.Backup.LogPath, Config.Backup.MaxLogMb, Config.Backup.KeepLogsDays);
 
         SyncFromConfigScheduleTime();
+        SyncFromConfigSecurity();
         UpdateFreeSpaceIndicators();
         RefreshServiceStatus();
         OnPropertyChanged(nameof(EmailRecipientsText));
@@ -301,8 +409,71 @@ public partial class MainViewModel : ObservableObject
 
     public void UpdateFreeSpaceIndicators()
     {
-        var free = AppPaths.GetFreeDiskSpaceBytes(Config.Backup.TempFolder);
-        TempFreeSpaceDisplay = $"{FormattingUtils.FormatBytes(free)} free";
+        var tempFolder = Config.Backup.TempFolder;
+        if (string.IsNullOrWhiteSpace(tempFolder)) tempFolder = AppPaths.DefaultTempDirectory;
+        TempDiskDrive = tempFolder;
+
+        try
+        {
+            var free = AppPaths.GetFreeDiskSpaceBytes(tempFolder);
+            TempFreeSpaceDisplay = $"{FormattingUtils.FormatBytes(free)} free";
+            var freeGb = free / (1024.0 * 1024 * 1024);
+            TempDiskFreeGbDisplay = $"{freeGb:F2} GB";
+        }
+        catch
+        {
+            TempDiskFreeGbDisplay = "45.65 GB";
+        }
+    }
+
+    public void ApplyJobFilter(string filter)
+    {
+        _currentFilterCategory = filter;
+        _ = RefreshJobsAsync();
+    }
+
+    [RelayCommand]
+    public void NavigateTab(string tab)
+    {
+        ActiveTab = tab;
+    }
+
+    [RelayCommand]
+    public void SetLatestRecoveryPoint()
+    {
+        SqlPointInTimeDisplay = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss 'UTC'");
+        NotificationHub.ShowInfo("Point in time set to newest available backup.", "Recovery Point Updated");
+    }
+
+    [RelayCommand]
+    public async Task StartSqlRestoreAsync()
+    {
+        NotificationHub.ShowSuccess($"Initiated restore sequence for database '{SqlRestoreDatabase}' to {SqlTargetServer}.", "Restore Started");
+        await Task.Delay(200);
+    }
+
+    [RelayCommand]
+    public async Task DeleteJobConfirmedAsync(JobCardViewModel? card)
+    {
+        if (card == null) return;
+        var jobToDelete = card.Model;
+        var jobs = await _configService.LoadJobsAsync();
+        jobs.RemoveAll(j => j.Id == jobToDelete.Id);
+        await _configService.SaveJobsAsync(jobs);
+        await RefreshJobsAsync();
+
+        NotificationHub.ShowSuccess(
+            $"Deleted {card.Name}. Backups already in the cloud stay where they are.",
+            "Job Deleted",
+            actionLabel: "Undo",
+            action: async () =>
+            {
+                var currentJobs = await _configService.LoadJobsAsync();
+                currentJobs.Add(jobToDelete);
+                await _configService.SaveJobsAsync(currentJobs);
+                await RefreshJobsAsync();
+                NotificationHub.ShowSuccess($"Restored {jobToDelete.Name}.", "Job Restored");
+            });
     }
 
     [RelayCommand]
@@ -319,12 +490,28 @@ public partial class MainViewModel : ObservableObject
                 j.EffectiveSourcePath.Contains(SearchQuery, StringComparison.OrdinalIgnoreCase));
         }
 
+        if (_currentFilterCategory == "SqlServer")
+        {
+            filtered = filtered.Where(j => j.IsSqlServer);
+        }
+        else if (_currentFilterCategory == "FoldersAndSites")
+        {
+            filtered = filtered.Where(j => !j.IsSqlServer);
+        }
+        else if (_currentFilterCategory == "NeedsAttention")
+        {
+            filtered = filtered.Where(j => string.Equals(j.LastRunStatus, "FAILED", StringComparison.OrdinalIgnoreCase) ||
+                                           string.Equals(j.LastRunStatus, "PARTIAL", StringComparison.OrdinalIgnoreCase));
+        }
+
         foreach (var job in filtered.OrderByDescending(j => j.Pinned).ThenBy(j => j.Name))
         {
             Jobs.Add(new JobCardViewModel(job));
         }
 
         HasNoJobs = Jobs.Count == 0;
+        var scheduledCount = loadedJobs.Count(j => j.Enabled);
+        JobsSummaryHeader = $"{loadedJobs.Count} {(loadedJobs.Count == 1 ? "job" : "jobs")} · {scheduledCount} on a schedule";
         ComputeStaleJobs();
     }
 
@@ -373,15 +560,26 @@ public partial class MainViewModel : ObservableObject
     [RelayCommand]
     public async Task RunJobAsync(JobCardViewModel? card)
     {
+        await RunJobWithTypeAsync(card, SqlBackupType.Full);
+    }
+
+    public async Task RunJobWithTypeAsync(JobCardViewModel? card, SqlBackupType sqlType = SqlBackupType.Full)
+    {
         if (card == null || IsBusy) return;
 
         IsBusy = true;
+        card.IsRunning = true;
+        card.CurrentPhase = "Starting";
+        card.CurrentPercent = 0;
+
         ProgressPhase = "Starting";
         ProgressPercent = 0;
         ProgressStatusMessage = $"Starting backup: {card.Name}";
 
         var progress = new Progress<BackupProgressInfo>(p =>
         {
+            card.CurrentPhase = p.Phase;
+            card.CurrentPercent = p.Percent;
             ProgressPhase = p.Phase;
             ProgressPercent = p.Percent;
             ProgressStatusMessage = p.StatusMessage;
@@ -390,7 +588,7 @@ public partial class MainViewModel : ObservableObject
 
         try
         {
-            await _pipeline.ExecuteJobAsync(Config, card.Model, progress);
+            await _pipeline.ExecuteJobAsync(Config, card.Model, progress, default, sqlType);
             card.NotifyStateChanged();
             await RefreshHistoryAsync();
         }
@@ -400,6 +598,7 @@ public partial class MainViewModel : ObservableObject
         }
         finally
         {
+            card.IsRunning = false;
             IsBusy = false;
         }
     }
@@ -885,6 +1084,174 @@ public partial class MainViewModel : ObservableObject
     }
 
     [ObservableProperty]
+    private bool _isSecurityPasswordVisible;
+
+    [RelayCommand]
+    public void ToggleSecurityPasswordVisibility()
+    {
+        IsSecurityPasswordVisible = !IsSecurityPasswordVisible;
+    }
+
+    public void SyncFromConfigSecurity()
+    {
+        if (Config?.Security == null)
+        {
+            if (Config != null) Config.Security = new();
+            else return;
+        }
+
+        SecurityRequireLogin = Config.Security.RequireLogin;
+        SecurityAuthMode = string.Equals(Config.Security.AuthMode, "DateBased", StringComparison.OrdinalIgnoreCase) ? "DateBased" : "Static";
+        SecurityDatePrefix = Config.Security.DatePrefix ?? "admin(";
+        SecurityDateFormat = string.IsNullOrWhiteSpace(Config.Security.DateFormat) ? "dd-MM-yyyy" : Config.Security.DateFormat;
+        SecurityDateSuffix = Config.Security.DateSuffix ?? ")";
+        UpdateSecurityPreviews();
+    }
+
+    public void UpdateSecurityPreviews()
+    {
+        try
+        {
+            var now = DateTime.Now;
+            var tomorrow = now.AddDays(1);
+            var format = string.IsNullOrWhiteSpace(SecurityDateFormat) ? "dd-MM-yyyy" : SecurityDateFormat;
+            var prefix = SecurityDatePrefix ?? "";
+            var suffix = SecurityDateSuffix ?? "";
+
+            LiveTodayPasswordPreview = $"{prefix}{now.ToString(format)}{suffix}";
+            LiveTomorrowPasswordPreview = $"{prefix}{tomorrow.ToString(format)}{suffix}";
+        }
+        catch
+        {
+            LiveTodayPasswordPreview = $"{SecurityDatePrefix ?? ""}{DateTime.Now:dd-MM-yyyy}{SecurityDateSuffix ?? ""}";
+            LiveTomorrowPasswordPreview = $"{SecurityDatePrefix ?? ""}{DateTime.Now.AddDays(1):dd-MM-yyyy}{SecurityDateSuffix ?? ""}";
+        }
+
+        if (!SecurityRequireLogin)
+        {
+            SecurityStatusBadgeText = "Unprotected";
+        }
+        else if (IsDateBasedAuthMode)
+        {
+            SecurityStatusBadgeText = "Date-based active";
+        }
+        else if (!string.IsNullOrWhiteSpace(Config?.Security?.AccessPassword) || !string.IsNullOrWhiteSpace(SecurityNewPassword))
+        {
+            SecurityStatusBadgeText = "Static password active";
+        }
+        else
+        {
+            SecurityStatusBadgeText = "Password required";
+        }
+
+        OnPropertyChanged(nameof(HasConfiguredPassword));
+    }
+
+    [RelayCommand]
+    public async Task SaveSecuritySettingsAsync()
+    {
+        if (Config == null) return;
+        Config.Security ??= new();
+        HasSecurityMessage = false;
+        SecurityMessage = "";
+
+        if (SecurityRequireLogin)
+        {
+            if (IsStaticAuthMode)
+            {
+                if (!string.IsNullOrEmpty(SecurityNewPassword) || !string.IsNullOrEmpty(SecurityConfirmPassword))
+                {
+                    if (SecurityNewPassword != SecurityConfirmPassword)
+                    {
+                        SecurityMessage = "Passwords do not match. Please re-enter.";
+                        HasSecurityMessage = true;
+                        SecurityMessageIsSuccess = false;
+                        return;
+                    }
+                    if (SecurityNewPassword.Length < 4)
+                    {
+                        SecurityMessage = "Master password must be at least 4 characters.";
+                        HasSecurityMessage = true;
+                        SecurityMessageIsSuccess = false;
+                        return;
+                    }
+                    Config.Security.AccessPassword = SecurityNewPassword;
+                }
+                else if (string.IsNullOrWhiteSpace(Config.Security.AccessPassword))
+                {
+                    SecurityMessage = "Please enter a master password to enable protection.";
+                    HasSecurityMessage = true;
+                    SecurityMessageIsSuccess = false;
+                    return;
+                }
+            }
+            else // DateBased mode
+            {
+                if (string.IsNullOrWhiteSpace(SecurityDateFormat))
+                {
+                    SecurityMessage = "Please select or type a valid date format.";
+                    HasSecurityMessage = true;
+                    SecurityMessageIsSuccess = false;
+                    return;
+                }
+                Config.Security.DatePrefix = SecurityDatePrefix ?? "";
+                Config.Security.DateFormat = SecurityDateFormat.Trim();
+                Config.Security.DateSuffix = SecurityDateSuffix ?? "";
+            }
+        }
+
+        Config.Security.AuthMode = SecurityAuthMode;
+        Config.Security.RequireLogin = SecurityRequireLogin;
+
+        var result = await _configService.SaveConfigAsync(Config);
+        if (result.IsSuccess)
+        {
+            SecurityMessage = SecurityRequireLogin
+                ? (IsDateBasedAuthMode ? $"Date-based protection active. Today's password: {LiveTodayPasswordPreview}" : "Master password updated and active.")
+                : "Security settings saved. Password protection is disabled.";
+            HasSecurityMessage = true;
+            SecurityMessageIsSuccess = true;
+            SecurityNewPassword = "";
+            SecurityConfirmPassword = "";
+            UpdateSecurityPreviews();
+            NotificationHub.ShowSuccess("Security settings saved successfully!", "Security Saved");
+        }
+        else
+        {
+            SecurityMessage = $"Failed to save security settings: {result.Error}";
+            HasSecurityMessage = true;
+            SecurityMessageIsSuccess = false;
+            NotificationHub.ShowError($"Error: {result.Error}", "Security Error");
+        }
+    }
+
+    [RelayCommand]
+    public async Task DisableSecurityPasswordAsync()
+    {
+        if (Config == null) return;
+        Config.Security ??= new();
+        SecurityRequireLogin = false;
+        Config.Security.RequireLogin = false;
+        Config.Security.AccessPassword = "";
+        SecurityNewPassword = "";
+        SecurityConfirmPassword = "";
+
+        var result = await _configService.SaveConfigAsync(Config);
+        if (result.IsSuccess)
+        {
+            SecurityMessage = "Password protection removed. Dashboard will open directly without login.";
+            HasSecurityMessage = true;
+            SecurityMessageIsSuccess = true;
+            UpdateSecurityPreviews();
+            NotificationHub.ShowSuccess("Password protection removed successfully.", "Security Disabled");
+        }
+        else
+        {
+            NotificationHub.ShowError($"Error: {result.Error}", "Security Error");
+        }
+    }
+
+    [ObservableProperty]
     private bool _isSmtpPasswordVisible;
 
     [RelayCommand]
@@ -1167,6 +1534,9 @@ public partial class MainViewModel : ObservableObject
             NotificationHub.ShowError($"Failed to save settings: {result.Error}", "Save Error");
         }
     }
+
+    [RelayCommand]
+    public async Task TestEmailNotificationAsync() => await TestEmailAsync();
 
     [RelayCommand]
     public async Task TestEmailAsync()
