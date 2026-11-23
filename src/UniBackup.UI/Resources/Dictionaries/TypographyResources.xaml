@@ -1,0 +1,202 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+
+    <!-- ===================================================================
+         UNIBACKUP PRO CENTRALIZED TYPOGRAPHY RESOURCE DICTIONARY
+         Windows 11 Enterprise Fluent Typography System
+         Primary Font: Segoe UI (with dynamic fallback to Segoe UI Variable)
+         =================================================================== -->
+
+    <!-- ===================================================================
+         1. FONT FAMILIES
+         Segoe UI as primary application font; Segoe UI Variable when available.
+         =================================================================== -->
+    <FontFamily x:Key="FontFamilyPrimary">Segoe UI Variable Text, Segoe UI, -apple-system, BlinkMacSystemFont, sans-serif</FontFamily>
+    <FontFamily x:Key="FontFamilyDisplay">Segoe UI Variable Display, Segoe UI Variable Text, Segoe UI, sans-serif</FontFamily>
+    <FontFamily x:Key="FontFamilyMono">Cascadia Code, Consolas, "Segoe UI Mono", monospace</FontFamily>
+
+    <!-- Backward-compatibility font aliases for legacy views and controls -->
+    <FontFamily x:Key="FontBase">Segoe UI Variable Text, Segoe UI, -apple-system, BlinkMacSystemFont, sans-serif</FontFamily>
+    <FontFamily x:Key="MainFont">Segoe UI Variable Text, Segoe UI, -apple-system, BlinkMacSystemFont, sans-serif</FontFamily>
+    <FontFamily x:Key="FontMono">Cascadia Code, Consolas, "Segoe UI Mono", monospace</FontFamily>
+    <FontFamily x:Key="BrandFontMono">Cascadia Code, Consolas, "Segoe UI Mono", monospace</FontFamily>
+
+    <!-- ===================================================================
+         2. FONT WEIGHTS
+         =================================================================== -->
+    <FontWeight x:Key="FontWeightRegular">Normal</FontWeight>
+    <FontWeight x:Key="FontWeightMedium">Medium</FontWeight>
+    <FontWeight x:Key="FontWeightSemiBold">SemiBold</FontWeight>
+    <FontWeight x:Key="FontWeightBold">Bold</FontWeight>
+
+    <!-- ===================================================================
+         3. TYPOGRAPHY SCALE (Double values for FontSize properties)
+         - Application branding: 20px
+         - Page titles: 26px
+         - Section headings: 18px
+         - Card headings: 16px
+         - Navigation labels: 14px
+         - Standard body text: 14px
+         - Input text: 14px
+         - Button text: 14px
+         - Secondary descriptions: 12px
+         - Status labels: 12px
+         - Captions & badges: 11px / 11.5px
+         - KPI values: 28px
+         - Monospace text: 12px
+         =================================================================== -->
+    <sys:Double x:Key="FontSizeBranding">20</sys:Double>
+    <sys:Double x:Key="FontSizePageTitle">26</sys:Double>
+    <sys:Double x:Key="FontSizeSectionHeader">18</sys:Double>
+    <sys:Double x:Key="FontSizeCardHeader">16</sys:Double>
+    <sys:Double x:Key="FontSizeNavLabel">14</sys:Double>
+    <sys:Double x:Key="FontSizeBody">14</sys:Double>
+    <sys:Double x:Key="FontSizeInput">14</sys:Double>
+    <sys:Double x:Key="FontSizeButton">14</sys:Double>
+    <sys:Double x:Key="FontSizeSecondary">12</sys:Double>
+    <sys:Double x:Key="FontSizeStatus">12</sys:Double>
+    <sys:Double x:Key="FontSizeCaption">11</sys:Double>
+    <sys:Double x:Key="FontSizeBadge">11.5</sys:Double>
+    <sys:Double x:Key="FontSizeKpi">28</sys:Double>
+    <sys:Double x:Key="FontSizeMono">12</sys:Double>
+
+    <!-- Backward-compatibility size aliases mapped to typography hierarchy -->
+    <sys:Double x:Key="FontSizeH1">26</sys:Double>           <!-- Page titles: 26px -->
+    <sys:Double x:Key="FontSizeH2">18</sys:Double>           <!-- Section headings: 18px -->
+    <sys:Double x:Key="FontSizeRowTitle">14</sys:Double>     <!-- Row & button titles: 14px -->
+    <sys:Double x:Key="FontSizeFieldLabel">12</sys:Double>   <!-- Secondary field labels: 12px -->
+    <sys:Double x:Key="FontSizeHelp">12</sys:Double>         <!-- Secondary descriptions: 12px -->
+
+    <!-- ===================================================================
+         4. REUSABLE TEXT STYLES
+         Pre-configured TextBlock styles with typography hierarchy tokens
+         =================================================================== -->
+
+    <!-- Application Branding Style: 20px, SemiBold, Display font -->
+    <Style x:Key="TextBranding" TargetType="{x:Type TextBlock}">
+        <Setter Property="FontFamily" Value="{StaticResource FontFamilyDisplay}"/>
+        <Setter Property="FontSize" Value="{StaticResource FontSizeBranding}"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="TextOptions.TextFormattingMode" Value="Display"/>
+        <Setter Property="TextOptions.TextRenderingMode" Value="ClearType"/>
+    </Style>
+
+    <!-- Page Title Style: 26px, SemiBold -->
+    <Style x:Key="TextPageTitle" TargetType="{x:Type TextBlock}">
+        <Setter Property="FontFamily" Value="{StaticResource FontFamilyDisplay}"/>
+        <Setter Property="FontSize" Value="{StaticResource FontSizePageTitle}"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Foreground" Value="{DynamicResource BrushInk}"/>
+        <Setter Property="TextOptions.TextFormattingMode" Value="Display"/>
+        <Setter Property="TextOptions.TextRenderingMode" Value="ClearType"/>
+    </Style>
+
+    <!-- Section Heading Style: 18px, SemiBold -->
+    <Style x:Key="TextSectionHeader" TargetType="{x:Type TextBlock}">
+        <Setter Property="FontFamily" Value="{StaticResource FontFamilyPrimary}"/>
+        <Setter Property="FontSize" Value="{StaticResource FontSizeSectionHeader}"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Foreground" Value="{DynamicResource BrushInk}"/>
+        <Setter Property="TextOptions.TextFormattingMode" Value="Display"/>
+        <Setter Property="TextOptions.TextRenderingMode" Value="ClearType"/>
+    </Style>
+
+    <!-- Card Heading Style: 16px, SemiBold -->
+    <Style x:Key="TextCardHeader" TargetType="{x:Type TextBlock}">
+        <Setter Property="FontFamily" Value="{StaticResource FontFamilyPrimary}"/>
+        <Setter Property="FontSize" Value="{StaticResource FontSizeCardHeader}"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Foreground" Value="{DynamicResource BrushInk}"/>
+        <Setter Property="TextOptions.TextFormattingMode" Value="Display"/>
+        <Setter Property="TextOptions.TextRenderingMode" Value="ClearType"/>
+    </Style>
+
+    <!-- Navigation Label Style: 14px, Medium -->
+    <Style x:Key="TextNavLabel" TargetType="{x:Type TextBlock}">
+        <Setter Property="FontFamily" Value="{StaticResource FontFamilyPrimary}"/>
+        <Setter Property="FontSize" Value="{StaticResource FontSizeNavLabel}"/>
+        <Setter Property="FontWeight" Value="Medium"/>
+        <Setter Property="TextOptions.TextFormattingMode" Value="Display"/>
+        <Setter Property="TextOptions.TextRenderingMode" Value="ClearType"/>
+    </Style>
+
+    <!-- Standard Body Text Style: 14px, Regular -->
+    <Style x:Key="TextBody" TargetType="{x:Type TextBlock}">
+        <Setter Property="FontFamily" Value="{StaticResource FontFamilyPrimary}"/>
+        <Setter Property="FontSize" Value="{StaticResource FontSizeBody}"/>
+        <Setter Property="FontWeight" Value="Normal"/>
+        <Setter Property="Foreground" Value="{DynamicResource BrushInk}"/>
+        <Setter Property="TextOptions.TextFormattingMode" Value="Display"/>
+        <Setter Property="TextOptions.TextRenderingMode" Value="ClearType"/>
+    </Style>
+
+    <!-- Body Text Medium Style: 14px, Medium -->
+    <Style x:Key="TextBodyMedium" TargetType="{x:Type TextBlock}">
+        <Setter Property="FontFamily" Value="{StaticResource FontFamilyPrimary}"/>
+        <Setter Property="FontSize" Value="{StaticResource FontSizeBody}"/>
+        <Setter Property="FontWeight" Value="Medium"/>
+        <Setter Property="Foreground" Value="{DynamicResource BrushInk}"/>
+        <Setter Property="TextOptions.TextFormattingMode" Value="Display"/>
+        <Setter Property="TextOptions.TextRenderingMode" Value="ClearType"/>
+    </Style>
+
+    <!-- Body Text SemiBold Style: 14px, SemiBold -->
+    <Style x:Key="TextBodySemiBold" TargetType="{x:Type TextBlock}">
+        <Setter Property="FontFamily" Value="{StaticResource FontFamilyPrimary}"/>
+        <Setter Property="FontSize" Value="{StaticResource FontSizeBody}"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Foreground" Value="{DynamicResource BrushInk}"/>
+        <Setter Property="TextOptions.TextFormattingMode" Value="Display"/>
+        <Setter Property="TextOptions.TextRenderingMode" Value="ClearType"/>
+    </Style>
+
+    <!-- Secondary Description Style: 12px, Regular -->
+    <Style x:Key="TextSecondary" TargetType="{x:Type TextBlock}">
+        <Setter Property="FontFamily" Value="{StaticResource FontFamilyPrimary}"/>
+        <Setter Property="FontSize" Value="{StaticResource FontSizeSecondary}"/>
+        <Setter Property="FontWeight" Value="Normal"/>
+        <Setter Property="Foreground" Value="{DynamicResource BrushInkMuted}"/>
+        <Setter Property="TextOptions.TextFormattingMode" Value="Display"/>
+        <Setter Property="TextOptions.TextRenderingMode" Value="ClearType"/>
+    </Style>
+
+    <!-- Status Label Style: 12px, Medium -->
+    <Style x:Key="TextStatus" TargetType="{x:Type TextBlock}">
+        <Setter Property="FontFamily" Value="{StaticResource FontFamilyPrimary}"/>
+        <Setter Property="FontSize" Value="{StaticResource FontSizeStatus}"/>
+        <Setter Property="FontWeight" Value="Medium"/>
+        <Setter Property="TextOptions.TextFormattingMode" Value="Display"/>
+        <Setter Property="TextOptions.TextRenderingMode" Value="ClearType"/>
+    </Style>
+
+    <!-- Caption / Microcopy Style: 11px, Regular -->
+    <Style x:Key="TextCaption" TargetType="{x:Type TextBlock}">
+        <Setter Property="FontFamily" Value="{StaticResource FontFamilyPrimary}"/>
+        <Setter Property="FontSize" Value="{StaticResource FontSizeCaption}"/>
+        <Setter Property="FontWeight" Value="Normal"/>
+        <Setter Property="Foreground" Value="{DynamicResource BrushInkFaint}"/>
+        <Setter Property="TextOptions.TextFormattingMode" Value="Display"/>
+        <Setter Property="TextOptions.TextRenderingMode" Value="ClearType"/>
+    </Style>
+
+    <!-- Monospace Code / Path Style: 12px, Regular -->
+    <Style x:Key="TextMono" TargetType="{x:Type TextBlock}">
+        <Setter Property="FontFamily" Value="{StaticResource FontFamilyMono}"/>
+        <Setter Property="FontSize" Value="{StaticResource FontSizeMono}"/>
+        <Setter Property="FontWeight" Value="Normal"/>
+        <Setter Property="TextOptions.TextFormattingMode" Value="Display"/>
+        <Setter Property="TextOptions.TextRenderingMode" Value="ClearType"/>
+    </Style>
+
+    <!-- KPI Metric Number Style: 28px, SemiBold -->
+    <Style x:Key="TextKpiNumber" TargetType="{x:Type TextBlock}">
+        <Setter Property="FontFamily" Value="{StaticResource FontFamilyDisplay}"/>
+        <Setter Property="FontSize" Value="{StaticResource FontSizeKpi}"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Foreground" Value="{DynamicResource BrushInk}"/>
+        <Setter Property="TextOptions.TextFormattingMode" Value="Display"/>
+        <Setter Property="TextOptions.TextRenderingMode" Value="ClearType"/>
+    </Style>
+
+</ResourceDictionary>

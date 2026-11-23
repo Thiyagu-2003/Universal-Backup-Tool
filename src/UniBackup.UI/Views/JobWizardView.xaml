@@ -36,8 +36,8 @@
 
                 <!-- Title & Subtitle -->
                 <StackPanel Grid.Column="2" VerticalAlignment="Center">
-                    <TextBlock Text="Create backup job" FontWeight="SemiBold" FontSize="{StaticResource FontSizeH1}" Foreground="{DynamicResource BrushInk}"/>
-                    <TextBlock Text="Source, schedule, destinations, then retention and encryption" FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkMuted}" Margin="0,2,0,0"/>
+                    <TextBlock Text="Create backup job" FontWeight="SemiBold" FontSize="{StaticResource FontSizePageTitle}" Foreground="{DynamicResource BrushInk}"/>
+                    <TextBlock Text="Source, schedule, destinations, then retention and encryption" FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushInkMuted}" Margin="0,2,0,0"/>
                 </StackPanel>
 
                 <!-- Cancel & Save Actions -->
@@ -78,8 +78,8 @@
                     <!-- Source Selection Card (3 Radio Cards) -->
                     <Border Style="{StaticResource Card}" Padding="24" Margin="0,0,0,20">
                         <StackPanel>
-                            <TextBlock Text="Select source type" FontWeight="SemiBold" FontSize="{StaticResource FontSizeH2}" Foreground="{DynamicResource BrushInk}"/>
-                            <TextBlock Text="Choose what this backup job protects" FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkMuted}" Margin="0,2,0,16"/>
+                            <TextBlock Text="Select source type" FontWeight="SemiBold" FontSize="{StaticResource FontSizeSectionHeader}" Foreground="{DynamicResource BrushInk}"/>
+                            <TextBlock Text="Choose what this backup job protects" FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushInkMuted}" Margin="0,2,0,16"/>
 
                             <Grid>
                                 <Grid.ColumnDefinitions>
@@ -104,8 +104,8 @@
                                                         <Path Data="{StaticResource IconFolder}" Fill="{DynamicResource BrushCobalt}" Width="24" Height="24" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                     </Border>
                                                     <StackPanel Grid.Column="1">
-                                                        <TextBlock Text="Folder or file share" FontWeight="SemiBold" FontSize="{StaticResource FontSizeRowTitle}" Foreground="{DynamicResource BrushInk}"/>
-                                                        <TextBlock Text="Local directories or UNC network shares with VSS" FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkMuted}" TextWrapping="Wrap" Margin="0,3,0,0"/>
+                                                        <TextBlock Text="Folder or file share" FontWeight="SemiBold" FontSize="{StaticResource FontSizeCardHeader}" Foreground="{DynamicResource BrushInk}"/>
+                                                        <TextBlock Text="Local directories or UNC network shares with VSS" FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushInkMuted}" TextWrapping="Wrap" Margin="0,3,0,0"/>
                                                     </StackPanel>
                                                 </Grid>
                                             </Border>
@@ -134,8 +134,8 @@
                                                         <Path Data="{StaticResource IconIisSites}" Fill="{DynamicResource BrushTeal}" Width="24" Height="24" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                     </Border>
                                                     <StackPanel Grid.Column="1">
-                                                        <TextBlock Text="IIS websites" FontWeight="SemiBold" FontSize="{StaticResource FontSizeRowTitle}" Foreground="{DynamicResource BrushInk}"/>
-                                                        <TextBlock Text="Live websites with bindings, app pools and config export" FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkMuted}" TextWrapping="Wrap" Margin="0,3,0,0"/>
+                                                        <TextBlock Text="IIS websites" FontWeight="SemiBold" FontSize="{StaticResource FontSizeCardHeader}" Foreground="{DynamicResource BrushInk}"/>
+                                                        <TextBlock Text="Live websites with bindings, app pools and config export" FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushInkMuted}" TextWrapping="Wrap" Margin="0,3,0,0"/>
                                                     </StackPanel>
                                                 </Grid>
                                             </Border>
@@ -164,8 +164,8 @@
                                                         <Path Data="{StaticResource IconSqlServer}" Fill="{DynamicResource BrushOrchid}" Width="24" Height="24" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                     </Border>
                                                     <StackPanel Grid.Column="1">
-                                                        <TextBlock Text="SQL Server databases" FontWeight="SemiBold" FontSize="{StaticResource FontSizeRowTitle}" Foreground="{DynamicResource BrushInk}"/>
-                                                        <TextBlock Text="Full, differential and log backups with restore chains" FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkMuted}" TextWrapping="Wrap" Margin="0,3,0,0"/>
+                                                        <TextBlock Text="SQL Server databases" FontWeight="SemiBold" FontSize="{StaticResource FontSizeCardHeader}" Foreground="{DynamicResource BrushInk}"/>
+                                                        <TextBlock Text="Full, differential and log backups with restore chains" FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushInkMuted}" TextWrapping="Wrap" Margin="0,3,0,0"/>
                                                     </StackPanel>
                                                 </Grid>
                                             </Border>
@@ -232,8 +232,8 @@
                         <StackPanel>
                             <Grid Margin="0,0,0,16">
                                 <StackPanel>
-                                    <TextBlock Text="Chosen IIS websites" FontWeight="SemiBold" FontSize="{StaticResource FontSizeH2}" Foreground="{DynamicResource BrushInk}"/>
-                                    <TextBlock Text="Select live sites to package and protect" FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkMuted}" Margin="0,2,0,0"/>
+                                    <TextBlock Text="Chosen IIS websites" FontWeight="SemiBold" FontSize="{StaticResource FontSizeCardHeader}" Foreground="{DynamicResource BrushInk}"/>
+                                    <TextBlock Text="Select live sites to package and protect" FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushInkMuted}" Margin="0,2,0,0"/>
                                 </StackPanel>
                                 <Button HorizontalAlignment="Right" Content="Select from IIS" Command="{Binding OpenIisPickerCommand}" Style="{StaticResource BtnPrimary}"/>
                             </Grid>
@@ -255,7 +255,7 @@
                                                 </Border>
                                                 <StackPanel Grid.Column="1" VerticalAlignment="Center">
                                                     <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource BrushInk}"/>
-                                                    <TextBlock Text="{Binding Path}" FontFamily="{StaticResource FontMono}" FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkMuted}"/>
+                                                    <TextBlock Text="{Binding Path}" FontFamily="{StaticResource FontFamilyMono}" FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushInkMuted}"/>
                                                 </StackPanel>
                                                 <TextBlock Grid.Column="2" Text="{Binding SizeDisplay}" FontWeight="SemiBold" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource BrushInk}" VerticalAlignment="Center" Margin="0,0,16,0"/>
                                                 <Button Grid.Column="3" Command="{Binding DataContext.RemoveIisSiteCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"

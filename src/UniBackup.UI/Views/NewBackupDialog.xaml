@@ -38,8 +38,8 @@
                     <Path Data="{StaticResource IconPlus}" Fill="#38BDF8" Width="18" Height="18" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                 </Border>
                 <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                    <TextBlock Text="Create New Backup Job" FontSize="20" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}"/>
-                    <TextBlock Text="Stepped Job Configuration: Source → Schedule → Destinations → Options" FontSize="12.5" Foreground="{StaticResource TextSecondaryBrush}"/>
+                    <TextBlock Text="Create New Backup Job" FontSize="{StaticResource FontSizeSectionHeader}" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}"/>
+                    <TextBlock Text="Stepped Job Configuration: Source → Schedule → Destinations → Options" FontSize="{StaticResource FontSizeSecondary}" Foreground="{StaticResource TextSecondaryBrush}"/>
                 </StackPanel>
             </Grid>
         </Border>

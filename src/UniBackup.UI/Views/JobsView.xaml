@@ -16,7 +16,7 @@
                 <StackPanel>
                     <TextBlock Text="Backup Jobs"
                                FontWeight="SemiBold"
-                               FontSize="{StaticResource FontSizeH1}"
+                               FontSize="{StaticResource FontSizePageTitle}"
                                Foreground="{DynamicResource BrushInk}"/>
                     <TextBlock Text="{Binding JobsSummaryHeader}"
                                FontSize="{StaticResource FontSizeBody}"
@@ -144,7 +144,7 @@
                                             <StackPanel Orientation="Horizontal">
                                                 <TextBlock Text="{Binding Name}"
                                                            FontWeight="SemiBold"
-                                                           FontSize="{StaticResource FontSizeRowTitle}"
+                                                           FontSize="{StaticResource FontSizeCardHeader}"
                                                            Foreground="{DynamicResource BrushInk}"
                                                            TextTrimming="CharacterEllipsis"
                                                            MaxWidth="140"/>
@@ -170,7 +170,7 @@
 
                                             <!-- Source Path in Mono, Ellipsised -->
                                             <TextBlock Text="{Binding EffectiveSourcePath}"
-                                                       FontFamily="{StaticResource FontMono}"
+                                                       FontFamily="{StaticResource FontFamilyMono}"
                                                        FontSize="{StaticResource FontSizeMono}"
                                                        Foreground="{DynamicResource BrushInkMuted}"
                                                        TextTrimming="CharacterEllipsis"
@@ -184,7 +184,7 @@
                                                        FontSize="{StaticResource FontSizeBody}"
                                                        Foreground="{DynamicResource BrushInk}"/>
                                             <TextBlock Text="Automatic trigger"
-                                                       FontSize="{StaticResource FontSizeHelp}"
+                                                       FontSize="{StaticResource FontSizeSecondary}"
                                                        Foreground="{DynamicResource BrushInkFaint}"
                                                        Margin="0,2,0,0"/>
                                         </StackPanel>
@@ -195,9 +195,9 @@
                                                                     IsJobRunning="{Binding IsRunning}"/>
                                             <!-- Axis: 24 h ago · 12 h · now -->
                                             <Grid Margin="4,2,4,0">
-                                                <TextBlock Text="24 h ago" FontFamily="{StaticResource FontMono}" FontSize="10" Foreground="{DynamicResource BrushInkFaint}" HorizontalAlignment="Left"/>
-                                                <TextBlock Text="12 h" FontFamily="{StaticResource FontMono}" FontSize="10" Foreground="{DynamicResource BrushInkFaint}" HorizontalAlignment="Center"/>
-                                                <TextBlock Text="now" FontFamily="{StaticResource FontMono}" FontSize="10" Foreground="{DynamicResource BrushInkFaint}" HorizontalAlignment="Right"/>
+                                                <TextBlock Text="24 h ago" FontFamily="{StaticResource FontFamilyMono}" FontSize="10" Foreground="{DynamicResource BrushInkFaint}" HorizontalAlignment="Left"/>
+                                                <TextBlock Text="12 h" FontFamily="{StaticResource FontFamilyMono}" FontSize="10" Foreground="{DynamicResource BrushInkFaint}" HorizontalAlignment="Center"/>
+                                                <TextBlock Text="now" FontFamily="{StaticResource FontFamilyMono}" FontSize="10" Foreground="{DynamicResource BrushInkFaint}" HorizontalAlignment="Right"/>
                                             </Grid>
                                         </StackPanel>
 
@@ -208,7 +208,7 @@
                                                        FontSize="{StaticResource FontSizeBody}"
                                                        Foreground="{DynamicResource BrushInk}"/>
                                             <TextBlock Text="{Binding ArchiveSizeDisplay, StringFormat={}{0} completed}"
-                                                       FontSize="{StaticResource FontSizeHelp}"
+                                                       FontSize="{StaticResource FontSizeSecondary}"
                                                        Foreground="{DynamicResource BrushInkMuted}"
                                                        Margin="0,2,0,0"/>
                                         </StackPanel>
@@ -276,7 +276,7 @@
                                         </Grid.ColumnDefinitions>
 
                                         <TextBlock VerticalAlignment="Center" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource BrushCoral}">
-                                            Delete <Bold><Run Text="{Binding Name}"/></Bold>? Backups already in the cloud stay where they are.
+                                            Delete <Bold><Run Text="{Binding Name, Mode=OneWay}"/></Bold>? Backups already in the cloud stay where they are.
                                         </TextBlock>
 
                                         <StackPanel Grid.Column="1" Orientation="Horizontal">
@@ -316,25 +316,25 @@
 
                                             <!-- Source -->
                                             <StackPanel Grid.Column="0">
-                                                <TextBlock Text="Source" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
-                                                <TextBlock Text="{Binding EffectiveSourcePath}" FontFamily="{StaticResource FontMono}" FontSize="{StaticResource FontSizeMono}" Foreground="{DynamicResource BrushInk}" Margin="0,3,0,0" TextTrimming="CharacterEllipsis"/>
+                                                <TextBlock Text="Source" FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushInkMuted}"/>
+                                                <TextBlock Text="{Binding EffectiveSourcePath}" FontFamily="{StaticResource FontFamilyMono}" FontSize="{StaticResource FontSizeMono}" Foreground="{DynamicResource BrushInk}" Margin="0,3,0,0" TextTrimming="CharacterEllipsis"/>
                                             </StackPanel>
 
                                             <!-- Destinations -->
                                             <StackPanel Grid.Column="1">
-                                                <TextBlock Text="Destinations" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
+                                                <TextBlock Text="Destinations" FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushInkMuted}"/>
                                                 <TextBlock Text="{Binding DestinationsDisplay}" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource BrushInk}" Margin="0,3,0,0"/>
                                             </StackPanel>
 
                                             <!-- Retention -->
                                             <StackPanel Grid.Column="2">
-                                                <TextBlock Text="Retention" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
+                                                <TextBlock Text="Retention" FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushInkMuted}"/>
                                                 <TextBlock Text="{Binding RetentionDisplay}" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource BrushInk}" Margin="0,3,0,0"/>
                                             </StackPanel>
 
                                             <!-- Protection -->
                                             <StackPanel Grid.Column="3">
-                                                <TextBlock Text="Protection" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
+                                                <TextBlock Text="Protection" FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushInkMuted}"/>
                                                 <TextBlock Text="{Binding EncryptionDisplay}" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource BrushInk}" Margin="0,3,0,0"/>
                                             </StackPanel>
                                         </Grid>

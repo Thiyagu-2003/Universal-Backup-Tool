@@ -27,7 +27,7 @@
                                         Background="{DynamicResource BrushCoralSoft}" BorderBrush="{DynamicResource BrushCoral}" BorderThickness="1">
                                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                         <Ellipse Width="8" Height="8" Stretch="Uniform" Fill="{DynamicResource BrushCoral}" Margin="0,0,6,0" VerticalAlignment="Center"/>
-                                        <TextBlock Text="{Binding Logs.ErrorCount, StringFormat={}{0} Errors}" FontWeight="SemiBold" FontSize="{StaticResource FontSizeBadge}" Foreground="{DynamicResource BrushCoral}" VerticalAlignment="Center"/>
+                                        <TextBlock Text="{Binding Logs.ErrorCount, StringFormat={}{0} Errors}" FontWeight="Medium" FontSize="{StaticResource FontSizeStatus}" Foreground="{DynamicResource BrushCoral}" VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </Border>
                                 <ControlTemplate.Triggers>
@@ -49,7 +49,7 @@
                                         Background="{DynamicResource BrushSaffronSoft}" BorderBrush="{DynamicResource BrushSaffron}" BorderThickness="1">
                                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                         <Ellipse Width="8" Height="8" Stretch="Uniform" Fill="{DynamicResource BrushSaffron}" Margin="0,0,6,0" VerticalAlignment="Center"/>
-                                        <TextBlock Text="{Binding Logs.WarningCount, StringFormat={}{0} Warnings}" FontWeight="SemiBold" FontSize="{StaticResource FontSizeBadge}" Foreground="{DynamicResource BrushSaffron}" VerticalAlignment="Center"/>
+                                        <TextBlock Text="{Binding Logs.WarningCount, StringFormat={}{0} Warnings}" FontWeight="Medium" FontSize="{StaticResource FontSizeStatus}" Foreground="{DynamicResource BrushSaffron}" VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </Border>
                                 <ControlTemplate.Triggers>
@@ -71,7 +71,7 @@
                                         Background="{DynamicResource BrushCobaltSoft}" BorderBrush="{DynamicResource BrushCobalt}" BorderThickness="1">
                                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                         <Ellipse Width="8" Height="8" Stretch="Uniform" Fill="{DynamicResource BrushCobalt}" Margin="0,0,6,0" VerticalAlignment="Center"/>
-                                        <TextBlock Text="{Binding Logs.InfoCount, StringFormat={}{0} Info}" FontWeight="SemiBold" FontSize="{StaticResource FontSizeBadge}" Foreground="{DynamicResource BrushCobalt}" VerticalAlignment="Center"/>
+                                        <TextBlock Text="{Binding Logs.InfoCount, StringFormat={}{0} Info}" FontWeight="Medium" FontSize="{StaticResource FontSizeStatus}" Foreground="{DynamicResource BrushCobalt}" VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </Border>
                                 <ControlTemplate.Triggers>
@@ -209,7 +209,7 @@
 
                                                 <!-- Mono Line Content -->
                                                 <TextBlock Text="{Binding Raw}"
-                                                           FontFamily="{StaticResource FontMono}"
+                                                           FontFamily="{StaticResource FontFamilyMono}"
                                                            FontSize="{StaticResource FontSizeMono}"
                                                            Foreground="{DynamicResource BrushInk}"
                                                            TextWrapping="NoWrap"

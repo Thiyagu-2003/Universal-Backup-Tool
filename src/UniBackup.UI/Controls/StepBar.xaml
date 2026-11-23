@@ -33,7 +33,7 @@
                                 <StackPanel Grid.Column="1" VerticalAlignment="Center">
                                     <TextBlock x:Name="title" Text="Source" FontWeight="SemiBold" FontSize="{StaticResource FontSizeRowTitle}"
                                                Foreground="{DynamicResource BrushInkMuted}"/>
-                                    <TextBlock Text="What to back up" FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkFaint}" Margin="0,1,0,0"/>
+                                    <TextBlock Text="What to back up" FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushInkFaint}" Margin="0,1,0,0"/>
                                 </StackPanel>
                             </Grid>
                         </Border>
@@ -65,7 +65,7 @@
                                 <StackPanel Grid.Column="1" VerticalAlignment="Center">
                                     <TextBlock x:Name="title" Text="Schedule" FontWeight="SemiBold" FontSize="{StaticResource FontSizeRowTitle}"
                                                Foreground="{DynamicResource BrushInkMuted}"/>
-                                    <TextBlock Text="When to run" FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkFaint}" Margin="0,1,0,0"/>
+                                    <TextBlock Text="When to run" FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushInkFaint}" Margin="0,1,0,0"/>
                                 </StackPanel>
                             </Grid>
                         </Border>
@@ -97,7 +97,7 @@
                                 <StackPanel Grid.Column="1" VerticalAlignment="Center">
                                     <TextBlock x:Name="title" Text="Destinations" FontWeight="SemiBold" FontSize="{StaticResource FontSizeRowTitle}"
                                                Foreground="{DynamicResource BrushInkMuted}"/>
-                                    <TextBlock Text="Where to store" FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkFaint}" Margin="0,1,0,0"/>
+                                    <TextBlock Text="Where to store" FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushInkFaint}" Margin="0,1,0,0"/>
                                 </StackPanel>
                             </Grid>
                         </Border>
@@ -129,7 +129,7 @@
                                 <StackPanel Grid.Column="1" VerticalAlignment="Center">
                                     <TextBlock x:Name="title" Text="Options" FontWeight="SemiBold" FontSize="{StaticResource FontSizeRowTitle}"
                                                Foreground="{DynamicResource BrushInkMuted}"/>
-                                    <TextBlock Text="Retention &amp; encryption" FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkFaint}" Margin="0,1,0,0"/>
+                                    <TextBlock Text="Retention &amp; encryption" FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushInkFaint}" Margin="0,1,0,0"/>
                                 </StackPanel>
                             </Grid>
                         </Border>

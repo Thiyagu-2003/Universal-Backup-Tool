@@ -36,7 +36,7 @@
                 <StackPanel Grid.Column="1" VerticalAlignment="Center">
                     <TextBlock Text="{Binding Title, ElementName=Root}"
                                FontWeight="SemiBold"
-                               FontSize="{StaticResource FontSizeFieldLabel}"
+                               FontSize="{StaticResource FontSizeSecondary}"
                                Foreground="{DynamicResource BrushInkMuted}"/>
 
                     <!-- 28 / 600 KPI Value -->
@@ -48,7 +48,7 @@
                                Margin="0,2,0,0"/>
 
                     <TextBlock Text="{Binding SubText, ElementName=Root}"
-                               FontSize="{StaticResource FontSizeHelp}"
+                               FontSize="{StaticResource FontSizeSecondary}"
                                Foreground="{DynamicResource BrushInkFaint}"
                                Margin="0,2,0,0"/>
                 </StackPanel>

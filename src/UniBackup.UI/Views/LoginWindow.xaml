@@ -89,10 +89,10 @@
                         <Border Width="50" Height="50" CornerRadius="12" Background="#162244" HorizontalAlignment="Left" Margin="0,0,0,16">
                             <Image Source="pack://application:,,,/UniBackup;component/UniBackup.png" Width="42" Height="42" RenderOptions.BitmapScalingMode="HighQuality"/>
                         </Border>
-                        <TextBlock Text="UniBackup" FontSize="26" FontWeight="Bold" Foreground="White"/>
-                        <TextBlock Text="Enterprise Cloud Backup &amp; Recovery v2.0" FontSize="12.5" FontWeight="SemiBold" Foreground="#38BDF8" Margin="0,4,0,10"/>
+                        <TextBlock Text="UniBackup" FontSize="{StaticResource FontSizeBranding}" FontWeight="SemiBold" Foreground="White"/>
+                        <TextBlock Text="Enterprise Cloud Backup &amp; Recovery v2.0" FontSize="{StaticResource FontSizeSecondary}" FontWeight="SemiBold" Foreground="#38BDF8" Margin="0,4,0,10"/>
                         <TextBlock Text="Automated SQL Server and folder backups, compressed with high-throughput streams and uploaded to Amazon S3 &amp; Google Drive."
-                                   FontSize="12" Foreground="#94A3B8" TextWrapping="Wrap" LineHeight="18"/>
+                                   FontSize="{StaticResource FontSizeSecondary}" Foreground="#94A3B8" TextWrapping="Wrap" LineHeight="18"/>
                     </StackPanel>
 
                     <!-- Feature Chips -->
@@ -178,10 +178,10 @@
                     <!-- Centered Sign-In Card -->
                     <Border Grid.Row="1" Style="{StaticResource ModernCard}" VerticalAlignment="Center" Padding="28">
                         <StackPanel>
-                            <TextBlock Text="Sign in" FontSize="22" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}"/>
-                            <TextBlock Text="Enter the administrator access password to continue." FontSize="12.5" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,4,0,20"/>
+                            <TextBlock Text="Sign in" FontSize="{StaticResource FontSizeSectionHeader}" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}"/>
+                            <TextBlock Text="Enter the administrator access password to continue." FontSize="{StaticResource FontSizeSecondary}" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,4,0,20"/>
 
-                            <TextBlock Text="Access Password" FontSize="12" FontWeight="SemiBold" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,6"/>
+                            <TextBlock Text="Access Password" FontSize="{StaticResource FontSizeSecondary}" FontWeight="SemiBold" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,6"/>
                             <Border x:Name="PasswordInputContainer" Height="44" Background="White" 
                                     BorderBrush="#CBD5E1" BorderThickness="1.5" CornerRadius="8"
                                     SnapsToDevicePixels="True" MouseLeftButtonDown="PasswordInputContainer_MouseLeftButtonDown">

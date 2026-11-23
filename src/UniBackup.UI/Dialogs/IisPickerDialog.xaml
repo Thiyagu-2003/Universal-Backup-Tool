@@ -58,7 +58,7 @@
                         <StackPanel Grid.Column="1" VerticalAlignment="Center">
                             <TextBlock Text="Select IIS sites"
                                        FontWeight="SemiBold"
-                                       FontSize="{StaticResource FontSizeH1}"
+                                       FontSize="{StaticResource FontSizeSectionHeader}"
                                        Foreground="{DynamicResource BrushInk}"/>
                             <TextBlock x:Name="SublineTextBlock"
                                        Text="Read live from IIS on local host. Sites whose physical folder is missing cannot be selected."
@@ -205,7 +205,7 @@
                                             <!-- Site Name -->
                                             <TextBlock Text="{Binding Name}"
                                                        FontWeight="SemiBold"
-                                                       FontSize="13.5"
+                                                       FontSize="{StaticResource FontSizeBody}"
                                                        Foreground="{DynamicResource BrushInk}"/>
 
                                             <!-- Physical Path in Mono -->
@@ -260,7 +260,7 @@
                                             <!-- Size Text -->
                                             <TextBlock Text="{Binding SizeDisplay}"
                                                        FontWeight="SemiBold"
-                                                       FontSize="{StaticResource FontSizeRowTitle}"
+                                                       FontSize="{StaticResource FontSizeCardHeader}"
                                                        Foreground="{DynamicResource BrushInk}"
                                                        HorizontalAlignment="Right"/>
 

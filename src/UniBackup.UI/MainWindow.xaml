@@ -126,8 +126,8 @@
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
                             <Image Source="{StaticResource AppLogoDrawingImage}" Width="44" Height="44" VerticalAlignment="Center" Margin="0,0,12,0"/>
                             <StackPanel VerticalAlignment="Center">
-                                <TextBlock Text="UniBackup Pro" FontWeight="SemiBold" FontSize="15" Foreground="#FFFFFF"/>
-                                <TextBlock Text="Universal Cloud Edition" FontSize="11" Foreground="{DynamicResource BrushRailText}" Margin="0,1,0,0"/>
+                                <TextBlock Text="UniBackup Pro" FontWeight="SemiBold" FontSize="{StaticResource FontSizeBranding}" Foreground="#FFFFFF"/>
+                                <TextBlock Text="Universal Cloud Edition" FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushRailText}" Margin="0,1,0,0"/>
                             </StackPanel>
                         </StackPanel>
 
@@ -139,7 +139,7 @@
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
                                 <controls:StatusDot VerticalAlignment="Center" Margin="0,0,8,0"/>
-                                <TextBlock Grid.Column="1" Text="{Binding HostDisplay}" FontFamily="{StaticResource FontMono}" FontSize="11" Foreground="{DynamicResource BrushRailText}" TextTrimming="CharacterEllipsis" VerticalAlignment="Center"/>
+                                <TextBlock Grid.Column="1" Text="{Binding HostDisplay}" FontFamily="{StaticResource FontFamilyMono}" FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource BrushRailText}" TextTrimming="CharacterEllipsis" VerticalAlignment="Center"/>
                             </Grid>
                         </Border>
                     </StackPanel>
@@ -148,7 +148,7 @@
                     <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Disabled" HorizontalScrollBarVisibility="Disabled" Padding="14,0">
                         <StackPanel>
                             <!-- GROUP 1: Protect -->
-                            <TextBlock Text="Protect" FontWeight="SemiBold" FontSize="11" Foreground="{DynamicResource BrushRailCaption}" Margin="10,6,10,4"/>
+                            <TextBlock Text="Protect" FontWeight="SemiBold" FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource BrushRailCaption}" Margin="10,6,10,4"/>
 
                             <!-- Overview -->
                             <RadioButton x:Name="NavOverviewRadio" Style="{StaticResource NavRailItem}" Checked="NavTab_Checked" Tag="Overview" Height="42" Margin="0,0,0,2">
@@ -161,7 +161,7 @@
                                     <Border Grid.Column="0" Width="34" Height="34" CornerRadius="8" Background="#332D5BFF" HorizontalAlignment="Center" VerticalAlignment="Center">
                                         <Path Data="{StaticResource IconOverview}" Fill="{DynamicResource BrushCobalt}" Width="26" Height="26" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                     </Border>
-                                    <TextBlock Grid.Column="2" Text="Overview" FontWeight="Medium" FontSize="{StaticResource FontSizeBody}" Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="2" Text="Overview" FontWeight="Medium" FontSize="{StaticResource FontSizeNavLabel}" Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" VerticalAlignment="Center"/>
                                 </Grid>
                             </RadioButton>
 
@@ -177,11 +177,11 @@
                                     <Border Grid.Column="0" Width="34" Height="34" CornerRadius="8" Background="#332D5BFF" HorizontalAlignment="Center" VerticalAlignment="Center">
                                         <Path Data="{StaticResource IconBackups}" Fill="{DynamicResource BrushCobalt}" Width="26" Height="26" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                     </Border>
-                                    <TextBlock Grid.Column="2" Text="Backup Jobs" FontWeight="Medium" FontSize="{StaticResource FontSizeBody}" Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="2" Text="Backup Jobs" FontWeight="Medium" FontSize="{StaticResource FontSizeNavLabel}" Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" VerticalAlignment="Center"/>
 
                                     <!-- Failing job count coral pill on right (§3.3) -->
                                     <Border Grid.Column="3" Visibility="{Binding HasStaleJobs, Converter={StaticResource BoolToVis}}" Style="{StaticResource BadgePill}" Background="{DynamicResource BrushCoral}" Height="18" Padding="6,0" VerticalAlignment="Center">
-                                        <TextBlock Text="{Binding StaleJobsCount}" FontWeight="SemiBold" FontSize="10" Foreground="#FFFFFF"/>
+                                        <TextBlock Text="{Binding StaleJobsCount}" FontWeight="SemiBold" FontSize="{StaticResource FontSizeCaption}" Foreground="#FFFFFF"/>
                                     </Border>
                                 </Grid>
                             </RadioButton>
@@ -197,7 +197,7 @@
                                     <Border Grid.Column="0" Width="34" Height="34" CornerRadius="8" Background="#332D5BFF" HorizontalAlignment="Center" VerticalAlignment="Center">
                                         <Path Data="{StaticResource IconCreateJob}" Fill="{DynamicResource BrushCobalt}" Width="26" Height="26" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                     </Border>
-                                    <TextBlock Grid.Column="2" Text="Create Backup Job" FontWeight="Medium" FontSize="{StaticResource FontSizeBody}" Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="2" Text="Create Backup Job" FontWeight="Medium" FontSize="{StaticResource FontSizeNavLabel}" Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" VerticalAlignment="Center"/>
                                 </Grid>
                             </RadioButton>
 
@@ -212,12 +212,12 @@
                                     <Border Grid.Column="0" Width="34" Height="34" CornerRadius="8" Background="#3300A0AE" HorizontalAlignment="Center" VerticalAlignment="Center">
                                         <Path Data="{StaticResource IconIisSites}" Fill="{DynamicResource BrushTeal}" Width="26" Height="26" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                     </Border>
-                                    <TextBlock Grid.Column="2" Text="IIS Sites" FontWeight="Medium" FontSize="{StaticResource FontSizeBody}" Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="2" Text="IIS Sites" FontWeight="Medium" FontSize="{StaticResource FontSizeNavLabel}" Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" VerticalAlignment="Center"/>
                                 </Grid>
                             </RadioButton>
 
                             <!-- GROUP 2: Recover and review -->
-                            <TextBlock Text="Recover and review" FontWeight="SemiBold" FontSize="11" Foreground="{DynamicResource BrushRailCaption}" Margin="10,4,10,4"/>
+                            <TextBlock Text="Recover and review" FontWeight="SemiBold" FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource BrushRailCaption}" Margin="10,4,10,4"/>
 
                             <!-- Cloud Recovery -->
                             <RadioButton x:Name="NavRecoveryRadio" Style="{StaticResource NavRailItem}" Checked="NavTab_Checked" Tag="Recovery" Height="42" Margin="0,0,0,2">
@@ -230,7 +230,7 @@
                                     <Border Grid.Column="0" Width="34" Height="34" CornerRadius="8" Background="#337C4DFF" HorizontalAlignment="Center" VerticalAlignment="Center">
                                         <Path Data="{StaticResource IconRecovery}" Fill="{DynamicResource BrushOrchid}" Width="26" Height="26" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                     </Border>
-                                    <TextBlock Grid.Column="2" Text="Cloud Recovery" FontWeight="Medium" FontSize="{StaticResource FontSizeBody}" Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="2" Text="Cloud Recovery" FontWeight="Medium" FontSize="{StaticResource FontSizeNavLabel}" Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" VerticalAlignment="Center"/>
                                 </Grid>
                             </RadioButton>
 
@@ -245,7 +245,7 @@
                                     <Border Grid.Column="0" Width="34" Height="34" CornerRadius="8" Background="#3300946A" HorizontalAlignment="Center" VerticalAlignment="Center">
                                         <Path Data="{StaticResource IconSummary}" Fill="{DynamicResource BrushJade}" Width="26" Height="26" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                     </Border>
-                                    <TextBlock Grid.Column="2" Text="Analytics &amp; History" FontWeight="Medium" FontSize="{StaticResource FontSizeBody}" Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="2" Text="Analytics &amp; History" FontWeight="Medium" FontSize="{StaticResource FontSizeNavLabel}" Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" VerticalAlignment="Center"/>
                                 </Grid>
                             </RadioButton>
 
@@ -260,12 +260,12 @@
                                     <Border Grid.Column="0" Width="34" Height="34" CornerRadius="8" Background="#332D5BFF" HorizontalAlignment="Center" VerticalAlignment="Center">
                                         <Path Data="{StaticResource IconLogs}" Fill="{DynamicResource BrushCobalt}" Width="26" Height="26" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                     </Border>
-                                    <TextBlock Grid.Column="2" Text="Application Logs" FontWeight="Medium" FontSize="{StaticResource FontSizeBody}" Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="2" Text="Application Logs" FontWeight="Medium" FontSize="{StaticResource FontSizeNavLabel}" Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" VerticalAlignment="Center"/>
                                 </Grid>
                             </RadioButton>
 
                             <!-- GROUP 3: Configure -->
-                            <TextBlock Text="Configure" FontWeight="SemiBold" FontSize="11" Foreground="{DynamicResource BrushRailCaption}" Margin="10,4,10,4"/>
+                            <TextBlock Text="Configure" FontWeight="SemiBold" FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource BrushRailCaption}" Margin="10,4,10,4"/>
 
                             <!-- Notifications -->
                             <RadioButton x:Name="NavNotificationsRadio" Style="{StaticResource NavRailItem}" Checked="NavTab_Checked" Tag="Notifications" Height="42" Margin="0,0,0,2">
@@ -278,7 +278,7 @@
                                     <Border Grid.Column="0" Width="34" Height="34" CornerRadius="8" Background="#33C97A00" HorizontalAlignment="Center" VerticalAlignment="Center">
                                         <Path Data="{StaticResource IconNotifications}" Fill="{DynamicResource BrushSaffron}" Width="26" Height="26" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                     </Border>
-                                    <TextBlock Grid.Column="2" Text="Notifications" FontWeight="Medium" FontSize="{StaticResource FontSizeBody}" Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="2" Text="Notifications" FontWeight="Medium" FontSize="{StaticResource FontSizeNavLabel}" Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" VerticalAlignment="Center"/>
                                 </Grid>
                             </RadioButton>
 
@@ -293,7 +293,7 @@
                                     <Border Grid.Column="0" Width="34" Height="34" CornerRadius="8" Background="#33808FA5" HorizontalAlignment="Center" VerticalAlignment="Center">
                                         <Path Data="{StaticResource IconSettings}" Fill="{DynamicResource BrushRailText}" Width="26" Height="26" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                     </Border>
-                                    <TextBlock Grid.Column="2" Text="Settings &amp; Engine" FontWeight="Medium" FontSize="{StaticResource FontSizeBody}" Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="2" Text="Settings &amp; Engine" FontWeight="Medium" FontSize="{StaticResource FontSizeNavLabel}" Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" VerticalAlignment="Center"/>
                                 </Grid>
                             </RadioButton>
                         </StackPanel>
@@ -303,8 +303,8 @@
                     <Border Grid.Row="2" Background="{DynamicResource BrushRailHostPill}" BorderBrush="{DynamicResource BrushRailHairline}" BorderThickness="0,1,0,0" Padding="16,14">
                         <StackPanel>
                             <Grid Margin="0,0,0,6">
-                                <TextBlock Text="Temp disk free" FontSize="11" Foreground="{DynamicResource BrushRailCaption}"/>
-                                <TextBlock Text="{Binding TempDiskFreeGbDisplay}" FontWeight="SemiBold" FontSize="12" Foreground="#FFFFFF" HorizontalAlignment="Right"/>
+                                <TextBlock Text="Temp disk free" FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushRailCaption}"/>
+                                <TextBlock Text="{Binding TempDiskFreeGbDisplay}" FontWeight="SemiBold" FontSize="{StaticResource FontSizeBody}" Foreground="#FFFFFF" HorizontalAlignment="Right"/>
                             </Grid>
 
                             <!-- 6 px Gradient Meter -->
@@ -319,7 +319,7 @@
                                 </Border>
                             </Border>
 
-                            <TextBlock Text="{Binding TempDiskDrive}" FontFamily="{StaticResource FontMono}" FontSize="10" Foreground="{DynamicResource BrushRailCaption}" TextTrimming="CharacterEllipsis"/>
+                            <TextBlock Text="{Binding TempDiskDrive}" FontFamily="{StaticResource FontFamilyMono}" FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource BrushRailCaption}" TextTrimming="CharacterEllipsis"/>
                         </StackPanel>
                     </Border>
                 </Grid>

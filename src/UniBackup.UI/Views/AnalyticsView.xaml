@@ -14,7 +14,7 @@
                 </Grid.ColumnDefinitions>
 
                 <StackPanel>
-                    <TextBlock Text="Analytics &amp; History" FontWeight="SemiBold" FontSize="{StaticResource FontSizeH1}" Foreground="{DynamicResource BrushInk}"/>
+                    <TextBlock Text="Analytics &amp; History" FontWeight="SemiBold" FontSize="{StaticResource FontSizePageTitle}" Foreground="{DynamicResource BrushInk}"/>
                     <TextBlock Text="30-day operational telemetry, failure rates, and execution log records" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource BrushInkMuted}" Margin="0,3,0,0"/>
                 </StackPanel>
 
@@ -51,17 +51,17 @@
                 <StackPanel>
                     <Grid Margin="0,0,0,16">
                         <StackPanel>
-                            <TextBlock Text="Problems per day" FontWeight="SemiBold" FontSize="{StaticResource FontSizeH2}" Foreground="{DynamicResource BrushInk}"/>
+                            <TextBlock Text="Problems per day" FontWeight="SemiBold" FontSize="{StaticResource FontSizeCardHeader}" Foreground="{DynamicResource BrushInk}"/>
                             <TextBlock Text="Partial and failed executions over the last 30 days (healthy days show clean baseline)"
-                                       FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkMuted}" Margin="0,2,0,0"/>
+                                       FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushInkMuted}" Margin="0,2,0,0"/>
                         </StackPanel>
 
                         <!-- Legend -->
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
                             <Ellipse Width="8" Height="8" Stretch="Uniform" Fill="{DynamicResource BrushSaffron}" Margin="0,0,6,0" VerticalAlignment="Center"/>
-                            <TextBlock Text="Partial" FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkMuted}" Margin="0,0,14,0"/>
+                            <TextBlock Text="Partial" FontWeight="Medium" FontSize="{StaticResource FontSizeStatus}" Foreground="{DynamicResource BrushInkMuted}" Margin="0,0,14,0"/>
                             <Ellipse Width="8" Height="8" Stretch="Uniform" Fill="{DynamicResource BrushCoral}" Margin="0,0,6,0" VerticalAlignment="Center"/>
-                            <TextBlock Text="Failed" FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkMuted}"/>
+                            <TextBlock Text="Failed" FontWeight="Medium" FontSize="{StaticResource FontSizeStatus}" Foreground="{DynamicResource BrushInkMuted}"/>
                         </StackPanel>
                     </Grid>
 
@@ -113,13 +113,13 @@
                                 <ColumnDefinition Width="*"/>   <!-- Output / Detail -->
                             </Grid.ColumnDefinitions>
 
-                            <TextBlock Text="Started" FontWeight="SemiBold" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
-                            <TextBlock Grid.Column="1" Text="Job" FontWeight="SemiBold" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
-                            <TextBlock Grid.Column="2" Text="Type" FontWeight="SemiBold" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
-                            <TextBlock Grid.Column="3" Text="Result" FontWeight="SemiBold" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
-                            <TextBlock Grid.Column="4" Text="Size" FontWeight="SemiBold" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
-                            <TextBlock Grid.Column="5" Text="Duration" FontWeight="SemiBold" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
-                            <TextBlock Grid.Column="6" Text="Output" FontWeight="SemiBold" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
+                            <TextBlock Text="Started" FontWeight="SemiBold" FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushInkMuted}"/>
+                            <TextBlock Grid.Column="1" Text="Job" FontWeight="SemiBold" FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushInkMuted}"/>
+                            <TextBlock Grid.Column="2" Text="Type" FontWeight="SemiBold" FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushInkMuted}"/>
+                            <TextBlock Grid.Column="3" Text="Result" FontWeight="SemiBold" FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushInkMuted}"/>
+                            <TextBlock Grid.Column="4" Text="Size" FontWeight="SemiBold" FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushInkMuted}"/>
+                            <TextBlock Grid.Column="5" Text="Duration" FontWeight="SemiBold" FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushInkMuted}"/>
+                            <TextBlock Grid.Column="6" Text="Output" FontWeight="SemiBold" FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushInkMuted}"/>
                         </Grid>
                     </Border>
 
@@ -139,17 +139,17 @@
                                             <ColumnDefinition Width="*"/>
                                         </Grid.ColumnDefinitions>
 
-                                        <TextBlock Text="{Binding Timestamp, StringFormat={}{0:yyyy-MM-dd HH:mm:ss}}" FontFamily="{StaticResource FontMono}" FontSize="{StaticResource FontSizeMono}" Foreground="{DynamicResource BrushInkMuted}" VerticalAlignment="Center"/>
+                                        <TextBlock Text="{Binding Timestamp, StringFormat={}{0:yyyy-MM-dd HH:mm:ss}}" FontFamily="{StaticResource FontFamilyMono}" FontSize="{StaticResource FontSizeMono}" Foreground="{DynamicResource BrushInkMuted}" VerticalAlignment="Center"/>
                                         <TextBlock Grid.Column="1" Text="{Binding JobName}" FontWeight="SemiBold" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource BrushInk}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
-                                        <TextBlock Grid.Column="2" Text="{Binding Kind}" FontFamily="{StaticResource FontMono}" FontSize="{StaticResource FontSizeMono}" Foreground="{DynamicResource BrushInkMuted}" VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Column="2" Text="{Binding Kind}" FontFamily="{StaticResource FontFamilyMono}" FontSize="{StaticResource FontSizeMono}" Foreground="{DynamicResource BrushInkMuted}" VerticalAlignment="Center"/>
 
                                         <Border Grid.Column="3" Style="{StaticResource BadgePill}" Background="{Binding Status, Converter={StaticResource StatusToBrushConverter}, ConverterParameter=soft}" HorizontalAlignment="Left">
-                                            <TextBlock Text="{Binding Status}" FontWeight="SemiBold" FontSize="{StaticResource FontSizeBadge}" Foreground="{Binding Status, Converter={StaticResource StatusToBrushConverter}}"/>
+                                            <TextBlock Text="{Binding Status}" FontWeight="Medium" FontSize="{StaticResource FontSizeStatus}" Foreground="{Binding Status, Converter={StaticResource StatusToBrushConverter}}"/>
                                         </Border>
 
-                                        <TextBlock Grid.Column="4" Text="{Binding ArchiveSizeBytes, Converter={StaticResource BytesToStringConverter}}" FontFamily="{StaticResource FontMono}" FontSize="{StaticResource FontSizeMono}" Foreground="{DynamicResource BrushInk}" VerticalAlignment="Center"/>
-                                        <TextBlock Grid.Column="5" Text="{Binding DurationSeconds, Converter={StaticResource DurationConverter}}" FontFamily="{StaticResource FontMono}" FontSize="{StaticResource FontSizeMono}" Foreground="{DynamicResource BrushInkMuted}" VerticalAlignment="Center"/>
-                                        <TextBlock Grid.Column="6" Text="{Binding ArchiveName}" FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkFaint}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                                        <TextBlock Grid.Column="4" Text="{Binding ArchiveSizeBytes, Converter={StaticResource BytesToStringConverter}}" FontFamily="{StaticResource FontFamilyMono}" FontSize="{StaticResource FontSizeMono}" Foreground="{DynamicResource BrushInk}" VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Column="5" Text="{Binding DurationSeconds, Converter={StaticResource DurationConverter}}" FontFamily="{StaticResource FontFamilyMono}" FontSize="{StaticResource FontSizeMono}" Foreground="{DynamicResource BrushInkMuted}" VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Column="6" Text="{Binding ArchiveName}" FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushInkFaint}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
                                     </Grid>
                                 </Border>
                             </DataTemplate>

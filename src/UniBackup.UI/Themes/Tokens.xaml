@@ -35,13 +35,16 @@
     <Thickness x:Key="PaddingRow">14,12</Thickness>
     <Thickness x:Key="PaddingCompactRow">12,8</Thickness>
 
-    <!-- Typography -->
-    <FontFamily x:Key="FontBase">pack://application:,,,/UniBackup;component/Fonts/#Archivo, Segoe UI, -apple-system, BlinkMacSystemFont, sans-serif</FontFamily>
-    <FontFamily x:Key="FontMono">pack://application:,,,/UniBackup;component/Fonts/#IBM Plex Mono, Consolas, "Cascadia Code", monospace</FontFamily>
+    <!-- Typography (Segoe UI as primary font with Segoe UI Variable fallback) -->
+    <FontFamily x:Key="FontFamilyPrimary">Segoe UI Variable Text, Segoe UI, -apple-system, BlinkMacSystemFont, sans-serif</FontFamily>
+    <FontFamily x:Key="FontFamilyDisplay">Segoe UI Variable Display, Segoe UI Variable Text, Segoe UI, sans-serif</FontFamily>
+    <FontFamily x:Key="FontFamilyMono">Cascadia Code, Consolas, "Segoe UI Mono", monospace</FontFamily>
 
     <!-- Backward-compat aliases for existing code and tests -->
-    <FontFamily x:Key="MainFont">pack://application:,,,/UniBackup;component/Fonts/#Archivo, Segoe UI, -apple-system, BlinkMacSystemFont, sans-serif</FontFamily>
-    <FontFamily x:Key="BrandFontMono">pack://application:,,,/UniBackup;component/Fonts/#IBM Plex Mono, Consolas, "Cascadia Code", monospace</FontFamily>
+    <FontFamily x:Key="FontBase">Segoe UI Variable Text, Segoe UI, -apple-system, BlinkMacSystemFont, sans-serif</FontFamily>
+    <FontFamily x:Key="MainFont">Segoe UI Variable Text, Segoe UI, -apple-system, BlinkMacSystemFont, sans-serif</FontFamily>
+    <FontFamily x:Key="FontMono">Cascadia Code, Consolas, "Segoe UI Mono", monospace</FontFamily>
+    <FontFamily x:Key="BrandFontMono">Cascadia Code, Consolas, "Segoe UI Mono", monospace</FontFamily>
 
     <!-- Backward-compat brand tint brushes for LoginWindow and legacy views -->
     <SolidColorBrush x:Key="BrandTintBlueSoft" Color="#EFF5FE"/>
@@ -54,15 +57,27 @@
     <SolidColorBrush x:Key="BrandTintTealDeep" Color="#0D9488"/>
 
     <!-- Type Scale -->
-    <sys:Double x:Key="FontSizeKpi">28</sys:Double>
-    <sys:Double x:Key="FontSizeH1">18.5</sys:Double>
-    <sys:Double x:Key="FontSizeH2">15.5</sys:Double>
-    <sys:Double x:Key="FontSizeRowTitle">14</sys:Double>
+    <sys:Double x:Key="FontSizeBranding">20</sys:Double>
+    <sys:Double x:Key="FontSizePageTitle">26</sys:Double>
+    <sys:Double x:Key="FontSizeSectionHeader">18</sys:Double>
+    <sys:Double x:Key="FontSizeCardHeader">16</sys:Double>
+    <sys:Double x:Key="FontSizeNavLabel">14</sys:Double>
     <sys:Double x:Key="FontSizeBody">14</sys:Double>
-    <sys:Double x:Key="FontSizeFieldLabel">12.5</sys:Double>
-    <sys:Double x:Key="FontSizeHelp">12</sys:Double>
+    <sys:Double x:Key="FontSizeInput">14</sys:Double>
+    <sys:Double x:Key="FontSizeButton">14</sys:Double>
+    <sys:Double x:Key="FontSizeSecondary">12</sys:Double>
+    <sys:Double x:Key="FontSizeStatus">12</sys:Double>
+    <sys:Double x:Key="FontSizeCaption">11</sys:Double>
     <sys:Double x:Key="FontSizeBadge">11.5</sys:Double>
+    <sys:Double x:Key="FontSizeKpi">28</sys:Double>
     <sys:Double x:Key="FontSizeMono">12</sys:Double>
+
+    <!-- Backward-compat size aliases mapped to typography hierarchy -->
+    <sys:Double x:Key="FontSizeH1">26</sys:Double>
+    <sys:Double x:Key="FontSizeH2">18</sys:Double>
+    <sys:Double x:Key="FontSizeRowTitle">14</sys:Double>
+    <sys:Double x:Key="FontSizeFieldLabel">12</sys:Double>
+    <sys:Double x:Key="FontSizeHelp">12</sys:Double>
 
     <!-- Durations -->
     <Duration x:Key="DurationFast">0:0:0.250</Duration>

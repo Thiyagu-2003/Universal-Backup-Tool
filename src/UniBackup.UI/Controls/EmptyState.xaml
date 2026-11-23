@@ -21,10 +21,10 @@
                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
             </Border>
 
-            <!-- Title: 15.5 / 600 -->
+            <!-- Title: 16 / 600 Card Heading -->
             <TextBlock Text="{Binding Title, ElementName=Root}"
                        FontWeight="SemiBold"
-                       FontSize="{StaticResource FontSizeH2}"
+                       FontSize="{StaticResource FontSizeCardHeader}"
                        Foreground="{DynamicResource BrushInk}"
                        TextAlignment="Center"
                        HorizontalAlignment="Center"/>

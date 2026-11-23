@@ -8,8 +8,8 @@
 
             <!-- 1. Header -->
             <StackPanel Margin="0,0,0,20">
-                <TextBlock Text="Settings &amp; Engine" FontWeight="SemiBold" FontSize="{StaticResource FontSizeH1}" Foreground="{DynamicResource BrushInk}"/>
-                <TextBlock Text="System configuration, appearance, background service, cloud credentials, and diagnostics" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource BrushInkMuted}" Margin="0,3,0,0"/>
+                <TextBlock Text="Settings &amp; Engine" FontWeight="SemiBold" FontSize="{StaticResource FontSizePageTitle}" Foreground="{DynamicResource BrushInk}"/>
+                <TextBlock Text="System configuration, appearance, background service, cloud credentials, and diagnostics" FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushInkMuted}" Margin="0,3,0,0"/>
             </StackPanel>
 
             <!-- 2. Appearance Section -->
@@ -315,7 +315,7 @@
                             <Expander.Header>
                                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                     <Image Source="{StaticResource BrandDrawingAwsS3}" Width="24" Height="24" Margin="0,0,12,0" VerticalAlignment="Center"/>
-                                    <TextBlock Text="Amazon S3 / S3-compatible" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                    <TextBlock Text="Amazon S3 / S3-compatible" FontWeight="SemiBold" FontSize="{StaticResource FontSizeCardHeader}" VerticalAlignment="Center"/>
                                 </StackPanel>
                             </Expander.Header>
                             <StackPanel Margin="16,0,16,16">
@@ -349,7 +349,7 @@
                             <Expander.Header>
                                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                     <Image Source="{StaticResource BrandDrawingGoogleDrive}" Width="24" Height="24" Margin="0,0,12,0" VerticalAlignment="Center"/>
-                                    <TextBlock Text="Google Drive (OAuth2)" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                    <TextBlock Text="Google Drive (OAuth2)" FontWeight="SemiBold" FontSize="{StaticResource FontSizeCardHeader}" VerticalAlignment="Center"/>
                                 </StackPanel>
                             </Expander.Header>
                             <StackPanel Margin="16,0,16,16">
@@ -372,7 +372,7 @@
                             <Expander.Header>
                                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                     <Path Data="{StaticResource IconServer}" Fill="{DynamicResource BrushJade}" Width="22" Height="22" Stretch="Uniform" Margin="0,0,12,0" VerticalAlignment="Center"/>
-                                    <TextBlock Text="Local Storage / UNC Network Shares" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                    <TextBlock Text="Local Storage / UNC Network Shares" FontWeight="SemiBold" FontSize="{StaticResource FontSizeCardHeader}" VerticalAlignment="Center"/>
                                 </StackPanel>
                             </Expander.Header>
                             <StackPanel Margin="16,0,16,16">

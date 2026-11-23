@@ -13,7 +13,7 @@
                 </Grid.ColumnDefinitions>
 
                 <StackPanel>
-                    <TextBlock Text="IIS Websites" FontWeight="SemiBold" FontSize="{StaticResource FontSizeH1}" Foreground="{DynamicResource BrushInk}"/>
+                    <TextBlock Text="IIS Websites" FontWeight="SemiBold" FontSize="{StaticResource FontSizePageTitle}" Foreground="{DynamicResource BrushInk}"/>
                     <TextBlock x:Name="HeaderSubline" Text="Inspect live web applications on local server and package for cloud backup" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource BrushInkMuted}" Margin="0,3,0,0"/>
                 </StackPanel>
 
@@ -86,20 +86,20 @@
 
                                 <!-- Name, Path, Bindings & Pool -->
                                 <StackPanel Grid.Column="2" VerticalAlignment="Center" Margin="0,0,16,0">
-                                    <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="{StaticResource FontSizeRowTitle}" Foreground="{DynamicResource BrushInk}"/>
-                                    <TextBlock Text="{Binding Path}" FontFamily="{StaticResource FontMono}" FontSize="{StaticResource FontSizeMono}" Foreground="{DynamicResource BrushInkMuted}" Margin="0,2,0,4"/>
+                                    <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="{StaticResource FontSizeCardHeader}" Foreground="{DynamicResource BrushInk}"/>
+                                    <TextBlock Text="{Binding Path}" FontFamily="{StaticResource FontFamilyMono}" FontSize="{StaticResource FontSizeMono}" Foreground="{DynamicResource BrushInkMuted}" Margin="0,2,0,4"/>
                                     <StackPanel Orientation="Horizontal" Visibility="{Binding Available, Converter={StaticResource BoolToVis}}">
-                                        <TextBlock Text="{Binding PrimaryBinding}" FontFamily="{StaticResource FontMono}" FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkMuted}" Margin="0,0,8,0"/>
+                                        <TextBlock Text="{Binding PrimaryBinding}" FontFamily="{StaticResource FontFamilyMono}" FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushInkMuted}" Margin="0,0,8,0"/>
                                         <TextBlock Text="·" Foreground="{DynamicResource BrushInkFaint}" Margin="0,0,8,0"/>
-                                        <TextBlock Text="{Binding Pool}" FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkMuted}"/>
+                                        <TextBlock Text="{Binding Pool}" FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushInkMuted}"/>
                                     </StackPanel>
-                                    <TextBlock Text="{Binding Reason}" FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushCoral}" Visibility="{Binding Available, Converter={StaticResource InverseBoolToVis}}"/>
+                                    <TextBlock Text="{Binding Reason}" FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushCoral}" Visibility="{Binding Available, Converter={StaticResource InverseBoolToVis}}"/>
                                 </StackPanel>
 
                                 <!-- Size Column -->
                                 <StackPanel Grid.Column="3" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,16,0">
-                                    <TextBlock Text="{Binding SizeDisplay}" FontWeight="SemiBold" FontSize="{StaticResource FontSizeRowTitle}" Foreground="{DynamicResource BrushInk}" HorizontalAlignment="Right"/>
-                                    <TextBlock Text="{Binding FilesDisplay}" FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkFaint}" HorizontalAlignment="Right" Margin="0,1,0,4"/>
+                                    <TextBlock Text="{Binding SizeDisplay}" FontWeight="SemiBold" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource BrushInk}" HorizontalAlignment="Right"/>
+                                    <TextBlock Text="{Binding FilesDisplay}" FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushInkFaint}" HorizontalAlignment="Right" Margin="0,1,0,4"/>
                                     <Border Width="80" Height="5" CornerRadius="2.5" Background="{DynamicResource BrushSunken}" HorizontalAlignment="Right">
                                         <Border Height="5" CornerRadius="2.5" Background="{DynamicResource BrushTeal}" HorizontalAlignment="Left">
                                             <Border.Width>
@@ -115,7 +115,7 @@
 
                                 <!-- State Badge -->
                                 <Border Grid.Column="4" Style="{StaticResource BadgePill}" Background="{Binding StateBadgeSoftBrush}" HorizontalAlignment="Right">
-                                    <TextBlock Text="{Binding StateBadgeText}" FontWeight="SemiBold" FontSize="{StaticResource FontSizeBadge}" Foreground="{Binding StateBadgeBrush}"/>
+                                    <TextBlock Text="{Binding StateBadgeText}" FontWeight="Medium" FontSize="{StaticResource FontSizeStatus}" Foreground="{Binding StateBadgeBrush}"/>
                                 </Border>
                             </Grid>
                         </Border>
