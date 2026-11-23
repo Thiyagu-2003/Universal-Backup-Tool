@@ -151,7 +151,7 @@
                             <TextBlock Text="Protect" FontWeight="SemiBold" FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource BrushRailCaption}" Margin="10,6,10,4"/>
 
                             <!-- Overview -->
-                            <RadioButton x:Name="NavOverviewRadio" Style="{StaticResource NavRailItem}" Checked="NavTab_Checked" Tag="Overview" Height="42" Margin="0,0,0,2">
+                            <RadioButton x:Name="NavOverviewRadio" IsChecked="True" Style="{StaticResource NavRailItem}" Checked="NavTab_Checked" Tag="Overview" Height="42" Margin="0,0,0,2">
                                 <Grid HorizontalAlignment="Stretch">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="34"/>
@@ -166,7 +166,7 @@
                             </RadioButton>
 
                             <!-- Backup Jobs -->
-                            <RadioButton x:Name="NavBackupsRadio" IsChecked="True" Style="{StaticResource NavRailItem}" Checked="NavTab_Checked" Tag="Backups" Height="42" Margin="0,0,0,2">
+                            <RadioButton x:Name="NavBackupsRadio" Style="{StaticResource NavRailItem}" Checked="NavTab_Checked" Tag="Backups" Height="42" Margin="0,0,0,2">
                                 <Grid HorizontalAlignment="Stretch">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="34"/>
@@ -448,13 +448,13 @@
 
                 <!-- Active View Content Container -->
                 <Grid Grid.Row="1">
-                    <!-- 1. Overview Tab -->
-                    <Grid x:Name="OverviewTabContent" Visibility="Collapsed">
+                    <!-- 1. Overview Tab (Default) -->
+                    <Grid x:Name="OverviewTabContent" Visibility="Visible">
                         <views:OverviewView/>
                     </Grid>
 
-                    <!-- 2. Backup Jobs Tab (Default) -->
-                    <Grid x:Name="BackupsTabContent" Visibility="Visible">
+                    <!-- 2. Backup Jobs Tab -->
+                    <Grid x:Name="BackupsTabContent" Visibility="Collapsed">
                         <views:JobsView/>
                     </Grid>
 

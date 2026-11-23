@@ -91,6 +91,34 @@ public partial class MainViewModel : ObservableObject
     private int _needsAttentionCount;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasAttentionJobs))]
+    [NotifyPropertyChangedFor(nameof(AttentionBannerSummary))]
+    private int _attentionJobsCount;
+
+    public bool HasAttentionJobs => AttentionJobsCount > 0;
+
+    public string AttentionBannerSummary => AttentionJobsCount == 1
+        ? "1 backup job requires immediate attention"
+        : $"{AttentionJobsCount} backup jobs require immediate attention";
+
+    public string AttentionBannerExplanation =>
+        "Recent executions encountered errors or missed scheduled window. Review logs and retry execution.";
+
+    [ObservableProperty]
+    private int _runsTodayCount;
+
+    public string RunsTodaySubText => TotalRunsCount == 0
+        ? "No runs recorded yet"
+        : $"{TotalRunsCount} total in history";
+
+    public string OverviewSubtitle => $"{TotalJobsCount} configured {(TotalJobsCount == 1 ? "job" : "jobs")} · {EnabledJobsCount} active · {AttentionJobsCount} requiring attention";
+
+    public ObservableCollection<JobCardViewModel> UpcomingJobs { get; } = new();
+
+    [ObservableProperty]
+    private bool _hasUpcomingJobs;
+
+    [ObservableProperty]
     private string _totalUploadedDisplay = "0 B";
 
     [ObservableProperty]
@@ -527,8 +555,7 @@ public partial class MainViewModel : ObservableObject
         }
         else if (_currentFilterCategory == "NeedsAttention")
         {
-            filtered = filtered.Where(j => string.Equals(j.LastRunStatus, "FAILED", StringComparison.OrdinalIgnoreCase) ||
-                                           string.Equals(j.LastRunStatus, "PARTIAL", StringComparison.OrdinalIgnoreCase));
+            filtered = filtered.Where(JobNeedsAttention);
         }
 
         foreach (var job in filtered.OrderByDescending(j => j.Pinned).ThenBy(j => j.Name))
@@ -540,10 +567,27 @@ public partial class MainViewModel : ObservableObject
         TotalJobsCount = loadedJobs.Count;
         EnabledJobsCount = loadedJobs.Count(j => j.Enabled);
         ScheduledJobsCount = loadedJobs.Count(j => j.Enabled && !string.Equals(j.Schedule?.Freq, "manual", StringComparison.OrdinalIgnoreCase));
-        NeedsAttentionJobsCount = loadedJobs.Count(j =>
-            string.Equals(j.LastRunStatus, "FAILED", StringComparison.OrdinalIgnoreCase) ||
-            string.Equals(j.LastRunStatus, "PARTIAL", StringComparison.OrdinalIgnoreCase));
+        NeedsAttentionJobsCount = loadedJobs.Count(JobNeedsAttention);
+        AttentionJobsCount = NeedsAttentionJobsCount;
+        NeedsAttentionCount = AttentionJobsCount;
         JobsSummaryHeader = $"{TotalJobsCount} {(TotalJobsCount == 1 ? "job" : "jobs")} · {ScheduledJobsCount} on a schedule";
+        OnPropertyChanged(nameof(OverviewSubtitle));
+        OnPropertyChanged(nameof(HasAttentionJobs));
+        OnPropertyChanged(nameof(AttentionBannerSummary));
+
+        // Populate upcoming scheduled jobs
+        UpcomingJobs.Clear();
+        var scheduledUpcoming = loadedJobs
+            .Where(j => j.Enabled && j.Schedule != null && !string.Equals(j.Schedule.Freq, "manual", StringComparison.OrdinalIgnoreCase))
+            .OrderBy(GetNextRunDateTime)
+            .Take(6);
+
+        foreach (var job in scheduledUpcoming)
+        {
+            UpcomingJobs.Add(new JobCardViewModel(job));
+        }
+        HasUpcomingJobs = UpcomingJobs.Count > 0;
+
         ComputeStaleJobs();
     }
 
@@ -558,16 +602,93 @@ public partial class MainViewModel : ObservableObject
             HistoryRecords.Add(h);
         }
 
+        var today = DateTime.Today;
         TotalRunsCount = HistoryRecords.Count;
+        RunsTodayCount = HistoryRecords.Count(h => h.Timestamp.ToLocalTime().Date == today);
         SuccessfulRunsCount = HistoryRecords.Count(h => h.Status == "SUCCESS");
         PartialRunsCount = HistoryRecords.Count(h => h.Status == "PARTIAL");
         FailedRunsCount = HistoryRecords.Count(h => h.Status == "FAILED");
-        NeedsAttentionCount = FailedRunsCount + PartialRunsCount;
         TotalUploadedDisplay = FormattingUtils.FormatBytes(HistoryRecords.Sum(h => h.ArchiveSizeBytes));
         OnPropertyChanged(nameof(SuccessRateDisplay));
         OnPropertyChanged(nameof(SuccessPercentageDisplay));
+        OnPropertyChanged(nameof(RunsTodaySubText));
 
         ComputeStaleJobs();
+    }
+
+    public bool JobNeedsAttention(BackupJob job)
+    {
+        if (!job.Enabled) return false;
+        if (string.Equals(job.LastRunStatus, "FAILED", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(job.LastRunStatus, "PARTIAL", StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+        if (Config?.Backup != null && Config.Backup.WarnStaleDays > 0)
+        {
+            var cutoff = DateTime.UtcNow.AddDays(-Config.Backup.WarnStaleDays);
+            if (job.LastRunTime == null || job.LastRunTime < cutoff)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static DateTime GetNextRunDateTime(BackupJob job)
+    {
+        if (job.Schedule == null || string.Equals(job.Schedule.Freq, "manual", StringComparison.OrdinalIgnoreCase))
+            return DateTime.MaxValue;
+
+        if (!TimeSpan.TryParse(job.Schedule.Time, out var timeOfDay))
+            return DateTime.MaxValue;
+
+        var now = DateTime.Now;
+        var todayRun = now.Date + timeOfDay;
+
+        if (string.Equals(job.Schedule.Freq, "daily", StringComparison.OrdinalIgnoreCase))
+        {
+            return now < todayRun ? todayRun : todayRun.AddDays(1);
+        }
+
+        if (string.Equals(job.Schedule.Freq, "weekly", StringComparison.OrdinalIgnoreCase))
+        {
+            var days = job.Schedule.Days;
+            if (days == null || days.Count == 0) return todayRun.AddDays(7);
+            for (int i = 0; i < 7; i++)
+            {
+                var candidate = now.Date.AddDays(i) + timeOfDay;
+                if (candidate <= now) continue;
+                var abbr = candidate.ToString("ddd", System.Globalization.CultureInfo.InvariantCulture);
+                if (days.Any(d => d.Equals(abbr, StringComparison.OrdinalIgnoreCase)))
+                {
+                    return candidate;
+                }
+            }
+            return todayRun.AddDays(7);
+        }
+
+        if (string.Equals(job.Schedule.Freq, "monthly", StringComparison.OrdinalIgnoreCase))
+        {
+            if (int.TryParse(job.Schedule.Day, out var dayNum))
+            {
+                var daysInMonth = DateTime.DaysInMonth(now.Year, now.Month);
+                var thisMonthRun = new DateTime(now.Year, now.Month, Math.Min(dayNum, daysInMonth)) + timeOfDay;
+                if (now < thisMonthRun) return thisMonthRun;
+                var nextMonth = now.AddMonths(1);
+                var daysInNextMonth = DateTime.DaysInMonth(nextMonth.Year, nextMonth.Month);
+                return new DateTime(nextMonth.Year, nextMonth.Month, Math.Min(dayNum, daysInNextMonth)) + timeOfDay;
+            }
+        }
+
+        return DateTime.MaxValue;
+    }
+
+    [RelayCommand]
+    public void ViewAffectedJobs()
+    {
+        ApplyJobFilter("NeedsAttention");
+        ActiveTab = "Backups";
     }
 
     private void ComputeStaleJobs()
