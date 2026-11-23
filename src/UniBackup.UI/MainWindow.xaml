@@ -161,7 +161,7 @@
                                     <Border Grid.Column="0" Width="28" Height="28" CornerRadius="7" Background="#332D5BFF" HorizontalAlignment="Center" VerticalAlignment="Center">
                                         <Path Data="{StaticResource IconOverview}" Fill="{DynamicResource BrushCobalt}" Width="13" Height="13" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                     </Border>
-                                    <TextBlock Grid.Column="2" Text="Overview" FontWeight="Medium" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource BrushRailText}" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="2" Text="Overview" FontWeight="Medium" FontSize="{StaticResource FontSizeBody}" Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" VerticalAlignment="Center"/>
                                 </Grid>
                             </RadioButton>
 
@@ -177,7 +177,7 @@
                                     <Border Grid.Column="0" Width="28" Height="28" CornerRadius="7" Background="#332D5BFF" HorizontalAlignment="Center" VerticalAlignment="Center">
                                         <Path Data="{StaticResource IconBackups}" Fill="{DynamicResource BrushCobalt}" Width="13" Height="13" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                     </Border>
-                                    <TextBlock Grid.Column="2" Text="Backup Jobs" FontWeight="Medium" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource BrushRailText}" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="2" Text="Backup Jobs" FontWeight="Medium" FontSize="{StaticResource FontSizeBody}" Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" VerticalAlignment="Center"/>
 
                                     <!-- Failing job count coral pill on right (§3.3) -->
                                     <Border Grid.Column="3" Visibility="{Binding HasStaleJobs, Converter={StaticResource BoolToVis}}" Style="{StaticResource BadgePill}" Background="{DynamicResource BrushCoral}" Height="18" Padding="6,0" VerticalAlignment="Center">
@@ -197,7 +197,7 @@
                                     <Border Grid.Column="0" Width="28" Height="28" CornerRadius="7" Background="#332D5BFF" HorizontalAlignment="Center" VerticalAlignment="Center">
                                         <Path Data="{StaticResource IconCreateJob}" Fill="{DynamicResource BrushCobalt}" Width="13" Height="13" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                     </Border>
-                                    <TextBlock Grid.Column="2" Text="Create Backup Job" FontWeight="Medium" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource BrushRailText}" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="2" Text="Create Backup Job" FontWeight="Medium" FontSize="{StaticResource FontSizeBody}" Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" VerticalAlignment="Center"/>
                                 </Grid>
                             </RadioButton>
 
@@ -212,7 +212,7 @@
                                     <Border Grid.Column="0" Width="28" Height="28" CornerRadius="7" Background="#3300A0AE" HorizontalAlignment="Center" VerticalAlignment="Center">
                                         <Path Data="{StaticResource IconIisSites}" Fill="{DynamicResource BrushTeal}" Width="13" Height="13" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                     </Border>
-                                    <TextBlock Grid.Column="2" Text="IIS Sites" FontWeight="Medium" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource BrushRailText}" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="2" Text="IIS Sites" FontWeight="Medium" FontSize="{StaticResource FontSizeBody}" Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" VerticalAlignment="Center"/>
                                 </Grid>
                             </RadioButton>
 
@@ -230,7 +230,7 @@
                                     <Border Grid.Column="0" Width="28" Height="28" CornerRadius="7" Background="#337C4DFF" HorizontalAlignment="Center" VerticalAlignment="Center">
                                         <Path Data="{StaticResource IconRecovery}" Fill="{DynamicResource BrushOrchid}" Width="13" Height="13" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                     </Border>
-                                    <TextBlock Grid.Column="2" Text="Cloud Recovery" FontWeight="Medium" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource BrushRailText}" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="2" Text="Cloud Recovery" FontWeight="Medium" FontSize="{StaticResource FontSizeBody}" Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" VerticalAlignment="Center"/>
                                 </Grid>
                             </RadioButton>
 
@@ -245,7 +245,7 @@
                                     <Border Grid.Column="0" Width="28" Height="28" CornerRadius="7" Background="#3300946A" HorizontalAlignment="Center" VerticalAlignment="Center">
                                         <Path Data="{StaticResource IconSummary}" Fill="{DynamicResource BrushJade}" Width="13" Height="13" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                     </Border>
-                                    <TextBlock Grid.Column="2" Text="Analytics &amp; History" FontWeight="Medium" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource BrushRailText}" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="2" Text="Analytics &amp; History" FontWeight="Medium" FontSize="{StaticResource FontSizeBody}" Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" VerticalAlignment="Center"/>
                                 </Grid>
                             </RadioButton>
 
@@ -260,7 +260,7 @@
                                     <Border Grid.Column="0" Width="28" Height="28" CornerRadius="7" Background="#332D5BFF" HorizontalAlignment="Center" VerticalAlignment="Center">
                                         <Path Data="{StaticResource IconLogs}" Fill="{DynamicResource BrushCobalt}" Width="13" Height="13" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                     </Border>
-                                    <TextBlock Grid.Column="2" Text="Application Logs" FontWeight="Medium" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource BrushRailText}" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="2" Text="Application Logs" FontWeight="Medium" FontSize="{StaticResource FontSizeBody}" Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" VerticalAlignment="Center"/>
                                 </Grid>
                             </RadioButton>
 
@@ -278,7 +278,7 @@
                                     <Border Grid.Column="0" Width="28" Height="28" CornerRadius="7" Background="#33C97A00" HorizontalAlignment="Center" VerticalAlignment="Center">
                                         <Path Data="{StaticResource IconNotifications}" Fill="{DynamicResource BrushSaffron}" Width="13" Height="13" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                     </Border>
-                                    <TextBlock Grid.Column="2" Text="Notifications" FontWeight="Medium" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource BrushRailText}" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="2" Text="Notifications" FontWeight="Medium" FontSize="{StaticResource FontSizeBody}" Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" VerticalAlignment="Center"/>
                                 </Grid>
                             </RadioButton>
 
@@ -291,9 +291,9 @@
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
                                     <Border Grid.Column="0" Width="28" Height="28" CornerRadius="7" Background="#33808FA5" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                        <Path Data="{StaticResource IconSettings}" Fill="{DynamicResource BrushInkFaint}" Width="13" Height="13" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        <Path Data="{StaticResource IconSettings}" Fill="{DynamicResource BrushRailText}" Width="13" Height="13" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                     </Border>
-                                    <TextBlock Grid.Column="2" Text="Settings &amp; Engine" FontWeight="Medium" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource BrushRailText}" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="2" Text="Settings &amp; Engine" FontWeight="Medium" FontSize="{StaticResource FontSizeBody}" Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" VerticalAlignment="Center"/>
                                 </Grid>
                             </RadioButton>
                         </StackPanel>
@@ -340,20 +340,91 @@
                             <ColumnDefinition Width="Auto"/> <!-- Action Buttons -->
                         </Grid.ColumnDefinitions>
 
-                        <!-- Search Box (Max 400 px) -->
-                        <Border MaxWidth="380" HorizontalAlignment="Left">
+                        <!-- Search Box (Enterprise 380 px width with Watermark & Clear Button) -->
+                        <Border Width="380" Height="38" HorizontalAlignment="Left" CornerRadius="{StaticResource RadiusControl}" Background="{DynamicResource BrushCanvas}" BorderBrush="{DynamicResource BrushLineStrong}" BorderThickness="1">
                             <Grid>
-                                <TextBox Text="{Binding SearchQuery, UpdateSourceTrigger=PropertyChanged}"
-                                         Style="{StaticResource FieldInput}"
-                                         Padding="34,0,12,0"
-                                         TextChanged="SearchBox_TextChanged"/>
+                                <!-- Search Icon on Left -->
                                 <Path Data="{StaticResource IconSearch}"
                                       Fill="{DynamicResource BrushInkFaint}"
-                                      Width="14" Height="14"
+                                      Width="15" Height="15"
                                       Stretch="Uniform"
                                       HorizontalAlignment="Left"
                                       Margin="12,0,0,0"
                                       IsHitTestVisible="False"/>
+
+                                <!-- Watermark Placeholder when empty -->
+                                <TextBlock Text="Search backup jobs, logs, destinations..."
+                                           Foreground="{DynamicResource BrushInkFaint}"
+                                           FontSize="{StaticResource FontSizeBody}"
+                                           VerticalAlignment="Center"
+                                           Margin="36,0,32,0"
+                                           IsHitTestVisible="False">
+                                    <TextBlock.Style>
+                                        <Style TargetType="{x:Type TextBlock}">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding Text, ElementName=MainSearchBox}" Value="">
+                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding Text, ElementName=MainSearchBox}" Value="{x:Null}">
+                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+
+                                <!-- Input TextBox -->
+                                <TextBox x:Name="MainSearchBox"
+                                         Text="{Binding SearchQuery, UpdateSourceTrigger=PropertyChanged}"
+                                         Background="Transparent"
+                                         BorderThickness="0"
+                                         Foreground="{DynamicResource BrushInk}"
+                                         CaretBrush="{DynamicResource BrushCobalt}"
+                                         FontSize="{StaticResource FontSizeBody}"
+                                         VerticalContentAlignment="Center"
+                                         Padding="36,0,32,0"
+                                         TextChanged="SearchBox_TextChanged"/>
+
+                                <!-- Clear Button (Appears when text is entered) -->
+                                <Button x:Name="SearchClearButton"
+                                        Click="SearchClear_Click"
+                                        Width="26" Height="26"
+                                        HorizontalAlignment="Right"
+                                        VerticalAlignment="Center"
+                                        Margin="0,0,6,0"
+                                        Cursor="Hand"
+                                        Background="Transparent"
+                                        BorderThickness="0"
+                                        ToolTip="Clear search">
+                                    <Button.Style>
+                                        <Style TargetType="{x:Type Button}">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                            <Setter Property="Template">
+                                                <Setter.Value>
+                                                    <ControlTemplate TargetType="{x:Type Button}">
+                                                        <Border x:Name="bd" Width="20" Height="20" CornerRadius="10" Background="{DynamicResource BrushSunken}">
+                                                            <Path Data="{StaticResource IconClose}" Fill="{DynamicResource BrushInkMuted}" Width="8" Height="8" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                        </Border>
+                                                        <ControlTemplate.Triggers>
+                                                            <Trigger Property="IsMouseOver" Value="True">
+                                                                <Setter TargetName="bd" Property="Background" Value="{DynamicResource BrushLineStrong}"/>
+                                                            </Trigger>
+                                                        </ControlTemplate.Triggers>
+                                                    </ControlTemplate>
+                                                </Setter.Value>
+                                            </Setter>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding Text, ElementName=MainSearchBox}" Value="">
+                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding Text, ElementName=MainSearchBox}" Value="{x:Null}">
+                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Button.Style>
+                                </Button>
                             </Grid>
                         </Border>
 

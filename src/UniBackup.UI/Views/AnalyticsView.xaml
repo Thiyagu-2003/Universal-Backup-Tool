@@ -39,7 +39,7 @@
                 <controls:KpiCard Grid.Column="2" Title="Succeeded" Value="{Binding SuccessRateDisplay}" SubText="Clean completions"
                                   Icon="{StaticResource IconCheck}" TileBrush="{DynamicResource BrushJade}"/>
 
-                <controls:KpiCard Grid.Column="4" Title="Failed or partial" Value="{Binding FailedRunsCount, StringFormat={}{0}}" SubText="Required attention"
+                <controls:KpiCard Grid.Column="4" Title="Failed or partial" Value="{Binding NeedsAttentionCount, StringFormat={}{0}}" SubText="Required attention"
                                   Icon="{StaticResource IconWarningCircle}" TileBrush="{DynamicResource BrushCoral}"/>
 
                 <controls:KpiCard Grid.Column="6" Title="Uploaded" Value="{Binding TotalUploadedDisplay}" SubText="Stored in cloud"
@@ -58,9 +58,9 @@
 
                         <!-- Legend -->
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
-                            <Border Width="8" Height="8" CornerRadius="4" Background="{DynamicResource BrushSaffron}" Margin="0,0,6,0"/>
+                            <Ellipse Width="8" Height="8" Stretch="Uniform" Fill="{DynamicResource BrushSaffron}" Margin="0,0,6,0" VerticalAlignment="Center"/>
                             <TextBlock Text="Partial" FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkMuted}" Margin="0,0,14,0"/>
-                            <Border Width="8" Height="8" CornerRadius="4" Background="{DynamicResource BrushCoral}" Margin="0,0,6,0"/>
+                            <Ellipse Width="8" Height="8" Stretch="Uniform" Fill="{DynamicResource BrushCoral}" Margin="0,0,6,0" VerticalAlignment="Center"/>
                             <TextBlock Text="Failed" FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkMuted}"/>
                         </StackPanel>
                     </Grid>

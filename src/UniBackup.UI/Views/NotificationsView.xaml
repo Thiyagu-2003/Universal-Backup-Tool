@@ -190,11 +190,15 @@
                                 </Grid.ColumnDefinitions>
                                 <StackPanel Grid.Column="0">
                                     <TextBlock Text="SMTP host" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
-                                    <TextBox Text="{Binding Config.Email.SmtpHost, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldInputMono}" Margin="0,4,0,0"/>
+                                    <TextBox Text="{Binding Config.Email.SmtpHost, UpdateSourceTrigger=PropertyChanged}"
+                                             Tag="e.g. smtp.example.com"
+                                             Style="{StaticResource FieldInputMono}" Margin="0,4,0,0"/>
                                 </StackPanel>
                                 <StackPanel Grid.Column="2">
                                     <TextBlock Text="Port" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
-                                    <TextBox Text="{Binding Config.Email.SmtpPort, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldInputMono}" Margin="0,4,0,0"/>
+                                    <TextBox Text="{Binding Config.Email.SmtpPort, UpdateSourceTrigger=PropertyChanged}"
+                                             Tag="587"
+                                             Style="{StaticResource FieldInputMono}" Margin="0,4,0,0"/>
                                 </StackPanel>
                             </Grid>
 
@@ -206,16 +210,22 @@
                                 </Grid.ColumnDefinitions>
                                 <StackPanel Grid.Column="0">
                                     <TextBlock Text="Username" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
-                                    <TextBox Text="{Binding Config.Email.Username, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldInput}" Margin="0,4,0,0"/>
+                                    <TextBox Text="{Binding Config.Email.Username, UpdateSourceTrigger=PropertyChanged}"
+                                             Tag="user@example.com"
+                                             Style="{StaticResource FieldInput}" Margin="0,4,0,0"/>
                                 </StackPanel>
                                 <StackPanel Grid.Column="2">
                                     <TextBlock Text="Password" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
-                                    <TextBox Text="{Binding Config.Email.Password, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldInput}" Margin="0,4,0,0"/>
+                                    <TextBox Text="{Binding Config.Email.Password, UpdateSourceTrigger=PropertyChanged}"
+                                             Tag="SMTP password"
+                                             Style="{StaticResource FieldInput}" Margin="0,4,0,0"/>
                                 </StackPanel>
                             </Grid>
 
                             <TextBlock Text="Recipients (comma separated)" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
-                            <TextBox Text="{Binding EmailRecipientsText, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldInput}" Margin="0,4,0,20"/>
+                            <TextBox Text="{Binding EmailRecipientsText, UpdateSourceTrigger=PropertyChanged}"
+                                     Tag="e.g. admin@example.com, alerts@example.com"
+                                     Style="{StaticResource FieldInput}" Margin="0,4,0,20"/>
 
                             <StackPanel Orientation="Horizontal">
                                 <Button Content="Send test message" Command="{Binding TestEmailCommand}" Style="{StaticResource BtnQuiet}" Height="36" Padding="16,0" Margin="0,0,12,0"/>
@@ -229,7 +239,9 @@
                             <TextBlock Text="Dispatch backup status alerts directly to a designated Slack channel" FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkMuted}" Margin="0,2,0,20"/>
 
                             <TextBlock Text="Slack incoming webhook URL" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
-                            <TextBox Text="{Binding Config.Webhooks.SlackWebhookUrl, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldInputMono}" Margin="0,4,0,6"/>
+                            <TextBox Text="{Binding Config.Webhooks.SlackWebhookUrl, UpdateSourceTrigger=PropertyChanged}"
+                                     Tag="https://hooks.slack.com/services/..."
+                                     Style="{StaticResource FieldInputMono}" Margin="0,4,0,6"/>
                             <TextBlock Text="Create an Incoming Webhook in your Slack Workspace App configuration portal." FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkFaint}" Margin="0,0,0,20"/>
 
                             <StackPanel Orientation="Horizontal">
@@ -244,7 +256,9 @@
                             <TextBlock Text="Deliver structured adaptive cards to your Microsoft Teams channel" FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkMuted}" Margin="0,2,0,20"/>
 
                             <TextBlock Text="Teams webhook URL" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
-                            <TextBox Text="{Binding Config.Webhooks.TeamsWebhookUrl, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldInputMono}" Margin="0,4,0,6"/>
+                            <TextBox Text="{Binding Config.Webhooks.TeamsWebhookUrl, UpdateSourceTrigger=PropertyChanged}"
+                                     Tag="https://outlook.office.com/webhook/..."
+                                     Style="{StaticResource FieldInputMono}" Margin="0,4,0,6"/>
                             <TextBlock Text="Incoming webhook URL created via Microsoft Teams Workflows or connectors." FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkFaint}" Margin="0,0,0,20"/>
 
                             <StackPanel Orientation="Horizontal">
@@ -259,7 +273,9 @@
                             <TextBlock Text="Send rich embedded alert cards to a Discord server channel" FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkMuted}" Margin="0,2,0,20"/>
 
                             <TextBlock Text="Discord webhook URL" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
-                            <TextBox Text="{Binding Config.Webhooks.DiscordWebhookUrl, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldInputMono}" Margin="0,4,0,6"/>
+                            <TextBox Text="{Binding Config.Webhooks.DiscordWebhookUrl, UpdateSourceTrigger=PropertyChanged}"
+                                     Tag="https://discord.com/api/webhooks/..."
+                                     Style="{StaticResource FieldInputMono}" Margin="0,4,0,6"/>
                             <TextBlock Text="Created in Discord under Channel Settings > Integrations > Webhooks." FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkFaint}" Margin="0,0,0,20"/>
 
                             <StackPanel Orientation="Horizontal">
@@ -281,11 +297,15 @@
                                 </Grid.ColumnDefinitions>
                                 <StackPanel Grid.Column="0">
                                     <TextBlock Text="Bot token" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
-                                    <TextBox Text="{Binding Config.Webhooks.TelegramBotToken, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldInputMono}" Margin="0,4,0,0"/>
+                                    <TextBox Text="{Binding Config.Webhooks.TelegramBotToken, UpdateSourceTrigger=PropertyChanged}"
+                                             Tag="e.g. 123456789:ABCdefGhI..."
+                                             Style="{StaticResource FieldInputMono}" Margin="0,4,0,0"/>
                                 </StackPanel>
                                 <StackPanel Grid.Column="2">
                                     <TextBlock Text="Chat ID" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
-                                    <TextBox Text="{Binding Config.Webhooks.TelegramChatId, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldInputMono}" Margin="0,4,0,0"/>
+                                    <TextBox Text="{Binding Config.Webhooks.TelegramChatId, UpdateSourceTrigger=PropertyChanged}"
+                                             Tag="e.g. @mychannel or -100123456789"
+                                             Style="{StaticResource FieldInputMono}" Margin="0,4,0,0"/>
                                 </StackPanel>
                             </Grid>
                             <TextBlock Text="Create a bot via @BotFather to receive your bot token and chat ID." FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkFaint}" Margin="0,0,0,20"/>
@@ -309,11 +329,15 @@
                                 </Grid.ColumnDefinitions>
                                 <StackPanel Grid.Column="0">
                                     <TextBlock Text="User key" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
-                                    <TextBox Text="{Binding Config.Webhooks.PushoverUserKey, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldInputMono}" Margin="0,4,0,0"/>
+                                    <TextBox Text="{Binding Config.Webhooks.PushoverUserKey, UpdateSourceTrigger=PropertyChanged}"
+                                             Tag="30-character user key"
+                                             Style="{StaticResource FieldInputMono}" Margin="0,4,0,0"/>
                                 </StackPanel>
                                 <StackPanel Grid.Column="2">
                                     <TextBlock Text="Application API token" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
-                                    <TextBox Text="{Binding Config.Webhooks.PushoverApiToken, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldInputMono}" Margin="0,4,0,0"/>
+                                    <TextBox Text="{Binding Config.Webhooks.PushoverApiToken, UpdateSourceTrigger=PropertyChanged}"
+                                             Tag="30-character app token"
+                                             Style="{StaticResource FieldInputMono}" Margin="0,4,0,0"/>
                                 </StackPanel>
                             </Grid>
 
@@ -336,16 +360,22 @@
                                 </Grid.ColumnDefinitions>
                                 <StackPanel Grid.Column="0">
                                     <TextBlock Text="ntfy server URL" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
-                                    <TextBox Text="{Binding Config.Webhooks.NtfyServerUrl, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldInputMono}" Margin="0,4,0,0"/>
+                                    <TextBox Text="{Binding Config.Webhooks.NtfyServerUrl, UpdateSourceTrigger=PropertyChanged}"
+                                             Tag="https://ntfy.sh"
+                                             Style="{StaticResource FieldInputMono}" Margin="0,4,0,0"/>
                                 </StackPanel>
                                 <StackPanel Grid.Column="2">
                                     <TextBlock Text="Topic name" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
-                                    <TextBox Text="{Binding Config.Webhooks.NtfyTopic, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldInput}" Margin="0,4,0,0"/>
+                                    <TextBox Text="{Binding Config.Webhooks.NtfyTopic, UpdateSourceTrigger=PropertyChanged}"
+                                             Tag="e.g. backup-alerts"
+                                             Style="{StaticResource FieldInput}" Margin="0,4,0,0"/>
                                 </StackPanel>
                             </Grid>
 
                             <TextBlock Text="Authentication token (optional for protected topics)" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
-                            <TextBox Text="{Binding Config.Webhooks.NtfyToken, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldInputMono}" Margin="0,4,0,20"/>
+                            <TextBox Text="{Binding Config.Webhooks.NtfyToken, UpdateSourceTrigger=PropertyChanged}"
+                                     Tag="tk_..."
+                                     Style="{StaticResource FieldInputMono}" Margin="0,4,0,20"/>
 
                             <StackPanel Orientation="Horizontal">
                                 <Button Content="Send test ntfy notification" Command="{Binding TestNtfyCommand}" Style="{StaticResource BtnQuiet}" Height="36" Padding="16,0" Margin="0,0,12,0"/>
@@ -359,7 +389,9 @@
                             <TextBlock Text="Trigger and auto-resolve incident tickets through PagerDuty Events API v2" FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkMuted}" Margin="0,2,0,20"/>
 
                             <TextBlock Text="Integration / routing key" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
-                            <TextBox Text="{Binding Config.Webhooks.PagerDutyRoutingKey, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldInputMono}" Margin="0,4,0,6"/>
+                            <TextBox Text="{Binding Config.Webhooks.PagerDutyRoutingKey, UpdateSourceTrigger=PropertyChanged}"
+                                     Tag="32-character PagerDuty integration routing key"
+                                     Style="{StaticResource FieldInputMono}" Margin="0,4,0,6"/>
                             <TextBlock Text="Find your 32-character routing key in PagerDuty under Service > Integrations." FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkFaint}" Margin="0,0,0,20"/>
 
                             <StackPanel Orientation="Horizontal">
@@ -374,7 +406,9 @@
                             <TextBlock Text="Post structured JSON payloads to any HTTP endpoint (n8n, Zapier, Make, Home Assistant)" FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkMuted}" Margin="0,2,0,20"/>
 
                             <TextBlock Text="Webhook URL" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
-                            <TextBox Text="{Binding Config.Webhooks.CustomWebhookUrl, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldInputMono}" Margin="0,4,0,16"/>
+                            <TextBox Text="{Binding Config.Webhooks.CustomWebhookUrl, UpdateSourceTrigger=PropertyChanged}"
+                                     Tag="https://api.example.com/webhook/backup"
+                                     Style="{StaticResource FieldInputMono}" Margin="0,4,0,16"/>
 
                             <Grid Margin="0,0,0,20">
                                 <Grid.ColumnDefinitions>
@@ -384,11 +418,15 @@
                                 </Grid.ColumnDefinitions>
                                 <StackPanel Grid.Column="0">
                                     <TextBlock Text="Custom header name (optional)" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
-                                    <TextBox Text="{Binding Config.Webhooks.CustomWebhookHeaderName, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldInput}" Margin="0,4,0,0"/>
+                                    <TextBox Text="{Binding Config.Webhooks.CustomWebhookHeaderName, UpdateSourceTrigger=PropertyChanged}"
+                                             Tag="X-Auth-Token"
+                                             Style="{StaticResource FieldInput}" Margin="0,4,0,0"/>
                                 </StackPanel>
                                 <StackPanel Grid.Column="2">
                                     <TextBlock Text="Custom header value (optional)" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
-                                    <TextBox Text="{Binding Config.Webhooks.CustomWebhookHeaderValue, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldInput}" Margin="0,4,0,0"/>
+                                    <TextBox Text="{Binding Config.Webhooks.CustomWebhookHeaderValue, UpdateSourceTrigger=PropertyChanged}"
+                                             Tag="secret-key"
+                                             Style="{StaticResource FieldInput}" Margin="0,4,0,0"/>
                                 </StackPanel>
                             </Grid>
 
@@ -404,7 +442,9 @@
                             <TextBlock Text="Ping external healthcheck services (BetterUptime, Healthchecks.io, Cronitor) on successful backup" FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkMuted}" Margin="0,2,0,20"/>
 
                             <TextBlock Text="Healthcheck ping URL" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
-                            <TextBox Text="{Binding Config.Heartbeat.Url, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldInputMono}" Margin="0,4,0,6"/>
+                            <TextBox Text="{Binding Config.Heartbeat.Url, UpdateSourceTrigger=PropertyChanged}"
+                                     Tag="https://hc-ping.com/your-uuid"
+                                     Style="{StaticResource FieldInputMono}" Margin="0,4,0,6"/>
                             <TextBlock Text="An HTTP GET request will be dispatched to this endpoint every time a backup succeeds." FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkFaint}" Margin="0,0,0,20"/>
 
                             <StackPanel Orientation="Horizontal">

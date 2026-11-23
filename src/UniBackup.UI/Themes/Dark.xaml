@@ -69,11 +69,11 @@
 
     <!-- Rail Palette (Dark flat) -->
     <SolidColorBrush x:Key="BrushRailBackground" Color="#070C14"/>
-    <SolidColorBrush x:Key="BrushRailText" Color="#AEBCD0"/>
+    <SolidColorBrush x:Key="BrushRailText" Color="#CBD5E1"/>
     <SolidColorBrush x:Key="BrushRailTextActive" Color="#FFFFFF"/>
     <SolidColorBrush x:Key="BrushRailHairline" Color="#1E2C40"/>
     <SolidColorBrush x:Key="BrushRailHover" Color="#101926"/>
-    <SolidColorBrush x:Key="BrushRailCaption" Color="#64768D"/>
+    <SolidColorBrush x:Key="BrushRailCaption" Color="#94A3B8"/>
     <SolidColorBrush x:Key="BrushRailHostPill" Color="#0D1522"/>
 
     <!-- Backward Compatibility Aliases -->

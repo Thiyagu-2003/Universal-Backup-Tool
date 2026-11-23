@@ -83,8 +83,8 @@
                 <!-- KPI 3: Needs Attention -->
                 <controls:KpiCard Grid.Column="4"
                                   Title="Needs attention"
-                                  Value="{Binding FailedRunsCount, StringFormat={}{0}}"
-                                  NumericValue="{Binding FailedRunsCount}"
+                                  Value="{Binding NeedsAttentionCount, StringFormat={}{0}}"
+                                  NumericValue="{Binding NeedsAttentionCount}"
                                   SubText="Failed or partial runs"
                                   Icon="{StaticResource IconWarningCircle}"
                                   TileBrush="{DynamicResource BrushCoral}"/>
@@ -135,7 +135,7 @@
 
                             <!-- Center KPI Percentage -->
                             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-                                <TextBlock Text="94%"
+                                <TextBlock Text="{Binding SuccessPercentageDisplay}"
                                            FontWeight="SemiBold"
                                            FontSize="{StaticResource FontSizeKpi}"
                                            Foreground="{DynamicResource BrushInk}"
@@ -158,7 +158,7 @@
 
                                 <StackPanel Grid.Column="0">
                                     <StackPanel Orientation="Horizontal">
-                                        <Border Width="8" Height="8" CornerRadius="4" Background="{DynamicResource BrushJade}" Margin="0,0,6,0" VerticalAlignment="Center"/>
+                                        <Ellipse Width="8" Height="8" Stretch="Uniform" Fill="{DynamicResource BrushJade}" Margin="0,0,6,0" VerticalAlignment="Center"/>
                                         <TextBlock Text="Succeeded" FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkMuted}"/>
                                     </StackPanel>
                                     <TextBlock Text="{Binding SuccessfulRunsCount, StringFormat={}{0}}" FontWeight="SemiBold" FontSize="{StaticResource FontSizeRowTitle}" Foreground="{DynamicResource BrushInk}" Margin="14,2,0,0"/>
@@ -166,15 +166,15 @@
 
                                 <StackPanel Grid.Column="1">
                                     <StackPanel Orientation="Horizontal">
-                                        <Border Width="8" Height="8" CornerRadius="4" Background="{DynamicResource BrushSaffron}" Margin="0,0,6,0" VerticalAlignment="Center"/>
+                                        <Ellipse Width="8" Height="8" Stretch="Uniform" Fill="{DynamicResource BrushSaffron}" Margin="0,0,6,0" VerticalAlignment="Center"/>
                                         <TextBlock Text="Partial" FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkMuted}"/>
                                     </StackPanel>
-                                    <TextBlock Text="0" FontWeight="SemiBold" FontSize="{StaticResource FontSizeRowTitle}" Foreground="{DynamicResource BrushInk}" Margin="14,2,0,0"/>
+                                    <TextBlock Text="{Binding PartialRunsCount, StringFormat={}{0}}" FontWeight="SemiBold" FontSize="{StaticResource FontSizeRowTitle}" Foreground="{DynamicResource BrushInk}" Margin="14,2,0,0"/>
                                 </StackPanel>
 
                                 <StackPanel Grid.Column="2">
                                     <StackPanel Orientation="Horizontal">
-                                        <Border Width="8" Height="8" CornerRadius="4" Background="{DynamicResource BrushCoral}" Margin="0,0,6,0" VerticalAlignment="Center"/>
+                                        <Ellipse Width="8" Height="8" Stretch="Uniform" Fill="{DynamicResource BrushCoral}" Margin="0,0,6,0" VerticalAlignment="Center"/>
                                         <TextBlock Text="Failed" FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkMuted}"/>
                                     </StackPanel>
                                     <TextBlock Text="{Binding FailedRunsCount, StringFormat={}{0}}" FontWeight="SemiBold" FontSize="{StaticResource FontSizeRowTitle}" Foreground="{DynamicResource BrushInk}" Margin="14,2,0,0"/>
@@ -205,14 +205,15 @@
                             </StackPanel>
 
                             <Button HorizontalAlignment="Right"
-                                    Content="New backup"
+                                    Content="+ Create backup"
                                     Command="{Binding OpenNewJobCommand}"
-                                    Style="{StaticResource BtnPrimary}"
+                                    Style="{StaticResource BtnQuiet}"
                                     Height="32" Padding="12,0"/>
                         </Grid>
 
-                        <!-- Scheduled Rows -->
-                        <ItemsControl Grid.Row="1" ItemsSource="{Binding Jobs}">
+                        <!-- Scheduled Rows (Shown when jobs exist) -->
+                        <ItemsControl Grid.Row="1" ItemsSource="{Binding Jobs}"
+                                      Visibility="{Binding HasJobs, Converter={StaticResource BoolToVis}}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate DataType="{x:Type vm:JobCardViewModel}">
                                     <Border BorderBrush="{DynamicResource BrushLine}" BorderThickness="0,0,0,1" Padding="0,12">
@@ -275,6 +276,17 @@
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
+
+                        <!-- Empty State when no jobs are configured -->
+                        <StackPanel Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0,32,0,24"
+                                    Visibility="{Binding HasNoJobs, Converter={StaticResource BoolToVis}}">
+                            <Border Width="48" Height="48" CornerRadius="12" Background="{DynamicResource BrushCobaltSoft}" HorizontalAlignment="Center" Margin="0,0,0,12">
+                                <Path Data="{StaticResource IconClock}" Fill="{DynamicResource BrushCobalt}" Width="20" Height="20" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <TextBlock Text="No scheduled backups configured" FontWeight="SemiBold" FontSize="{StaticResource FontSizeRowTitle}" Foreground="{DynamicResource BrushInk}" HorizontalAlignment="Center"/>
+                            <TextBlock Text="Automated backup schedules run silently via the Windows background service." FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkMuted}" HorizontalAlignment="Center" Margin="0,4,0,16"/>
+                            <Button Content="Create backup job" Command="{Binding OpenNewJobCommand}" Style="{StaticResource BtnPrimary}" Height="34" Padding="18,0" HorizontalAlignment="Center"/>
+                        </StackPanel>
                     </Grid>
                 </Border>
             </Grid>

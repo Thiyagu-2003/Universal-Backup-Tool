@@ -15,6 +15,16 @@ public sealed class InverseBooleanToVisibilityConverter : IValueConverter
             return b ? Visibility.Collapsed : Visibility.Visible;
         }
 
+        if (value is int i)
+        {
+            return i > 0 ? Visibility.Collapsed : Visibility.Visible;
+        }
+
+        if (value is long l)
+        {
+            return l > 0 ? Visibility.Collapsed : Visibility.Visible;
+        }
+
         return Visibility.Visible;
     }
 

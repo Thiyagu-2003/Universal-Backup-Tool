@@ -94,9 +94,10 @@
                         </Border>
 
                         <!-- Search Box -->
-                        <Border Grid.Column="1" Margin="16,0" MaxWidth="320" HorizontalAlignment="Left">
+                        <Border Grid.Column="1" Margin="16,0" Width="280" HorizontalAlignment="Left">
                             <Grid>
                                 <TextBox x:Name="SearchInput"
+                                         Tag="Filter sites..."
                                          Style="{StaticResource FieldInput}"
                                          Padding="34,0,12,0"
                                          TextChanged="SearchInput_TextChanged"/>

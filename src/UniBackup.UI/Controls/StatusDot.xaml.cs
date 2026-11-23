@@ -21,19 +21,27 @@ public partial class StatusDot : UserControl
     {
         InitializeComponent();
         Loaded += StatusDot_Loaded;
+        Unloaded += StatusDot_Unloaded;
     }
 
     private void StatusDot_Loaded(object sender, RoutedEventArgs e)
     {
         if (DotBrush == null)
         {
-            DotBrush = TryFindResource("BrushJade") as Brush ?? new SolidColorBrush(Color.FromRgb(0x00, 0x94, 0x6A));
+            SetCurrentValue(DotBrushProperty, TryFindResource("BrushJade") as Brush ?? new SolidColorBrush(Color.FromRgb(0x00, 0x94, 0x6A)));
         }
 
         if (SystemParameters.ClientAreaAnimation)
         {
             StartPulseAnimation();
         }
+    }
+
+    private void StatusDot_Unloaded(object sender, RoutedEventArgs e)
+    {
+        PulseScale.BeginAnimation(ScaleTransform.ScaleXProperty, null);
+        PulseScale.BeginAnimation(ScaleTransform.ScaleYProperty, null);
+        PulseRing.BeginAnimation(OpacityProperty, null);
     }
 
     private void StartPulseAnimation()

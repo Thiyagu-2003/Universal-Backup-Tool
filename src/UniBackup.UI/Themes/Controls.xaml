@@ -307,6 +307,7 @@
         <Setter Property="FontFamily" Value="{StaticResource FontBase}"/>
         <Setter Property="FontSize" Value="{StaticResource FontSizeBody}"/>
         <Setter Property="Height" Value="38"/>
+        <Setter Property="MinWidth" Value="100"/>
         <Setter Property="Padding" Value="12,0"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
         <Setter Property="Background" Value="{DynamicResource BrushPanel}"/>
@@ -324,11 +325,34 @@
                             BorderThickness="{TemplateBinding BorderThickness}"
                             CornerRadius="{StaticResource RadiusControl}"
                             SnapsToDevicePixels="True">
-                        <ScrollViewer x:Name="PART_ContentHost"
-                                      Focusable="False"
-                                      HorizontalScrollBarVisibility="Hidden"
-                                      VerticalScrollBarVisibility="Hidden"
-                                      Margin="{TemplateBinding Padding}"/>
+                        <Grid>
+                            <TextBlock Text="{TemplateBinding Tag}"
+                                       Foreground="{DynamicResource BrushInkFaint}"
+                                       FontSize="{TemplateBinding FontSize}"
+                                       FontFamily="{TemplateBinding FontFamily}"
+                                       VerticalAlignment="Center"
+                                       Margin="{TemplateBinding Padding}"
+                                       IsHitTestVisible="False">
+                                <TextBlock.Style>
+                                    <Style TargetType="{x:Type TextBlock}">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding Text, RelativeSource={RelativeSource TemplatedParent}}" Value="">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding Text, RelativeSource={RelativeSource TemplatedParent}}" Value="{x:Null}">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                            <ScrollViewer x:Name="PART_ContentHost"
+                                          Focusable="False"
+                                          HorizontalScrollBarVisibility="Hidden"
+                                          VerticalScrollBarVisibility="Hidden"
+                                          Margin="{TemplateBinding Padding}"/>
+                        </Grid>
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
@@ -359,6 +383,7 @@
         <Setter Property="FontFamily" Value="{StaticResource FontBase}"/>
         <Setter Property="FontSize" Value="{StaticResource FontSizeBody}"/>
         <Setter Property="Height" Value="38"/>
+        <Setter Property="MinWidth" Value="100"/>
         <Setter Property="Padding" Value="12,0"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
         <Setter Property="Background" Value="{DynamicResource BrushPanel}"/>
@@ -592,7 +617,7 @@
 
     <!-- Badge Style (22px pill, 11.5/600) -->
     <Style x:Key="BadgePill" TargetType="{x:Type Border}">
-        <Setter Property="CornerRadius" Value="{StaticResource RadiusPill}"/>
+        <Setter Property="CornerRadius" Value="11"/>
         <Setter Property="Height" Value="22"/>
         <Setter Property="Padding" Value="8,0"/>
         <Setter Property="VerticalAlignment" Value="Center"/>
@@ -609,6 +634,17 @@
 
     <!-- Sidebar Navigation Rail Item Style -->
     <Style x:Key="NavRailItem" TargetType="{x:Type RadioButton}">
+        <Style.Resources>
+            <Style TargetType="{x:Type TextBlock}">
+                <Setter Property="Foreground" Value="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}"/>
+                <Setter Property="FontFamily" Value="{StaticResource FontBase}"/>
+                <Setter Property="FontWeight" Value="{Binding Path=FontWeight, RelativeSource={RelativeSource AncestorType=RadioButton}}"/>
+                <Setter Property="FontSize" Value="{StaticResource FontSizeBody}"/>
+                <Setter Property="VerticalAlignment" Value="Center"/>
+                <Setter Property="TextOptions.TextFormattingMode" Value="Display"/>
+                <Setter Property="TextOptions.TextRenderingMode" Value="ClearType"/>
+            </Style>
+        </Style.Resources>
         <Setter Property="FontFamily" Value="{StaticResource FontBase}"/>
         <Setter Property="FontWeight" Value="Medium"/>
         <Setter Property="FontSize" Value="{StaticResource FontSizeBody}"/>
@@ -624,16 +660,31 @@
                 <ControlTemplate TargetType="{x:Type RadioButton}">
                     <Border x:Name="bd"
                             Background="{TemplateBinding Background}"
+                            BorderBrush="Transparent"
+                            BorderThickness="1"
                             CornerRadius="8"
                             Padding="{TemplateBinding Padding}"
                             SnapsToDevicePixels="True">
-                        <ContentPresenter HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
+                        <Grid>
+                            <Border x:Name="activeIndicator"
+                                    Width="3"
+                                    Height="18"
+                                    CornerRadius="1.5"
+                                    Background="{DynamicResource BrushCobalt}"
+                                    HorizontalAlignment="Left"
+                                    VerticalAlignment="Center"
+                                    Margin="-6,0,0,0"
+                                    Visibility="Collapsed"/>
+                            <ContentPresenter HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
+                        </Grid>
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsChecked" Value="True">
                             <Setter TargetName="bd" Property="Background" Value="{DynamicResource BrushPanel}"/>
                             <Setter Property="Foreground" Value="{DynamicResource BrushInk}"/>
+                            <Setter Property="FontWeight" Value="SemiBold"/>
                             <Setter TargetName="bd" Property="Effect" Value="{StaticResource Sh1}"/>
+                            <Setter TargetName="activeIndicator" Property="Visibility" Value="Visible"/>
                         </Trigger>
                         <MultiTrigger>
                             <MultiTrigger.Conditions>
@@ -666,6 +717,8 @@
                 <ControlTemplate TargetType="{x:Type RadioButton}">
                     <Border x:Name="bd"
                             Background="{TemplateBinding Background}"
+                            BorderBrush="Transparent"
+                            BorderThickness="1"
                             CornerRadius="8"
                             Padding="{TemplateBinding Padding}"
                             SnapsToDevicePixels="True">

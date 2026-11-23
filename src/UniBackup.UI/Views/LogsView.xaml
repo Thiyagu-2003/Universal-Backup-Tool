@@ -23,11 +23,11 @@
                     <ToggleButton IsChecked="{Binding Logs.ShowErrors, Mode=TwoWay}" Cursor="Hand" Margin="0,0,8,0">
                         <ToggleButton.Template>
                             <ControlTemplate TargetType="{x:Type ToggleButton}">
-                                <Border x:Name="bd" CornerRadius="{StaticResource RadiusPill}" Padding="12,6"
+                                <Border x:Name="bd" Height="28" CornerRadius="14" Padding="12,0"
                                         Background="{DynamicResource BrushCoralSoft}" BorderBrush="{DynamicResource BrushCoral}" BorderThickness="1">
-                                    <StackPanel Orientation="Horizontal">
-                                        <Border Width="8" Height="8" CornerRadius="4" Background="{DynamicResource BrushCoral}" Margin="0,0,6,0" VerticalAlignment="Center"/>
-                                        <TextBlock Text="{Binding Logs.ErrorCount, StringFormat={}{0} Errors}" FontWeight="SemiBold" FontSize="{StaticResource FontSizeBadge}" Foreground="{DynamicResource BrushCoral}"/>
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                        <Ellipse Width="8" Height="8" Stretch="Uniform" Fill="{DynamicResource BrushCoral}" Margin="0,0,6,0" VerticalAlignment="Center"/>
+                                        <TextBlock Text="{Binding Logs.ErrorCount, StringFormat={}{0} Errors}" FontWeight="SemiBold" FontSize="{StaticResource FontSizeBadge}" Foreground="{DynamicResource BrushCoral}" VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </Border>
                                 <ControlTemplate.Triggers>
@@ -45,11 +45,11 @@
                     <ToggleButton IsChecked="{Binding Logs.ShowWarnings, Mode=TwoWay}" Cursor="Hand" Margin="0,0,8,0">
                         <ToggleButton.Template>
                             <ControlTemplate TargetType="{x:Type ToggleButton}">
-                                <Border x:Name="bd" CornerRadius="{StaticResource RadiusPill}" Padding="12,6"
+                                <Border x:Name="bd" Height="28" CornerRadius="14" Padding="12,0"
                                         Background="{DynamicResource BrushSaffronSoft}" BorderBrush="{DynamicResource BrushSaffron}" BorderThickness="1">
-                                    <StackPanel Orientation="Horizontal">
-                                        <Border Width="8" Height="8" CornerRadius="4" Background="{DynamicResource BrushSaffron}" Margin="0,0,6,0" VerticalAlignment="Center"/>
-                                        <TextBlock Text="{Binding Logs.WarningCount, StringFormat={}{0} Warnings}" FontWeight="SemiBold" FontSize="{StaticResource FontSizeBadge}" Foreground="{DynamicResource BrushSaffron}"/>
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                        <Ellipse Width="8" Height="8" Stretch="Uniform" Fill="{DynamicResource BrushSaffron}" Margin="0,0,6,0" VerticalAlignment="Center"/>
+                                        <TextBlock Text="{Binding Logs.WarningCount, StringFormat={}{0} Warnings}" FontWeight="SemiBold" FontSize="{StaticResource FontSizeBadge}" Foreground="{DynamicResource BrushSaffron}" VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </Border>
                                 <ControlTemplate.Triggers>
@@ -67,11 +67,11 @@
                     <ToggleButton IsChecked="{Binding Logs.ShowInfo, Mode=TwoWay}" Cursor="Hand">
                         <ToggleButton.Template>
                             <ControlTemplate TargetType="{x:Type ToggleButton}">
-                                <Border x:Name="bd" CornerRadius="{StaticResource RadiusPill}" Padding="12,6"
+                                <Border x:Name="bd" Height="28" CornerRadius="14" Padding="12,0"
                                         Background="{DynamicResource BrushCobaltSoft}" BorderBrush="{DynamicResource BrushCobalt}" BorderThickness="1">
-                                    <StackPanel Orientation="Horizontal">
-                                        <Border Width="8" Height="8" CornerRadius="4" Background="{DynamicResource BrushCobalt}" Margin="0,0,6,0" VerticalAlignment="Center"/>
-                                        <TextBlock Text="{Binding Logs.InfoCount, StringFormat={}{0} Info}" FontWeight="SemiBold" FontSize="{StaticResource FontSizeBadge}" Foreground="{DynamicResource BrushCobalt}"/>
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                        <Ellipse Width="8" Height="8" Stretch="Uniform" Fill="{DynamicResource BrushCobalt}" Margin="0,0,6,0" VerticalAlignment="Center"/>
+                                        <TextBlock Text="{Binding Logs.InfoCount, StringFormat={}{0} Info}" FontWeight="SemiBold" FontSize="{StaticResource FontSizeBadge}" Foreground="{DynamicResource BrushCobalt}" VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </Border>
                                 <ControlTemplate.Triggers>
@@ -86,19 +86,47 @@
                     </ToggleButton>
                 </StackPanel>
 
-                <!-- Search Box -->
-                <Border Grid.Column="1" Margin="20,0" MaxWidth="320" HorizontalAlignment="Left">
+                <!-- Search Box with Watermark -->
+                <Border Grid.Column="1" Margin="16,0" Width="260" Height="32" HorizontalAlignment="Left"
+                        CornerRadius="{StaticResource RadiusControl}" Background="{DynamicResource BrushCanvas}"
+                        BorderBrush="{DynamicResource BrushLineStrong}" BorderThickness="1">
                     <Grid>
-                        <TextBox Text="{Binding Logs.SearchFilter, UpdateSourceTrigger=PropertyChanged}"
-                                 Style="{StaticResource FieldInput}"
-                                 Padding="34,0,12,0"/>
                         <Path Data="{StaticResource IconSearch}"
                               Fill="{DynamicResource BrushInkFaint}"
-                              Width="14" Height="14"
+                              Width="13" Height="13"
                               Stretch="Uniform"
                               HorizontalAlignment="Left"
-                              Margin="12,0,0,0"
+                              Margin="10,0,0,0"
                               IsHitTestVisible="False"/>
+                        <TextBlock Text="Filter log events..."
+                                   Foreground="{DynamicResource BrushInkFaint}"
+                                   FontSize="{StaticResource FontSizeBody}"
+                                   VerticalAlignment="Center"
+                                   Margin="30,0,10,0"
+                                   IsHitTestVisible="False">
+                            <TextBlock.Style>
+                                <Style TargetType="{x:Type TextBlock}">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Text, ElementName=LogSearchBox}" Value="">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding Text, ElementName=LogSearchBox}" Value="{x:Null}">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                        <TextBox x:Name="LogSearchBox"
+                                 Text="{Binding Logs.SearchFilter, UpdateSourceTrigger=PropertyChanged}"
+                                 Background="Transparent"
+                                 BorderThickness="0"
+                                 Foreground="{DynamicResource BrushInk}"
+                                 CaretBrush="{DynamicResource BrushCobalt}"
+                                 FontSize="{StaticResource FontSizeBody}"
+                                 VerticalContentAlignment="Center"
+                                 Padding="30,0,10,0"/>
                     </Grid>
                 </Border>
 
@@ -147,17 +175,20 @@
                                                     <Setter Property="Background" Value="Transparent"/>
                                                     <Style.Triggers>
                                                         <DataTrigger Binding="{Binding IsError}" Value="True">
-                                                            <Setter Property="Background" Value="{DynamicResource BrushCoralSoft}"/>
+                                                            <Setter Property="Background" Value="#0FE11D48"/>
                                                         </DataTrigger>
                                                         <DataTrigger Binding="{Binding IsWarning}" Value="True">
-                                                            <Setter Property="Background" Value="{DynamicResource BrushSaffronSoft}"/>
+                                                            <Setter Property="Background" Value="#0FD97706"/>
                                                         </DataTrigger>
+                                                        <Trigger Property="IsMouseOver" Value="True">
+                                                            <Setter Property="Background" Value="{DynamicResource BrushSunken}"/>
+                                                        </Trigger>
                                                     </Style.Triggers>
                                                 </Style>
                                             </Border.Style>
                                             <Grid>
-                                                <!-- Coloured Left Edge per Line (§4.6) -->
-                                                <Border Width="4" HorizontalAlignment="Left">
+                                                <!-- Coloured Left Edge Indicator per Line (§4.6) -->
+                                                <Border Width="4" HorizontalAlignment="Left" CornerRadius="2">
                                                     <Border.Style>
                                                         <Style TargetType="{x:Type Border}">
                                                             <Setter Property="Background" Value="Transparent"/>
@@ -183,7 +214,7 @@
                                                            Foreground="{DynamicResource BrushInk}"
                                                            TextWrapping="NoWrap"
                                                            LineHeight="21"
-                                                           Padding="16,3,16,3"/>
+                                                           Padding="16,4,16,4"/>
                                             </Grid>
                                         </Border>
                                     </ControlTemplate>
@@ -195,7 +226,7 @@
 
                 <!-- Empty State Message when 0 lines match -->
                 <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"
-                            Visibility="{Binding Logs.VisibleLines.Count, Converter={StaticResource InverseBoolToVis}}">
+                            Visibility="{Binding Logs.HasNoVisibleLines, Converter={StaticResource BoolToVis}}">
                     <TextBlock Text="No log events match the current filter"
                                FontWeight="Medium"
                                FontSize="{StaticResource FontSizeBody}"

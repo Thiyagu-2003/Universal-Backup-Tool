@@ -136,9 +136,10 @@
                                         <ColumnDefinition Width="Auto"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
-                                    <Border Width="22" Height="22" CornerRadius="11" Background="{DynamicResource BrushCobalt}" Margin="0,0,10,0">
+                                    <Grid Width="22" Height="22" Margin="0,0,10,0">
+                                        <Ellipse Fill="{DynamicResource BrushCobalt}"/>
                                         <TextBlock Text="3" FontWeight="SemiBold" FontSize="{StaticResource FontSizeBadge}" Foreground="#FFFFFF" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                    </Border>
+                                    </Grid>
                                     <TextBlock Grid.Column="1" Text="Stop at target second and bring the database online — STOPAT RECOVERY"
                                                FontWeight="SemiBold" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource BrushCobalt}" VerticalAlignment="Center"/>
                                 </Grid>
@@ -153,13 +154,19 @@
                             <TextBlock Text="Specify target SQL Server instance and database name" FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkMuted}" Margin="0,2,0,14"/>
 
                             <TextBlock Text="Target instance" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
-                            <TextBox Text="{Binding SqlTargetServer, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldInputMono}" Margin="0,4,0,12"/>
+                            <TextBox Text="{Binding SqlTargetServer, UpdateSourceTrigger=PropertyChanged}"
+                                     Tag="e.g. localhost, .\SQL2022"
+                                     Style="{StaticResource FieldInputMono}" Margin="0,4,0,12"/>
 
                             <TextBlock Text="Restore as (blank = overwrite existing)" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
-                            <TextBox Text="{Binding SqlRestoreAsName, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldInputMono}" Margin="0,4,0,12"/>
+                            <TextBox Text="{Binding SqlRestoreAsName, UpdateSourceTrigger=PropertyChanged}"
+                                     Tag="e.g. WideWorldImporters_Restored"
+                                     Style="{StaticResource FieldInputMono}" Margin="0,4,0,12"/>
 
                             <TextBlock Text="Passphrase (if encrypted)" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
-                            <TextBox Text="{Binding SqlRestorePassphrase, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldInput}" Margin="0,4,0,20"/>
+                            <TextBox Text="{Binding SqlRestorePassphrase, UpdateSourceTrigger=PropertyChanged}"
+                                     Tag="Passphrase for decryption (if set)"
+                                     Style="{StaticResource FieldInput}" Margin="0,4,0,20"/>
 
                             <Button Content="Execute database restore" Command="{Binding StartSqlRestoreCommand}" Style="{StaticResource BtnPrimary}" Height="38"/>
                         </StackPanel>
@@ -200,10 +207,18 @@
                         <Grid Margin="0,20,0,0">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="10"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="10"/>
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
-                            <TextBox Text="{Binding RestoreDestinationPath, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldInputMono}"/>
-                            <Button Grid.Column="1" Content="Extract archive" Command="{Binding StartRestoreCommand}" Style="{StaticResource BtnPrimary}" Margin="12,0,0,0"/>
+                            <TextBox Text="{Binding RestoreDestinationPath, UpdateSourceTrigger=PropertyChanged}"
+                                     Tag="e.g. C:\UniBackup\Restore"
+                                     Style="{StaticResource FieldInputMono}"/>
+                            <Button Grid.Column="2" Content="Browse..." Command="{Binding BrowseRestoreDestinationCommand}"
+                                    Style="{StaticResource BtnQuiet}" Height="38" Padding="16,0"/>
+                            <Button Grid.Column="4" Content="Extract archive" Command="{Binding ExecuteRestoreCommand}"
+                                    Style="{StaticResource BtnPrimary}" Height="38" Padding="18,0"/>
                         </Grid>
                     </StackPanel>
                 </Border>
@@ -242,7 +257,7 @@
                             </Grid>
                         </Border>
 
-                        <Button Content="Run automated drill now" Command="{Binding RunRestoreDrillCommand}" Style="{StaticResource BtnPrimary}" HorizontalAlignment="Left"/>
+                        <Button Content="Run automated drill now" Command="{Binding ExecuteRestoreDrillCommand}" Style="{StaticResource BtnPrimary}" HorizontalAlignment="Left"/>
                     </StackPanel>
                 </Border>
             </StackPanel>

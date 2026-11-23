@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
@@ -152,7 +153,7 @@ public sealed partial class LogLine : ObservableObject
 public sealed partial class LogsViewModel : ObservableObject
 {
     private const int MaxLines = 2500;
-    private static readonly Dictionary<string, LogTally> Tallies = new(StringComparer.OrdinalIgnoreCase);
+    private static readonly ConcurrentDictionary<string, LogTally> Tallies = new(StringComparer.OrdinalIgnoreCase);
 
     private List<LogLine> _parsedLines = [];
 
@@ -204,19 +205,19 @@ public sealed partial class LogsViewModel : ObservableObject
     public bool ShowErrors
     {
         get => ActiveLevelFilter == "ERR";
-        set { if (value) ActiveLevelFilter = "ERR"; }
+        set => ActiveLevelFilter = value ? "ERR" : "ALL";
     }
 
     public bool ShowWarnings
     {
         get => ActiveLevelFilter == "WRN";
-        set { if (value) ActiveLevelFilter = "WRN"; }
+        set => ActiveLevelFilter = value ? "WRN" : "ALL";
     }
 
     public bool ShowInfo
     {
         get => ActiveLevelFilter == "INF";
-        set { if (value) ActiveLevelFilter = "INF"; }
+        set => ActiveLevelFilter = value ? "INF" : "ALL";
     }
 
     public event EventHandler<LogLine>? ScrollRequested;
@@ -230,6 +231,9 @@ public sealed partial class LogsViewModel : ObservableObject
     public ObservableCollection<LogFileRow> Files { get; } = [];
     public ObservableCollection<LogFileRow> VisibleFiles { get; } = [];
     public ObservableCollection<LogLine> VisibleLines { get; } = [];
+
+    [ObservableProperty]
+    private bool _hasNoVisibleLines;
 
     public LogsViewModel()
     {
@@ -368,6 +372,7 @@ public sealed partial class LogsViewModel : ObservableObject
         if (SelectedFile == null)
         {
             VisibleLines.Clear();
+            HasNoVisibleLines = true;
             StatusMessage = "No log files found in " + AppPaths.DefaultLogsDirectory;
         }
     }
@@ -423,6 +428,7 @@ public sealed partial class LogsViewModel : ObservableObject
         {
             StatusMessage = $"Error loading log: {ex.Message}";
             VisibleLines.Clear();
+            HasNoVisibleLines = true;
         }
     }
 
@@ -444,6 +450,8 @@ public sealed partial class LogsViewModel : ObservableObject
         {
             VisibleLines.Add(line);
         }
+
+        HasNoVisibleLines = VisibleLines.Count == 0;
 
         var visibleProblems = VisibleLines.Count(l => l.IsError || l.IsWarning);
         ProblemTotal = visibleProblems;

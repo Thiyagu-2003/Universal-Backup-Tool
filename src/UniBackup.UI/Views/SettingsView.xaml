@@ -95,8 +95,10 @@
                                         <TextBlock Text="New master password" FontWeight="SemiBold" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
                                         <Grid Margin="0,4,0,0">
                                             <PasswordBox x:Name="SecNewPasswordBox" PasswordChanged="SecNewPassword_Changed" Style="{StaticResource FieldPassword}"
+                                                         Tag="Enter new master password"
                                                          Visibility="{Binding IsSecurityPasswordVisible, Converter={StaticResource InverseBoolToVis}}"/>
                                             <TextBox Text="{Binding SecurityNewPassword, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldInput}"
+                                                     Tag="Enter new master password"
                                                      Visibility="{Binding IsSecurityPasswordVisible, Converter={StaticResource BoolToVis}}"/>
                                         </Grid>
                                     </StackPanel>
@@ -106,8 +108,10 @@
                                         <TextBlock Text="Confirm master password" FontWeight="SemiBold" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
                                         <Grid Margin="0,4,0,0">
                                             <PasswordBox x:Name="SecConfirmPasswordBox" PasswordChanged="SecConfirmPassword_Changed" Style="{StaticResource FieldPassword}"
+                                                         Tag="Re-enter password"
                                                          Visibility="{Binding IsSecurityPasswordVisible, Converter={StaticResource InverseBoolToVis}}"/>
                                             <TextBox Text="{Binding SecurityConfirmPassword, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldInput}"
+                                                     Tag="Re-enter password"
                                                      Visibility="{Binding IsSecurityPasswordVisible, Converter={StaticResource BoolToVis}}"/>
                                         </Grid>
                                     </StackPanel>
@@ -139,7 +143,9 @@
                                     <!-- Prefix -->
                                     <StackPanel Grid.Column="0">
                                         <TextBlock Text="Prefix (e.g. admin(, ups)" FontWeight="SemiBold" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
-                                        <TextBox Text="{Binding SecurityDatePrefix, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldInputMono}" Margin="0,4,0,0"/>
+                                        <TextBox Text="{Binding SecurityDatePrefix, UpdateSourceTrigger=PropertyChanged}"
+                                                 Tag="e.g. admin("
+                                                 Style="{StaticResource FieldInputMono}" Margin="0,4,0,0"/>
                                     </StackPanel>
 
                                     <!-- Date Format -->
@@ -152,7 +158,9 @@
                                     <!-- Suffix -->
                                     <StackPanel Grid.Column="4">
                                         <TextBlock Text="Suffix (e.g. ), !)" FontWeight="SemiBold" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
-                                        <TextBox Text="{Binding SecurityDateSuffix, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldInputMono}" Margin="0,4,0,0"/>
+                                        <TextBox Text="{Binding SecurityDateSuffix, UpdateSourceTrigger=PropertyChanged}"
+                                                 Tag="e.g. )"
+                                                 Style="{StaticResource FieldInputMono}" Margin="0,4,0,0"/>
                                     </StackPanel>
                                 </Grid>
 
@@ -287,8 +295,8 @@
                             </StackPanel>
 
                             <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
-                                <Button Content="Start service" Command="{Binding StartServiceCommand}" Style="{StaticResource BtnQuiet}" Margin="0,0,8,0" Height="32"/>
-                                <Button Content="Stop service" Command="{Binding StopServiceCommand}" Style="{StaticResource BtnQuiet}" Height="32"/>
+                                <Button Content="Start service" Command="{Binding StartWindowsServiceCommand}" Style="{StaticResource BtnQuiet}" Margin="0,0,8,0" Height="32"/>
+                                <Button Content="Stop service" Command="{Binding StopWindowsServiceCommand}" Style="{StaticResource BtnQuiet}" Height="32"/>
                             </StackPanel>
                         </Grid>
                     </Border>
@@ -305,7 +313,7 @@
                     <Border BorderBrush="{DynamicResource BrushLine}" BorderThickness="1" CornerRadius="10" Margin="0,0,0,10" Background="{DynamicResource BrushRaised}">
                         <Expander IsExpanded="True" Header="Amazon S3 / S3-compatible">
                             <StackPanel Margin="16,0,16,16">
-                                <Grid Margin="0,10,0,12">
+                                <Grid Margin="0,10,0,12" Width="600" HorizontalAlignment="Left">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="16"/>
@@ -313,14 +321,18 @@
                                     </Grid.ColumnDefinitions>
                                     <StackPanel Grid.Column="0">
                                         <TextBlock Text="Bucket name" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
-                                        <TextBox Text="{Binding Config.Aws.BucketName, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldInputMono}" Margin="0,4,0,0"/>
+                                        <TextBox Text="{Binding Config.Aws.BucketName, UpdateSourceTrigger=PropertyChanged}"
+                                                 Tag="e.g. my-backup-bucket"
+                                                 Style="{StaticResource FieldInputMono}" Margin="0,4,0,0"/>
                                     </StackPanel>
                                     <StackPanel Grid.Column="2">
                                         <TextBlock Text="Region" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
-                                        <TextBox Text="{Binding Config.Aws.Region, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldInputMono}" Margin="0,4,0,0"/>
+                                        <TextBox Text="{Binding Config.Aws.Region, UpdateSourceTrigger=PropertyChanged}"
+                                                 Tag="e.g. us-east-1"
+                                                 Style="{StaticResource FieldInputMono}" Margin="0,4,0,0"/>
                                     </StackPanel>
                                 </Grid>
-                                <Button Content="Test S3 connection" Command="{Binding TestAwsConnectionCommand}" Style="{StaticResource BtnQuiet}" Height="34" HorizontalAlignment="Left"/>
+                                <Button Content="Test S3 connection" Command="{Binding TestS3ConnectionCommand}" Style="{StaticResource BtnQuiet}" Height="38" Padding="16,0" HorizontalAlignment="Left"/>
                             </StackPanel>
                         </Expander>
                     </Border>
@@ -329,9 +341,15 @@
                     <Border BorderBrush="{DynamicResource BrushLine}" BorderThickness="1" CornerRadius="10" Margin="0,0,0,10" Background="{DynamicResource BrushRaised}">
                         <Expander Header="Google Drive (OAuth2)">
                             <StackPanel Margin="16,0,16,16">
-                                <TextBlock Text="Target Drive folder ID" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}" Margin="0,10,0,0"/>
-                                <TextBox Text="{Binding Config.GoogleDrive.FolderId, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldInputMono}" Margin="0,4,0,12" MaxWidth="400" HorizontalAlignment="Left"/>
-                                <Button Content="Test Google Drive connection" Command="{Binding TestGoogleDriveCommand}" Style="{StaticResource BtnQuiet}" Height="34" HorizontalAlignment="Left"/>
+                                <TextBlock Text="Target Drive folder / path" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}" Margin="0,10,0,0"/>
+                                <StackPanel Orientation="Horizontal" Margin="0,4,0,12">
+                                    <TextBox Text="{Binding Config.GDrive.TargetFolder, UpdateSourceTrigger=PropertyChanged}"
+                                             Tag="e.g. /Backups"
+                                             Style="{StaticResource FieldInputMono}"
+                                             Width="420"
+                                             Margin="0,0,12,0"/>
+                                    <Button Content="Test Google Drive connection" Command="{Binding TestGoogleDriveCommand}" Style="{StaticResource BtnQuiet}" Height="38" Padding="16,0"/>
+                                </StackPanel>
                             </StackPanel>
                         </Expander>
                     </Border>
@@ -341,8 +359,20 @@
                         <Expander Header="Local Storage / UNC Network Shares">
                             <StackPanel Margin="16,0,16,16">
                                 <TextBlock Text="Base folder path" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}" Margin="0,10,0,0"/>
-                                <TextBox Text="{Binding Config.LocalStorage.FolderPath, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldInputMono}" Margin="0,4,0,12" MaxWidth="500" HorizontalAlignment="Left"/>
-                                <Button Content="Test folder access" Command="{Binding TestLocalStorageCommand}" Style="{StaticResource BtnQuiet}" Height="34" HorizontalAlignment="Left"/>
+                                <Grid Margin="0,4,0,12" Width="640" HorizontalAlignment="Left">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="12"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="10"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBox Text="{Binding Config.Local.TargetPath, UpdateSourceTrigger=PropertyChanged}"
+                                             Tag="e.g. D:\Backups or \\nas\backups"
+                                             Style="{StaticResource FieldInputMono}"/>
+                                    <Button Grid.Column="2" Content="Browse..." Command="{Binding BrowseLocalStorageFolderCommand}" Style="{StaticResource BtnQuiet}" Height="38" Padding="16,0"/>
+                                    <Button Grid.Column="4" Content="Test folder access" Command="{Binding TestLocalStorageCommand}" Style="{StaticResource BtnQuiet}" Height="38" Padding="14,0"/>
+                                </Grid>
                             </StackPanel>
                         </Expander>
                     </Border>
@@ -356,13 +386,16 @@
                     <TextBlock Text="Temporary staging partition for compression and cloud chunks" FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkMuted}" Margin="0,2,0,16"/>
 
                     <TextBlock Text="Temporary directory" FontWeight="SemiBold" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
-                    <Grid Margin="0,4,0,0" MaxWidth="600" HorizontalAlignment="Left">
+                    <Grid Margin="0,4,0,0" Width="640" HorizontalAlignment="Left">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="12"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
-                        <TextBox Text="{Binding Config.Backup.TempFolder, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldInputMono}"/>
-                        <Button Grid.Column="1" Content="Browse" Command="{Binding BrowseTempFolderCommand}" Style="{StaticResource BtnQuiet}" Margin="8,0,0,0"/>
+                        <TextBox Text="{Binding Config.Backup.TempFolder, UpdateSourceTrigger=PropertyChanged}"
+                                 Tag="e.g. C:\UniBackup\temp"
+                                 Style="{StaticResource FieldInputMono}"/>
+                        <Button Grid.Column="2" Content="Browse..." Command="{Binding BrowseTempFolderCommand}" Style="{StaticResource BtnQuiet}" Height="38" Padding="18,0"/>
                     </Grid>
                 </StackPanel>
             </Border>

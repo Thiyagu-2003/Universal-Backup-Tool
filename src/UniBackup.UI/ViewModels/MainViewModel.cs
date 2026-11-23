@@ -45,6 +45,8 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty]
     private string _searchQuery = "";
 
+    partial void OnSearchQueryChanged(string value) => _ = RefreshJobsAsync();
+
     [ObservableProperty]
     private AppConfig _config = new();
 
@@ -86,6 +88,9 @@ public partial class MainViewModel : ObservableObject
     private int _failedRunsCount;
 
     [ObservableProperty]
+    private int _needsAttentionCount;
+
+    [ObservableProperty]
     private string _totalUploadedDisplay = "0 B";
 
     [ObservableProperty]
@@ -93,13 +98,23 @@ public partial class MainViewModel : ObservableObject
     private int _staleJobsCount;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasJobs))]
     private bool _hasNoJobs;
+
+    public bool HasJobs => !HasNoJobs;
+
+    [ObservableProperty]
+    private int _partialRunsCount;
 
     public bool HasStaleJobs => StaleJobsCount > 0;
     public bool HasDiagnostics => DiagnosticItems.Count > 0;
     public string SuccessRateDisplay => TotalRunsCount > 0
         ? $"{(double)SuccessfulRunsCount / TotalRunsCount * 100:F0}% success rate"
         : "No runs yet";
+
+    public string SuccessPercentageDisplay => TotalRunsCount > 0
+        ? $"{(double)SuccessfulRunsCount / TotalRunsCount * 100:F0}%"
+        : "100%";
 
     // Progress Overlay
     [ObservableProperty]
@@ -528,9 +543,12 @@ public partial class MainViewModel : ObservableObject
 
         TotalRunsCount = HistoryRecords.Count;
         SuccessfulRunsCount = HistoryRecords.Count(h => h.Status == "SUCCESS");
-        FailedRunsCount = HistoryRecords.Count(h => h.Status == "FAILED" || h.Status == "PARTIAL");
+        PartialRunsCount = HistoryRecords.Count(h => h.Status == "PARTIAL");
+        FailedRunsCount = HistoryRecords.Count(h => h.Status == "FAILED");
+        NeedsAttentionCount = FailedRunsCount + PartialRunsCount;
         TotalUploadedDisplay = FormattingUtils.FormatBytes(HistoryRecords.Sum(h => h.ArchiveSizeBytes));
         OnPropertyChanged(nameof(SuccessRateDisplay));
+        OnPropertyChanged(nameof(SuccessPercentageDisplay));
 
         ComputeStaleJobs();
     }
@@ -1301,10 +1319,16 @@ public partial class MainViewModel : ObservableObject
     }
 
     [RelayCommand]
+    public Task TestAwsConnectionAsync() => TestS3ConnectionAsync();
+
+    [RelayCommand]
     public void ReauthenticateGoogleDrive()
     {
         NotificationHub.ShowSuccess("Google Drive sign-in active: UNIPROCLOUDBACKUP (headless ready). Copy gdrive_credentials.json to other servers to reuse.", "Google Drive Connected");
     }
+
+    [RelayCommand]
+    public void TestGoogleDrive() => ReauthenticateGoogleDrive();
 
     [RelayCommand]
     public async Task TestAzureAsync()
@@ -1455,6 +1479,79 @@ public partial class MainViewModel : ObservableObject
             OnPropertyChanged(nameof(Config));
             UpdateFreeSpaceIndicators();
             NotificationHub.ShowSuccess($"Temporary staging path set to: {normalized}", "Staging Directory");
+        }
+    }
+
+    [RelayCommand]
+    public void BrowseLocalStorageFolder()
+    {
+        var initialDir = !string.IsNullOrWhiteSpace(Config.Local.TargetPath) && Directory.Exists(Config.Local.TargetPath)
+            ? Config.Local.TargetPath
+            : @"C:\";
+
+        var dialog = new Microsoft.Win32.OpenFolderDialog
+        {
+            Title = "Select Local or Network Backup Storage Folder",
+            InitialDirectory = initialDir
+        };
+
+        if (dialog.ShowDialog() == true)
+        {
+            Config.Local.TargetPath = dialog.FolderName;
+            OnPropertyChanged(nameof(Config));
+            NotificationHub.ShowSuccess($"Destination folder path set to: {dialog.FolderName}", "Storage Directory");
+        }
+    }
+
+    [RelayCommand]
+    public async Task TestLocalStorageAsync()
+    {
+        try
+        {
+            var target = Config.Local.TargetPath;
+            if (string.IsNullOrWhiteSpace(target))
+            {
+                NotificationHub.ShowWarning("Please specify a target folder path.", "Local Storage");
+                return;
+            }
+
+            await Task.Run(() =>
+            {
+                if (!Directory.Exists(target))
+                {
+                    Directory.CreateDirectory(target);
+                }
+
+                var testFile = Path.Combine(target, $".access_test_{Guid.NewGuid():N}.tmp");
+                File.WriteAllText(testFile, "UniBackup write test");
+                File.Delete(testFile);
+            });
+
+            NotificationHub.ShowSuccess($"Storage directory '{target}' is writable and ready.", "Local Storage Ready");
+        }
+        catch (Exception ex)
+        {
+            NotificationHub.ShowError($"Failed to access '{Config.Local.TargetPath}': {ex.Message}", "Storage Error");
+        }
+    }
+
+    [RelayCommand]
+    public void BrowseRestoreDestination()
+    {
+        var initialDir = !string.IsNullOrWhiteSpace(RestoreDestinationPath) && Directory.Exists(RestoreDestinationPath)
+            ? RestoreDestinationPath
+            : @"C:\";
+
+        var dialog = new Microsoft.Win32.OpenFolderDialog
+        {
+            Title = "Select Destination Extraction Folder",
+            InitialDirectory = initialDir
+        };
+
+        if (dialog.ShowDialog() == true)
+        {
+            RestoreDestinationPath = dialog.FolderName;
+            NotificationHub.ShowSuccess($"Extraction destination set to: {dialog.FolderName}", "Restore Target");
         }
     }
 

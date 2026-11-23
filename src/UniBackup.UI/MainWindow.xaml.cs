@@ -192,6 +192,16 @@ public partial class MainWindow : Window
         _ = _viewModel.RefreshJobsCommand.ExecuteAsync(null);
     }
 
+    private void SearchClear_Click(object sender, RoutedEventArgs e)
+    {
+        _viewModel.SearchQuery = string.Empty;
+        if (MainSearchBox != null)
+        {
+            MainSearchBox.Text = string.Empty;
+            MainSearchBox.Focus();
+        }
+    }
+
     private void NewBackup_Click(object sender, RoutedEventArgs e)
     {
         _viewModel.OpenNewJob();
@@ -292,6 +302,8 @@ public partial class MainWindow : Window
         }
 
         _toastTimer?.Stop();
+        ToastNotificationCard.BeginAnimation(UIElement.OpacityProperty, null);
+        ToastTransform.BeginAnimation(TranslateTransform.YProperty, null);
         ToastNotificationCard.Visibility = Visibility.Visible;
 
         if (SystemParameters.ClientAreaAnimation)
@@ -342,7 +354,10 @@ public partial class MainWindow : Window
             };
             fadeOut.Completed += (_, _) =>
             {
-                ToastNotificationCard.Visibility = Visibility.Collapsed;
+                if (ToastNotificationCard.Opacity <= 0.05)
+                {
+                    ToastNotificationCard.Visibility = Visibility.Collapsed;
+                }
             };
 
             ToastNotificationCard.BeginAnimation(UIElement.OpacityProperty, fadeOut);
