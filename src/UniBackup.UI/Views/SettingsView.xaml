@@ -338,6 +338,32 @@
                                                  Style="{StaticResource FieldInputMono}" Margin="0,4,0,0"/>
                                     </StackPanel>
                                 </Grid>
+
+                                <Grid Margin="0,0,0,12">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="16"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock Text="AWS Access Key ID" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
+                                        <TextBox Text="{Binding Config.Aws.AccessKeyId, UpdateSourceTrigger=PropertyChanged}"
+                                                 Tag="e.g. AKIAIOSFODNN7EXAMPLE"
+                                                 Style="{StaticResource FieldInputMono}" Margin="0,4,0,0"/>
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="2">
+                                        <TextBlock Text="AWS Secret Access Key" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
+                                        <TextBox Text="{Binding Config.Aws.SecretAccessKey, UpdateSourceTrigger=PropertyChanged}"
+                                                 Tag="Secret access key"
+                                                 Style="{StaticResource FieldInputMono}" Margin="0,4,0,0"/>
+                                    </StackPanel>
+                                </Grid>
+
+                                <TextBlock Text="Custom Endpoint / Service URL (optional for MinIO, Wasabi, Cloudflare R2, Backblaze B2)" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
+                                <TextBox Text="{Binding Config.Aws.ServiceUrl, UpdateSourceTrigger=PropertyChanged}"
+                                         Tag="e.g. https://s3.wasabisys.com or https://minio.company.local:9000"
+                                         Style="{StaticResource FieldInputMono}" Margin="0,4,0,14"/>
+
                                 <Button Content="Test S3 connection" Command="{Binding TestS3ConnectionCommand}" Style="{StaticResource BtnQuiet}" Height="38" Padding="16,0" HorizontalAlignment="Left"/>
                             </StackPanel>
                         </Expander>
@@ -353,24 +379,57 @@
                                 </StackPanel>
                             </Expander.Header>
                             <StackPanel Margin="16,0,16,16">
-                                <TextBlock Text="Target Drive folder / path" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}" Margin="0,10,0,0"/>
-                                <Grid Margin="0,4,0,12">
+                                <Grid Margin="0,10,0,12">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="12"/>
-                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="16"/>
+                                        <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
-                                    <TextBox Text="{Binding Config.GDrive.TargetFolder, UpdateSourceTrigger=PropertyChanged}"
-                                             Tag="e.g. /Backups"
-                                             Style="{StaticResource FieldInputMono}"/>
-                                    <Button Grid.Column="2" Content="Test Google Drive connection" Command="{Binding TestGoogleDriveCommand}" Style="{StaticResource BtnQuiet}" Height="38" Padding="16,0"/>
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock Text="Target Drive folder / path" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
+                                        <TextBox Text="{Binding Config.GDrive.TargetFolder, UpdateSourceTrigger=PropertyChanged}"
+                                                 Tag="e.g. /Backups"
+                                                 Style="{StaticResource FieldInputMono}" Margin="0,4,0,0"/>
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="2">
+                                        <TextBlock Text="Account label" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
+                                        <TextBox Text="{Binding Config.GDrive.AccountLabel, UpdateSourceTrigger=PropertyChanged}"
+                                                 Tag="e.g. Corporate Google Drive"
+                                                 Style="{StaticResource FieldInput}" Margin="0,4,0,0"/>
+                                    </StackPanel>
                                 </Grid>
+                                <Button Content="Test Google Drive connection" Command="{Binding TestGoogleDriveCommand}" Style="{StaticResource BtnQuiet}" Height="38" Padding="16,0" HorizontalAlignment="Left"/>
                             </StackPanel>
                         </Expander>
                     </Border>
 
-                    <!-- Provider 3: Local Storage / UNC -->
-                    <Border BorderBrush="{DynamicResource BrushLine}" BorderThickness="1" CornerRadius="10" Background="{DynamicResource BrushRaised}">
+                    <!-- Provider 3: Microsoft Azure Blob Storage -->
+                    <Border BorderBrush="{DynamicResource BrushLine}" BorderThickness="1" CornerRadius="10" Margin="0,0,0,10" Background="{DynamicResource BrushRaised}">
+                        <Expander>
+                            <Expander.Header>
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <Path Data="{StaticResource IconCloudArrowDown}" Fill="{DynamicResource BrushCobalt}" Width="22" Height="22" Stretch="Uniform" Margin="0,0,12,0" VerticalAlignment="Center"/>
+                                    <TextBlock Text="Microsoft Azure Blob Storage" FontWeight="SemiBold" FontSize="{StaticResource FontSizeCardHeader}" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Expander.Header>
+                            <StackPanel Margin="16,0,16,16">
+                                <TextBlock Text="Azure connection string / SAS URL" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}" Margin="0,10,0,0"/>
+                                <TextBox Text="{Binding Config.Azure.ConnectionString, UpdateSourceTrigger=PropertyChanged}"
+                                         Tag="DefaultEndpointsProtocol=https;AccountName=...;AccountKey=...;EndpointSuffix=core.windows.net"
+                                         Style="{StaticResource FieldInputMono}" Margin="0,4,0,12"/>
+
+                                <TextBlock Text="Container name" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
+                                <TextBox Text="{Binding Config.Azure.ContainerName, UpdateSourceTrigger=PropertyChanged}"
+                                         Tag="e.g. unibackup-archives"
+                                         Style="{StaticResource FieldInputMono}" Margin="0,4,0,14"/>
+
+                                <Button Content="Test Azure connection" Command="{Binding TestAzureCommand}" Style="{StaticResource BtnQuiet}" Height="38" Padding="16,0" HorizontalAlignment="Left"/>
+                            </StackPanel>
+                        </Expander>
+                    </Border>
+
+                    <!-- Provider 4: Local Storage / UNC -->
+                    <Border BorderBrush="{DynamicResource BrushLine}" BorderThickness="1" CornerRadius="10" Margin="0,0,0,10" Background="{DynamicResource BrushRaised}">
                         <Expander>
                             <Expander.Header>
                                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
@@ -380,7 +439,7 @@
                             </Expander.Header>
                             <StackPanel Margin="16,0,16,16">
                                 <TextBlock Text="Base folder path" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}" Margin="0,10,0,0"/>
-                                <Grid Margin="0,4,0,12">
+                                <Grid Margin="0,4,0,14">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="12"/>
@@ -397,6 +456,173 @@
                             </StackPanel>
                         </Expander>
                     </Border>
+
+                    <!-- Provider 5: SFTP (SSH File Transfer) -->
+                    <Border BorderBrush="{DynamicResource BrushLine}" BorderThickness="1" CornerRadius="10" Margin="0,0,0,10" Background="{DynamicResource BrushRaised}">
+                        <Expander>
+                            <Expander.Header>
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <Path Data="{StaticResource IconServer}" Fill="{DynamicResource BrushTeal}" Width="22" Height="22" Stretch="Uniform" Margin="0,0,12,0" VerticalAlignment="Center"/>
+                                    <TextBlock Text="SFTP (SSH File Transfer)" FontWeight="SemiBold" FontSize="{StaticResource FontSizeCardHeader}" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Expander.Header>
+                            <StackPanel Margin="16,0,16,16">
+                                <Grid Margin="0,10,0,12">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="16"/>
+                                        <ColumnDefinition Width="120"/>
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock Text="Host" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
+                                        <TextBox Text="{Binding Config.Sftp.Host, UpdateSourceTrigger=PropertyChanged}"
+                                                 Tag="sftp.company.com" Style="{StaticResource FieldInputMono}" Margin="0,4,0,0"/>
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="2">
+                                        <TextBlock Text="Port" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
+                                        <TextBox Text="{Binding Config.Sftp.Port, UpdateSourceTrigger=PropertyChanged}"
+                                                 Tag="22" Style="{StaticResource FieldInputMono}" Margin="0,4,0,0"/>
+                                    </StackPanel>
+                                </Grid>
+
+                                <Grid Margin="0,0,0,12">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="16"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock Text="Username" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
+                                        <TextBox Text="{Binding Config.Sftp.Username, UpdateSourceTrigger=PropertyChanged}"
+                                                 Tag="backup-user" Style="{StaticResource FieldInput}" Margin="0,4,0,0"/>
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="2">
+                                        <TextBlock Text="Password" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
+                                        <TextBox Text="{Binding Config.Sftp.Password, UpdateSourceTrigger=PropertyChanged}"
+                                                 Tag="SFTP password" Style="{StaticResource FieldInput}" Margin="0,4,0,0"/>
+                                    </StackPanel>
+                                </Grid>
+
+                                <TextBlock Text="Remote directory" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
+                                <TextBox Text="{Binding Config.Sftp.RemoteFolder, UpdateSourceTrigger=PropertyChanged}"
+                                         Tag="/backups" Style="{StaticResource FieldInputMono}" Margin="0,4,0,14"/>
+
+                                <Button Content="Test SFTP connection" Command="{Binding TestSftpCommand}" Style="{StaticResource BtnQuiet}" Height="38" Padding="16,0" HorizontalAlignment="Left"/>
+                            </StackPanel>
+                        </Expander>
+                    </Border>
+
+                    <!-- Provider 6: FTP / FTPS -->
+                    <Border BorderBrush="{DynamicResource BrushLine}" BorderThickness="1" CornerRadius="10" Margin="0,0,0,10" Background="{DynamicResource BrushRaised}">
+                        <Expander>
+                            <Expander.Header>
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <Path Data="{StaticResource IconServer}" Fill="{DynamicResource BrushAmber}" Width="22" Height="22" Stretch="Uniform" Margin="0,0,12,0" VerticalAlignment="Center"/>
+                                    <TextBlock Text="FTP / FTPS" FontWeight="SemiBold" FontSize="{StaticResource FontSizeCardHeader}" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Expander.Header>
+                            <StackPanel Margin="16,0,16,16">
+                                <Grid Margin="0,10,0,12">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="16"/>
+                                        <ColumnDefinition Width="120"/>
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock Text="Host" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
+                                        <TextBox Text="{Binding Config.Ftp.Host, UpdateSourceTrigger=PropertyChanged}"
+                                                 Tag="ftp.company.com" Style="{StaticResource FieldInputMono}" Margin="0,4,0,0"/>
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="2">
+                                        <TextBlock Text="Port" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
+                                        <TextBox Text="{Binding Config.Ftp.Port, UpdateSourceTrigger=PropertyChanged}"
+                                                 Tag="21" Style="{StaticResource FieldInputMono}" Margin="0,4,0,0"/>
+                                    </StackPanel>
+                                </Grid>
+
+                                <Grid Margin="0,0,0,12">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="16"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock Text="Username" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
+                                        <TextBox Text="{Binding Config.Ftp.Username, UpdateSourceTrigger=PropertyChanged}"
+                                                 Tag="ftp-user" Style="{StaticResource FieldInput}" Margin="0,4,0,0"/>
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="2">
+                                        <TextBlock Text="Password" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
+                                        <TextBox Text="{Binding Config.Ftp.Password, UpdateSourceTrigger=PropertyChanged}"
+                                                 Tag="FTP password" Style="{StaticResource FieldInput}" Margin="0,4,0,0"/>
+                                    </StackPanel>
+                                </Grid>
+
+                                <TextBlock Text="Remote directory" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
+                                <TextBox Text="{Binding Config.Ftp.RemoteFolder, UpdateSourceTrigger=PropertyChanged}"
+                                         Tag="/backups" Style="{StaticResource FieldInputMono}" Margin="0,4,0,14"/>
+
+                                <Button Content="Test FTP connection" Command="{Binding TestFtpCommand}" Style="{StaticResource BtnQuiet}" Height="38" Padding="16,0" HorizontalAlignment="Left"/>
+                            </StackPanel>
+                        </Expander>
+                    </Border>
+
+                    <!-- Provider 7: WebDAV & Cloud Storage Tokens (Dropbox, OneDrive, Box) -->
+                    <Border BorderBrush="{DynamicResource BrushLine}" BorderThickness="1" CornerRadius="10" Margin="0,0,0,16" Background="{DynamicResource BrushRaised}">
+                        <Expander>
+                            <Expander.Header>
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <Path Data="{StaticResource IconCloudArrowDown}" Fill="{DynamicResource BrushOrchid}" Width="22" Height="22" Stretch="Uniform" Margin="0,0,12,0" VerticalAlignment="Center"/>
+                                    <TextBlock Text="WebDAV &amp; Cloud Storage APIs (Dropbox, OneDrive, Box)" FontWeight="SemiBold" FontSize="{StaticResource FontSizeCardHeader}" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Expander.Header>
+                            <StackPanel Margin="16,0,16,16">
+                                <TextBlock Text="WebDAV Server URL" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}" Margin="0,10,0,0"/>
+                                <TextBox Text="{Binding Config.WebDav.ServerUrl, UpdateSourceTrigger=PropertyChanged}"
+                                         Tag="https://webdav.nextcloud.company.com/remote.php/webdav" Style="{StaticResource FieldInputMono}" Margin="0,4,0,12"/>
+
+                                <Grid Margin="0,0,0,12">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="16"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock Text="WebDAV Username" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
+                                        <TextBox Text="{Binding Config.WebDav.Username, UpdateSourceTrigger=PropertyChanged}"
+                                                 Tag="webdav-user" Style="{StaticResource FieldInput}" Margin="0,4,0,0"/>
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="2">
+                                        <TextBlock Text="WebDAV Password" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
+                                        <TextBox Text="{Binding Config.WebDav.Password, UpdateSourceTrigger=PropertyChanged}"
+                                                 Tag="WebDAV password" Style="{StaticResource FieldInput}" Margin="0,4,0,0"/>
+                                    </StackPanel>
+                                </Grid>
+
+                                <TextBlock Text="Dropbox Access Token" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
+                                <TextBox Text="{Binding Config.Dropbox.AccessToken, UpdateSourceTrigger=PropertyChanged}"
+                                         Tag="sl.u.AF..." Style="{StaticResource FieldInputMono}" Margin="0,4,0,12"/>
+
+                                <TextBlock Text="Microsoft OneDrive Access Token" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
+                                <TextBox Text="{Binding Config.OneDrive.AccessToken, UpdateSourceTrigger=PropertyChanged}"
+                                         Tag="EwB..." Style="{StaticResource FieldInputMono}" Margin="0,4,0,12"/>
+
+                                <TextBlock Text="Box Cloud Access Token" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
+                                <TextBox Text="{Binding Config.Box.AccessToken, UpdateSourceTrigger=PropertyChanged}"
+                                         Tag="Box developer or OAuth token" Style="{StaticResource FieldInputMono}" Margin="0,4,0,14"/>
+
+                                <StackPanel Orientation="Horizontal">
+                                    <Button Content="Test WebDAV" Command="{Binding TestWebDavCommand}" Style="{StaticResource BtnQuiet}" Height="36" Padding="14,0" Margin="0,0,8,0"/>
+                                    <Button Content="Test Dropbox" Command="{Binding TestDropboxCommand}" Style="{StaticResource BtnQuiet}" Height="36" Padding="14,0" Margin="0,0,8,0"/>
+                                    <Button Content="Test OneDrive" Command="{Binding TestOneDriveCommand}" Style="{StaticResource BtnQuiet}" Height="36" Padding="14,0" Margin="0,0,8,0"/>
+                                    <Button Content="Test Box" Command="{Binding TestBoxCommand}" Style="{StaticResource BtnQuiet}" Height="36" Padding="14,0"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </Expander>
+                    </Border>
+
+                    <!-- Save Storage Destinations Button -->
+                    <Button Content="Save storage destinations" Command="{Binding SaveSettingsCommand}" Style="{StaticResource BtnPrimary}" Height="38" Padding="20,0" HorizontalAlignment="Left"/>
                 </StackPanel>
             </Border>
 

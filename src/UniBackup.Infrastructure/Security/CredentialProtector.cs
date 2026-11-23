@@ -86,6 +86,27 @@ public class CredentialProtector : ICredentialProtector
 
         if (!string.IsNullOrEmpty(config.Security?.AccessPassword))
             config.Security.AccessPassword = Seal(config.Security.AccessPassword);
+
+        if (!string.IsNullOrEmpty(config.Azure?.ConnectionString))
+            config.Azure.ConnectionString = Seal(config.Azure.ConnectionString);
+
+        if (!string.IsNullOrEmpty(config.Sftp?.Password))
+            config.Sftp.Password = Seal(config.Sftp.Password);
+
+        if (!string.IsNullOrEmpty(config.Ftp?.Password))
+            config.Ftp.Password = Seal(config.Ftp.Password);
+
+        if (!string.IsNullOrEmpty(config.WebDav?.Password))
+            config.WebDav.Password = Seal(config.WebDav.Password);
+
+        if (!string.IsNullOrEmpty(config.Dropbox?.AccessToken))
+            config.Dropbox.AccessToken = Seal(config.Dropbox.AccessToken);
+
+        if (!string.IsNullOrEmpty(config.OneDrive?.AccessToken))
+            config.OneDrive.AccessToken = Seal(config.OneDrive.AccessToken);
+
+        if (!string.IsNullOrEmpty(config.Box?.AccessToken))
+            config.Box.AccessToken = Seal(config.Box.AccessToken);
     }
 
     public void UnsealConfig(AppConfig config)
@@ -101,6 +122,27 @@ public class CredentialProtector : ICredentialProtector
 
         if (!string.IsNullOrEmpty(config.Security?.AccessPassword))
             config.Security.AccessPassword = Unseal(config.Security.AccessPassword);
+
+        if (!string.IsNullOrEmpty(config.Azure?.ConnectionString))
+            config.Azure.ConnectionString = Unseal(config.Azure.ConnectionString);
+
+        if (!string.IsNullOrEmpty(config.Sftp?.Password))
+            config.Sftp.Password = Unseal(config.Sftp.Password);
+
+        if (!string.IsNullOrEmpty(config.Ftp?.Password))
+            config.Ftp.Password = Unseal(config.Ftp.Password);
+
+        if (!string.IsNullOrEmpty(config.WebDav?.Password))
+            config.WebDav.Password = Unseal(config.WebDav.Password);
+
+        if (!string.IsNullOrEmpty(config.Dropbox?.AccessToken))
+            config.Dropbox.AccessToken = Unseal(config.Dropbox.AccessToken);
+
+        if (!string.IsNullOrEmpty(config.OneDrive?.AccessToken))
+            config.OneDrive.AccessToken = Unseal(config.OneDrive.AccessToken);
+
+        if (!string.IsNullOrEmpty(config.Box?.AccessToken))
+            config.Box.AccessToken = Unseal(config.Box.AccessToken);
     }
 
     public string ExpectedPassword(DateTime? when = null)
