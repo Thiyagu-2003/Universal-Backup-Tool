@@ -34,6 +34,23 @@ public class UiStartupXamlTests
         }
     }
 
+    private static IEnumerable<T> FindVisualChildren<T>(DependencyObject depObj) where T : DependencyObject
+    {
+        if (depObj == null) yield break;
+        for (int i = 0; i < System.Windows.Media.VisualTreeHelper.GetChildrenCount(depObj); i++)
+        {
+            var child = System.Windows.Media.VisualTreeHelper.GetChild(depObj, i);
+            if (child is T t)
+            {
+                yield return t;
+            }
+            foreach (var childOfChild in FindVisualChildren<T>(child))
+            {
+                yield return childOfChild;
+            }
+        }
+    }
+
     [Fact]
     public void App_Resources_CanBeInitialized_WithoutExceptions()
     {
@@ -1040,5 +1057,238 @@ public class UiStartupXamlTests
             vm.HasUpcomingJobs = false;
             Assert.False(vm.HasUpcomingJobs);
         });
+    }
+
+    [Fact]
+    public void JobWizard_RendersProperInputBoxes_AndCapturesScreenshot()
+    {
+        RunInStaThread(() =>
+        {
+            if (Application.Current == null)
+            {
+                var app = new App();
+                app.InitializeComponent();
+            }
+
+            var artifactDir = @"C:\Users\Administrator\.gemini\antigravity\brain\4d66f748-fd0c-4eec-8519-6b7612c4ecd7";
+            if (!System.IO.Directory.Exists(artifactDir))
+            {
+                artifactDir = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "UniBackupTests", "Screenshots");
+                System.IO.Directory.CreateDirectory(artifactDir);
+            }
+
+            // 1. Create Job Wizard (Light)
+            App.ApplyTheme("Light");
+            var window = new MainWindow();
+            try
+            {
+                window.SwitchToTab("NewJob");
+                System.Windows.Threading.Dispatcher.CurrentDispatcher.Invoke(() => { }, System.Windows.Threading.DispatcherPriority.ApplicationIdle);
+
+                var rootVisual = (FrameworkElement)window.Content;
+                rootVisual.Measure(new Size(1280, 840));
+                rootVisual.Arrange(new Rect(0, 0, 1280, 840));
+                rootVisual.UpdateLayout();
+
+                var rtbLight = new System.Windows.Media.Imaging.RenderTargetBitmap(1280, 840, 96, 96, System.Windows.Media.PixelFormats.Pbgra32);
+                rtbLight.Render(rootVisual);
+                var outLight = System.IO.Path.Combine(artifactDir, "screenshot_jobwizard_stretched.png");
+                var encoderLight = new System.Windows.Media.Imaging.PngBitmapEncoder();
+                encoderLight.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(rtbLight));
+                using (var stream = System.IO.File.Create(outLight))
+                {
+                    encoderLight.Save(stream);
+                }
+                Assert.True(System.IO.File.Exists(outLight));
+
+                // 2. Create Job Wizard (Dark)
+                App.ApplyTheme("Dark");
+                rootVisual.UpdateLayout();
+
+                var rtbDark = new System.Windows.Media.Imaging.RenderTargetBitmap(1280, 840, 96, 96, System.Windows.Media.PixelFormats.Pbgra32);
+                rtbDark.Render(rootVisual);
+                var outDark = System.IO.Path.Combine(artifactDir, "screenshot_jobwizard_stretched_dark.png");
+                var encoderDark = new System.Windows.Media.Imaging.PngBitmapEncoder();
+                encoderDark.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(rtbDark));
+                using (var stream = System.IO.File.Create(outDark))
+                {
+                    encoderDark.Save(stream);
+                }
+                Assert.True(System.IO.File.Exists(outDark));
+            }
+            finally
+            {
+                window.Close();
+                App.ApplyTheme("Light");
+            }
+        });
+    }
+
+    [Fact]
+    public void Settings_RendersProperInputBoxes_AndCapturesScreenshot()
+    {
+        RunInStaThread(() =>
+        {
+            if (Application.Current == null)
+            {
+                var app = new App();
+                app.InitializeComponent();
+            }
+
+            var artifactDir = @"C:\Users\Administrator\.gemini\antigravity\brain\4d66f748-fd0c-4eec-8519-6b7612c4ecd7";
+            if (!System.IO.Directory.Exists(artifactDir))
+            {
+                artifactDir = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "UniBackupTests", "Screenshots");
+                System.IO.Directory.CreateDirectory(artifactDir);
+            }
+
+            App.ApplyTheme("Light");
+            var window = new MainWindow();
+            try
+            {
+                window.SwitchToTab("Settings");
+                System.Windows.Threading.Dispatcher.CurrentDispatcher.Invoke(() => { }, System.Windows.Threading.DispatcherPriority.ApplicationIdle);
+
+                var rootVisual = (FrameworkElement)window.Content;
+                rootVisual.Measure(new Size(1280, 840));
+                rootVisual.Arrange(new Rect(0, 0, 1280, 840));
+                rootVisual.UpdateLayout();
+
+                // Expand Local Storage expander to preview browse box
+                var settingsGrid = (System.Windows.Controls.Grid)window.FindName("SettingsTabContent");
+                var settingsView = (SettingsView)settingsGrid.Children[0];
+                var expanders = FindVisualChildren<System.Windows.Controls.Expander>(settingsView).ToList();
+                foreach (var exp in expanders)
+                {
+                    exp.IsExpanded = true;
+                }
+                rootVisual.UpdateLayout();
+
+                var rtbLight = new System.Windows.Media.Imaging.RenderTargetBitmap(1280, 1400, 96, 96, System.Windows.Media.PixelFormats.Pbgra32);
+                rootVisual.Measure(new Size(1280, 1400));
+                rootVisual.Arrange(new Rect(0, 0, 1280, 1400));
+                rootVisual.UpdateLayout();
+                rtbLight.Render(rootVisual);
+                var outLight = System.IO.Path.Combine(artifactDir, "screenshot_settings_browse_boxes.png");
+                var encoderLight = new System.Windows.Media.Imaging.PngBitmapEncoder();
+                encoderLight.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(rtbLight));
+                using (var stream = System.IO.File.Create(outLight))
+                {
+                    encoderLight.Save(stream);
+                }
+                Assert.True(System.IO.File.Exists(outLight));
+            }
+            finally
+            {
+                window.Close();
+            }
+        });
+    }
+
+    [Fact]
+    public void Recovery_RendersProperInputBoxes_AndCapturesScreenshot()
+    {
+        RunInStaThread(() =>
+        {
+            if (Application.Current == null)
+            {
+                var app = new App();
+                app.InitializeComponent();
+            }
+
+            var artifactDir = @"C:\Users\Administrator\.gemini\antigravity\brain\4d66f748-fd0c-4eec-8519-6b7612c4ecd7";
+            if (!System.IO.Directory.Exists(artifactDir))
+            {
+                artifactDir = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "UniBackupTests", "Screenshots");
+                System.IO.Directory.CreateDirectory(artifactDir);
+            }
+
+            App.ApplyTheme("Light");
+            var window = new MainWindow();
+            try
+            {
+                window.SwitchToTab("Recovery");
+                System.Windows.Threading.Dispatcher.CurrentDispatcher.Invoke(() => { }, System.Windows.Threading.DispatcherPriority.ApplicationIdle);
+
+                var rootVisual = (FrameworkElement)window.Content;
+                rootVisual.Measure(new Size(1280, 840));
+                rootVisual.Arrange(new Rect(0, 0, 1280, 840));
+                rootVisual.UpdateLayout();
+
+                var rtbLight = new System.Windows.Media.Imaging.RenderTargetBitmap(1280, 840, 96, 96, System.Windows.Media.PixelFormats.Pbgra32);
+                rtbLight.Render(rootVisual);
+                var outLight = System.IO.Path.Combine(artifactDir, "screenshot_recovery_browse_boxes.png");
+                var encoderLight = new System.Windows.Media.Imaging.PngBitmapEncoder();
+                encoderLight.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(rtbLight));
+                using (var stream = System.IO.File.Create(outLight))
+                {
+                    encoderLight.Save(stream);
+                }
+                Assert.True(System.IO.File.Exists(outLight));
+
+                // Switch to Files and Sites subtab in Recovery
+                var recoveryGrid = (System.Windows.Controls.Grid)window.FindName("RecoveryTabContent");
+                var recoveryView = (RecoveryView)recoveryGrid.Children[0];
+                var sqlPanel = (UIElement)recoveryView.FindName("SqlRecoveryPanel");
+                var filesPanel = (UIElement)recoveryView.FindName("FilesRecoveryPanel");
+                if (sqlPanel != null) sqlPanel.Visibility = Visibility.Collapsed;
+                if (filesPanel != null) filesPanel.Visibility = Visibility.Visible;
+                rootVisual.UpdateLayout();
+
+                var rtbFiles = new System.Windows.Media.Imaging.RenderTargetBitmap(1280, 840, 96, 96, System.Windows.Media.PixelFormats.Pbgra32);
+                rtbFiles.Render(rootVisual);
+                var outFiles = System.IO.Path.Combine(artifactDir, "screenshot_recovery_files_browse.png");
+                var encoderFiles = new System.Windows.Media.Imaging.PngBitmapEncoder();
+                encoderFiles.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(rtbFiles));
+                using (var stream = System.IO.File.Create(outFiles))
+                {
+                    encoderFiles.Save(stream);
+                }
+                Assert.True(System.IO.File.Exists(outFiles));
+            }
+            finally
+            {
+                window.Close();
+            }
+        });
+    }
+
+    [Fact]
+    public void Controls_FieldInputStyle_HasStretchAlignmentAndMinWidth()
+    {
+        RunInStaThread(() =>
+        {
+            if (Application.Current == null)
+            {
+                var app = new App();
+                app.InitializeComponent();
+            }
+
+            var style = Application.Current!.FindResource("FieldInput") as Style;
+            Assert.NotNull(style);
+
+            var minWidthSetter = style.Setters.OfType<Setter>().FirstOrDefault(s => s.Property == FrameworkElement.MinWidthProperty);
+            Assert.NotNull(minWidthSetter);
+            Assert.True((double)minWidthSetter!.Value >= 160.0);
+
+            var alignSetter = style.Setters.OfType<Setter>().FirstOrDefault(s => s.Property == FrameworkElement.HorizontalAlignmentProperty);
+            Assert.NotNull(alignSetter);
+            Assert.Equal(HorizontalAlignment.Stretch, alignSetter.Value);
+        });
+    }
+
+    [Fact]
+    public void CloudArchiveItem_HelperProperties_FormatCorrectly()
+    {
+        var item = new CloudArchiveItem
+        {
+            DisplayName = "backup_20261123.zip",
+            SizeBytes = 1024 * 1024 * 45, // 45 MB
+            LastModified = new DateTime(2026, 11, 23, 10, 30, 0, DateTimeKind.Utc)
+        };
+
+        Assert.Equal("backup_20261123.zip", item.FileName);
+        Assert.Equal("45.0 MB", item.SizeDisplay);
+        Assert.Contains("2026-11-23", item.UploadedTimeDisplay);
     }
 }

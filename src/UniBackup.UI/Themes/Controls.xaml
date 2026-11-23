@@ -309,7 +309,8 @@
         <Setter Property="FontFamily" Value="{StaticResource FontFamilyPrimary}"/>
         <Setter Property="FontSize" Value="{StaticResource FontSizeInput}"/>
         <Setter Property="Height" Value="38"/>
-        <Setter Property="MinWidth" Value="100"/>
+        <Setter Property="MinWidth" Value="160"/>
+        <Setter Property="HorizontalAlignment" Value="Stretch"/>
         <Setter Property="Padding" Value="12,0"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
         <Setter Property="Background" Value="{DynamicResource BrushPanel}"/>
@@ -380,12 +381,13 @@
         <Setter Property="FontSize" Value="{StaticResource FontSizeMono}"/>
     </Style>
 
-    <!-- FieldInput (PasswordBox) -->
+    <!-- FieldPassword (PasswordBox) -->
     <Style x:Key="FieldPassword" TargetType="{x:Type PasswordBox}">
         <Setter Property="FontFamily" Value="{StaticResource FontFamilyPrimary}"/>
         <Setter Property="FontSize" Value="{StaticResource FontSizeInput}"/>
         <Setter Property="Height" Value="38"/>
-        <Setter Property="MinWidth" Value="100"/>
+        <Setter Property="MinWidth" Value="160"/>
+        <Setter Property="HorizontalAlignment" Value="Stretch"/>
         <Setter Property="Padding" Value="12,0"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
         <Setter Property="Background" Value="{DynamicResource BrushPanel}"/>
@@ -432,6 +434,8 @@
         <Setter Property="FontFamily" Value="{StaticResource FontFamilyPrimary}"/>
         <Setter Property="FontSize" Value="{StaticResource FontSizeInput}"/>
         <Setter Property="Height" Value="38"/>
+        <Setter Property="MinWidth" Value="160"/>
+        <Setter Property="HorizontalAlignment" Value="Stretch"/>
         <Setter Property="Padding" Value="12,0"/>
         <Setter Property="Background" Value="{DynamicResource BrushPanel}"/>
         <Setter Property="Foreground" Value="{DynamicResource BrushInk}"/>
@@ -610,6 +614,44 @@
                         </Trigger>
                         <Trigger Property="IsMouseOver" Value="True">
                             <Setter Property="Foreground" Value="{DynamicResource BrushInk}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- DayTogglePill (Toggle CheckBox for days of week) -->
+    <Style x:Key="DayTogglePill" TargetType="{x:Type CheckBox}">
+        <Setter Property="FontFamily" Value="{StaticResource FontFamilyPrimary}"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="FontSize" Value="{StaticResource FontSizeBadge}"/>
+        <Setter Property="Height" Value="32"/>
+        <Setter Property="Padding" Value="14,0"/>
+        <Setter Property="Foreground" Value="{DynamicResource BrushInkMuted}"/>
+        <Setter Property="Background" Value="{DynamicResource BrushRaised}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource BrushLine}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type CheckBox}">
+                    <Border x:Name="bd"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="6"
+                            Padding="{TemplateBinding Padding}">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="bd" Property="Background" Value="{DynamicResource BrushCobalt}"/>
+                            <Setter TargetName="bd" Property="BorderBrush" Value="{DynamicResource BrushCobalt}"/>
+                            <Setter Property="Foreground" Value="#FFFFFF"/>
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="bd" Property="BorderBrush" Value="{DynamicResource BrushCobalt}"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>

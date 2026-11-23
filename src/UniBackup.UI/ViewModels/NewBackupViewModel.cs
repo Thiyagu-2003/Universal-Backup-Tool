@@ -219,7 +219,10 @@ public partial class NewBackupViewModel : ObservableObject
 
     // Schedule Settings (Schedule v2)
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsSelectedDays))]
     private string _selectedFrequency = "daily"; // "daily" | "selected_days" | "manual"
+
+    public bool IsSelectedDays => SelectedFrequency == "selected_days";
 
     [ObservableProperty]
     private string _scheduledTime = "01:00";
@@ -244,6 +247,16 @@ public partial class NewBackupViewModel : ObservableObject
 
     [ObservableProperty]
     private bool _sunday = false;
+
+    partial void OnSelectedFrequencyChanged(string value) => UpdateLiveScheduleSummary();
+    partial void OnScheduledTimeChanged(string value) => UpdateLiveScheduleSummary();
+    partial void OnMondayChanged(bool value) => UpdateLiveScheduleSummary();
+    partial void OnTuesdayChanged(bool value) => UpdateLiveScheduleSummary();
+    partial void OnWednesdayChanged(bool value) => UpdateLiveScheduleSummary();
+    partial void OnThursdayChanged(bool value) => UpdateLiveScheduleSummary();
+    partial void OnFridayChanged(bool value) => UpdateLiveScheduleSummary();
+    partial void OnSaturdayChanged(bool value) => UpdateLiveScheduleSummary();
+    partial void OnSundayChanged(bool value) => UpdateLiveScheduleSummary();
 
     // SQL Sub-intervals (Diff / Log)
     [ObservableProperty]

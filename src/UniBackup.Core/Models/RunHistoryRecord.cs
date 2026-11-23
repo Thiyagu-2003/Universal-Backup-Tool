@@ -80,4 +80,17 @@ public class CloudArchiveItem
     public long SizeBytes { get; set; }
     public DateTime? LastModified { get; set; }
     public string ServerIpOrTag { get; set; } = "";
+
+    // Convenience formatting properties for UI bindings
+    public string FileName => string.IsNullOrEmpty(DisplayName) ? KeyOrId : DisplayName;
+    public string SizeDisplay => FormatBytes(SizeBytes);
+    public string UploadedTimeDisplay => LastModified.HasValue ? LastModified.Value.ToLocalTime().ToString("yyyy-MM-dd HH:mm") : "-";
+
+    private static string FormatBytes(long bytes)
+    {
+        if (bytes < 1024) return $"{bytes} B";
+        if (bytes < 1024 * 1024) return $"{bytes / 1024.0:F1} KB";
+        if (bytes < 1024 * 1024 * 1024) return $"{bytes / (1024.0 * 1024):F1} MB";
+        return $"{bytes / (1024.0 * 1024 * 1024):F2} GB";
+    }
 }

@@ -190,8 +190,6 @@
                             <TextBox Text="{Binding JobName, UpdateSourceTrigger=PropertyChanged}"
                                      Tag="e.g. Daily Accounting Backup, Web Assets, Documents"
                                      Style="{StaticResource FieldInput}"
-                                     Width="560"
-                                     HorizontalAlignment="Left"
                                      Margin="0,6,0,0"/>
                             <TextBlock Text="Used in archive file names, alerts and the history list." FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkFaint}" Margin="0,6,0,0"/>
                         </StackPanel>
@@ -202,7 +200,7 @@
                     <Border Visibility="{Binding IsFolder, Converter={StaticResource BoolToVis}}" Style="{StaticResource Card}" Padding="24">
                         <StackPanel>
                             <TextBlock Text="Source folder path" FontWeight="SemiBold" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
-                            <Grid Margin="0,6,0,0" Width="680" HorizontalAlignment="Left">
+                            <Grid Margin="0,6,0,0">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="12"/>
@@ -212,15 +210,13 @@
                                          Tag="e.g. C:\inetpub\wwwroot or \\server\share"
                                          Style="{StaticResource FieldInputMono}"/>
                                 <Button Grid.Column="2" Content="Browse..." Command="{Binding BrowseFolderCommand}"
-                                        Style="{StaticResource BtnQuiet}" Height="38" Padding="18,0"/>
+                                        Style="{StaticResource BtnQuiet}" Height="38" Padding="20,0"/>
                             </Grid>
 
                             <TextBlock Text="Subfolder filter (optional)" FontWeight="SemiBold" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}" Margin="0,16,0,0"/>
                             <TextBox Text="{Binding Subfolder, UpdateSourceTrigger=PropertyChanged}"
                                      Tag="e.g. App_Data\Uploads, logs\*, *.bak"
                                      Style="{StaticResource FieldInput}"
-                                     Width="480"
-                                     HorizontalAlignment="Left"
                                      Margin="0,6,0,0"/>
 
                             <CheckBox Content="Use Volume Shadow Copy (VSS) for open files" IsChecked="{Binding UseVss}" Style="{StaticResource Switch}" Margin="0,20,0,0"/>
@@ -285,7 +281,7 @@
                     <Border Visibility="{Binding IsSqlServer, Converter={StaticResource BoolToVis}}" Style="{StaticResource Card}" Padding="24">
                         <StackPanel>
                             <TextBlock Text="SQL Server instance" FontWeight="SemiBold" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
-                            <Grid Margin="0,6,0,0" Width="600" HorizontalAlignment="Left">
+                            <Grid Margin="0,6,0,0">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="12"/>
@@ -295,7 +291,7 @@
                                          Tag="e.g. localhost, .\SQL2022, 192.168.1.50"
                                          Style="{StaticResource FieldInputMono}"/>
                                 <Button Grid.Column="2" Content="Test connection" Command="{Binding TestSqlConnectionCommand}"
-                                        Style="{StaticResource BtnQuiet}" Height="38" Padding="16,0"/>
+                                        Style="{StaticResource BtnQuiet}" Height="38" Padding="18,0"/>
                             </Grid>
                             <TextBlock Text="{Binding SqlConnectionStatus}" FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkMuted}" Margin="0,4,0,16"/>
 
@@ -305,18 +301,27 @@
                                 <RadioButton Content="SQL Server Authentication" IsChecked="{Binding SqlUseSqlAuth, Mode=TwoWay}" Style="{StaticResource SegmentedItem}"/>
                             </StackPanel>
 
-                            <StackPanel Visibility="{Binding SqlUseSqlAuth, Converter={StaticResource BoolToVis}}" Margin="0,0,0,16" Width="420" HorizontalAlignment="Left">
-                                <TextBlock Text="Login username" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
-                                <TextBox Text="{Binding SqlUsername, UpdateSourceTrigger=PropertyChanged}"
-                                         Tag="e.g. sa"
-                                         Style="{StaticResource FieldInput}"
-                                         Margin="0,4,0,10"/>
-                                <TextBlock Text="Login password" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
-                                <TextBox Text="{Binding SqlPassword, UpdateSourceTrigger=PropertyChanged}"
-                                         Tag="Database password"
-                                         Style="{StaticResource FieldInput}"
-                                         Margin="0,4,0,0"/>
-                            </StackPanel>
+                            <Grid Visibility="{Binding SqlUseSqlAuth, Converter={StaticResource BoolToVis}}" Margin="0,0,0,16">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="16"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="Login username" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
+                                    <TextBox Text="{Binding SqlUsername, UpdateSourceTrigger=PropertyChanged}"
+                                             Tag="e.g. sa"
+                                             Style="{StaticResource FieldInput}"
+                                             Margin="0,4,0,0"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="2">
+                                    <TextBlock Text="Login password" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
+                                    <TextBox Text="{Binding SqlPassword, UpdateSourceTrigger=PropertyChanged}"
+                                             Tag="Database password"
+                                             Style="{StaticResource FieldInput}"
+                                             Margin="0,4,0,0"/>
+                                </StackPanel>
+                            </Grid>
 
                             <!-- Simple Recovery Info Note -->
                             <Border Background="{DynamicResource BrushSunken}" CornerRadius="8" Padding="14,10" Margin="0,8,0,0">
@@ -333,7 +338,7 @@
                             <TextBlock Text="Schedule execution" FontWeight="SemiBold" FontSize="{StaticResource FontSizeH2}" Foreground="{DynamicResource BrushInk}"/>
                             <TextBlock Text="Set automated backup frequencies and start times" FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkMuted}" Margin="0,2,0,16"/>
 
-                            <Grid Width="560" HorizontalAlignment="Left">
+                            <Grid Margin="0,6,0,0">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="16"/>
@@ -357,6 +362,20 @@
                                              Margin="0,6,0,0"/>
                                 </StackPanel>
                             </Grid>
+
+                            <!-- Day of week selection when "On selected days" is chosen -->
+                            <StackPanel Visibility="{Binding IsSelectedDays, Converter={StaticResource BoolToVis}}" Margin="0,16,0,0">
+                                <TextBlock Text="Run on days" FontWeight="SemiBold" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}" Margin="0,0,0,8"/>
+                                <StackPanel Orientation="Horizontal">
+                                    <CheckBox Content="Mon" IsChecked="{Binding Monday}" Style="{StaticResource DayTogglePill}" Margin="0,0,8,0"/>
+                                    <CheckBox Content="Tue" IsChecked="{Binding Tuesday}" Style="{StaticResource DayTogglePill}" Margin="0,0,8,0"/>
+                                    <CheckBox Content="Wed" IsChecked="{Binding Wednesday}" Style="{StaticResource DayTogglePill}" Margin="0,0,8,0"/>
+                                    <CheckBox Content="Thu" IsChecked="{Binding Thursday}" Style="{StaticResource DayTogglePill}" Margin="0,0,8,0"/>
+                                    <CheckBox Content="Fri" IsChecked="{Binding Friday}" Style="{StaticResource DayTogglePill}" Margin="0,0,8,0"/>
+                                    <CheckBox Content="Sat" IsChecked="{Binding Saturday}" Style="{StaticResource DayTogglePill}" Margin="0,0,8,0"/>
+                                    <CheckBox Content="Sun" IsChecked="{Binding Sunday}" Style="{StaticResource DayTogglePill}"/>
+                                </StackPanel>
+                            </StackPanel>
 
                             <!-- Live human-readable schedule summary bar -->
                             <Border BorderBrush="{DynamicResource BrushLineStrong}" BorderThickness="1" CornerRadius="8" Padding="16,12" Margin="0,24,0,0" Background="{DynamicResource BrushRaised}">
@@ -424,7 +443,7 @@
                             <TextBlock Text="Retention &amp; archiving" FontWeight="SemiBold" FontSize="{StaticResource FontSizeH2}" Foreground="{DynamicResource BrushInk}"/>
                             <TextBlock Text="Configure age-based cleanup and long-term GFS policies" FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkMuted}" Margin="0,2,0,16"/>
 
-                            <StackPanel Width="260" HorizontalAlignment="Left">
+                            <StackPanel HorizontalAlignment="Left" Width="300">
                                 <TextBlock Text="Retention days" FontWeight="SemiBold" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
                                 <TextBox Text="{Binding RetentionDays, UpdateSourceTrigger=PropertyChanged, TargetNullValue=0, FallbackValue=30}"
                                          Tag="e.g. 30"
@@ -444,21 +463,29 @@
 
                             <CheckBox Content="Enable AES-256-GCM encryption" IsChecked="{Binding EncryptionEnabled}" Style="{StaticResource Switch}" Margin="0,0,0,14"/>
 
-                            <StackPanel Visibility="{Binding EncryptionEnabled, Converter={StaticResource BoolToVis}}" Width="440" HorizontalAlignment="Left">
-                                <TextBlock Text="Passphrase" FontWeight="SemiBold" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
-                                <TextBox Text="{Binding EncryptionPassphrase, UpdateSourceTrigger=PropertyChanged}"
-                                         Tag="Enter secret passphrase"
-                                         Style="{StaticResource FieldInput}"
-                                         Margin="0,6,0,10"/>
+                            <Grid Visibility="{Binding EncryptionEnabled, Converter={StaticResource BoolToVis}}" Margin="0,0,0,12">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="16"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="Passphrase" FontWeight="SemiBold" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
+                                    <TextBox Text="{Binding EncryptionPassphrase, UpdateSourceTrigger=PropertyChanged}"
+                                             Tag="Enter secret passphrase"
+                                             Style="{StaticResource FieldInput}"
+                                             Margin="0,6,0,0"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="2">
+                                    <TextBlock Text="Confirm passphrase" FontWeight="SemiBold" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
+                                    <TextBox Text="{Binding EncryptionPassphraseConfirm, UpdateSourceTrigger=PropertyChanged}"
+                                             Tag="Re-enter passphrase"
+                                             Style="{StaticResource FieldInput}"
+                                             Margin="0,6,0,0"/>
+                                </StackPanel>
+                            </Grid>
 
-                                <TextBlock Text="Confirm passphrase" FontWeight="SemiBold" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
-                                <TextBox Text="{Binding EncryptionPassphraseConfirm, UpdateSourceTrigger=PropertyChanged}"
-                                         Tag="Re-enter passphrase"
-                                         Style="{StaticResource FieldInput}"
-                                         Margin="0,6,0,6"/>
-
-                                <TextBlock Text="Without the passphrase nobody can restore them, including you." FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushCoral}" FontWeight="Medium"/>
-                            </StackPanel>
+                            <TextBlock Visibility="{Binding EncryptionEnabled, Converter={StaticResource BoolToVis}}" Text="Without the passphrase nobody can restore them, including you." FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushCoral}" FontWeight="Medium"/>
                         </StackPanel>
                     </Border>
                 </StackPanel>

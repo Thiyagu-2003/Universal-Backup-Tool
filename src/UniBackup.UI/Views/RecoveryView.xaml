@@ -173,7 +173,7 @@
                                      Tag="Passphrase for decryption (if set)"
                                      Style="{StaticResource FieldInput}" Margin="0,4,0,20"/>
 
-                            <Button Command="{Binding StartSqlRestoreCommand}" Style="{StaticResource BtnPrimary}" Height="38">
+                            <Button Command="{Binding ExecuteSqlCloudRestoreCommand}" Style="{StaticResource BtnPrimary}" Height="38">
                                 <StackPanel Orientation="Horizontal">
                                     <Path Data="{StaticResource IconCloudArrowDown}" Fill="#FFFFFF" Width="20" Height="20" Stretch="Uniform" Margin="0,0,8,0"/>
                                     <TextBlock Text="Execute database restore"/>
@@ -192,32 +192,64 @@
                         <TextBlock Text="Select an archive from cloud storage and extract to disk" FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushInkMuted}" Margin="0,2,0,16"/>
 
                         <!-- Archives Table -->
-                        <ItemsControl ItemsSource="{Binding CloudArchives}">
-                            <ItemsControl.ItemTemplate>
+                        <ListBox ItemsSource="{Binding CloudArchives}"
+                                 SelectedItem="{Binding SelectedArchive, Mode=TwoWay}"
+                                 Background="Transparent"
+                                 BorderThickness="0"
+                                 ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                            <ListBox.ItemContainerStyle>
+                                <Style TargetType="{x:Type ListBoxItem}">
+                                    <Setter Property="Padding" Value="0"/>
+                                    <Setter Property="Margin" Value="0,0,0,6"/>
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="{x:Type ListBoxItem}">
+                                                <Border x:Name="Bd"
+                                                        BorderBrush="{DynamicResource BrushLine}"
+                                                        BorderThickness="1"
+                                                        CornerRadius="8"
+                                                        Background="{DynamicResource BrushPanel}"
+                                                        Padding="14,10"
+                                                        SnapsToDevicePixels="True">
+                                                    <ContentPresenter/>
+                                                </Border>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsSelected" Value="True">
+                                                        <Setter TargetName="Bd" Property="BorderBrush" Value="{DynamicResource BrushCobalt}"/>
+                                                        <Setter TargetName="Bd" Property="Background" Value="{DynamicResource BrushCobaltSoft}"/>
+                                                    </Trigger>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter TargetName="Bd" Property="BorderBrush" Value="{DynamicResource BrushCobalt}"/>
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </ListBox.ItemContainerStyle>
+                            <ListBox.ItemTemplate>
                                 <DataTemplate>
-                                    <Border BorderBrush="{DynamicResource BrushLine}" BorderThickness="0,0,0,1" Padding="0,10">
-                                        <Grid>
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="Auto"/>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="100"/>
-                                                <ColumnDefinition Width="140"/>
-                                            </Grid.ColumnDefinitions>
-                                            <RadioButton GroupName="ArchiveGroup" IsChecked="{Binding IsSelected}" VerticalAlignment="Center" Margin="0,0,12,0"/>
-                                            <TextBlock Grid.Column="1" Text="{Binding FileName}" FontFamily="{StaticResource FontFamilyMono}" FontSize="{StaticResource FontSizeMono}" Foreground="{DynamicResource BrushInk}" VerticalAlignment="Center"/>
-                                            <TextBlock Grid.Column="2" Text="{Binding SizeDisplay}" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource BrushInkMuted}" VerticalAlignment="Center"/>
-                                            <TextBlock Grid.Column="3" Text="{Binding UploadedTimeDisplay}" FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushInkFaint}" VerticalAlignment="Center"/>
-                                        </Grid>
-                                    </Border>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="120"/>
+                                            <ColumnDefinition Width="150"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Path Data="{StaticResource IconCloudArrowDown}" Fill="{DynamicResource BrushCobalt}" Width="16" Height="16" Stretch="Uniform" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                                        <TextBlock Grid.Column="1" Text="{Binding DisplayName}" FontFamily="{StaticResource FontFamilyMono}" FontSize="{StaticResource FontSizeMono}" Foreground="{DynamicResource BrushInk}" VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Column="2" Text="{Binding SizeDisplay}" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource BrushInkMuted}" VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Column="3" Text="{Binding UploadedTimeDisplay}" FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushInkFaint}" VerticalAlignment="Center"/>
+                                    </Grid>
                                 </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
 
                         <!-- Destination Folder & Conflict Policy -->
                         <Grid Margin="0,20,0,0">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="10"/>
+                                <ColumnDefinition Width="12"/>
                                 <ColumnDefinition Width="Auto"/>
                                 <ColumnDefinition Width="10"/>
                                 <ColumnDefinition Width="Auto"/>
@@ -226,7 +258,7 @@
                                      Tag="e.g. C:\UniBackup\Restore"
                                      Style="{StaticResource FieldInputMono}"/>
                             <Button Grid.Column="2" Content="Browse..." Command="{Binding BrowseRestoreDestinationCommand}"
-                                    Style="{StaticResource BtnQuiet}" Height="38" Padding="16,0"/>
+                                    Style="{StaticResource BtnQuiet}" Height="38" Padding="18,0"/>
                             <Button Grid.Column="4" Command="{Binding ExecuteRestoreCommand}"
                                     Style="{StaticResource BtnPrimary}" Height="38" Padding="18,0">
                                 <StackPanel Orientation="Horizontal">

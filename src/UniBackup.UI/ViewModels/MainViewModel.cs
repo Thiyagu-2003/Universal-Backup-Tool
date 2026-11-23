@@ -503,8 +503,7 @@ public partial class MainViewModel : ObservableObject
     [RelayCommand]
     public async Task StartSqlRestoreAsync()
     {
-        NotificationHub.ShowSuccess($"Initiated restore sequence for database '{SqlRestoreDatabase}' to {SqlTargetServer}.", "Restore Started");
-        await Task.Delay(200);
+        await ExecuteSqlCloudRestoreAsync();
     }
 
     [RelayCommand]
