@@ -140,7 +140,7 @@ public class UiStartupXamlTests
             Assert.Equal(Visibility.Visible, scrim.Visibility);
 
             // Close / Hide modal blur
-            window.HideModalBlur();
+            window.HideModalBlur(immediate: true);
             Assert.Null(mainContent.Effect);
             Assert.Equal(Visibility.Collapsed, scrim.Visibility);
         });
@@ -191,6 +191,7 @@ public class UiStartupXamlTests
 
             // Close dialog
             dialog.Close();
+            window.HideModalBlur(immediate: true);
             Assert.Null(mainContent.Effect);
             Assert.Equal(Visibility.Collapsed, scrim.Visibility);
         });

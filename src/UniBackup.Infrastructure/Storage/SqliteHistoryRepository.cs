@@ -266,15 +266,23 @@ public class SqliteHistoryRepository
         }
     }
 
-    public async Task<List<RunHistoryRecord>> GetRunsAsync(int limit = 100, string? jobId = null)
+    public async Task<List<RunHistoryRecord>> GetRunsAsync(
+        int limit = 1000,
+        string? jobId = null,
+        DateTime? fromDate = null,
+        DateTime? toDate = null)
     {
         await EnsureInitializedAsync();
         await using var conn = new SqliteConnection(_connectionString);
         await conn.OpenAsync();
 
-        var sql = string.IsNullOrEmpty(jobId)
-            ? "SELECT run_id, job_id, job_name, timestamp, duration_seconds, status, trigger, archive_size_bytes, error_message, kind, log_file FROM runs ORDER BY timestamp DESC LIMIT @limit;"
-            : "SELECT run_id, job_id, job_name, timestamp, duration_seconds, status, trigger, archive_size_bytes, error_message, kind, log_file FROM runs WHERE job_id = @job_id ORDER BY timestamp DESC LIMIT @limit;";
+        var conditions = new List<string>();
+        if (!string.IsNullOrEmpty(jobId)) conditions.Add("job_id = @job_id");
+        if (fromDate.HasValue) conditions.Add("timestamp >= @from_date");
+        if (toDate.HasValue) conditions.Add("timestamp <= @to_date");
+
+        var whereClause = conditions.Count > 0 ? "WHERE " + string.Join(" AND ", conditions) : "";
+        var sql = $"SELECT run_id, job_id, job_name, timestamp, duration_seconds, status, trigger, archive_size_bytes, error_message, kind, log_file FROM runs {whereClause} ORDER BY timestamp DESC LIMIT @limit;";
 
         var runs = new List<RunHistoryRecord>();
         await using (var cmd = new SqliteCommand(sql, conn))
@@ -283,6 +291,14 @@ public class SqliteHistoryRepository
             if (!string.IsNullOrEmpty(jobId))
             {
                 cmd.Parameters.AddWithValue("@job_id", jobId);
+            }
+            if (fromDate.HasValue)
+            {
+                cmd.Parameters.AddWithValue("@from_date", fromDate.Value.ToString("o", CultureInfo.InvariantCulture));
+            }
+            if (toDate.HasValue)
+            {
+                cmd.Parameters.AddWithValue("@to_date", toDate.Value.ToString("o", CultureInfo.InvariantCulture));
             }
 
             await using var reader = await cmd.ExecuteReaderAsync();

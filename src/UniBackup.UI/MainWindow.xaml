@@ -476,7 +476,7 @@
                     </Grid>
 
                     <!-- 6. Analytics & History Tab -->
-                    <Grid x:Name="SummaryTabContent" Visibility="Collapsed">
+                    <Grid x:Name="SummaryTabContent" Visibility="Collapsed" DataContext="{Binding AnalyticsVm}">
                         <views:AnalyticsView/>
                     </Grid>
 

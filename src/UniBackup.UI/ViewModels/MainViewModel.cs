@@ -50,6 +50,9 @@ public partial class MainViewModel : ObservableObject
     private RecoveryViewModel _recoveryVm = null!;
 
     [ObservableProperty]
+    private AnalyticsViewModel _analyticsVm = null!;
+
+    [ObservableProperty]
     private string _searchQuery = "";
 
     partial void OnActiveTabChanged(string value)
@@ -57,6 +60,10 @@ public partial class MainViewModel : ObservableObject
         if (value == "Recovery" && RecoveryVm != null)
         {
             _ = RecoveryVm.InitializeAsync();
+        }
+        else if (value == "Summary" && AnalyticsVm != null)
+        {
+            _ = AnalyticsVm.RefreshAsync();
         }
     }
 
@@ -436,6 +443,27 @@ public partial class MainViewModel : ObservableObject
         InitNewJob();
         InitIisSites();
         InitRecovery();
+        InitAnalytics();
+    }
+
+    private void InitAnalytics()
+    {
+        AnalyticsVm = new AnalyticsViewModel(
+            _configService,
+            () => Config,
+            _pipeline,
+            _schedulerService,
+            _diagnosticsService,
+            onNavigateToLogs: jobName =>
+            {
+                Logs.SearchText = jobName;
+                ActiveTab = "Logs";
+            },
+            onNavigateToJob: jobName =>
+            {
+                SearchQuery = jobName;
+                ActiveTab = "Backups";
+            });
     }
 
     private void InitRecovery()
@@ -547,6 +575,7 @@ public partial class MainViewModel : ObservableObject
         await Logs.InitializeAsync();
         await IisSitesVm.InitializeAsync();
         await RecoveryVm.InitializeAsync();
+        await AnalyticsVm.RefreshAsync();
     }
 
     public void UpdateFreeSpaceIndicators()
@@ -675,6 +704,7 @@ public partial class MainViewModel : ObservableObject
         HasUpcomingJobs = UpcomingJobs.Count > 0;
 
         ComputeStaleJobs();
+        _ = AnalyticsVm?.RefreshAsync();
     }
 
     [RelayCommand]
@@ -700,6 +730,7 @@ public partial class MainViewModel : ObservableObject
         OnPropertyChanged(nameof(RunsTodaySubText));
 
         ComputeStaleJobs();
+        _ = AnalyticsVm?.RefreshAsync();
     }
 
     public bool JobNeedsAttention(BackupJob job)

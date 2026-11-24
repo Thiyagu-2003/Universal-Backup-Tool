@@ -184,7 +184,11 @@ public class ConfigurationService
         return false;
     }
 
-    public async Task<List<RunHistoryRecord>> LoadHistoryAsync(string? explicitPath = null)
+    public async Task<List<RunHistoryRecord>> LoadHistoryAsync(
+        string? explicitPath = null,
+        int limit = 1000,
+        DateTime? fromDate = null,
+        DateTime? toDate = null)
     {
         if (!string.IsNullOrEmpty(explicitPath) && explicitPath.EndsWith(".json", StringComparison.OrdinalIgnoreCase))
         {
@@ -199,7 +203,7 @@ public class ConfigurationService
             {
                 await HistoryRepository.ImportHistoryJsonAsync(jsonLegacy);
             }
-            return await HistoryRepository.GetRunsAsync();
+            return await HistoryRepository.GetRunsAsync(limit: limit, fromDate: fromDate, toDate: toDate);
         }
         catch (Exception ex)
         {

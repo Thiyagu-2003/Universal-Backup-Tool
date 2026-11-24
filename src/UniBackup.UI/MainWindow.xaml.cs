@@ -434,11 +434,11 @@ public partial class MainWindow : Window
         }
     }
 
-    public void HideModalBlur()
+    public void HideModalBlur(bool immediate = false)
     {
         if (!Dispatcher.CheckAccess())
         {
-            Dispatcher.Invoke(HideModalBlur);
+            Dispatcher.Invoke(() => HideModalBlur(immediate));
             return;
         }
 
@@ -447,7 +447,7 @@ public partial class MainWindow : Window
 
         if (MainContentRoot == null) return;
 
-        if (SystemParameters.ClientAreaAnimation && MainContentRoot.Effect is BlurEffect blur)
+        if (!immediate && SystemParameters.ClientAreaAnimation && MainContentRoot.Effect is BlurEffect blur)
         {
             var blurAnim = new DoubleAnimation(blur.Radius, 0, new Duration(TimeSpan.FromMilliseconds(160)))
             {
@@ -484,6 +484,7 @@ public partial class MainWindow : Window
             if (ModalBackdropScrim != null)
             {
                 ModalBackdropScrim.Visibility = Visibility.Collapsed;
+                ModalBackdropScrim.Opacity = 0;
             }
         }
     }
