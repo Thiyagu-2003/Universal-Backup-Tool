@@ -434,12 +434,11 @@ public partial class SettingsViewModel : ObservableObject
 
     public void UpdateScheduleSummary()
     {
-        var mode = string.IsNullOrWhiteSpace(ScheduleWindowMode) ? "headless" : ScheduleWindowMode;
         var time = string.IsNullOrWhiteSpace(ScheduleTime) ? "02:00" : ScheduleTime;
 
         if (IsScheduleDaily)
         {
-            LiveScheduleSummary = $"Runs automatically every day at {time} in background ({mode})";
+            LiveScheduleSummary = $"Runs automatically every day at {time} in background";
             NextRunHint = $"Daily at {time}";
         }
         else if (IsScheduleWeekly)
@@ -453,18 +452,18 @@ public partial class SettingsViewModel : ObservableObject
             if (ScheduleSaturday) days.Add("Sat");
             if (ScheduleSunday) days.Add("Sun");
             var dayStr = days.Count > 0 ? string.Join(", ", days) : "Mon";
-            LiveScheduleSummary = $"Runs automatically every week on {dayStr} at {time} in background ({mode})";
+            LiveScheduleSummary = $"Runs automatically every week on {dayStr} at {time} in background";
             NextRunHint = $"Weekly ({dayStr}) at {time}";
         }
         else if (IsScheduleMonthly)
         {
             var day = string.IsNullOrWhiteSpace(ScheduleDayOfMonth) ? "1" : ScheduleDayOfMonth;
-            LiveScheduleSummary = $"Runs automatically once a month on Day {day} at {time} in background ({mode})";
+            LiveScheduleSummary = $"Runs automatically once a month on Day {day} at {time} in background";
             NextRunHint = $"Monthly (Day {day}) at {time}";
         }
         else
         {
-            LiveScheduleSummary = $"Runs periodically every {ScheduleIntervalHours} hours in background ({mode})";
+            LiveScheduleSummary = $"Runs periodically every {ScheduleIntervalHours} hours in background";
             NextRunHint = $"Every {ScheduleIntervalHours}h";
         }
     }
@@ -642,6 +641,11 @@ public partial class SettingsViewModel : ObservableObject
 
     public void SyncFromConfig()
     {
+        if (_mainVm?.Config != null && !ReferenceEquals(Config, _mainVm.Config))
+        {
+            Config = _mainVm.Config;
+        }
+
         if (Config == null) return;
 
         _isSyncing = true;
@@ -1477,6 +1481,28 @@ public partial class SettingsViewModel : ObservableObject
 
         if (Config.Security != null)
         {
+            if (SecurityRequireLogin && IsStaticAuthMode)
+            {
+                if (!string.IsNullOrEmpty(SecurityNewPassword))
+                {
+                    if (SecurityNewPassword != SecurityConfirmPassword)
+                    {
+                        SaveStatusMessage = "Cannot save: master passwords do not match.";
+                        SaveStatusIsSuccess = false;
+                        HasSaveStatusMessage = true;
+                        return;
+                    }
+                    Config.Security.AccessPassword = SecurityNewPassword;
+                }
+                else if (string.IsNullOrWhiteSpace(Config.Security.AccessPassword))
+                {
+                    SaveStatusMessage = "Cannot save: please enter a master password or disable startup login.";
+                    SaveStatusIsSuccess = false;
+                    HasSaveStatusMessage = true;
+                    return;
+                }
+            }
+
             Config.Security.RequireLogin = SecurityRequireLogin;
             Config.Security.AuthMode = SecurityAuthMode;
             Config.Security.DatePrefix = SecurityDatePrefix;
@@ -1581,24 +1607,10 @@ public partial class SettingsViewModel : ObservableObject
                     Config.Box = restored.Box ?? new BoxSettings();
                     break;
                 case "storage":
-                    Config.Backup.TempFolder = restored.Backup?.TempFolder ?? @"C:\UniBackup\temp";
-                    Config.Backup.KeepLogsDays = restored.Backup?.KeepLogsDays ?? 30;
-                    Config.Backup.HistoryRetentionDays = restored.Backup?.HistoryRetentionDays ?? 90;
-                    Config.Backup.MaxLogMb = restored.Backup?.MaxLogMb ?? 10;
-                    UpdateFreeSpaceIndicators();
-                    break;
-                case "notifications":
-                    Config.Email = restored.Email ?? new EmailSettings();
-                    Config.Webhooks = restored.Webhooks ?? new WebhookSettings();
-                    Config.NotificationMatrix = restored.NotificationMatrix ?? new NotificationTriggerMatrix();
-                    break;
                 case "advanced":
-                    Config.Backup.MaxDegreeOfParallelism = restored.Backup?.MaxDegreeOfParallelism ?? 4;
-                    Config.Backup.UseVssDefault = restored.Backup?.UseVssDefault ?? true;
-                    Config.Backup.BandwidthLimitKbps = restored.Backup?.BandwidthLimitKbps ?? 0;
-                    Config.Backup.CompressionLevel = restored.Backup?.CompressionLevel ?? "Optimal";
-                    Config.Backup.CleanTempAfterBackup = restored.Backup?.CleanTempAfterBackup ?? true;
-                    Config.Backup.MaxLogMb = restored.Backup?.MaxLogMb ?? 10;
+                    Config.Backup = restored.Backup ?? new BackupSettings();
+                    OnPropertyChanged(nameof(Config));
+                    UpdateFreeSpaceIndicators();
                     break;
                 default:
                     Config = restored;

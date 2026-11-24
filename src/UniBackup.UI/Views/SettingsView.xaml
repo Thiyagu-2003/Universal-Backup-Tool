@@ -3,13 +3,15 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:controls="clr-namespace:UniBackup.UI.Controls"
              xmlns:vm="clr-namespace:UniBackup.UI.ViewModels"
-             xmlns:conv="clr-namespace:UniBackup.UI.Converters">
+             xmlns:conv="clr-namespace:UniBackup.UI.Converters"
+             FontFamily="{StaticResource FontFamilyPrimary}"
+             TextOptions.TextFormattingMode="Display"
+             TextOptions.TextRenderingMode="ClearType">
     <UserControl.Resources>
         <Style x:Key="ModernSubmenuTab" TargetType="{x:Type RadioButton}">
-            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Height" Value="40"/>
-            <Setter Property="Padding" Value="14,0,16,0"/>
+            <Setter Property="Padding" Value="11,0,13,0"/>
             <Setter Property="Margin" Value="2,0"/>
             <Setter Property="GroupName" Value="SubmenuNavRadioGroup"/>
             <Setter Property="Template">
@@ -76,85 +78,88 @@
                 </Grid>
 
                 <!-- Floating Horizontal Submenu Container (Centered, Elevated, Modern & Colorful) -->
-                <Border Background="{DynamicResource BrushSunken}" BorderBrush="{DynamicResource BrushLine}" BorderThickness="1"
-                        CornerRadius="14" Padding="4" HorizontalAlignment="Center" Margin="0,2,0,0">
-                    <Border.Effect>
-                        <DropShadowEffect BlurRadius="12" Direction="270" RenderingBias="Performance" ShadowDepth="2" Opacity="0.06" Color="#000000"/>
-                    </Border.Effect>
-                    <StackPanel Orientation="Horizontal">
-                        <!-- 1. Execution Engine Tab -->
-                        <RadioButton Style="{StaticResource ModernSubmenuTab}"
-                                     IsChecked="{Binding SelectedSection, Converter={StaticResource StringEqualsToBool}, ConverterParameter=Engine}"
-                                     Command="{Binding SelectSectionCommand}" CommandParameter="Engine">
-                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                <Border Width="26" Height="26" CornerRadius="7" Background="#EFF6FF" Margin="0,0,9,0" VerticalAlignment="Center">
-                                    <Path Data="{StaticResource IconServer}" Fill="#2563EB" Width="14" Height="14" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                </Border>
-                                <TextBlock Text="Execution Engine" FontWeight="SemiBold" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource BrushInk}" VerticalAlignment="Center"/>
-                            </StackPanel>
-                        </RadioButton>
+                <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled"
+                              HorizontalAlignment="Center" Margin="0,2,0,0" Focusable="False">
+                    <Border Background="{DynamicResource BrushSunken}" BorderBrush="{DynamicResource BrushLine}" BorderThickness="1"
+                            CornerRadius="14" Padding="4" HorizontalAlignment="Center">
+                        <Border.Effect>
+                            <DropShadowEffect BlurRadius="12" Direction="270" RenderingBias="Performance" ShadowDepth="2" Opacity="0.06" Color="#000000"/>
+                        </Border.Effect>
+                        <StackPanel Orientation="Horizontal">
+                            <!-- 1. Execution Engine Tab -->
+                            <RadioButton Style="{StaticResource ModernSubmenuTab}"
+                                         IsChecked="{Binding SelectedSection, Converter={StaticResource StringEqualsToBool}, ConverterParameter=Engine}"
+                                         Command="{Binding SelectSectionCommand}" CommandParameter="Engine">
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <Border Width="26" Height="26" CornerRadius="7" Background="#EFF6FF" Margin="0,0,9,0" VerticalAlignment="Center">
+                                        <Path Data="{StaticResource IconServer}" Fill="#2563EB" Width="14" Height="14" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                    <TextBlock Text="Execution Engine" FontWeight="SemiBold" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource BrushInk}" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </RadioButton>
 
-                        <!-- 2. Appearance Tab -->
-                        <RadioButton Style="{StaticResource ModernSubmenuTab}"
-                                     IsChecked="{Binding SelectedSection, Converter={StaticResource StringEqualsToBool}, ConverterParameter=Appearance}"
-                                     Command="{Binding SelectSectionCommand}" CommandParameter="Appearance">
-                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                <Border Width="26" Height="26" CornerRadius="7" Background="#F5F3FF" Margin="0,0,9,0" VerticalAlignment="Center">
-                                    <Path Data="{StaticResource IconPalette}" Fill="#7C3AED" Width="14" Height="14" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                </Border>
-                                <TextBlock Text="Appearance" FontWeight="SemiBold" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource BrushInk}" VerticalAlignment="Center"/>
-                            </StackPanel>
-                        </RadioButton>
+                            <!-- 2. Appearance Tab -->
+                            <RadioButton Style="{StaticResource ModernSubmenuTab}"
+                                         IsChecked="{Binding SelectedSection, Converter={StaticResource StringEqualsToBool}, ConverterParameter=Appearance}"
+                                         Command="{Binding SelectSectionCommand}" CommandParameter="Appearance">
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <Border Width="26" Height="26" CornerRadius="7" Background="#F5F3FF" Margin="0,0,9,0" VerticalAlignment="Center">
+                                        <Path Data="{StaticResource IconPalette}" Fill="#7C3AED" Width="14" Height="14" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                    <TextBlock Text="Appearance" FontWeight="SemiBold" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource BrushInk}" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </RadioButton>
 
-                        <!-- 3. Security Tab -->
-                        <RadioButton Style="{StaticResource ModernSubmenuTab}"
-                                     IsChecked="{Binding SelectedSection, Converter={StaticResource StringEqualsToBool}, ConverterParameter=Security}"
-                                     Command="{Binding SelectSectionCommand}" CommandParameter="Security">
-                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                <Border Width="26" Height="26" CornerRadius="7" Background="#ECFDF5" Margin="0,0,9,0" VerticalAlignment="Center">
-                                    <Path Data="{StaticResource IconShield}" Fill="#059669" Width="14" Height="14" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                </Border>
-                                <TextBlock Text="Security" FontWeight="SemiBold" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource BrushInk}" VerticalAlignment="Center"/>
-                            </StackPanel>
-                        </RadioButton>
+                            <!-- 3. Security Tab -->
+                            <RadioButton Style="{StaticResource ModernSubmenuTab}"
+                                         IsChecked="{Binding SelectedSection, Converter={StaticResource StringEqualsToBool}, ConverterParameter=Security}"
+                                         Command="{Binding SelectSectionCommand}" CommandParameter="Security">
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <Border Width="26" Height="26" CornerRadius="7" Background="#ECFDF5" Margin="0,0,9,0" VerticalAlignment="Center">
+                                        <Path Data="{StaticResource IconShield}" Fill="#059669" Width="14" Height="14" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                    <TextBlock Text="Security" FontWeight="SemiBold" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource BrushInk}" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </RadioButton>
 
-                        <!-- 4. Cloud Credentials Tab -->
-                        <RadioButton Style="{StaticResource ModernSubmenuTab}"
-                                     IsChecked="{Binding SelectedSection, Converter={StaticResource StringEqualsToBool}, ConverterParameter=Credentials}"
-                                     Command="{Binding SelectSectionCommand}" CommandParameter="Credentials">
-                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                <Border Width="26" Height="26" CornerRadius="7" Background="#F0F9FF" Margin="0,0,9,0" VerticalAlignment="Center">
-                                    <Path Data="{StaticResource IconCloud}" Fill="#0284C7" Width="14" Height="14" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                </Border>
-                                <TextBlock Text="Cloud Credentials" FontWeight="SemiBold" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource BrushInk}" VerticalAlignment="Center"/>
-                            </StackPanel>
-                        </RadioButton>
+                            <!-- 4. Cloud Credentials Tab -->
+                            <RadioButton Style="{StaticResource ModernSubmenuTab}"
+                                         IsChecked="{Binding SelectedSection, Converter={StaticResource StringEqualsToBool}, ConverterParameter=Credentials}"
+                                         Command="{Binding SelectSectionCommand}" CommandParameter="Credentials">
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <Border Width="26" Height="26" CornerRadius="7" Background="#F0F9FF" Margin="0,0,9,0" VerticalAlignment="Center">
+                                        <Path Data="{StaticResource IconCloud}" Fill="#0284C7" Width="14" Height="14" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                    <TextBlock Text="Cloud Credentials" FontWeight="SemiBold" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource BrushInk}" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </RadioButton>
 
-                        <!-- 5. Storage & Cache Tab -->
-                        <RadioButton Style="{StaticResource ModernSubmenuTab}"
-                                     IsChecked="{Binding SelectedSection, Converter={StaticResource StringEqualsToBool}, ConverterParameter=Storage}"
-                                     Command="{Binding SelectSectionCommand}" CommandParameter="Storage">
-                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                <Border Width="26" Height="26" CornerRadius="7" Background="#F0FDFA" Margin="0,0,9,0" VerticalAlignment="Center">
-                                    <Path Data="{StaticResource IconHardDrive}" Fill="#0D9488" Width="14" Height="14" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                </Border>
-                                <TextBlock Text="Storage &amp; Cache" FontWeight="SemiBold" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource BrushInk}" VerticalAlignment="Center"/>
-                            </StackPanel>
-                        </RadioButton>
+                            <!-- 5. Storage & Cache Tab -->
+                            <RadioButton Style="{StaticResource ModernSubmenuTab}"
+                                         IsChecked="{Binding SelectedSection, Converter={StaticResource StringEqualsToBool}, ConverterParameter=Storage}"
+                                         Command="{Binding SelectSectionCommand}" CommandParameter="Storage">
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <Border Width="26" Height="26" CornerRadius="7" Background="#F0FDFA" Margin="0,0,9,0" VerticalAlignment="Center">
+                                        <Path Data="{StaticResource IconHardDrive}" Fill="#0D9488" Width="14" Height="14" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                    <TextBlock Text="Storage &amp; Cache" FontWeight="SemiBold" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource BrushInk}" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </RadioButton>
 
-                        <!-- 6. Advanced Tab -->
-                        <RadioButton Style="{StaticResource ModernSubmenuTab}"
-                                     IsChecked="{Binding SelectedSection, Converter={StaticResource StringEqualsToBool}, ConverterParameter=Advanced}"
-                                     Command="{Binding SelectSectionCommand}" CommandParameter="Advanced">
-                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                <Border Width="26" Height="26" CornerRadius="7" Background="#EEF2FF" Margin="0,0,9,0" VerticalAlignment="Center">
-                                    <Path Data="{StaticResource IconSliders}" Fill="#4F46E5" Width="14" Height="14" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                </Border>
-                                <TextBlock Text="Advanced" FontWeight="SemiBold" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource BrushInk}" VerticalAlignment="Center"/>
-                            </StackPanel>
-                        </RadioButton>
-                    </StackPanel>
-                </Border>
+                            <!-- 6. Advanced Tab -->
+                            <RadioButton Style="{StaticResource ModernSubmenuTab}"
+                                         IsChecked="{Binding SelectedSection, Converter={StaticResource StringEqualsToBool}, ConverterParameter=Advanced}"
+                                         Command="{Binding SelectSectionCommand}" CommandParameter="Advanced">
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <Border Width="26" Height="26" CornerRadius="7" Background="#EEF2FF" Margin="0,0,9,0" VerticalAlignment="Center">
+                                        <Path Data="{StaticResource IconSliders}" Fill="#4F46E5" Width="14" Height="14" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                    <TextBlock Text="Advanced" FontWeight="SemiBold" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource BrushInk}" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </RadioButton>
+                        </StackPanel>
+                    </Border>
+                </ScrollViewer>
             </StackPanel>
         </Border>
 
@@ -185,10 +190,10 @@
                                 </Grid.ColumnDefinitions>
 
                                 <!-- Card 1: Match Windows (System) -->
-                                <Border Grid.Column="0" CornerRadius="12" BorderThickness="2" Cursor="Hand" Padding="20"
-                                        Background="{DynamicResource BrushPanel}">
+                                <Border Grid.Column="0" CornerRadius="12" BorderThickness="2" Cursor="Hand" Padding="20">
                                     <Border.Style>
                                         <Style TargetType="Border">
+                                            <Setter Property="Background" Value="{DynamicResource BrushPanel}"/>
                                             <Setter Property="BorderBrush" Value="{DynamicResource BrushLine}"/>
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding IsSystemTheme}" Value="True">
@@ -227,10 +232,10 @@
                                 </Border>
 
                                 <!-- Card 2: Light Mode -->
-                                <Border Grid.Column="2" CornerRadius="12" BorderThickness="2" Cursor="Hand" Padding="20"
-                                        Background="{DynamicResource BrushPanel}">
+                                <Border Grid.Column="2" CornerRadius="12" BorderThickness="2" Cursor="Hand" Padding="20">
                                     <Border.Style>
                                         <Style TargetType="Border">
+                                            <Setter Property="Background" Value="{DynamicResource BrushPanel}"/>
                                             <Setter Property="BorderBrush" Value="{DynamicResource BrushLine}"/>
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding IsLightTheme}" Value="True">
@@ -263,10 +268,10 @@
                                 </Border>
 
                                 <!-- Card 3: Dark Mode -->
-                                <Border Grid.Column="4" CornerRadius="12" BorderThickness="2" Cursor="Hand" Padding="20"
-                                        Background="{DynamicResource BrushPanel}">
+                                <Border Grid.Column="4" CornerRadius="12" BorderThickness="2" Cursor="Hand" Padding="20">
                                     <Border.Style>
                                         <Style TargetType="Border">
+                                            <Setter Property="Background" Value="{DynamicResource BrushPanel}"/>
                                             <Setter Property="BorderBrush" Value="{DynamicResource BrushLine}"/>
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding IsDarkTheme}" Value="True">
@@ -372,7 +377,7 @@
 
                                     <!-- Panel A: Static Master Password -->
                                     <StackPanel Visibility="{Binding IsStaticAuthMode, Converter={StaticResource BoolToVis}}">
-                                        <Grid Margin="0,0,0,16">
+                                        <Grid Margin="0,0,0,20">
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="*"/>
                                                 <ColumnDefinition Width="16"/>
@@ -384,13 +389,50 @@
                                                 <TextBlock Text="New master password" FontWeight="SemiBold" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}" Margin="0,0,0,6"/>
                                                 <Grid>
                                                     <PasswordBox x:Name="SecNewPasswordBox" PasswordChanged="SecNewPassword_Changed" Style="{StaticResource FieldPassword}"
-                                                                 MinWidth="0" HorizontalAlignment="Stretch"
+                                                                 MinWidth="0" HorizontalAlignment="Stretch" Padding="12,0,38,0"
                                                                  Tag="Enter new master password"
                                                                  Visibility="{Binding IsSecurityPasswordVisible, Converter={StaticResource InverseBoolToVis}}"/>
                                                     <TextBox Text="{Binding SecurityNewPassword, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldInput}"
-                                                             MinWidth="0" HorizontalAlignment="Stretch"
+                                                             MinWidth="0" HorizontalAlignment="Stretch" Padding="12,0,38,0"
                                                              Tag="Enter new master password"
                                                              Visibility="{Binding IsSecurityPasswordVisible, Converter={StaticResource BoolToVis}}"/>
+                                                    <Button Command="{Binding ToggleSecurityPasswordVisibilityCommand}"
+                                                            HorizontalAlignment="Right" VerticalAlignment="Center"
+                                                            Width="32" Height="32" Margin="0,0,4,0"
+                                                            Background="Transparent" BorderThickness="0" Cursor="Hand"
+                                                            Focusable="True"
+                                                            AutomationProperties.Name="Toggle new master password visibility"
+                                                            ToolTip="Show or hide password in plaintext">
+                                                        <Button.Template>
+                                                            <ControlTemplate TargetType="Button">
+                                                                <Border x:Name="bd" Background="{TemplateBinding Background}" CornerRadius="6" Padding="6">
+                                                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                                </Border>
+                                                                <ControlTemplate.Triggers>
+                                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                                        <Setter TargetName="bd" Property="Background" Value="{DynamicResource BrushSunken}"/>
+                                                                    </Trigger>
+                                                                    <Trigger Property="IsPressed" Value="True">
+                                                                        <Setter TargetName="bd" Property="Background" Value="{DynamicResource BrushLineStrong}"/>
+                                                                    </Trigger>
+                                                                </ControlTemplate.Triggers>
+                                                            </ControlTemplate>
+                                                        </Button.Template>
+                                                        <Path Width="16" Height="16" Stretch="Uniform">
+                                                            <Path.Style>
+                                                                <Style TargetType="Path">
+                                                                    <Setter Property="Data" Value="{StaticResource IconEye}"/>
+                                                                    <Setter Property="Fill" Value="{DynamicResource BrushInkMuted}"/>
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding IsSecurityPasswordVisible}" Value="True">
+                                                                            <Setter Property="Data" Value="{StaticResource IconEyeOff}"/>
+                                                                            <Setter Property="Fill" Value="{DynamicResource BrushCobalt}"/>
+                                                                        </DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </Path.Style>
+                                                        </Path>
+                                                    </Button>
                                                 </Grid>
                                             </StackPanel>
 
@@ -399,24 +441,53 @@
                                                 <TextBlock Text="Confirm master password" FontWeight="SemiBold" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}" Margin="0,0,0,6"/>
                                                 <Grid>
                                                     <PasswordBox x:Name="SecConfirmPasswordBox" PasswordChanged="SecConfirmPassword_Changed" Style="{StaticResource FieldPassword}"
-                                                                 MinWidth="0" HorizontalAlignment="Stretch"
+                                                                 MinWidth="0" HorizontalAlignment="Stretch" Padding="12,0,38,0"
                                                                  Tag="Re-enter password"
                                                                  Visibility="{Binding IsSecurityPasswordVisible, Converter={StaticResource InverseBoolToVis}}"/>
                                                     <TextBox Text="{Binding SecurityConfirmPassword, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldInput}"
-                                                             MinWidth="0" HorizontalAlignment="Stretch"
+                                                             MinWidth="0" HorizontalAlignment="Stretch" Padding="12,0,38,0"
                                                              Tag="Re-enter password"
                                                              Visibility="{Binding IsSecurityPasswordVisible, Converter={StaticResource BoolToVis}}"/>
+                                                    <Button Command="{Binding ToggleSecurityPasswordVisibilityCommand}"
+                                                            HorizontalAlignment="Right" VerticalAlignment="Center"
+                                                            Width="32" Height="32" Margin="0,0,4,0"
+                                                            Background="Transparent" BorderThickness="0" Cursor="Hand"
+                                                            Focusable="True"
+                                                            AutomationProperties.Name="Toggle new master password visibility"
+                                                            ToolTip="Show or hide password in plaintext">
+                                                        <Button.Template>
+                                                            <ControlTemplate TargetType="Button">
+                                                                <Border x:Name="bd" Background="{TemplateBinding Background}" CornerRadius="6" Padding="6">
+                                                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                                </Border>
+                                                                <ControlTemplate.Triggers>
+                                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                                        <Setter TargetName="bd" Property="Background" Value="{DynamicResource BrushSunken}"/>
+                                                                    </Trigger>
+                                                                    <Trigger Property="IsPressed" Value="True">
+                                                                        <Setter TargetName="bd" Property="Background" Value="{DynamicResource BrushLineStrong}"/>
+                                                                    </Trigger>
+                                                                </ControlTemplate.Triggers>
+                                                            </ControlTemplate>
+                                                        </Button.Template>
+                                                        <Path Width="16" Height="16" Stretch="Uniform">
+                                                            <Path.Style>
+                                                                <Style TargetType="Path">
+                                                                    <Setter Property="Data" Value="{StaticResource IconEye}"/>
+                                                                    <Setter Property="Fill" Value="{DynamicResource BrushInkMuted}"/>
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding IsSecurityPasswordVisible}" Value="True">
+                                                                            <Setter Property="Data" Value="{StaticResource IconEyeOff}"/>
+                                                                            <Setter Property="Fill" Value="{DynamicResource BrushCobalt}"/>
+                                                                        </DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </Path.Style>
+                                                        </Path>
+                                                    </Button>
                                                 </Grid>
                                             </StackPanel>
                                         </Grid>
-
-                                        <!-- Show/Hide Plaintext Toggle -->
-                                        <Button Command="{Binding ToggleSecurityPasswordVisibilityCommand}" Style="{StaticResource IconBtn}" HorizontalAlignment="Left" Margin="0,0,0,16">
-                                            <StackPanel Orientation="Horizontal">
-                                                <Path Data="{StaticResource IconEye}" Fill="{DynamicResource BrushInkMuted}" Width="14" Height="14" Stretch="Uniform" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                                                <TextBlock Text="Show password in plaintext" FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkMuted}" VerticalAlignment="Center"/>
-                                            </StackPanel>
-                                        </Button>
                                     </StackPanel>
 
                                     <!-- Panel B: Dynamic Date-Based Password -->
@@ -436,7 +507,7 @@
                                             <!-- Prefix -->
                                             <StackPanel Grid.Column="0">
                                                 <TextBlock Text="Formula Prefix" FontWeight="SemiBold" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
-                                                <TextBlock Text="Leading text (e.g. admin(, ups)" FontSize="11" Foreground="{DynamicResource BrushInkFaint}" Margin="0,1,0,6"/>
+                                                <TextBlock Text="Leading text (e.g. admin(, ups)" FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource BrushInkFaint}" Margin="0,1,0,6"/>
                                                 <TextBox Text="{Binding SecurityDatePrefix, UpdateSourceTrigger=PropertyChanged}"
                                                          Tag="e.g. admin(" Style="{StaticResource FieldInputMono}" MinWidth="0" HorizontalAlignment="Stretch"/>
                                             </StackPanel>
@@ -444,7 +515,7 @@
                                             <!-- Date Format -->
                                             <StackPanel Grid.Column="2">
                                                 <TextBlock Text="Date Format Pattern" FontWeight="SemiBold" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
-                                                <TextBlock Text="Select dynamic token format" FontSize="11" Foreground="{DynamicResource BrushInkFaint}" Margin="0,1,0,6"/>
+                                                <TextBlock Text="Select dynamic token format" FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource BrushInkFaint}" Margin="0,1,0,6"/>
                                                 <ComboBox ItemsSource="{Binding AvailableDateFormats}" SelectedItem="{Binding SecurityDateFormat, Mode=TwoWay}"
                                                           IsEditable="False" Style="{StaticResource FieldComboBox}" MinWidth="0" HorizontalAlignment="Stretch"/>
                                             </StackPanel>
@@ -452,7 +523,7 @@
                                             <!-- Suffix -->
                                             <StackPanel Grid.Column="4">
                                                 <TextBlock Text="Formula Suffix" FontWeight="SemiBold" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
-                                                <TextBlock Text="Trailing text (e.g. ), !)" FontSize="11" Foreground="{DynamicResource BrushInkFaint}" Margin="0,1,0,6"/>
+                                                <TextBlock Text="Trailing text (e.g. ), !)" FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource BrushInkFaint}" Margin="0,1,0,6"/>
                                                 <TextBox Text="{Binding SecurityDateSuffix, UpdateSourceTrigger=PropertyChanged}"
                                                          Tag="e.g. )" Style="{StaticResource FieldInputMono}" MinWidth="0" HorizontalAlignment="Stretch"/>
                                             </StackPanel>
@@ -640,7 +711,7 @@
                             <Border Background="{DynamicResource BrushSunken}" CornerRadius="12" Padding="22">
                                 <StackPanel>
                                     <TextBlock Text="Automated Execution Schedule" FontWeight="Bold" FontSize="{StaticResource FontSizeCardHeader}" Foreground="{DynamicResource BrushInk}"/>
-                                    <TextBlock Text="Configure recurrence frequency, execution start time, active days, and process window behavior"
+                                    <TextBlock Text="Configure recurrence frequency, execution start time, and active days for automated background runs"
                                                FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkMuted}" Margin="0,2,0,16"/>
 
                                     <!-- Frequency Selection (Daily / Weekly / Monthly / Custom) -->
@@ -663,41 +734,15 @@
                                     </Border>
 
                                     <!-- Daily Options -->
-                                    <Grid Visibility="{Binding IsScheduleDaily, Converter={StaticResource BoolToVis}}" Margin="0,0,0,16">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="20"/>
-                                            <ColumnDefinition Width="*"/>
-                                        </Grid.ColumnDefinitions>
-                                        <StackPanel Grid.Column="0">
-                                            <TextBlock Text="Backup Execution Time (24h HH:mm)" FontWeight="SemiBold" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
-                                            <TextBox Text="{Binding ScheduleTime, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldInputMono}" MinWidth="0" Margin="0,6,0,0" Tag="e.g. 02:00"/>
-                                        </StackPanel>
-                                        <StackPanel Grid.Column="2">
-                                            <TextBlock Text="Process Window Mode" FontWeight="SemiBold" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
-                                            <ComboBox ItemsSource="{Binding AvailableWindowModes}" SelectedItem="{Binding ScheduleWindowMode, Mode=TwoWay}"
-                                                      Style="{StaticResource FieldComboBox}" MinWidth="0" Margin="0,6,0,0"/>
-                                        </StackPanel>
-                                    </Grid>
+                                    <StackPanel Visibility="{Binding IsScheduleDaily, Converter={StaticResource BoolToVis}}" Margin="0,0,0,16">
+                                        <TextBlock Text="Backup Execution Time (24h HH:mm)" FontWeight="SemiBold" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
+                                        <TextBox Text="{Binding ScheduleTime, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldInputMono}" HorizontalAlignment="Left" Width="280" Margin="0,6,0,0" Tag="e.g. 02:00"/>
+                                    </StackPanel>
 
                                     <!-- Weekly Options -->
                                     <StackPanel Visibility="{Binding IsScheduleWeekly, Converter={StaticResource BoolToVis}}" Margin="0,0,0,16">
-                                        <Grid Margin="0,0,0,16">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="20"/>
-                                                <ColumnDefinition Width="*"/>
-                                            </Grid.ColumnDefinitions>
-                                            <StackPanel Grid.Column="0">
-                                                <TextBlock Text="Backup Execution Time (24h HH:mm)" FontWeight="SemiBold" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
-                                                <TextBox Text="{Binding ScheduleTime, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldInputMono}" MinWidth="0" Margin="0,6,0,0" Tag="e.g. 02:00"/>
-                                            </StackPanel>
-                                            <StackPanel Grid.Column="2">
-                                                <TextBlock Text="Process Window Mode" FontWeight="SemiBold" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
-                                                <ComboBox ItemsSource="{Binding AvailableWindowModes}" SelectedItem="{Binding ScheduleWindowMode, Mode=TwoWay}"
-                                                          Style="{StaticResource FieldComboBox}" MinWidth="0" Margin="0,6,0,0"/>
-                                            </StackPanel>
-                                        </Grid>
+                                        <TextBlock Text="Backup Execution Time (24h HH:mm)" FontWeight="SemiBold" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
+                                        <TextBox Text="{Binding ScheduleTime, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldInputMono}" HorizontalAlignment="Left" Width="280" Margin="0,6,0,16" Tag="e.g. 02:00"/>
 
                                         <TextBlock Text="Run on Days of the Week" FontWeight="SemiBold" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}" Margin="0,0,0,8"/>
                                         <StackPanel Orientation="Horizontal">
@@ -714,10 +759,9 @@
                                     <!-- Monthly Options -->
                                     <Grid Visibility="{Binding IsScheduleMonthly, Converter={StaticResource BoolToVis}}" Margin="0,0,0,16">
                                         <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="220"/>
                                             <ColumnDefinition Width="20"/>
-                                            <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="20"/>
+                                            <ColumnDefinition Width="220"/>
                                             <ColumnDefinition Width="*"/>
                                         </Grid.ColumnDefinitions>
                                         <StackPanel Grid.Column="0">
@@ -729,31 +773,14 @@
                                             <TextBlock Text="Backup Execution Time (24h)" FontWeight="SemiBold" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
                                             <TextBox Text="{Binding ScheduleTime, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldInputMono}" MinWidth="0" Margin="0,6,0,0" Tag="e.g. 02:00"/>
                                         </StackPanel>
-                                        <StackPanel Grid.Column="4">
-                                            <TextBlock Text="Process Window Mode" FontWeight="SemiBold" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
-                                            <ComboBox ItemsSource="{Binding AvailableWindowModes}" SelectedItem="{Binding ScheduleWindowMode, Mode=TwoWay}"
-                                                      Style="{StaticResource FieldComboBox}" MinWidth="0" Margin="0,6,0,0"/>
-                                        </StackPanel>
                                     </Grid>
 
                                     <!-- Custom Interval Options -->
-                                    <Grid Visibility="{Binding IsScheduleCustom, Converter={StaticResource BoolToVis}}" Margin="0,0,0,16">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="20"/>
-                                            <ColumnDefinition Width="*"/>
-                                        </Grid.ColumnDefinitions>
-                                        <StackPanel Grid.Column="0">
-                                            <TextBlock Text="Repeat Interval (Hours)" FontWeight="SemiBold" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
-                                            <ComboBox ItemsSource="{Binding AvailableIntervalHours}" SelectedItem="{Binding ScheduleIntervalHours, Mode=TwoWay}"
-                                                      Style="{StaticResource FieldComboBox}" MinWidth="0" Margin="0,6,0,0"/>
-                                        </StackPanel>
-                                        <StackPanel Grid.Column="2">
-                                            <TextBlock Text="Process Window Mode" FontWeight="SemiBold" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
-                                            <ComboBox ItemsSource="{Binding AvailableWindowModes}" SelectedItem="{Binding ScheduleWindowMode, Mode=TwoWay}"
-                                                      Style="{StaticResource FieldComboBox}" MinWidth="0" Margin="0,6,0,0"/>
-                                        </StackPanel>
-                                    </Grid>
+                                    <StackPanel Visibility="{Binding IsScheduleCustom, Converter={StaticResource BoolToVis}}" Margin="0,0,0,16">
+                                        <TextBlock Text="Repeat Interval (Hours)" FontWeight="SemiBold" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
+                                        <ComboBox ItemsSource="{Binding AvailableIntervalHours}" SelectedItem="{Binding ScheduleIntervalHours, Mode=TwoWay}"
+                                                  Style="{StaticResource FieldComboBox}" HorizontalAlignment="Left" Width="280" Margin="0,6,0,0"/>
+                                    </StackPanel>
 
                                     <!-- Human-Readable Live Schedule Summary Pill -->
                                     <Border Background="{DynamicResource BrushPanel}" BorderBrush="{DynamicResource BrushLine}" BorderThickness="1"
@@ -1198,50 +1225,147 @@
                 <StackPanel Visibility="{Binding IsAdvancedSection, Converter={StaticResource BoolToVis}}">
                     <Border Style="{StaticResource Card}" Padding="28" Margin="0,0,0,20">
                         <StackPanel>
-                            <TextBlock Text="Advanced Engine &amp; Performance" FontWeight="Bold" FontSize="{StaticResource FontSizeH2}" Foreground="{DynamicResource BrushInk}"/>
-                            <TextBlock Text="Fine-tune parallel execution streams, bandwidth limits, VSS snapshots, and configuration persistence"
-                                       FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushInkMuted}" Margin="0,3,0,20"/>
-
-                            <!-- Concurrency & Bandwidth -->
-                            <Grid Margin="0,0,0,20">
+                            <!-- Header with Icon Badge -->
+                            <Grid Margin="0,0,0,24">
                                 <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
                                     <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="16"/>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="16"/>
-                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
-                                <StackPanel Grid.Column="0">
-                                    <TextBlock Text="Concurrency Parallel Streams (1 - 16)" FontWeight="SemiBold" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
-                                    <TextBox Text="{Binding Config.Backup.MaxDegreeOfParallelism, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldInputMono}" Margin="0,4,0,0"/>
+                                <Border Grid.Column="0" Width="38" Height="38" CornerRadius="9" Background="#EEF2FF" Margin="0,0,14,0" VerticalAlignment="Center">
+                                    <Path Data="{StaticResource IconSliders}" Fill="#4F46E5" Width="18" Height="18" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                    <TextBlock Text="Advanced Engine &amp; Performance" FontWeight="Bold" FontSize="{StaticResource FontSizeH2}" Foreground="{DynamicResource BrushInk}"/>
+                                    <TextBlock Text="Fine-tune parallel execution streams, bandwidth limits, VSS snapshots, and configuration persistence"
+                                               FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushInkMuted}" Margin="0,2,0,0"/>
                                 </StackPanel>
-                                <StackPanel Grid.Column="2">
-                                    <TextBlock Text="Bandwidth Throttling (Kbps, 0 = Max)" FontWeight="SemiBold" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
-                                    <TextBox Text="{Binding Config.Backup.BandwidthLimitKbps, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldInputMono}" Margin="0,4,0,0"/>
-                                </StackPanel>
-                                <StackPanel Grid.Column="4">
-                                    <TextBlock Text="Compression Algorithm Level" FontWeight="SemiBold" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
-                                    <ComboBox ItemsSource="{Binding CompressionLevels}" SelectedItem="{Binding Config.Backup.CompressionLevel}" Style="{StaticResource FieldComboBox}" Margin="0,4,0,0"/>
-                                </StackPanel>
+                                <Border Grid.Column="2" Style="{StaticResource BadgePill}" Background="#EEF2FF" BorderBrush="#C7D2FE" BorderThickness="1" VerticalAlignment="Center" Padding="12,5">
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                        <Ellipse Width="7" Height="7" Fill="#4F46E5" Margin="0,0,7,0" VerticalAlignment="Center"/>
+                                        <TextBlock Text="Engine Tuning" FontWeight="SemiBold" FontSize="{StaticResource FontSizeBadge}" Foreground="#4F46E5" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </Border>
                             </Grid>
 
-                            <!-- VSS & Clean Toggles -->
-                            <StackPanel Margin="0,0,0,24">
-                                <CheckBox Content="Enable Volume Shadow Copy Service (VSS) by default for open file snapshots"
-                                          IsChecked="{Binding Config.Backup.UseVssDefault, Mode=TwoWay}" FontWeight="SemiBold" Margin="0,0,0,10"/>
-                                <CheckBox Content="Automatically prune staging partition chunks after verified upload"
-                                          IsChecked="{Binding Config.Backup.CleanTempAfterBackup, Mode=TwoWay}" FontWeight="SemiBold"/>
-                            </StackPanel>
+                            <!-- Sub-Card 1: Parallel Streams & Throughput (3 clean input columns) -->
+                            <Border Background="{DynamicResource BrushSunken}" BorderBrush="{DynamicResource BrushLine}" BorderThickness="1" CornerRadius="12" Padding="20" Margin="0,0,0,20">
+                                <StackPanel>
+                                    <TextBlock Text="Execution Concurrency &amp; Compression" FontWeight="Bold" FontSize="{StaticResource FontSizeRowTitle}" Foreground="{DynamicResource BrushInk}"/>
+                                    <TextBlock Text="Worker parallelism limits, network upload throttling, and archive compression ratio" FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkMuted}" Margin="0,2,0,16"/>
 
-                            <Border Height="1" Background="{DynamicResource BrushLine}" Margin="0,0,0,24"/>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="20"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="20"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
 
-                            <!-- Configuration Export / Import / Factory Reset -->
-                            <TextBlock Text="Configuration Management" FontWeight="Bold" FontSize="{StaticResource FontSizeRowTitle}" Foreground="{DynamicResource BrushInk}" Margin="0,0,0,12"/>
-                            <StackPanel Orientation="Horizontal">
-                                <Button Content="Export configuration..." Command="{Binding ExportConfigCommand}" Style="{StaticResource BtnQuiet}" Height="36" Padding="16,0" Margin="0,0,10,0"/>
-                                <Button Content="Import configuration..." Command="{Binding ImportConfigCommand}" Style="{StaticResource BtnQuiet}" Height="36" Padding="16,0" Margin="0,0,10,0"/>
-                                <Button Content="Reset to factory defaults" Command="{Binding ResetToFactoryDefaultsCommand}" Style="{StaticResource BtnQuiet}" Height="36" Padding="16,0"/>
-                            </StackPanel>
+                                        <!-- Parallel Streams -->
+                                        <StackPanel Grid.Column="0">
+                                            <TextBlock Text="Concurrency Parallel Streams (1 - 16)" FontWeight="SemiBold" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
+                                            <TextBlock Text="Simultaneous worker threads for hashing &amp; upload" FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource BrushInkFaint}" Margin="0,2,0,6"/>
+                                            <TextBox Text="{Binding Config.Backup.MaxDegreeOfParallelism, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldInputMono}" MinWidth="0" Tag="e.g. 4"/>
+                                        </StackPanel>
+
+                                        <!-- Bandwidth Cap -->
+                                        <StackPanel Grid.Column="2">
+                                            <TextBlock Text="Bandwidth Throttling (Kbps)" FontWeight="SemiBold" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
+                                            <TextBlock Text="Network throughput cap (0 = unlimited throughput)" FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource BrushInkFaint}" Margin="0,2,0,6"/>
+                                            <TextBox Text="{Binding Config.Backup.BandwidthLimitKbps, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldInputMono}" MinWidth="0" Tag="0"/>
+                                        </StackPanel>
+
+                                        <!-- Compression -->
+                                        <StackPanel Grid.Column="4">
+                                            <TextBlock Text="Compression Algorithm Level" FontWeight="SemiBold" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
+                                            <TextBlock Text="Deflate ratio vs processor overhead" FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource BrushInkFaint}" Margin="0,2,0,6"/>
+                                            <ComboBox ItemsSource="{Binding CompressionLevels}" SelectedItem="{Binding Config.Backup.CompressionLevel}" Style="{StaticResource FieldComboBox}" MinWidth="0"/>
+                                        </StackPanel>
+                                    </Grid>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Sub-Card 2: System Resilience & Snapshot Policies (Modern Fluent Switches) -->
+                            <Border Background="{DynamicResource BrushRaised}" BorderBrush="{DynamicResource BrushLine}" BorderThickness="1" CornerRadius="12" Padding="20" Margin="0,0,0,20">
+                                <StackPanel>
+                                    <TextBlock Text="Snapshot &amp; Storage Policies" FontWeight="Bold" FontSize="{StaticResource FontSizeRowTitle}" Foreground="{DynamicResource BrushInk}"/>
+                                    <TextBlock Text="Manage Volume Shadow Copy Service (VSS) behavior and temporary compression staging" FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkMuted}" Margin="0,2,0,16"/>
+
+                                    <!-- VSS Switch -->
+                                    <Grid Margin="0,0,0,16">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Grid.Column="0" VerticalAlignment="Center" Margin="0,0,24,0">
+                                            <TextBlock Text="Enable Volume Shadow Copy Service (VSS) by default" FontWeight="SemiBold" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource BrushInk}"/>
+                                            <TextBlock Text="Captures consistent point-in-time snapshots for active, open, and locked files (SQL MDF/LDF, IIS websites, Outlook PST)" FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkMuted}" TextWrapping="Wrap" Margin="0,2,0,0"/>
+                                        </StackPanel>
+                                        <CheckBox Grid.Column="1" IsChecked="{Binding Config.Backup.UseVssDefault, Mode=TwoWay}" Style="{StaticResource Switch}" VerticalAlignment="Center"/>
+                                    </Grid>
+
+                                    <Border Height="1" Background="{DynamicResource BrushLine}" Margin="0,0,0,16"/>
+
+                                    <!-- Clean Temp Switch -->
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Grid.Column="0" VerticalAlignment="Center" Margin="0,0,24,0">
+                                            <TextBlock Text="Automatically prune staging partition chunks after verified upload" FontWeight="SemiBold" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource BrushInk}"/>
+                                            <TextBlock Text="Deletes local temporary archive chunks immediately upon verified completion to preserve disk space" FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkMuted}" TextWrapping="Wrap" Margin="0,2,0,0"/>
+                                        </StackPanel>
+                                        <CheckBox Grid.Column="1" IsChecked="{Binding Config.Backup.CleanTempAfterBackup, Mode=TwoWay}" Style="{StaticResource Switch}" VerticalAlignment="Center"/>
+                                    </Grid>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Sub-Card 3: Configuration Management (Export / Import / Reset) -->
+                            <Border Background="{DynamicResource BrushPanel}" BorderBrush="{DynamicResource BrushLine}" BorderThickness="1" CornerRadius="12" Padding="20">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <StackPanel Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" Margin="0,0,20,16">
+                                        <TextBlock Text="Configuration Lifecycle &amp; Disaster Migration" FontWeight="Bold" FontSize="{StaticResource FontSizeRowTitle}" Foreground="{DynamicResource BrushInk}"/>
+                                        <TextBlock Text="Export application configuration profiles for disaster recovery migration, import backup templates, or restore defaults"
+                                                   FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkMuted}" Margin="0,2,0,0"/>
+                                    </StackPanel>
+
+                                    <WrapPanel Grid.Row="1" Grid.ColumnSpan="2" Orientation="Horizontal">
+                                        <Button Command="{Binding ExportConfigCommand}" Style="{StaticResource BtnQuiet}" Height="38" Padding="18,0" Margin="0,0,10,0">
+                                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                                <Path Data="{StaticResource IconBackups}" Fill="{DynamicResource BrushCobalt}" Width="14" Height="14" Stretch="Uniform" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                                <TextBlock Text="Export configuration..." FontWeight="SemiBold" FontSize="{StaticResource FontSizeBody}" VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                        </Button>
+
+                                        <Button Command="{Binding ImportConfigCommand}" Style="{StaticResource BtnQuiet}" Height="38" Padding="18,0" Margin="0,0,10,0">
+                                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                                <Path Data="{StaticResource IconFolder}" Fill="{DynamicResource BrushInkMuted}" Width="14" Height="14" Stretch="Uniform" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                                <TextBlock Text="Import configuration..." FontWeight="SemiBold" FontSize="{StaticResource FontSizeBody}" VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                        </Button>
+
+                                        <Button Command="{Binding ResetToFactoryDefaultsCommand}" Style="{StaticResource BtnQuiet}" Height="38" Padding="18,0">
+                                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                                <Path Data="{StaticResource IconRefresh}" Fill="#EF4444" Width="14" Height="14" Stretch="Uniform" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                                <TextBlock Text="Reset to factory defaults" FontWeight="SemiBold" FontSize="{StaticResource FontSizeBody}" Foreground="#EF4444" VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                        </Button>
+                                    </WrapPanel>
+                                </Grid>
+                            </Border>
+
                         </StackPanel>
                     </Border>
                 </StackPanel>
@@ -1262,11 +1386,11 @@
                 <!-- Left: Unsaved Changes State & Message -->
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                     <!-- Unsaved Changes Detected Badge -->
-                    <Border Style="{StaticResource BadgePill}" Background="{DynamicResource BrushAmberSoft}" Margin="0,0,12,0" Padding="12,6"
+                    <Border Style="{StaticResource BadgePill}" Background="{DynamicResource BrushSaffronSoft}" Margin="0,0,12,0" Padding="12,6"
                             Visibility="{Binding HasUnsavedChanges, Converter={StaticResource BoolToVis}}">
                         <StackPanel Orientation="Horizontal">
-                            <Ellipse Width="8" Height="8" Fill="{DynamicResource BrushAmber}" Margin="0,0,6,0" VerticalAlignment="Center"/>
-                            <TextBlock Text="Unsaved changes detected" FontWeight="SemiBold" FontSize="{StaticResource FontSizeBadge}" Foreground="{DynamicResource BrushAmber}"/>
+                            <Ellipse Width="8" Height="8" Fill="{DynamicResource BrushSaffron}" Margin="0,0,6,0" VerticalAlignment="Center"/>
+                            <TextBlock Text="Unsaved changes detected" FontWeight="SemiBold" FontSize="{StaticResource FontSizeBadge}" Foreground="{DynamicResource BrushSaffron}"/>
                         </StackPanel>
                     </Border>
 

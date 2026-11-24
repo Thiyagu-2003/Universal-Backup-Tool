@@ -9,10 +9,20 @@ public class StatusToBrushConverter : IValueConverter
 {
     public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
-        var status = value?.ToString()?.ToUpperInvariant() ?? "";
         var isSoft = parameter?.ToString()?.Equals("soft", StringComparison.OrdinalIgnoreCase) == true;
 
-        if (status.Contains("SUCCESS"))
+        if (value is bool b)
+        {
+            return b
+                ? ((Application.Current?.TryFindResource(isSoft ? "BrushJadeSoft" : "BrushJade") as Brush)
+                    ?? new SolidColorBrush(Color.FromRgb(0x00, 0x94, 0x6A)))
+                : ((Application.Current?.TryFindResource(isSoft ? "BrushCoralSoft" : "BrushCoral") as Brush)
+                    ?? new SolidColorBrush(Color.FromRgb(0xE0, 0x29, 0x3F)));
+        }
+
+        var status = value?.ToString()?.ToUpperInvariant() ?? "";
+
+        if (status.Contains("SUCCESS") || status == "TRUE")
         {
             return (Application.Current?.TryFindResource(isSoft ? "BrushJadeSoft" : "BrushJade") as Brush)
                 ?? new SolidColorBrush(Color.FromRgb(0x00, 0x94, 0x6A));
@@ -22,7 +32,7 @@ public class StatusToBrushConverter : IValueConverter
             return (Application.Current?.TryFindResource(isSoft ? "BrushSaffronSoft" : "BrushSaffron") as Brush)
                 ?? new SolidColorBrush(Color.FromRgb(0xC9, 0x7A, 0x00));
         }
-        if (status.Contains("FAIL") || status.Contains("ERROR"))
+        if (status.Contains("FAIL") || status.Contains("ERROR") || status == "FALSE")
         {
             return (Application.Current?.TryFindResource(isSoft ? "BrushCoralSoft" : "BrushCoral") as Brush)
                 ?? new SolidColorBrush(Color.FromRgb(0xE0, 0x29, 0x3F));
