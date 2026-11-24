@@ -1663,7 +1663,7 @@ public sealed partial class LogsViewModel : ObservableObject
         return content;
     }
 
-    private static string EscapeCsv(string s) => s.Replace("\"", "\"\"");
+    private static string EscapeCsv(string? s) => s?.Replace("\"", "\"\"") ?? "";
 
     private static bool TrySetClipboard(string text)
     {

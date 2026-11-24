@@ -221,10 +221,13 @@ public partial class SettingsViewModel : ObservableObject
     public ObservableCollection<string> AvailableDateFormats { get; } =
     [
         "dd-MM-yyyy",
+        "dd/MM/yyyy",
         "yyyyMMdd",
         "ddMMyyyy",
         "yyyy-MM-dd",
+        "yyyy/MM/dd",
         "MM-dd-yyyy",
+        "MM/dd/yyyy",
         "dd.MM.yyyy",
         "yyyy_MM_dd"
     ];
@@ -300,6 +303,171 @@ public partial class SettingsViewModel : ObservableObject
 
     [ObservableProperty]
     private string _engineSummaryBadgeBorder = "#FDE68A";
+
+    // Schedule Recurrence Parameters (Daily / Weekly / Monthly / Custom)
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsScheduleDaily))]
+    [NotifyPropertyChangedFor(nameof(IsScheduleWeekly))]
+    [NotifyPropertyChangedFor(nameof(IsScheduleMonthly))]
+    [NotifyPropertyChangedFor(nameof(IsScheduleCustom))]
+    private string _scheduleFrequency = "daily";
+
+    partial void OnScheduleFrequencyChanged(string value)
+    {
+        if (Config?.Schedule != null && !_isSyncing)
+        {
+            Config.Schedule.Freq = value;
+        }
+        OnPropertyChanged(nameof(IsScheduleDaily));
+        OnPropertyChanged(nameof(IsScheduleWeekly));
+        OnPropertyChanged(nameof(IsScheduleMonthly));
+        OnPropertyChanged(nameof(IsScheduleCustom));
+        UpdateScheduleSummary();
+        if (!_isSyncing) CheckDirty();
+    }
+
+    public bool IsScheduleDaily => string.Equals(ScheduleFrequency, "daily", StringComparison.OrdinalIgnoreCase);
+    public bool IsScheduleWeekly => string.Equals(ScheduleFrequency, "weekly", StringComparison.OrdinalIgnoreCase);
+    public bool IsScheduleMonthly => string.Equals(ScheduleFrequency, "monthly", StringComparison.OrdinalIgnoreCase);
+    public bool IsScheduleCustom => string.Equals(ScheduleFrequency, "custom", StringComparison.OrdinalIgnoreCase);
+
+    [ObservableProperty]
+    private string _scheduleTime = "02:00";
+
+    partial void OnScheduleTimeChanged(string value)
+    {
+        if (Config?.Schedule != null && !_isSyncing)
+        {
+            Config.Schedule.Time = value;
+        }
+        UpdateScheduleSummary();
+        if (!_isSyncing) CheckDirty();
+    }
+
+    [ObservableProperty]
+    private int _scheduleIntervalHours = 4;
+
+    partial void OnScheduleIntervalHoursChanged(int value)
+    {
+        if (Config?.Schedule != null && !_isSyncing)
+        {
+            Config.Schedule.Interval = value;
+        }
+        UpdateScheduleSummary();
+        if (!_isSyncing) CheckDirty();
+    }
+
+    [ObservableProperty]
+    private string _scheduleDayOfMonth = "1";
+
+    partial void OnScheduleDayOfMonthChanged(string value)
+    {
+        if (Config?.Schedule != null && !_isSyncing)
+        {
+            Config.Schedule.Day = value;
+        }
+        UpdateScheduleSummary();
+        if (!_isSyncing) CheckDirty();
+    }
+
+    [ObservableProperty]
+    private string _scheduleWindowMode = "headless";
+
+    partial void OnScheduleWindowModeChanged(string value)
+    {
+        if (Config?.Schedule != null && !_isSyncing)
+        {
+            Config.Schedule.WindowMode = value;
+        }
+        UpdateScheduleSummary();
+        if (!_isSyncing) CheckDirty();
+    }
+
+    [ObservableProperty] private bool _scheduleMonday = true;
+    [ObservableProperty] private bool _scheduleTuesday;
+    [ObservableProperty] private bool _scheduleWednesday;
+    [ObservableProperty] private bool _scheduleThursday;
+    [ObservableProperty] private bool _scheduleFriday;
+    [ObservableProperty] private bool _scheduleSaturday;
+    [ObservableProperty] private bool _scheduleSunday;
+
+    private void SyncWeeklyDaysToConfig()
+    {
+        if (Config?.Schedule == null || _isSyncing) return;
+        var days = new List<string>();
+        if (ScheduleMonday) days.Add("MON");
+        if (ScheduleTuesday) days.Add("TUE");
+        if (ScheduleWednesday) days.Add("WED");
+        if (ScheduleThursday) days.Add("THU");
+        if (ScheduleFriday) days.Add("FRI");
+        if (ScheduleSaturday) days.Add("SAT");
+        if (ScheduleSunday) days.Add("SUN");
+        Config.Schedule.Days = days.Count > 0 ? days : ["MON"];
+    }
+
+    partial void OnScheduleMondayChanged(bool value) { SyncWeeklyDaysToConfig(); UpdateScheduleSummary(); if (!_isSyncing) CheckDirty(); }
+    partial void OnScheduleTuesdayChanged(bool value) { SyncWeeklyDaysToConfig(); UpdateScheduleSummary(); if (!_isSyncing) CheckDirty(); }
+    partial void OnScheduleWednesdayChanged(bool value) { SyncWeeklyDaysToConfig(); UpdateScheduleSummary(); if (!_isSyncing) CheckDirty(); }
+    partial void OnScheduleThursdayChanged(bool value) { SyncWeeklyDaysToConfig(); UpdateScheduleSummary(); if (!_isSyncing) CheckDirty(); }
+    partial void OnScheduleFridayChanged(bool value) { SyncWeeklyDaysToConfig(); UpdateScheduleSummary(); if (!_isSyncing) CheckDirty(); }
+    partial void OnScheduleSaturdayChanged(bool value) { SyncWeeklyDaysToConfig(); UpdateScheduleSummary(); if (!_isSyncing) CheckDirty(); }
+    partial void OnScheduleSundayChanged(bool value) { SyncWeeklyDaysToConfig(); UpdateScheduleSummary(); if (!_isSyncing) CheckDirty(); }
+
+    [ObservableProperty]
+    private string _liveScheduleSummary = "Daily at 02:00 (Session 0 Headless)";
+
+    public ObservableCollection<string> AvailableDaysOfMonth { get; } =
+        new(Enumerable.Range(1, 31).Select(i => i.ToString()));
+
+    public ObservableCollection<int> AvailableIntervalHours { get; } = [1, 2, 4, 6, 8, 12, 24];
+
+    public ObservableCollection<string> AvailableWindowModes { get; } = ["headless", "minimized", "normal"];
+
+    [RelayCommand]
+    public void SetScheduleFrequency(string freq)
+    {
+        if (!string.IsNullOrWhiteSpace(freq))
+        {
+            ScheduleFrequency = freq.ToLowerInvariant();
+        }
+    }
+
+    public void UpdateScheduleSummary()
+    {
+        var mode = string.IsNullOrWhiteSpace(ScheduleWindowMode) ? "headless" : ScheduleWindowMode;
+        var time = string.IsNullOrWhiteSpace(ScheduleTime) ? "02:00" : ScheduleTime;
+
+        if (IsScheduleDaily)
+        {
+            LiveScheduleSummary = $"Runs automatically every day at {time} in background ({mode})";
+            NextRunHint = $"Daily at {time}";
+        }
+        else if (IsScheduleWeekly)
+        {
+            var days = new List<string>();
+            if (ScheduleMonday) days.Add("Mon");
+            if (ScheduleTuesday) days.Add("Tue");
+            if (ScheduleWednesday) days.Add("Wed");
+            if (ScheduleThursday) days.Add("Thu");
+            if (ScheduleFriday) days.Add("Fri");
+            if (ScheduleSaturday) days.Add("Sat");
+            if (ScheduleSunday) days.Add("Sun");
+            var dayStr = days.Count > 0 ? string.Join(", ", days) : "Mon";
+            LiveScheduleSummary = $"Runs automatically every week on {dayStr} at {time} in background ({mode})";
+            NextRunHint = $"Weekly ({dayStr}) at {time}";
+        }
+        else if (IsScheduleMonthly)
+        {
+            var day = string.IsNullOrWhiteSpace(ScheduleDayOfMonth) ? "1" : ScheduleDayOfMonth;
+            LiveScheduleSummary = $"Runs automatically once a month on Day {day} at {time} in background ({mode})";
+            NextRunHint = $"Monthly (Day {day}) at {time}";
+        }
+        else
+        {
+            LiveScheduleSummary = $"Runs periodically every {ScheduleIntervalHours} hours in background ({mode})";
+            NextRunHint = $"Every {ScheduleIntervalHours}h";
+        }
+    }
 
     // 5. Cloud Credentials
     [ObservableProperty]
@@ -494,7 +662,27 @@ public partial class SettingsViewModel : ObservableObject
             if (Config.Schedule != null)
             {
                 RunByService = !string.Equals(Config.Schedule.Engine, "TaskScheduler", StringComparison.OrdinalIgnoreCase);
-                NextRunHint = $"Daily at {Config.Schedule.Time ?? "02:00"}";
+                ScheduleFrequency = string.IsNullOrWhiteSpace(Config.Schedule.Freq) ? "daily" : Config.Schedule.Freq.ToLowerInvariant();
+                ScheduleTime = string.IsNullOrWhiteSpace(Config.Schedule.Time) ? "02:00" : Config.Schedule.Time;
+                ScheduleIntervalHours = Config.Schedule.Interval > 0 ? Config.Schedule.Interval : 4;
+                ScheduleDayOfMonth = string.IsNullOrWhiteSpace(Config.Schedule.Day) ? "1" : Config.Schedule.Day;
+                ScheduleWindowMode = string.IsNullOrWhiteSpace(Config.Schedule.WindowMode) ? "headless" : Config.Schedule.WindowMode;
+
+                var days = Config.Schedule.Days ?? new List<string>();
+                ScheduleMonday = days.Any(d => d.Equals("MON", StringComparison.OrdinalIgnoreCase));
+                ScheduleTuesday = days.Any(d => d.Equals("TUE", StringComparison.OrdinalIgnoreCase));
+                ScheduleWednesday = days.Any(d => d.Equals("WED", StringComparison.OrdinalIgnoreCase));
+                ScheduleThursday = days.Any(d => d.Equals("THU", StringComparison.OrdinalIgnoreCase));
+                ScheduleFriday = days.Any(d => d.Equals("FRI", StringComparison.OrdinalIgnoreCase));
+                ScheduleSaturday = days.Any(d => d.Equals("SAT", StringComparison.OrdinalIgnoreCase));
+                ScheduleSunday = days.Any(d => d.Equals("SUN", StringComparison.OrdinalIgnoreCase));
+
+                if (!ScheduleMonday && !ScheduleTuesday && !ScheduleWednesday && !ScheduleThursday && !ScheduleFriday && !ScheduleSaturday && !ScheduleSunday)
+                {
+                    ScheduleMonday = true;
+                }
+
+                UpdateScheduleSummary();
             }
         }
         finally
@@ -1271,6 +1459,21 @@ public partial class SettingsViewModel : ObservableObject
     {
         Config.Backup.TempFolder = NormalizeTempFolderPath(Config.Backup.TempFolder);
         Config.Schedule.Engine = RunByService ? "Service" : "TaskScheduler";
+        Config.Schedule.Freq = ScheduleFrequency;
+        Config.Schedule.Time = ScheduleTime;
+        Config.Schedule.Interval = IsScheduleCustom ? ScheduleIntervalHours : 1;
+        Config.Schedule.Day = ScheduleDayOfMonth;
+        Config.Schedule.WindowMode = ScheduleWindowMode;
+
+        var days = new List<string>();
+        if (ScheduleMonday) days.Add("MON");
+        if (ScheduleTuesday) days.Add("TUE");
+        if (ScheduleWednesday) days.Add("WED");
+        if (ScheduleThursday) days.Add("THU");
+        if (ScheduleFriday) days.Add("FRI");
+        if (ScheduleSaturday) days.Add("SAT");
+        if (ScheduleSunday) days.Add("SUN");
+        Config.Schedule.Days = days.Count > 0 ? days : ["MON"];
 
         if (Config.Security != null)
         {

@@ -149,6 +149,7 @@ public class UniBackupWorker : BackgroundService
         {
             Freq = schedule.Freq,
             Time = schedule.Time,
+            Interval = schedule.Interval,
             Days = schedule.Days,
             Day = schedule.Day
         };

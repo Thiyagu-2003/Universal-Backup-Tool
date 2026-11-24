@@ -303,6 +303,12 @@ public class WinTaskSchedulerService : ISchedulerService
                 });
                 break;
 
+            case "custom":
+                var customTrigger = new TimeTrigger { StartBoundary = startBoundary };
+                customTrigger.Repetition.Interval = TimeSpan.FromHours(Math.Max(1, s.Interval));
+                td.Triggers.Add(customTrigger);
+                break;
+
             case "onetime":
                 DateTime.TryParse(s.Date, out var oneTimeDate);
                 var triggerTime = (oneTimeDate == default ? DateTime.Today : oneTimeDate).AddHours(hour).AddMinutes(minute);

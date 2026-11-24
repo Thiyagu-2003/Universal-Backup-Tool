@@ -62,6 +62,13 @@ public static class ScheduleCalculator
         if (full.Freq.Equals("manual", StringComparison.OrdinalIgnoreCase))
             return false;
 
+        if (full.Freq.Equals("custom", StringComparison.OrdinalIgnoreCase))
+        {
+            if (!lastRunTime.HasValue) return true;
+            var intervalHours = Math.Max(1, full.Interval);
+            return (now - lastRunTime.Value).TotalHours >= intervalHours;
+        }
+
         if (!TimeSpan.TryParse(full.Time, CultureInfo.InvariantCulture, out var scheduledTimeOfDay))
             return false;
 

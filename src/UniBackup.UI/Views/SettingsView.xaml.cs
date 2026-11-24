@@ -35,17 +35,34 @@ public partial class SettingsView : UserControl
 
     private void SettingsVm_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
     {
-        if (sender is SettingsViewModel vm && e.PropertyName == nameof(SettingsViewModel.IsSecurityPasswordVisible))
+        if (sender is SettingsViewModel vm)
         {
-            if (!vm.IsSecurityPasswordVisible)
+            if (e.PropertyName == nameof(SettingsViewModel.IsSecurityPasswordVisible))
+            {
+                if (!vm.IsSecurityPasswordVisible)
+                {
+                    if (SecNewPasswordBox != null && SecNewPasswordBox.Password != vm.SecurityNewPassword)
+                    {
+                        SecNewPasswordBox.Password = vm.SecurityNewPassword ?? "";
+                    }
+                    if (SecConfirmPasswordBox != null && SecConfirmPasswordBox.Password != vm.SecurityConfirmPassword)
+                    {
+                        SecConfirmPasswordBox.Password = vm.SecurityConfirmPassword ?? "";
+                    }
+                }
+            }
+            else if (e.PropertyName == nameof(SettingsViewModel.SecurityNewPassword))
             {
                 if (SecNewPasswordBox != null && SecNewPasswordBox.Password != vm.SecurityNewPassword)
                 {
-                    SecNewPasswordBox.Password = vm.SecurityNewPassword;
+                    SecNewPasswordBox.Password = vm.SecurityNewPassword ?? "";
                 }
+            }
+            else if (e.PropertyName == nameof(SettingsViewModel.SecurityConfirmPassword))
+            {
                 if (SecConfirmPasswordBox != null && SecConfirmPasswordBox.Password != vm.SecurityConfirmPassword)
                 {
-                    SecConfirmPasswordBox.Password = vm.SecurityConfirmPassword;
+                    SecConfirmPasswordBox.Password = vm.SecurityConfirmPassword ?? "";
                 }
             }
         }

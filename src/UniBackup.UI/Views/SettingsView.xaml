@@ -323,8 +323,8 @@
                                     <TextBlock Text="Protect UniBackup Pro startup with a static master password or a dynamic date-based daily formula"
                                                FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushInkMuted}" Margin="0,2,0,0"/>
                                 </StackPanel>
-                                <Border Grid.Column="2" VerticalAlignment="Center" Style="{StaticResource BadgePill}" Background="{DynamicResource BrushSunken}" Padding="14,6">
-                                    <TextBlock Text="{Binding SecurityStatusBadgeText}" FontWeight="Bold" FontSize="{StaticResource FontSizeBadge}" Foreground="{DynamicResource BrushInk}"/>
+                                <Border Grid.Column="2" VerticalAlignment="Center" Background="{DynamicResource BrushSunken}" CornerRadius="13" MinHeight="26" Padding="14,4">
+                                    <TextBlock Text="{Binding SecurityStatusBadgeText}" FontWeight="Bold" FontSize="{StaticResource FontSizeBadge}" Foreground="{DynamicResource BrushInk}" VerticalAlignment="Center"/>
                                 </Border>
                             </Grid>
 
@@ -381,12 +381,14 @@
 
                                             <!-- New Password Field -->
                                             <StackPanel Grid.Column="0">
-                                                <TextBlock Text="New master password" FontWeight="SemiBold" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
-                                                <Grid Margin="0,4,0,0">
+                                                <TextBlock Text="New master password" FontWeight="SemiBold" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}" Margin="0,0,0,6"/>
+                                                <Grid>
                                                     <PasswordBox x:Name="SecNewPasswordBox" PasswordChanged="SecNewPassword_Changed" Style="{StaticResource FieldPassword}"
+                                                                 MinWidth="0" HorizontalAlignment="Stretch"
                                                                  Tag="Enter new master password"
                                                                  Visibility="{Binding IsSecurityPasswordVisible, Converter={StaticResource InverseBoolToVis}}"/>
                                                     <TextBox Text="{Binding SecurityNewPassword, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldInput}"
+                                                             MinWidth="0" HorizontalAlignment="Stretch"
                                                              Tag="Enter new master password"
                                                              Visibility="{Binding IsSecurityPasswordVisible, Converter={StaticResource BoolToVis}}"/>
                                                 </Grid>
@@ -394,12 +396,14 @@
 
                                             <!-- Confirm Password Field -->
                                             <StackPanel Grid.Column="2">
-                                                <TextBlock Text="Confirm master password" FontWeight="SemiBold" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
-                                                <Grid Margin="0,4,0,0">
+                                                <TextBlock Text="Confirm master password" FontWeight="SemiBold" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}" Margin="0,0,0,6"/>
+                                                <Grid>
                                                     <PasswordBox x:Name="SecConfirmPasswordBox" PasswordChanged="SecConfirmPassword_Changed" Style="{StaticResource FieldPassword}"
+                                                                 MinWidth="0" HorizontalAlignment="Stretch"
                                                                  Tag="Re-enter password"
                                                                  Visibility="{Binding IsSecurityPasswordVisible, Converter={StaticResource InverseBoolToVis}}"/>
                                                     <TextBox Text="{Binding SecurityConfirmPassword, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldInput}"
+                                                             MinWidth="0" HorizontalAlignment="Stretch"
                                                              Tag="Re-enter password"
                                                              Visibility="{Binding IsSecurityPasswordVisible, Converter={StaticResource BoolToVis}}"/>
                                                 </Grid>
@@ -422,32 +426,35 @@
 
                                         <Grid Margin="0,0,0,16">
                                             <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="1.2*"/>
-                                                <ColumnDefinition Width="14"/>
-                                                <ColumnDefinition Width="1.5*"/>
-                                                <ColumnDefinition Width="14"/>
-                                                <ColumnDefinition Width="0.8*"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="16"/>
+                                                <ColumnDefinition Width="1.4*"/>
+                                                <ColumnDefinition Width="16"/>
+                                                <ColumnDefinition Width="*"/>
                                             </Grid.ColumnDefinitions>
 
                                             <!-- Prefix -->
                                             <StackPanel Grid.Column="0">
-                                                <TextBlock Text="Prefix (e.g. admin(, ups)" FontWeight="SemiBold" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
+                                                <TextBlock Text="Formula Prefix" FontWeight="SemiBold" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
+                                                <TextBlock Text="Leading text (e.g. admin(, ups)" FontSize="11" Foreground="{DynamicResource BrushInkFaint}" Margin="0,1,0,6"/>
                                                 <TextBox Text="{Binding SecurityDatePrefix, UpdateSourceTrigger=PropertyChanged}"
-                                                         Tag="e.g. admin(" Style="{StaticResource FieldInputMono}" Margin="0,4,0,0"/>
+                                                         Tag="e.g. admin(" Style="{StaticResource FieldInputMono}" MinWidth="0" HorizontalAlignment="Stretch"/>
                                             </StackPanel>
 
                                             <!-- Date Format -->
                                             <StackPanel Grid.Column="2">
                                                 <TextBlock Text="Date Format Pattern" FontWeight="SemiBold" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
-                                                <ComboBox ItemsSource="{Binding AvailableDateFormats}" Text="{Binding SecurityDateFormat, UpdateSourceTrigger=PropertyChanged}"
-                                                          IsEditable="True" Style="{StaticResource FieldComboBox}" Margin="0,4,0,0"/>
+                                                <TextBlock Text="Select dynamic token format" FontSize="11" Foreground="{DynamicResource BrushInkFaint}" Margin="0,1,0,6"/>
+                                                <ComboBox ItemsSource="{Binding AvailableDateFormats}" SelectedItem="{Binding SecurityDateFormat, Mode=TwoWay}"
+                                                          IsEditable="False" Style="{StaticResource FieldComboBox}" MinWidth="0" HorizontalAlignment="Stretch"/>
                                             </StackPanel>
 
                                             <!-- Suffix -->
                                             <StackPanel Grid.Column="4">
-                                                <TextBlock Text="Suffix (e.g. ), !)" FontWeight="SemiBold" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
+                                                <TextBlock Text="Formula Suffix" FontWeight="SemiBold" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
+                                                <TextBlock Text="Trailing text (e.g. ), !)" FontSize="11" Foreground="{DynamicResource BrushInkFaint}" Margin="0,1,0,6"/>
                                                 <TextBox Text="{Binding SecurityDateSuffix, UpdateSourceTrigger=PropertyChanged}"
-                                                         Tag="e.g. )" Style="{StaticResource FieldInputMono}" Margin="0,4,0,0"/>
+                                                         Tag="e.g. )" Style="{StaticResource FieldInputMono}" MinWidth="0" HorizontalAlignment="Stretch"/>
                                             </StackPanel>
                                         </Grid>
 
@@ -457,13 +464,14 @@
                                             <Grid>
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="16"/>
                                                     <ColumnDefinition Width="Auto"/>
                                                 </Grid.ColumnDefinitions>
-                                                <StackPanel VerticalAlignment="Center">
+                                                <StackPanel Grid.Column="0" VerticalAlignment="Center">
                                                     <TextBlock Text="Today's active password preview:" FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkMuted}"/>
                                                     <TextBlock Text="{Binding LiveTodayPasswordPreview}" FontFamily="{StaticResource FontMono}" FontWeight="Bold" FontSize="17" Foreground="{DynamicResource BrushCobalt}" Margin="0,4,0,0"/>
                                                 </StackPanel>
-                                                <StackPanel Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Center">
+                                                <StackPanel Grid.Column="2" HorizontalAlignment="Right" VerticalAlignment="Center">
                                                     <TextBlock Text="Tomorrow's password:" FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkMuted}" HorizontalAlignment="Right"/>
                                                     <TextBlock Text="{Binding LiveTomorrowPasswordPreview}" FontFamily="{StaticResource FontMono}" FontSize="13" Foreground="{DynamicResource BrushInkMuted}" HorizontalAlignment="Right" Margin="0,3,0,0"/>
                                                 </StackPanel>
@@ -628,23 +636,141 @@
                                 </Grid>
                             </Border>
 
-                            <!-- Nightly Schedule Parameters -->
-                            <Border Background="{DynamicResource BrushSunken}" CornerRadius="10" Padding="18">
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="16"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <StackPanel Grid.Column="0">
-                                        <TextBlock Text="Daily backup run time (24h)" FontWeight="SemiBold" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
-                                        <TextBox Text="{Binding Config.Schedule.Time, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldInputMono}" Margin="0,4,0,0"/>
+                            <!-- Automated Execution Schedule Parameters -->
+                            <Border Background="{DynamicResource BrushSunken}" CornerRadius="12" Padding="22">
+                                <StackPanel>
+                                    <TextBlock Text="Automated Execution Schedule" FontWeight="Bold" FontSize="{StaticResource FontSizeCardHeader}" Foreground="{DynamicResource BrushInk}"/>
+                                    <TextBlock Text="Configure recurrence frequency, execution start time, active days, and process window behavior"
+                                               FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkMuted}" Margin="0,2,0,16"/>
+
+                                    <!-- Frequency Selection (Daily / Weekly / Monthly / Custom) -->
+                                    <TextBlock Text="Recurrence Frequency" FontWeight="SemiBold" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}" Margin="0,0,0,8"/>
+                                    <Border Style="{StaticResource SegmentedContainer}" HorizontalAlignment="Left" Margin="0,0,0,20">
+                                        <StackPanel Orientation="Horizontal">
+                                            <RadioButton Content="Daily" Style="{StaticResource SegmentedItem}"
+                                                         IsChecked="{Binding ScheduleFrequency, Converter={StaticResource StringEqualsToBool}, ConverterParameter=daily}"
+                                                         Command="{Binding SetScheduleFrequencyCommand}" CommandParameter="daily"/>
+                                            <RadioButton Content="Weekly" Style="{StaticResource SegmentedItem}"
+                                                         IsChecked="{Binding ScheduleFrequency, Converter={StaticResource StringEqualsToBool}, ConverterParameter=weekly}"
+                                                         Command="{Binding SetScheduleFrequencyCommand}" CommandParameter="weekly"/>
+                                            <RadioButton Content="Monthly" Style="{StaticResource SegmentedItem}"
+                                                         IsChecked="{Binding ScheduleFrequency, Converter={StaticResource StringEqualsToBool}, ConverterParameter=monthly}"
+                                                         Command="{Binding SetScheduleFrequencyCommand}" CommandParameter="monthly"/>
+                                            <RadioButton Content="Custom Interval" Style="{StaticResource SegmentedItem}"
+                                                         IsChecked="{Binding ScheduleFrequency, Converter={StaticResource StringEqualsToBool}, ConverterParameter=custom}"
+                                                         Command="{Binding SetScheduleFrequencyCommand}" CommandParameter="custom"/>
+                                        </StackPanel>
+                                    </Border>
+
+                                    <!-- Daily Options -->
+                                    <Grid Visibility="{Binding IsScheduleDaily, Converter={StaticResource BoolToVis}}" Margin="0,0,0,16">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="20"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Grid.Column="0">
+                                            <TextBlock Text="Backup Execution Time (24h HH:mm)" FontWeight="SemiBold" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
+                                            <TextBox Text="{Binding ScheduleTime, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldInputMono}" MinWidth="0" Margin="0,6,0,0" Tag="e.g. 02:00"/>
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="2">
+                                            <TextBlock Text="Process Window Mode" FontWeight="SemiBold" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
+                                            <ComboBox ItemsSource="{Binding AvailableWindowModes}" SelectedItem="{Binding ScheduleWindowMode, Mode=TwoWay}"
+                                                      Style="{StaticResource FieldComboBox}" MinWidth="0" Margin="0,6,0,0"/>
+                                        </StackPanel>
+                                    </Grid>
+
+                                    <!-- Weekly Options -->
+                                    <StackPanel Visibility="{Binding IsScheduleWeekly, Converter={StaticResource BoolToVis}}" Margin="0,0,0,16">
+                                        <Grid Margin="0,0,0,16">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="20"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel Grid.Column="0">
+                                                <TextBlock Text="Backup Execution Time (24h HH:mm)" FontWeight="SemiBold" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
+                                                <TextBox Text="{Binding ScheduleTime, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldInputMono}" MinWidth="0" Margin="0,6,0,0" Tag="e.g. 02:00"/>
+                                            </StackPanel>
+                                            <StackPanel Grid.Column="2">
+                                                <TextBlock Text="Process Window Mode" FontWeight="SemiBold" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
+                                                <ComboBox ItemsSource="{Binding AvailableWindowModes}" SelectedItem="{Binding ScheduleWindowMode, Mode=TwoWay}"
+                                                          Style="{StaticResource FieldComboBox}" MinWidth="0" Margin="0,6,0,0"/>
+                                            </StackPanel>
+                                        </Grid>
+
+                                        <TextBlock Text="Run on Days of the Week" FontWeight="SemiBold" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}" Margin="0,0,0,8"/>
+                                        <StackPanel Orientation="Horizontal">
+                                            <CheckBox Content="Mon" IsChecked="{Binding ScheduleMonday}" Style="{StaticResource DayTogglePill}" Margin="0,0,8,0"/>
+                                            <CheckBox Content="Tue" IsChecked="{Binding ScheduleTuesday}" Style="{StaticResource DayTogglePill}" Margin="0,0,8,0"/>
+                                            <CheckBox Content="Wed" IsChecked="{Binding ScheduleWednesday}" Style="{StaticResource DayTogglePill}" Margin="0,0,8,0"/>
+                                            <CheckBox Content="Thu" IsChecked="{Binding ScheduleThursday}" Style="{StaticResource DayTogglePill}" Margin="0,0,8,0"/>
+                                            <CheckBox Content="Fri" IsChecked="{Binding ScheduleFriday}" Style="{StaticResource DayTogglePill}" Margin="0,0,8,0"/>
+                                            <CheckBox Content="Sat" IsChecked="{Binding ScheduleSaturday}" Style="{StaticResource DayTogglePill}" Margin="0,0,8,0"/>
+                                            <CheckBox Content="Sun" IsChecked="{Binding ScheduleSunday}" Style="{StaticResource DayTogglePill}"/>
+                                        </StackPanel>
                                     </StackPanel>
-                                    <StackPanel Grid.Column="2">
-                                        <TextBlock Text="Execution window mode" FontWeight="SemiBold" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
-                                        <TextBox Text="{Binding Config.Schedule.WindowMode, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldInputMono}" Margin="0,4,0,0"/>
-                                    </StackPanel>
-                                </Grid>
+
+                                    <!-- Monthly Options -->
+                                    <Grid Visibility="{Binding IsScheduleMonthly, Converter={StaticResource BoolToVis}}" Margin="0,0,0,16">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="20"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="20"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Grid.Column="0">
+                                            <TextBlock Text="Day of Month (1 - 31)" FontWeight="SemiBold" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
+                                            <ComboBox ItemsSource="{Binding AvailableDaysOfMonth}" SelectedItem="{Binding ScheduleDayOfMonth, Mode=TwoWay}"
+                                                      Style="{StaticResource FieldComboBox}" MinWidth="0" Margin="0,6,0,0"/>
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="2">
+                                            <TextBlock Text="Backup Execution Time (24h)" FontWeight="SemiBold" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
+                                            <TextBox Text="{Binding ScheduleTime, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldInputMono}" MinWidth="0" Margin="0,6,0,0" Tag="e.g. 02:00"/>
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="4">
+                                            <TextBlock Text="Process Window Mode" FontWeight="SemiBold" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
+                                            <ComboBox ItemsSource="{Binding AvailableWindowModes}" SelectedItem="{Binding ScheduleWindowMode, Mode=TwoWay}"
+                                                      Style="{StaticResource FieldComboBox}" MinWidth="0" Margin="0,6,0,0"/>
+                                        </StackPanel>
+                                    </Grid>
+
+                                    <!-- Custom Interval Options -->
+                                    <Grid Visibility="{Binding IsScheduleCustom, Converter={StaticResource BoolToVis}}" Margin="0,0,0,16">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="20"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Grid.Column="0">
+                                            <TextBlock Text="Repeat Interval (Hours)" FontWeight="SemiBold" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
+                                            <ComboBox ItemsSource="{Binding AvailableIntervalHours}" SelectedItem="{Binding ScheduleIntervalHours, Mode=TwoWay}"
+                                                      Style="{StaticResource FieldComboBox}" MinWidth="0" Margin="0,6,0,0"/>
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="2">
+                                            <TextBlock Text="Process Window Mode" FontWeight="SemiBold" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
+                                            <ComboBox ItemsSource="{Binding AvailableWindowModes}" SelectedItem="{Binding ScheduleWindowMode, Mode=TwoWay}"
+                                                      Style="{StaticResource FieldComboBox}" MinWidth="0" Margin="0,6,0,0"/>
+                                        </StackPanel>
+                                    </Grid>
+
+                                    <!-- Human-Readable Live Schedule Summary Pill -->
+                                    <Border Background="{DynamicResource BrushPanel}" BorderBrush="{DynamicResource BrushLine}" BorderThickness="1"
+                                            CornerRadius="10" Padding="16,12" Margin="0,4,0,0">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Path Data="{StaticResource IconClock}" Fill="{DynamicResource BrushCobalt}" Width="16" Height="16" Stretch="Uniform" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                <TextBlock Text="Effective Schedule Recurrence" FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkMuted}"/>
+                                                <TextBlock Text="{Binding LiveScheduleSummary}" FontWeight="Bold" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource BrushCobalt}" Margin="0,2,0,0"/>
+                                            </StackPanel>
+                                        </Grid>
+                                    </Border>
+                                </StackPanel>
                             </Border>
                         </StackPanel>
                     </Border>
@@ -864,7 +990,7 @@
                                     </StackPanel>
                                     <StackPanel Grid.Column="2">
                                         <TextBlock Text="Port" FontWeight="SemiBold" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
-                                        <TextBox Text="{Binding Config.Sftp.Port, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldInputMono}" Tag="22" Margin="0,4,0,0"/>
+                                        <TextBox Text="{Binding Config.Sftp.Port, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldInputMono}" MinWidth="0" Tag="22" Margin="0,4,0,0"/>
                                     </StackPanel>
                                 </Grid>
 
@@ -909,7 +1035,7 @@
                                     </StackPanel>
                                     <StackPanel Grid.Column="2">
                                         <TextBlock Text="Port" FontWeight="SemiBold" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
-                                        <TextBox Text="{Binding Config.Ftp.Port, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldInputMono}" Tag="21" Margin="0,4,0,0"/>
+                                        <TextBox Text="{Binding Config.Ftp.Port, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldInputMono}" MinWidth="0" Tag="21" Margin="0,4,0,0"/>
                                     </StackPanel>
                                 </Grid>
 

@@ -650,6 +650,13 @@
                             <Setter TargetName="bd" Property="BorderBrush" Value="{DynamicResource BrushCobalt}"/>
                             <Setter Property="Foreground" Value="#FFFFFF"/>
                         </Trigger>
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsChecked" Value="True"/>
+                                <Condition Property="IsMouseOver" Value="True"/>
+                            </MultiTrigger.Conditions>
+                            <Setter Property="Foreground" Value="#FFFFFF"/>
+                        </MultiTrigger>
                         <Trigger Property="IsMouseOver" Value="True">
                             <Setter TargetName="bd" Property="BorderBrush" Value="{DynamicResource BrushCobalt}"/>
                         </Trigger>

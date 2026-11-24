@@ -292,4 +292,95 @@ public class SettingsRedesignTests : IDisposable
         Assert.Equal("Smallest", config.Backup.CompressionLevel);
         Assert.False(config.Backup.CleanTempAfterBackup);
     }
+
+    [Fact]
+    public void SettingsViewModel_ScheduleFrequencies_SwitchesModesAndUpdatesSummary()
+    {
+        var config = new AppConfig();
+        var vm = new SettingsViewModel(config, _configService);
+
+        // Daily
+        vm.SetScheduleFrequency("daily");
+        vm.ScheduleTime = "03:30";
+        Assert.True(vm.IsScheduleDaily);
+        Assert.False(vm.IsScheduleWeekly);
+        Assert.Contains("03:30", vm.LiveScheduleSummary);
+        Assert.Contains("every day", vm.LiveScheduleSummary);
+
+        // Weekly
+        vm.SetScheduleFrequency("weekly");
+        vm.ScheduleMonday = true;
+        vm.ScheduleWednesday = true;
+        vm.ScheduleFriday = true;
+        Assert.True(vm.IsScheduleWeekly);
+        Assert.Contains("Mon", vm.LiveScheduleSummary);
+        Assert.Contains("Wed", vm.LiveScheduleSummary);
+        Assert.Contains("Fri", vm.LiveScheduleSummary);
+
+        // Monthly
+        vm.SetScheduleFrequency("monthly");
+        vm.ScheduleDayOfMonth = "15";
+        Assert.True(vm.IsScheduleMonthly);
+        Assert.Contains("Day 15", vm.LiveScheduleSummary);
+
+        // Custom
+        vm.SetScheduleFrequency("custom");
+        vm.ScheduleIntervalHours = 6;
+        Assert.True(vm.IsScheduleCustom);
+        Assert.Contains("every 6 hours", vm.LiveScheduleSummary);
+    }
+
+    [Fact]
+    public async Task SettingsViewModel_SaveScheduleFrequency_PersistsToConfig()
+    {
+        var config = new AppConfig();
+        var vm = new SettingsViewModel(config, _configService)
+        {
+            ScheduleFrequency = "weekly",
+            ScheduleTime = "04:15",
+            ScheduleMonday = true,
+            ScheduleThursday = true,
+            ScheduleWindowMode = "minimized"
+        };
+
+        await vm.SaveSettingsAsync();
+
+        Assert.Equal("weekly", config.Schedule.Freq);
+        Assert.Equal("04:15", config.Schedule.Time);
+        Assert.Equal("minimized", config.Schedule.WindowMode);
+        Assert.Contains("MON", config.Schedule.Days);
+        Assert.Contains("THU", config.Schedule.Days);
+    }
+
+    [Fact]
+    public void SettingsViewModel_ScheduleModifications_TriggerDirtyTracking()
+    {
+        var config = new AppConfig();
+        var vm = new SettingsViewModel(config, _configService);
+        Assert.False(vm.HasUnsavedChanges);
+
+        vm.ScheduleTime = "05:45";
+        Assert.True(vm.HasUnsavedChanges);
+        Assert.Equal("05:45", config.Schedule.Time);
+
+        vm.ScheduleFrequency = "weekly";
+        Assert.True(vm.HasUnsavedChanges);
+        Assert.Equal("weekly", config.Schedule.Freq);
+    }
+
+    [Fact]
+    public void ScheduleCalculator_CustomInterval_EvaluatesDueCorrectly()
+    {
+        var schedule = new JobSchedule
+        {
+            Freq = "custom",
+            Interval = 4
+        };
+        var now = DateTimeOffset.UtcNow;
+        var runStateDue = new JobRunState { LastRunTime = now.AddHours(-5) };
+        var runStateNotDue = new JobRunState { LastRunTime = now.AddHours(-2) };
+
+        Assert.True(ScheduleCalculator.IsFolderJobDue(schedule, runStateDue, now));
+        Assert.False(ScheduleCalculator.IsFolderJobDue(schedule, runStateNotDue, now));
+    }
 }
