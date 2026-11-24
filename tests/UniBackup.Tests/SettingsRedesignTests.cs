@@ -37,14 +37,14 @@ public class SettingsRedesignTests : IDisposable
     {
         var vm = new SettingsViewModel(new AppConfig(), _configService);
 
-        Assert.Equal("Overview", vm.SelectedSection);
-        Assert.True(vm.IsOverviewSection);
+        Assert.Equal("Engine", vm.SelectedSection);
+        Assert.True(vm.IsEngineSection);
         Assert.False(vm.IsAppearanceSection);
 
         vm.SelectSection("Appearance");
         Assert.Equal("Appearance", vm.SelectedSection);
         Assert.True(vm.IsAppearanceSection);
-        Assert.False(vm.IsOverviewSection);
+        Assert.False(vm.IsEngineSection);
 
         vm.SelectSection("Security");
         Assert.Equal("Security", vm.SelectedSection);
@@ -190,5 +190,106 @@ public class SettingsRedesignTests : IDisposable
         Assert.Contains("admin@uniprotech.net", config.Email.ToAddresses);
         Assert.Contains("alerts@uniprotech.net", config.Email.ToAddresses);
         Assert.Contains("devops@uniprotech.net", config.Email.ToAddresses);
+    }
+
+    [Fact]
+    public void SettingsViewModel_EngineBadgeAndCommands_ExposesClearStatusAndCommands()
+    {
+        var config = new AppConfig();
+        var vm = new SettingsViewModel(config, _configService);
+
+        Assert.NotNull(vm.EngineSummaryBadgeText);
+        Assert.NotNull(vm.EngineSummaryBadgeBg);
+        Assert.NotNull(vm.EngineSummaryBadgeBorder);
+        Assert.NotNull(vm.EngineSummaryBadgeColor);
+        Assert.NotNull(vm.InstallWindowsServiceCommand);
+        Assert.NotNull(vm.UninstallWindowsServiceCommand);
+
+        vm.RunByService = true;
+        vm.WindowsServiceStatus = "Running";
+        vm.UpdateEngineBadge();
+        Assert.Equal("Engine: Service Running", vm.EngineSummaryBadgeText);
+
+        vm.WindowsServiceStatus = "Stopped";
+        vm.UpdateEngineBadge();
+        Assert.Equal("Engine: Service Stopped", vm.EngineSummaryBadgeText);
+
+        vm.WindowsServiceStatus = "Not Installed";
+        vm.WindowsServiceInstalled = false;
+        vm.UpdateEngineBadge();
+        Assert.Equal("Engine: Not Installed", vm.EngineSummaryBadgeText);
+
+        vm.RunByService = false;
+        vm.TaskSchedulerInstalled = true;
+        vm.TaskSchedulerRunning = false;
+        vm.UpdateEngineBadge();
+        Assert.Equal("Engine: Task Ready", vm.EngineSummaryBadgeText);
+    }
+
+    [Fact]
+    public async Task SettingsViewModel_GlobalSaveSettings_PersistsSecurityAndEngineSettings()
+    {
+        var config = new AppConfig();
+        var vm = new SettingsViewModel(config, _configService)
+        {
+            SecurityRequireLogin = true,
+            SecurityAuthMode = "DateBased",
+            SecurityDatePrefix = "myprefix(",
+            SecurityDateFormat = "yyyyMMdd",
+            SecurityDateSuffix = "!)",
+            RunByService = true
+        };
+
+        await vm.SaveSettingsAsync();
+
+        Assert.True(config.Security.RequireLogin);
+        Assert.Equal("DateBased", config.Security.AuthMode);
+        Assert.Equal("myprefix(", config.Security.DatePrefix);
+        Assert.Equal("yyyyMMdd", config.Security.DateFormat);
+        Assert.Equal("!)", config.Security.DateSuffix);
+        Assert.Equal("Service", config.Schedule.Engine);
+        Assert.False(vm.HasUnsavedChanges);
+    }
+
+    [Fact]
+    public void SettingsViewModel_SecurityPropertyChanges_TriggerDynamicPreviewUpdates()
+    {
+        var config = new AppConfig();
+        var vm = new SettingsViewModel(config, _configService);
+
+        vm.SecurityDatePrefix = "corp(";
+        vm.SecurityDateFormat = "ddMMyyyy";
+        vm.SecurityDateSuffix = ")#";
+
+        var expectedToday = $"corp({DateTime.Today:ddMMyyyy})#";
+        Assert.Equal(expectedToday, vm.LiveTodayPasswordPreview);
+
+        vm.SecurityRequireLogin = true;
+        Assert.Equal("Password Active", vm.SecurityStatusBadgeText);
+
+        vm.SecurityRequireLogin = false;
+        Assert.Equal("Unprotected", vm.SecurityStatusBadgeText);
+    }
+
+    [Fact]
+    public void SettingsViewModel_ResetAdvancedSection_RevertsAllPerformanceFields()
+    {
+        var config = new AppConfig();
+        config.Backup.BandwidthLimitKbps = 1000;
+        config.Backup.CompressionLevel = "Smallest";
+        config.Backup.CleanTempAfterBackup = false;
+
+        var vm = new SettingsViewModel(config, _configService);
+
+        config.Backup.BandwidthLimitKbps = 5000;
+        config.Backup.CompressionLevel = "None";
+        config.Backup.CleanTempAfterBackup = true;
+
+        vm.SelectSection("Advanced");
+        vm.ResetSection();
+
+        Assert.Equal(1000, config.Backup.BandwidthLimitKbps);
+        Assert.Equal("Smallest", config.Backup.CompressionLevel);
+        Assert.False(config.Backup.CleanTempAfterBackup);
     }
 }

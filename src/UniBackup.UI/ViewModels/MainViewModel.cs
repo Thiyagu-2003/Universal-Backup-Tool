@@ -459,7 +459,7 @@ public partial class MainViewModel : ObservableObject
 
     private void InitSettings()
     {
-        SettingsVm = new SettingsViewModel(this);
+        SettingsVm = new SettingsViewModel(this, _configService, _schedulerService, _diagnosticsService);
     }
 
     private void InitAnalytics()

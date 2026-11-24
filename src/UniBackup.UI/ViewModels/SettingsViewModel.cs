@@ -42,7 +42,7 @@ public partial class SettingsViewModel : ObservableObject
     [NotifyPropertyChangedFor(nameof(IsNotificationsSection))]
     [NotifyPropertyChangedFor(nameof(IsDiagnosticsSection))]
     [NotifyPropertyChangedFor(nameof(IsAdvancedSection))]
-    private string _selectedSection = "Overview";
+    private string _selectedSection = "Engine";
 
     public bool IsOverviewSection => string.Equals(SelectedSection, "Overview", StringComparison.OrdinalIgnoreCase);
     public bool IsAppearanceSection => string.Equals(SelectedSection, "Appearance", StringComparison.OrdinalIgnoreCase);
@@ -55,6 +55,8 @@ public partial class SettingsViewModel : ObservableObject
     public bool IsAdvancedSection => string.Equals(SelectedSection, "Advanced", StringComparison.OrdinalIgnoreCase);
 
     // Dirty tracking & Status
+    private bool _isSyncing;
+
     [ObservableProperty]
     private bool _hasUnsavedChanges;
 
@@ -109,14 +111,46 @@ public partial class SettingsViewModel : ObservableObject
     [NotifyPropertyChangedFor(nameof(IsDateBasedAuthMode))]
     private string _securityAuthMode = "Static";
 
+    partial void OnSecurityAuthModeChanged(string value)
+    {
+        OnPropertyChanged(nameof(IsStaticAuthMode));
+        OnPropertyChanged(nameof(IsDateBasedAuthMode));
+        if (!_isSyncing)
+        {
+            UpdateSecurityPreviews();
+            CheckDirty();
+        }
+    }
+
     [ObservableProperty]
     private bool _securityRequireLogin;
+
+    partial void OnSecurityRequireLoginChanged(bool value)
+    {
+        if (Config?.Security != null && !_isSyncing) Config.Security.RequireLogin = value;
+        SecurityStatusBadgeText = value ? "Password Active" : "Unprotected";
+        if (!_isSyncing)
+        {
+            UpdateSecurityPreviews();
+            CheckDirty();
+        }
+    }
 
     [ObservableProperty]
     private string _securityNewPassword = "";
 
+    partial void OnSecurityNewPasswordChanged(string value)
+    {
+        if (!_isSyncing) CheckDirty();
+    }
+
     [ObservableProperty]
     private string _securityConfirmPassword = "";
+
+    partial void OnSecurityConfirmPasswordChanged(string value)
+    {
+        if (!_isSyncing) CheckDirty();
+    }
 
     [ObservableProperty]
     private bool _isSecurityPasswordVisible;
@@ -124,11 +158,38 @@ public partial class SettingsViewModel : ObservableObject
     [ObservableProperty]
     private string _securityDatePrefix = "admin(";
 
+    partial void OnSecurityDatePrefixChanged(string value)
+    {
+        if (!_isSyncing)
+        {
+            UpdateSecurityPreviews();
+            CheckDirty();
+        }
+    }
+
     [ObservableProperty]
     private string _securityDateFormat = "dd-MM-yyyy";
 
+    partial void OnSecurityDateFormatChanged(string value)
+    {
+        if (!_isSyncing)
+        {
+            UpdateSecurityPreviews();
+            CheckDirty();
+        }
+    }
+
     [ObservableProperty]
     private string _securityDateSuffix = ")";
+
+    partial void OnSecurityDateSuffixChanged(string value)
+    {
+        if (!_isSyncing)
+        {
+            UpdateSecurityPreviews();
+            CheckDirty();
+        }
+    }
 
     [ObservableProperty]
     private string _securityStatusBadgeText = "Unprotected";
@@ -172,6 +233,16 @@ public partial class SettingsViewModel : ObservableObject
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(RunByTask))]
     private bool _runByService = true;
+
+    partial void OnRunByServiceChanged(bool value)
+    {
+        if (Config?.Schedule != null)
+        {
+            Config.Schedule.Engine = value ? "Service" : "TaskScheduler";
+        }
+        UpdateEngineBadge();
+        CheckDirty();
+    }
 
     public bool RunByTask
     {
@@ -217,6 +288,18 @@ public partial class SettingsViewModel : ObservableObject
 
     [ObservableProperty]
     private string _nextRunHint = "Daily at 02:00";
+
+    [ObservableProperty]
+    private string _engineSummaryBadgeText = "Engine: Checking...";
+
+    [ObservableProperty]
+    private string _engineSummaryBadgeColor = "#D97706";
+
+    [ObservableProperty]
+    private string _engineSummaryBadgeBg = "#FFFBEB";
+
+    [ObservableProperty]
+    private string _engineSummaryBadgeBorder = "#FDE68A";
 
     // 5. Cloud Credentials
     [ObservableProperty]
@@ -351,13 +434,17 @@ public partial class SettingsViewModel : ObservableObject
     // 9. Advanced
     public ObservableCollection<string> CompressionLevels { get; } = ["None", "Fast", "Optimal", "Smallest"];
 
-    public SettingsViewModel(MainViewModel mainVm)
+    public SettingsViewModel(
+        MainViewModel mainVm,
+        ConfigurationService? configService = null,
+        ISchedulerService? schedulerService = null,
+        ServerDiagnosticsService? diagnosticsService = null)
     {
         _mainVm = mainVm;
         _config = mainVm.Config;
-        _configService = mainVm.GetType().GetField("_configService", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)?.GetValue(mainVm) as ConfigurationService;
-        _schedulerService = mainVm.GetType().GetField("_schedulerService", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)?.GetValue(mainVm) as ISchedulerService;
-        _diagnosticsService = mainVm.GetType().GetField("_diagnosticsService", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)?.GetValue(mainVm) as ServerDiagnosticsService;
+        _configService = configService ?? mainVm.GetType().GetField("_configService", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)?.GetValue(mainVm) as ConfigurationService;
+        _schedulerService = schedulerService ?? mainVm.GetType().GetField("_schedulerService", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)?.GetValue(mainVm) as ISchedulerService;
+        _diagnosticsService = diagnosticsService ?? mainVm.GetType().GetField("_diagnosticsService", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)?.GetValue(mainVm) as ServerDiagnosticsService;
 
         InitializeState();
     }
@@ -389,24 +476,33 @@ public partial class SettingsViewModel : ObservableObject
     {
         if (Config == null) return;
 
-        CurrentTheme = string.IsNullOrWhiteSpace(Config.Appearance?.Theme) ? "Light" : Config.Appearance.Theme;
-
-        if (Config.Security != null)
+        _isSyncing = true;
+        try
         {
-            SecurityRequireLogin = Config.Security.RequireLogin;
-            SecurityAuthMode = string.IsNullOrWhiteSpace(Config.Security.AuthMode) ? "Static" : Config.Security.AuthMode;
-            SecurityDatePrefix = Config.Security.DatePrefix ?? "admin(";
-            SecurityDateFormat = string.IsNullOrWhiteSpace(Config.Security.DateFormat) ? "dd-MM-yyyy" : Config.Security.DateFormat;
-            SecurityDateSuffix = Config.Security.DateSuffix ?? ")";
-            SecurityStatusBadgeText = SecurityRequireLogin ? "Password Active" : "Unprotected";
-            UpdateSecurityPreviews();
+            CurrentTheme = string.IsNullOrWhiteSpace(Config.Appearance?.Theme) ? "Light" : Config.Appearance.Theme;
+
+            if (Config.Security != null)
+            {
+                SecurityRequireLogin = Config.Security.RequireLogin;
+                SecurityAuthMode = string.IsNullOrWhiteSpace(Config.Security.AuthMode) ? "Static" : Config.Security.AuthMode;
+                SecurityDatePrefix = Config.Security.DatePrefix ?? "admin(";
+                SecurityDateFormat = string.IsNullOrWhiteSpace(Config.Security.DateFormat) ? "dd-MM-yyyy" : Config.Security.DateFormat;
+                SecurityDateSuffix = Config.Security.DateSuffix ?? ")";
+                SecurityStatusBadgeText = SecurityRequireLogin ? "Password Active" : "Unprotected";
+            }
+
+            if (Config.Schedule != null)
+            {
+                RunByService = !string.Equals(Config.Schedule.Engine, "TaskScheduler", StringComparison.OrdinalIgnoreCase);
+                NextRunHint = $"Daily at {Config.Schedule.Time ?? "02:00"}";
+            }
+        }
+        finally
+        {
+            _isSyncing = false;
         }
 
-        if (Config.Schedule != null)
-        {
-            RunByService = !string.Equals(Config.Schedule.Engine, "TaskScheduler", StringComparison.OrdinalIgnoreCase);
-            NextRunHint = $"Daily at {Config.Schedule.Time ?? "02:00"}";
-        }
+        UpdateSecurityPreviews();
     }
 
     public void CaptureSnapshot()
@@ -540,16 +636,25 @@ public partial class SettingsViewModel : ObservableObject
     {
         if (Config?.Security == null) return;
 
-        Config.Security.AuthMode = SecurityAuthMode;
-        Config.Security.DatePrefix = SecurityDatePrefix;
-        Config.Security.DateFormat = SecurityDateFormat;
-        Config.Security.DateSuffix = SecurityDateSuffix;
-
-        LiveTodayPasswordPreview = Config.Security.GenerateExpectedPassword(DateTime.Today);
-        LiveTomorrowPasswordPreview = Config.Security.GenerateExpectedPassword(DateTime.Today.AddDays(1));
+        var format = string.IsNullOrWhiteSpace(SecurityDateFormat) ? "dd-MM-yyyy" : SecurityDateFormat;
+        var prefix = SecurityDatePrefix ?? "";
+        var suffix = SecurityDateSuffix ?? "";
+        try
+        {
+            LiveTodayPasswordPreview = $"{prefix}{DateTime.Today.ToString(format)}{suffix}";
+            LiveTomorrowPasswordPreview = $"{prefix}{DateTime.Today.AddDays(1).ToString(format)}{suffix}";
+        }
+        catch
+        {
+            LiveTodayPasswordPreview = $"{prefix}{DateTime.Today:dd-MM-yyyy}{suffix}";
+            LiveTomorrowPasswordPreview = $"{prefix}{DateTime.Today.AddDays(1):dd-MM-yyyy}{suffix}";
+        }
 
         OnPropertyChanged(nameof(HasConfiguredPassword));
-        CheckDirty();
+        if (!_isSyncing)
+        {
+            CheckDirty();
+        }
     }
 
     [RelayCommand]
@@ -686,6 +791,121 @@ public partial class SettingsViewModel : ObservableObject
             TaskSchedulerStatus = "Available";
             TaskSchedulerInstalled = true;
         }
+        UpdateEngineBadge();
+    }
+
+    public void UpdateEngineBadge()
+    {
+        if (RunByService)
+        {
+            if (string.Equals(WindowsServiceStatus, "Running", StringComparison.OrdinalIgnoreCase))
+            {
+                EngineSummaryBadgeText = "Engine: Service Running";
+                EngineSummaryBadgeColor = "#059669";
+                EngineSummaryBadgeBg = "#ECFDF5";
+                EngineSummaryBadgeBorder = "#A7F3D0";
+            }
+            else if (string.Equals(WindowsServiceStatus, "Stopped", StringComparison.OrdinalIgnoreCase))
+            {
+                EngineSummaryBadgeText = "Engine: Service Stopped";
+                EngineSummaryBadgeColor = "#DC2626";
+                EngineSummaryBadgeBg = "#FEF2F2";
+                EngineSummaryBadgeBorder = "#FECACA";
+            }
+            else if (string.Equals(WindowsServiceStatus, "Not Installed", StringComparison.OrdinalIgnoreCase) || !WindowsServiceInstalled)
+            {
+                EngineSummaryBadgeText = "Engine: Not Installed";
+                EngineSummaryBadgeColor = "#D97706";
+                EngineSummaryBadgeBg = "#FFFBEB";
+                EngineSummaryBadgeBorder = "#FDE68A";
+            }
+            else
+            {
+                EngineSummaryBadgeText = $"Engine: {WindowsServiceStatus}";
+                EngineSummaryBadgeColor = "#475569";
+                EngineSummaryBadgeBg = "#F1F5F9";
+                EngineSummaryBadgeBorder = "#CBD5E1";
+            }
+        }
+        else
+        {
+            if (TaskSchedulerRunning)
+            {
+                EngineSummaryBadgeText = "Engine: Task Active";
+                EngineSummaryBadgeColor = "#0284C7";
+                EngineSummaryBadgeBg = "#F0F9FF";
+                EngineSummaryBadgeBorder = "#BAE6FD";
+            }
+            else if (TaskSchedulerInstalled)
+            {
+                EngineSummaryBadgeText = "Engine: Task Ready";
+                EngineSummaryBadgeColor = "#2563EB";
+                EngineSummaryBadgeBg = "#EFF6FF";
+                EngineSummaryBadgeBorder = "#BFDBFE";
+            }
+            else
+            {
+                EngineSummaryBadgeText = "Engine: Task Unregistered";
+                EngineSummaryBadgeColor = "#D97706";
+                EngineSummaryBadgeBg = "#FFFBEB";
+                EngineSummaryBadgeBorder = "#FDE68A";
+            }
+        }
+    }
+
+    [RelayCommand]
+    public void InstallWindowsService()
+    {
+        if (_mainVm != null)
+        {
+            _mainVm.InstallWindowsService();
+        }
+        else
+        {
+            var result = WindowsServiceManager.InstallService();
+            if (result.IsSuccess)
+            {
+                NotificationHub.ShowSuccess("UniBackup Windows Service installed successfully!", "Service Installed");
+            }
+            else
+            {
+                NotificationHub.ShowError(result.Error ?? "Service installation failed.", "Service Installation Error");
+            }
+        }
+        RefreshEngineStatus();
+        RefreshOverviewCards();
+    }
+
+    [RelayCommand]
+    public void UninstallWindowsService()
+    {
+        if (_mainVm != null)
+        {
+            _mainVm.UninstallWindowsService();
+        }
+        else
+        {
+            var confirm = MessageBox.Show(
+                "Are you sure you want to remove the UniBackup Windows Service?",
+                "Confirm Uninstall",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Warning);
+
+            if (confirm == MessageBoxResult.Yes)
+            {
+                var result = WindowsServiceManager.UninstallService();
+                if (result.IsSuccess)
+                {
+                    NotificationHub.ShowInfo("Windows Service uninstalled successfully.", "Service Removed");
+                }
+                else
+                {
+                    NotificationHub.ShowError(result.Error ?? "Service uninstall failed.", "Service Error");
+                }
+            }
+        }
+        RefreshEngineStatus();
+        RefreshOverviewCards();
     }
 
     [RelayCommand]
@@ -1052,6 +1272,19 @@ public partial class SettingsViewModel : ObservableObject
         Config.Backup.TempFolder = NormalizeTempFolderPath(Config.Backup.TempFolder);
         Config.Schedule.Engine = RunByService ? "Service" : "TaskScheduler";
 
+        if (Config.Security != null)
+        {
+            Config.Security.RequireLogin = SecurityRequireLogin;
+            Config.Security.AuthMode = SecurityAuthMode;
+            Config.Security.DatePrefix = SecurityDatePrefix;
+            Config.Security.DateFormat = SecurityDateFormat;
+            Config.Security.DateSuffix = SecurityDateSuffix;
+            if (!string.IsNullOrEmpty(SecurityNewPassword) && SecurityNewPassword == SecurityConfirmPassword)
+            {
+                Config.Security.AccessPassword = SecurityNewPassword;
+            }
+        }
+
         if (string.IsNullOrWhiteSpace(Config.Email.Username) && !string.IsNullOrWhiteSpace(Config.Email.FromAddress))
         {
             Config.Email.Username = Config.Email.FromAddress;
@@ -1148,6 +1381,8 @@ public partial class SettingsViewModel : ObservableObject
                     Config.Backup.TempFolder = restored.Backup?.TempFolder ?? @"C:\UniBackup\temp";
                     Config.Backup.KeepLogsDays = restored.Backup?.KeepLogsDays ?? 30;
                     Config.Backup.HistoryRetentionDays = restored.Backup?.HistoryRetentionDays ?? 90;
+                    Config.Backup.MaxLogMb = restored.Backup?.MaxLogMb ?? 10;
+                    UpdateFreeSpaceIndicators();
                     break;
                 case "notifications":
                     Config.Email = restored.Email ?? new EmailSettings();
@@ -1157,6 +1392,9 @@ public partial class SettingsViewModel : ObservableObject
                 case "advanced":
                     Config.Backup.MaxDegreeOfParallelism = restored.Backup?.MaxDegreeOfParallelism ?? 4;
                     Config.Backup.UseVssDefault = restored.Backup?.UseVssDefault ?? true;
+                    Config.Backup.BandwidthLimitKbps = restored.Backup?.BandwidthLimitKbps ?? 0;
+                    Config.Backup.CompressionLevel = restored.Backup?.CompressionLevel ?? "Optimal";
+                    Config.Backup.CleanTempAfterBackup = restored.Backup?.CleanTempAfterBackup ?? true;
                     Config.Backup.MaxLogMb = restored.Backup?.MaxLogMb ?? 10;
                     break;
                 default:
@@ -1187,9 +1425,12 @@ public partial class SettingsViewModel : ObservableObject
 
         if (sfd.ShowDialog() == true)
         {
-            var json = JsonSerializer.Serialize(Config, new JsonSerializerOptions { WriteIndented = true });
+            var cloneJson = JsonSerializer.Serialize(Config);
+            var clone = JsonSerializer.Deserialize<AppConfig>(cloneJson) ?? new AppConfig();
+            new CredentialProtector().SealConfig(clone);
+            var json = JsonSerializer.Serialize(clone, new JsonSerializerOptions { WriteIndented = true });
             await File.WriteAllTextAsync(sfd.FileName, json);
-            NotificationHub.ShowSuccess("Configuration exported successfully!", "Export Configuration");
+            NotificationHub.ShowSuccess("Configuration exported securely with protected credentials!", "Export Configuration");
         }
     }
 
@@ -1209,6 +1450,7 @@ public partial class SettingsViewModel : ObservableObject
                 var imported = JsonSerializer.Deserialize<AppConfig>(json);
                 if (imported != null)
                 {
+                    new CredentialProtector().UnsealConfig(imported);
                     Config = imported;
                     SyncFromConfig();
                     CheckDirty();
@@ -1281,6 +1523,10 @@ public partial class SettingsViewModel : ObservableObject
     {
         if (string.IsNullOrWhiteSpace(path)) return @"C:\UniBackup\temp";
         var trimmed = path.Trim();
+        if (trimmed.Length == 2 && char.IsLetter(trimmed[0]) && trimmed[1] == ':')
+            return trimmed + @"\";
+        if (trimmed.Length == 3 && char.IsLetter(trimmed[0]) && trimmed[1] == ':' && (trimmed[2] == '\\' || trimmed[2] == '/'))
+            return trimmed.Substring(0, 2) + @"\";
         return trimmed.TrimEnd('\\', '/');
     }
 

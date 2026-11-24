@@ -5,37 +5,31 @@
              xmlns:vm="clr-namespace:UniBackup.UI.ViewModels"
              xmlns:conv="clr-namespace:UniBackup.UI.Converters">
     <UserControl.Resources>
-        <Style x:Key="SubmenuNavTab" TargetType="{x:Type RadioButton}">
+        <Style x:Key="ModernSubmenuTab" TargetType="{x:Type RadioButton}">
             <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
             <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Height" Value="38"/>
-            <Setter Property="Padding" Value="14,0"/>
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="Padding" Value="14,0,16,0"/>
             <Setter Property="Margin" Value="2,0"/>
             <Setter Property="GroupName" Value="SubmenuNavRadioGroup"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="{x:Type RadioButton}">
-                        <Border x:Name="TabBorder" CornerRadius="10" Background="Transparent" Padding="{TemplateBinding Padding}">
-                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                <Path x:Name="IconPath" Data="{Binding Tag, RelativeSource={RelativeSource TemplatedParent}}"
-                                      Fill="{DynamicResource BrushInkMuted}" Width="15" Height="15" Stretch="Uniform"
-                                      VerticalAlignment="Center" Margin="0,0,8,0"/>
-                                <TextBlock x:Name="LabelText" Text="{TemplateBinding Content}"
-                                           FontSize="{StaticResource FontSizeBody}" FontWeight="Medium"
-                                           Foreground="{DynamicResource BrushInkMuted}" VerticalAlignment="Center"/>
-                            </StackPanel>
+                        <Border x:Name="TabBorder" CornerRadius="10" Background="Transparent" BorderThickness="1" BorderBrush="Transparent" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter TargetName="TabBorder" Property="Background" Value="{DynamicResource BrushSunken}"/>
-                                <Setter TargetName="LabelText" Property="Foreground" Value="{DynamicResource BrushInk}"/>
-                                <Setter TargetName="IconPath" Property="Fill" Value="{DynamicResource BrushInk}"/>
                             </Trigger>
                             <Trigger Property="IsChecked" Value="True">
-                                <Setter TargetName="TabBorder" Property="Background" Value="{DynamicResource BrushCobalt}"/>
-                                <Setter TargetName="LabelText" Property="Foreground" Value="White"/>
-                                <Setter TargetName="LabelText" Property="FontWeight" Value="SemiBold"/>
-                                <Setter TargetName="IconPath" Property="Fill" Value="White"/>
+                                <Setter TargetName="TabBorder" Property="Background" Value="{DynamicResource BrushPanel}"/>
+                                <Setter TargetName="TabBorder" Property="BorderBrush" Value="{DynamicResource BrushLine}"/>
+                                <Setter TargetName="TabBorder" Property="Effect">
+                                    <Setter.Value>
+                                        <DropShadowEffect BlurRadius="8" Direction="270" RenderingBias="Performance" ShadowDepth="1" Opacity="0.08" Color="#000000"/>
+                                    </Setter.Value>
+                                </Setter>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -70,56 +64,95 @@
                                    FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushInkMuted}" Margin="0,3,0,0"/>
                     </StackPanel>
 
-                    <!-- Quick Engine Health Status in Header -->
-                    <Border Grid.Column="1" VerticalAlignment="Center" Style="{StaticResource BadgePill}" Background="{DynamicResource BrushSunken}" Padding="12,6">
-                        <StackPanel Orientation="Horizontal">
-                            <Ellipse Width="8" Height="8" Fill="{Binding WindowsServiceStatusColor}" Margin="0,0,8,0" VerticalAlignment="Center"/>
-                            <TextBlock Text="{Binding WindowsServiceStatus, StringFormat={}Engine: {0}}" FontWeight="SemiBold" FontSize="{StaticResource FontSizeBadge}" Foreground="{DynamicResource BrushInk}"/>
+                    <!-- Quick Engine Health Status in Header (Prominent Pastel Badge) -->
+                    <Border Grid.Column="1" VerticalAlignment="Center" CornerRadius="12" BorderThickness="1"
+                            Background="{Binding EngineSummaryBadgeBg}" BorderBrush="{Binding EngineSummaryBadgeBorder}"
+                            Padding="14,6">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <Ellipse Width="8" Height="8" Fill="{Binding EngineSummaryBadgeColor}" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                            <TextBlock Text="{Binding EngineSummaryBadgeText}" FontWeight="SemiBold" FontSize="{StaticResource FontSizeBadge}" Foreground="{Binding EngineSummaryBadgeColor}" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Border>
                 </Grid>
 
-                <!-- Floating Horizontal Submenu Container (Clean, Fixed, No Slider) -->
+                <!-- Floating Horizontal Submenu Container (Centered, Elevated, Modern & Colorful) -->
                 <Border Background="{DynamicResource BrushSunken}" BorderBrush="{DynamicResource BrushLine}" BorderThickness="1"
-                        CornerRadius="14" Padding="4" HorizontalAlignment="Left">
+                        CornerRadius="14" Padding="4" HorizontalAlignment="Center" Margin="0,2,0,0">
                     <Border.Effect>
-                        <DropShadowEffect BlurRadius="10" Direction="270" RenderingBias="Performance" ShadowDepth="2" Opacity="0.06" Color="#000000"/>
+                        <DropShadowEffect BlurRadius="12" Direction="270" RenderingBias="Performance" ShadowDepth="2" Opacity="0.06" Color="#000000"/>
                     </Border.Effect>
                     <StackPanel Orientation="Horizontal">
-                        <!-- 1. Overview Tab -->
-                        <RadioButton Style="{StaticResource SubmenuNavTab}" Tag="{StaticResource IconOverview}" Content="Overview"
-                                     IsChecked="{Binding SelectedSection, Converter={StaticResource StringEqualsToBool}, ConverterParameter=Overview}"
-                                     Command="{Binding SelectSectionCommand}" CommandParameter="Overview"/>
+                        <!-- 1. Execution Engine Tab -->
+                        <RadioButton Style="{StaticResource ModernSubmenuTab}"
+                                     IsChecked="{Binding SelectedSection, Converter={StaticResource StringEqualsToBool}, ConverterParameter=Engine}"
+                                     Command="{Binding SelectSectionCommand}" CommandParameter="Engine">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <Border Width="26" Height="26" CornerRadius="7" Background="#EFF6FF" Margin="0,0,9,0" VerticalAlignment="Center">
+                                    <Path Data="{StaticResource IconServer}" Fill="#2563EB" Width="14" Height="14" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <TextBlock Text="Execution Engine" FontWeight="SemiBold" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource BrushInk}" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </RadioButton>
 
                         <!-- 2. Appearance Tab -->
-                        <RadioButton Style="{StaticResource SubmenuNavTab}" Tag="{StaticResource IconPalette}" Content="Appearance"
+                        <RadioButton Style="{StaticResource ModernSubmenuTab}"
                                      IsChecked="{Binding SelectedSection, Converter={StaticResource StringEqualsToBool}, ConverterParameter=Appearance}"
-                                     Command="{Binding SelectSectionCommand}" CommandParameter="Appearance"/>
+                                     Command="{Binding SelectSectionCommand}" CommandParameter="Appearance">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <Border Width="26" Height="26" CornerRadius="7" Background="#F5F3FF" Margin="0,0,9,0" VerticalAlignment="Center">
+                                    <Path Data="{StaticResource IconPalette}" Fill="#7C3AED" Width="14" Height="14" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <TextBlock Text="Appearance" FontWeight="SemiBold" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource BrushInk}" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </RadioButton>
 
                         <!-- 3. Security Tab -->
-                        <RadioButton Style="{StaticResource SubmenuNavTab}" Tag="{StaticResource IconShield}" Content="Security"
+                        <RadioButton Style="{StaticResource ModernSubmenuTab}"
                                      IsChecked="{Binding SelectedSection, Converter={StaticResource StringEqualsToBool}, ConverterParameter=Security}"
-                                     Command="{Binding SelectSectionCommand}" CommandParameter="Security"/>
+                                     Command="{Binding SelectSectionCommand}" CommandParameter="Security">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <Border Width="26" Height="26" CornerRadius="7" Background="#ECFDF5" Margin="0,0,9,0" VerticalAlignment="Center">
+                                    <Path Data="{StaticResource IconShield}" Fill="#059669" Width="14" Height="14" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <TextBlock Text="Security" FontWeight="SemiBold" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource BrushInk}" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </RadioButton>
 
-                        <!-- 4. Execution Engine Tab -->
-                        <RadioButton Style="{StaticResource SubmenuNavTab}" Tag="{StaticResource IconServer}" Content="Execution Engine"
-                                     IsChecked="{Binding SelectedSection, Converter={StaticResource StringEqualsToBool}, ConverterParameter=Engine}"
-                                     Command="{Binding SelectSectionCommand}" CommandParameter="Engine"/>
-
-                        <!-- 5. Cloud Credentials Tab -->
-                        <RadioButton Style="{StaticResource SubmenuNavTab}" Tag="{StaticResource IconCloud}" Content="Cloud Credentials"
+                        <!-- 4. Cloud Credentials Tab -->
+                        <RadioButton Style="{StaticResource ModernSubmenuTab}"
                                      IsChecked="{Binding SelectedSection, Converter={StaticResource StringEqualsToBool}, ConverterParameter=Credentials}"
-                                     Command="{Binding SelectSectionCommand}" CommandParameter="Credentials"/>
+                                     Command="{Binding SelectSectionCommand}" CommandParameter="Credentials">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <Border Width="26" Height="26" CornerRadius="7" Background="#F0F9FF" Margin="0,0,9,0" VerticalAlignment="Center">
+                                    <Path Data="{StaticResource IconCloud}" Fill="#0284C7" Width="14" Height="14" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <TextBlock Text="Cloud Credentials" FontWeight="SemiBold" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource BrushInk}" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </RadioButton>
 
-                        <!-- 6. Storage & Cache Tab -->
-                        <RadioButton Style="{StaticResource SubmenuNavTab}" Tag="{StaticResource IconHardDrive}" Content="Storage &amp; Cache"
+                        <!-- 5. Storage & Cache Tab -->
+                        <RadioButton Style="{StaticResource ModernSubmenuTab}"
                                      IsChecked="{Binding SelectedSection, Converter={StaticResource StringEqualsToBool}, ConverterParameter=Storage}"
-                                     Command="{Binding SelectSectionCommand}" CommandParameter="Storage"/>
+                                     Command="{Binding SelectSectionCommand}" CommandParameter="Storage">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <Border Width="26" Height="26" CornerRadius="7" Background="#F0FDFA" Margin="0,0,9,0" VerticalAlignment="Center">
+                                    <Path Data="{StaticResource IconHardDrive}" Fill="#0D9488" Width="14" Height="14" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <TextBlock Text="Storage &amp; Cache" FontWeight="SemiBold" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource BrushInk}" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </RadioButton>
 
-                        <!-- 7. Advanced Tab -->
-                        <RadioButton Style="{StaticResource SubmenuNavTab}" Tag="{StaticResource IconSliders}" Content="Advanced"
+                        <!-- 6. Advanced Tab -->
+                        <RadioButton Style="{StaticResource ModernSubmenuTab}"
                                      IsChecked="{Binding SelectedSection, Converter={StaticResource StringEqualsToBool}, ConverterParameter=Advanced}"
-                                     Command="{Binding SelectSectionCommand}" CommandParameter="Advanced"/>
+                                     Command="{Binding SelectSectionCommand}" CommandParameter="Advanced">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <Border Width="26" Height="26" CornerRadius="7" Background="#EEF2FF" Margin="0,0,9,0" VerticalAlignment="Center">
+                                    <Path Data="{StaticResource IconSliders}" Fill="#4F46E5" Width="14" Height="14" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <TextBlock Text="Advanced" FontWeight="SemiBold" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource BrushInk}" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </RadioButton>
                     </StackPanel>
                 </Border>
             </StackPanel>
@@ -130,156 +163,6 @@
              =================================================================== -->
         <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="28,24">
             <StackPanel MaxWidth="1340" HorizontalAlignment="Stretch">
-
-                <!-- ===============================================================
-                     SECTION 1: OVERVIEW LANDING
-                     =============================================================== -->
-                <StackPanel Visibility="{Binding IsOverviewSection, Converter={StaticResource BoolToVis}}">
-                    <!-- Section Banner -->
-                    <Border Style="{StaticResource Card}" Padding="24" Margin="0,0,0,20">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            <StackPanel>
-                                <TextBlock Text="Settings &amp; Engine Overview" FontWeight="Bold" FontSize="{StaticResource FontSizeH2}" Foreground="{DynamicResource BrushInk}"/>
-                                <TextBlock Text="Comprehensive real-time status across execution engine, security, storage and cloud integrations. Jump directly to any section to adjust configurations."
-                                           FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushInkMuted}" Margin="0,4,0,0" TextWrapping="Wrap"/>
-                            </StackPanel>
-                            <Button Grid.Column="1" Content="Save settings" Command="{Binding SaveSettingsCommand}" Style="{StaticResource BtnPrimary}" VerticalAlignment="Center"/>
-                        </Grid>
-                    </Border>
-
-                    <!-- Overview Cards Grid (3 Columns x 2 Rows = 6 Cards) -->
-                    <UniformGrid Columns="3" Margin="0,0,-16,0">
-                        <!-- 1. Appearance Card -->
-                        <Border Style="{StaticResource Card}" Padding="22" Margin="0,0,16,16">
-                            <Grid>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="*"/>
-                                    <RowDefinition Height="Auto"/>
-                                </Grid.RowDefinitions>
-                                <Border Width="42" Height="42" CornerRadius="10" Background="{DynamicResource BrushCobaltSoft}" HorizontalAlignment="Left">
-                                    <Path Data="{StaticResource IconPalette}" Fill="{DynamicResource BrushCobalt}" Width="19" Height="19" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                </Border>
-                                <TextBlock Grid.Row="1" Text="Appearance" FontWeight="Bold" FontSize="{StaticResource FontSizeRowTitle}" Foreground="{DynamicResource BrushInk}" Margin="0,14,0,4"/>
-                                <StackPanel Grid.Row="2">
-                                    <TextBlock Text="{Binding OverviewAppearanceStatus}" FontWeight="SemiBold" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource BrushCobalt}"/>
-                                    <TextBlock Text="Personalize interface theme and window styling" FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkMuted}" TextWrapping="Wrap" Margin="0,4,0,14"/>
-                                </StackPanel>
-                                <Button Grid.Row="3" Content="Configure theme" Command="{Binding SelectSectionCommand}" CommandParameter="Appearance" Style="{StaticResource BtnQuiet}" HorizontalAlignment="Left" Height="34"/>
-                            </Grid>
-                        </Border>
-
-                        <!-- 2. Security Card -->
-                        <Border Style="{StaticResource Card}" Padding="22" Margin="0,0,16,16">
-                            <Grid>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="*"/>
-                                    <RowDefinition Height="Auto"/>
-                                </Grid.RowDefinitions>
-                                <Border Width="42" Height="42" CornerRadius="10" Background="{DynamicResource BrushJadeSoft}" HorizontalAlignment="Left">
-                                    <Path Data="{StaticResource IconShield}" Fill="{DynamicResource BrushJade}" Width="19" Height="19" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                </Border>
-                                <TextBlock Grid.Row="1" Text="Security" FontWeight="Bold" FontSize="{StaticResource FontSizeRowTitle}" Foreground="{DynamicResource BrushInk}" Margin="0,14,0,4"/>
-                                <StackPanel Grid.Row="2">
-                                    <TextBlock Text="{Binding OverviewSecurityStatus}" FontWeight="SemiBold" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource BrushInk}"/>
-                                    <TextBlock Text="Master password protection &amp; date-based formula" FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkMuted}" TextWrapping="Wrap" Margin="0,4,0,14"/>
-                                </StackPanel>
-                                <Button Grid.Row="3" Content="Manage security" Command="{Binding SelectSectionCommand}" CommandParameter="Security" Style="{StaticResource BtnQuiet}" HorizontalAlignment="Left" Height="34"/>
-                            </Grid>
-                        </Border>
-
-                        <!-- 3. Engine Card -->
-                        <Border Style="{StaticResource Card}" Padding="22" Margin="0,0,16,16">
-                            <Grid>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="*"/>
-                                    <RowDefinition Height="Auto"/>
-                                </Grid.RowDefinitions>
-                                <Border Width="42" Height="42" CornerRadius="10" Background="{DynamicResource BrushJadeSoft}" HorizontalAlignment="Left">
-                                    <Path Data="{StaticResource IconServer}" Fill="{DynamicResource BrushJade}" Width="19" Height="19" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                </Border>
-                                <TextBlock Grid.Row="1" Text="Execution Engine" FontWeight="Bold" FontSize="{StaticResource FontSizeRowTitle}" Foreground="{DynamicResource BrushInk}" Margin="0,14,0,4"/>
-                                <StackPanel Grid.Row="2">
-                                    <TextBlock Text="{Binding OverviewEngineStatus}" FontWeight="SemiBold" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource BrushInk}"/>
-                                    <TextBlock Text="Background service worker and task scheduler" FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkMuted}" TextWrapping="Wrap" Margin="0,4,0,14"/>
-                                </StackPanel>
-                                <Button Grid.Row="3" Content="Configure engine" Command="{Binding SelectSectionCommand}" CommandParameter="Engine" Style="{StaticResource BtnQuiet}" HorizontalAlignment="Left" Height="34"/>
-                            </Grid>
-                        </Border>
-
-                        <!-- 4. Cloud Credentials Card -->
-                        <Border Style="{StaticResource Card}" Padding="22" Margin="0,0,16,16">
-                            <Grid>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="*"/>
-                                    <RowDefinition Height="Auto"/>
-                                </Grid.RowDefinitions>
-                                <Border Width="42" Height="42" CornerRadius="10" Background="{DynamicResource BrushCobaltSoft}" HorizontalAlignment="Left">
-                                    <Path Data="{StaticResource IconCloud}" Fill="{DynamicResource BrushCobalt}" Width="19" Height="19" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                </Border>
-                                <TextBlock Grid.Row="1" Text="Cloud Credentials" FontWeight="Bold" FontSize="{StaticResource FontSizeRowTitle}" Foreground="{DynamicResource BrushInk}" Margin="0,14,0,4"/>
-                                <StackPanel Grid.Row="2">
-                                    <TextBlock Text="{Binding OverviewCloudStatus}" FontWeight="SemiBold" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource BrushInk}"/>
-                                    <TextBlock Text="AWS S3, Azure, Google Drive, and cloud tokens" FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkMuted}" TextWrapping="Wrap" Margin="0,4,0,14"/>
-                                </StackPanel>
-                                <Button Grid.Row="3" Content="Manage credentials" Command="{Binding SelectSectionCommand}" CommandParameter="Credentials" Style="{StaticResource BtnQuiet}" HorizontalAlignment="Left" Height="34"/>
-                            </Grid>
-                        </Border>
-
-                        <!-- 5. Storage & Cache Card -->
-                        <Border Style="{StaticResource Card}" Padding="22" Margin="0,0,16,16">
-                            <Grid>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="*"/>
-                                    <RowDefinition Height="Auto"/>
-                                </Grid.RowDefinitions>
-                                <Border Width="42" Height="42" CornerRadius="10" Background="{DynamicResource BrushTealSoft}" HorizontalAlignment="Left">
-                                    <Path Data="{StaticResource IconHardDrive}" Fill="{DynamicResource BrushTeal}" Width="19" Height="19" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                </Border>
-                                <TextBlock Grid.Row="1" Text="Storage &amp; Cache" FontWeight="Bold" FontSize="{StaticResource FontSizeRowTitle}" Foreground="{DynamicResource BrushInk}" Margin="0,14,0,4"/>
-                                <StackPanel Grid.Row="2">
-                                    <TextBlock Text="{Binding OverviewStorageStatus}" FontWeight="SemiBold" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource BrushInk}" TextTrimming="CharacterEllipsis"/>
-                                    <TextBlock Text="Staging partition, retention policy and cache clean" FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkMuted}" TextWrapping="Wrap" Margin="0,4,0,14"/>
-                                </StackPanel>
-                                <Button Grid.Row="3" Content="Storage settings" Command="{Binding SelectSectionCommand}" CommandParameter="Storage" Style="{StaticResource BtnQuiet}" HorizontalAlignment="Left" Height="34"/>
-                            </Grid>
-                        </Border>
-
-                        <!-- 6. Advanced Card -->
-                        <Border Style="{StaticResource Card}" Padding="22" Margin="0,0,16,16">
-                            <Grid>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="*"/>
-                                    <RowDefinition Height="Auto"/>
-                                </Grid.RowDefinitions>
-                                <Border Width="42" Height="42" CornerRadius="10" Background="{DynamicResource BrushRaised}" HorizontalAlignment="Left">
-                                    <Path Data="{StaticResource IconSliders}" Fill="{DynamicResource BrushInk}" Width="19" Height="19" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                </Border>
-                                <TextBlock Grid.Row="1" Text="Advanced" FontWeight="Bold" FontSize="{StaticResource FontSizeRowTitle}" Foreground="{DynamicResource BrushInk}" Margin="0,14,0,4"/>
-                                <StackPanel Grid.Row="2">
-                                    <TextBlock Text="{Binding OverviewAdvancedStatus}" FontWeight="SemiBold" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource BrushInk}"/>
-                                    <TextBlock Text="Concurrency streams, VSS and config export" FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkMuted}" TextWrapping="Wrap" Margin="0,4,0,14"/>
-                                </StackPanel>
-                                <Button Grid.Row="3" Content="Advanced options" Command="{Binding SelectSectionCommand}" CommandParameter="Advanced" Style="{StaticResource BtnQuiet}" HorizontalAlignment="Left" Height="34"/>
-                            </Grid>
-                        </Border>
-                    </UniformGrid>
-                </StackPanel>
 
                 <!-- ===============================================================
                      SECTION 2: APPEARANCE
@@ -460,10 +343,23 @@
                                 <CheckBox Grid.Column="1" Style="{StaticResource Switch}" IsChecked="{Binding SecurityRequireLogin, Mode=TwoWay}" VerticalAlignment="Center"/>
                             </Grid>
 
-                            <!-- Password Setup Panel (Visible when RequireLogin is True) -->
-                            <Border Background="{DynamicResource BrushSunken}" CornerRadius="12" Padding="20"
-                                    Visibility="{Binding SecurityRequireLogin, Converter={StaticResource BoolToVis}}">
+                            <!-- Password Setup Panel (Always Visible) -->
+                            <Border Background="{DynamicResource BrushSunken}" CornerRadius="12" Padding="20">
                                 <StackPanel>
+                                    <!-- Informative banner when RequireLogin is False -->
+                                    <Border Background="#F0F9FF" BorderBrush="#BAE6FD" BorderThickness="1" CornerRadius="10" Padding="14,10" Margin="0,0,0,16"
+                                            Visibility="{Binding SecurityRequireLogin, Converter={StaticResource InverseBoolToVis}}">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Path Data="{StaticResource IconInfoCircle}" Fill="#0284C7" Width="16" Height="16" Stretch="Uniform" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                            <TextBlock Grid.Column="1" Text="Startup protection is currently disabled. Configure your password or dynamic date-based formula below, then toggle the switch above to enforce authentication on startup."
+                                                       FontSize="{StaticResource FontSizeHelp}" Foreground="#0369A1" TextWrapping="Wrap" VerticalAlignment="Center"/>
+                                        </Grid>
+                                    </Border>
+
                                     <TextBlock Text="Authentication Mode" FontWeight="SemiBold" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}" Margin="0,0,0,10"/>
                                     <Border Style="{StaticResource SegmentedContainer}" HorizontalAlignment="Left" Margin="0,0,0,20">
                                         <StackPanel Orientation="Horizontal">
@@ -675,28 +571,59 @@
                                 </RadioButton>
                             </Grid>
 
-                            <!-- Live Windows Service Management Card -->
-                            <Border Background="{DynamicResource BrushRaised}" BorderBrush="{DynamicResource BrushLine}" BorderThickness="1" CornerRadius="12" Padding="20" Margin="0,0,0,20">
+                            <!-- Live Windows Service Management Card (Crystal Clear Status & Direct Actions) -->
+                            <Border Background="{DynamicResource BrushRaised}" BorderBrush="{DynamicResource BrushLine}" BorderThickness="1" CornerRadius="12" Padding="22" Margin="0,0,0,20">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
 
-                                    <!-- Status Dot -->
-                                    <Ellipse Grid.Column="0" Width="14" Height="14" Fill="{Binding WindowsServiceStatusColor}" Margin="0,0,16,0" VerticalAlignment="Center"/>
-
-                                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                        <TextBlock Text="{Binding WindowsServiceStatus, StringFormat={}UniBackup Background Service: {0}}" FontWeight="Bold" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource BrushInk}"/>
-                                        <TextBlock Text="{Binding WindowsServiceDetail}" FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkMuted}" Margin="0,2,0,0"/>
+                                    <!-- Status Details -->
+                                    <StackPanel Grid.Column="0" VerticalAlignment="Center" Margin="0,0,20,0">
+                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,0,6">
+                                            <Border CornerRadius="8" BorderThickness="1"
+                                                    Background="{Binding EngineSummaryBadgeBg}" BorderBrush="{Binding EngineSummaryBadgeBorder}"
+                                                    Padding="10,4" Margin="0,0,10,0">
+                                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                                    <Ellipse Width="8" Height="8" Fill="{Binding EngineSummaryBadgeColor}" Margin="0,0,6,0" VerticalAlignment="Center"/>
+                                                    <TextBlock Text="{Binding EngineSummaryBadgeText}" FontWeight="Bold" FontSize="{StaticResource FontSizeBadge}" Foreground="{Binding EngineSummaryBadgeColor}" VerticalAlignment="Center"/>
+                                                </StackPanel>
+                                            </Border>
+                                            <TextBlock Text="{Binding WindowsServiceStatus, StringFormat={}Status: {0}}" FontWeight="Bold" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource BrushInk}" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                        <TextBlock Text="{Binding WindowsServiceDetail}" FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkMuted}" TextWrapping="Wrap"/>
                                     </StackPanel>
 
                                     <!-- Controls -->
-                                    <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
-                                        <Button Content="Start service" Command="{Binding StartWindowsServiceCommand}" Style="{StaticResource BtnQuiet}" Height="34" Margin="0,0,8,0"/>
-                                        <Button Content="Stop service" Command="{Binding StopWindowsServiceCommand}" Style="{StaticResource BtnQuiet}" Height="34" Margin="0,0,8,0"/>
-                                        <Button Content="Sync Scheduler" Command="{Binding InstallTaskSchedulerCommand}" Style="{StaticResource BtnQuiet}" Height="34"/>
+                                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                                        <!-- Install Service Button (when not installed) -->
+                                        <Button Content="Install Windows Service" Command="{Binding InstallWindowsServiceCommand}"
+                                                Visibility="{Binding WindowsServiceInstalled, Converter={StaticResource InverseBoolToVis}}"
+                                                Style="{StaticResource BtnPrimary}" Height="36" Padding="16,0" Margin="0,0,8,0"/>
+
+                                        <!-- Start Service (when installed and stopped) -->
+                                        <Button Content="Start service" Command="{Binding StartWindowsServiceCommand}"
+                                                IsEnabled="{Binding WindowsServiceStopped}"
+                                                Visibility="{Binding WindowsServiceInstalled, Converter={StaticResource BoolToVis}}"
+                                                Style="{StaticResource BtnPrimary}" Height="36" Padding="14,0" Margin="0,0,8,0"/>
+
+                                        <!-- Stop Service (when installed and running) -->
+                                        <Button Content="Stop service" Command="{Binding StopWindowsServiceCommand}"
+                                                IsEnabled="{Binding WindowsServiceRunning}"
+                                                Visibility="{Binding WindowsServiceInstalled, Converter={StaticResource BoolToVis}}"
+                                                Style="{StaticResource BtnQuiet}" Height="36" Padding="14,0" Margin="0,0,8,0"/>
+
+                                        <!-- Uninstall Service -->
+                                        <Button Content="Uninstall" Command="{Binding UninstallWindowsServiceCommand}"
+                                                Visibility="{Binding WindowsServiceInstalled, Converter={StaticResource BoolToVis}}"
+                                                Style="{StaticResource BtnQuiet}" Height="36" Padding="12,0" Margin="0,0,8,0"/>
+
+                                        <!-- Task Scheduler Sync -->
+                                        <Button Content="Sync Scheduler" Command="{Binding InstallTaskSchedulerCommand}" Style="{StaticResource BtnQuiet}" Height="36" Padding="14,0" Margin="0,0,8,0"/>
+
+                                        <!-- Refresh Status -->
+                                        <Button Content="Refresh" Command="{Binding RefreshEngineStatusCommand}" Style="{StaticResource BtnQuiet}" Height="36" Padding="12,0"/>
                                     </StackPanel>
                                 </Grid>
                             </Border>
@@ -733,30 +660,90 @@
                             <TextBlock Text="Configure authentication keys, secure endpoints, and access tokens for all supported cloud destinations"
                                        FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushInkMuted}" Margin="0,3,0,20"/>
 
-                            <!-- Provider Selector Tabs -->
+                            <!-- Provider Selector Tabs (With Authentic Brand Icons) -->
                             <Border Style="{StaticResource SegmentedContainer}" HorizontalAlignment="Left" Margin="0,0,0,24">
                                 <StackPanel Orientation="Horizontal">
-                                    <RadioButton Content="Amazon S3" Style="{StaticResource SegmentedItem}" Command="{Binding SelectCloudProviderCommand}" CommandParameter="Aws"
-                                                 IsChecked="{Binding SelectedCloudProvider, Converter={StaticResource StringEqualsToBool}, ConverterParameter=Aws}"/>
-                                    <RadioButton Content="Google Drive" Style="{StaticResource SegmentedItem}" Command="{Binding SelectCloudProviderCommand}" CommandParameter="GDrive"
-                                                 IsChecked="{Binding SelectedCloudProvider, Converter={StaticResource StringEqualsToBool}, ConverterParameter=GDrive}"/>
-                                    <RadioButton Content="Azure Blob" Style="{StaticResource SegmentedItem}" Command="{Binding SelectCloudProviderCommand}" CommandParameter="Azure"
-                                                 IsChecked="{Binding SelectedCloudProvider, Converter={StaticResource StringEqualsToBool}, ConverterParameter=Azure}"/>
-                                    <RadioButton Content="Local / UNC" Style="{StaticResource SegmentedItem}" Command="{Binding SelectCloudProviderCommand}" CommandParameter="Local"
-                                                 IsChecked="{Binding SelectedCloudProvider, Converter={StaticResource StringEqualsToBool}, ConverterParameter=Local}"/>
-                                    <RadioButton Content="SFTP (SSH)" Style="{StaticResource SegmentedItem}" Command="{Binding SelectCloudProviderCommand}" CommandParameter="Sftp"
-                                                 IsChecked="{Binding SelectedCloudProvider, Converter={StaticResource StringEqualsToBool}, ConverterParameter=Sftp}"/>
-                                    <RadioButton Content="FTP / FTPS" Style="{StaticResource SegmentedItem}" Command="{Binding SelectCloudProviderCommand}" CommandParameter="Ftp"
-                                                 IsChecked="{Binding SelectedCloudProvider, Converter={StaticResource StringEqualsToBool}, ConverterParameter=Ftp}"/>
-                                    <RadioButton Content="WebDAV" Style="{StaticResource SegmentedItem}" Command="{Binding SelectCloudProviderCommand}" CommandParameter="WebDav"
-                                                 IsChecked="{Binding SelectedCloudProvider, Converter={StaticResource StringEqualsToBool}, ConverterParameter=WebDav}"/>
-                                    <RadioButton Content="Tokens (Dropbox / OneDrive)" Style="{StaticResource SegmentedItem}" Command="{Binding SelectCloudProviderCommand}" CommandParameter="Tokens"
-                                                 IsChecked="{Binding SelectedCloudProvider, Converter={StaticResource StringEqualsToBool}, ConverterParameter=Tokens}"/>
+                                    <RadioButton Style="{StaticResource SegmentedItem}" Command="{Binding SelectCloudProviderCommand}" CommandParameter="Aws"
+                                                 IsChecked="{Binding SelectedCloudProvider, Converter={StaticResource StringEqualsToBool}, ConverterParameter=Aws}"
+                                                 Height="34" Padding="12,0">
+                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                            <Image Source="{StaticResource BrandDrawingAwsS3}" Width="16" Height="16" Margin="0,0,7,0" VerticalAlignment="Center"/>
+                                            <TextBlock Text="Amazon S3" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </RadioButton>
+
+                                    <RadioButton Style="{StaticResource SegmentedItem}" Command="{Binding SelectCloudProviderCommand}" CommandParameter="GDrive"
+                                                 IsChecked="{Binding SelectedCloudProvider, Converter={StaticResource StringEqualsToBool}, ConverterParameter=GDrive}"
+                                                 Height="34" Padding="12,0">
+                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                            <Image Source="{StaticResource BrandDrawingGoogleDrive}" Width="16" Height="16" Margin="0,0,7,0" VerticalAlignment="Center"/>
+                                            <TextBlock Text="Google Drive" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </RadioButton>
+
+                                    <RadioButton Style="{StaticResource SegmentedItem}" Command="{Binding SelectCloudProviderCommand}" CommandParameter="Azure"
+                                                 IsChecked="{Binding SelectedCloudProvider, Converter={StaticResource StringEqualsToBool}, ConverterParameter=Azure}"
+                                                 Height="34" Padding="12,0">
+                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                            <Path Data="{StaticResource IconCloud}" Fill="#0078D4" Width="15" Height="15" Stretch="Uniform" Margin="0,0,7,0" VerticalAlignment="Center"/>
+                                            <TextBlock Text="Azure Blob" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </RadioButton>
+
+                                    <RadioButton Style="{StaticResource SegmentedItem}" Command="{Binding SelectCloudProviderCommand}" CommandParameter="Local"
+                                                 IsChecked="{Binding SelectedCloudProvider, Converter={StaticResource StringEqualsToBool}, ConverterParameter=Local}"
+                                                 Height="34" Padding="12,0">
+                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                            <Path Data="{StaticResource IconFolder}" Fill="#D97706" Width="15" Height="15" Stretch="Uniform" Margin="0,0,7,0" VerticalAlignment="Center"/>
+                                            <TextBlock Text="Local / UNC" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </RadioButton>
+
+                                    <RadioButton Style="{StaticResource SegmentedItem}" Command="{Binding SelectCloudProviderCommand}" CommandParameter="Sftp"
+                                                 IsChecked="{Binding SelectedCloudProvider, Converter={StaticResource StringEqualsToBool}, ConverterParameter=Sftp}"
+                                                 Height="34" Padding="12,0">
+                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                            <Path Data="{StaticResource IconServer}" Fill="#7C3AED" Width="14" Height="14" Stretch="Uniform" Margin="0,0,7,0" VerticalAlignment="Center"/>
+                                            <TextBlock Text="SFTP (SSH)" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </RadioButton>
+
+                                    <RadioButton Style="{StaticResource SegmentedItem}" Command="{Binding SelectCloudProviderCommand}" CommandParameter="Ftp"
+                                                 IsChecked="{Binding SelectedCloudProvider, Converter={StaticResource StringEqualsToBool}, ConverterParameter=Ftp}"
+                                                 Height="34" Padding="12,0">
+                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                            <Path Data="{StaticResource IconGlobe}" Fill="#0891B2" Width="14" Height="14" Stretch="Uniform" Margin="0,0,7,0" VerticalAlignment="Center"/>
+                                            <TextBlock Text="FTP / FTPS" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </RadioButton>
+
+                                    <RadioButton Style="{StaticResource SegmentedItem}" Command="{Binding SelectCloudProviderCommand}" CommandParameter="WebDav"
+                                                 IsChecked="{Binding SelectedCloudProvider, Converter={StaticResource StringEqualsToBool}, ConverterParameter=WebDav}"
+                                                 Height="34" Padding="12,0">
+                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                            <Path Data="{StaticResource IconCloud}" Fill="#0D9488" Width="14" Height="14" Stretch="Uniform" Margin="0,0,7,0" VerticalAlignment="Center"/>
+                                            <TextBlock Text="WebDAV" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </RadioButton>
+
+                                    <RadioButton Style="{StaticResource SegmentedItem}" Command="{Binding SelectCloudProviderCommand}" CommandParameter="Tokens"
+                                                 IsChecked="{Binding SelectedCloudProvider, Converter={StaticResource StringEqualsToBool}, ConverterParameter=Tokens}"
+                                                 Height="34" Padding="12,0">
+                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                            <Path Data="{StaticResource IconLock}" Fill="#E11D48" Width="14" Height="14" Stretch="Uniform" Margin="0,0,7,0" VerticalAlignment="Center"/>
+                                            <TextBlock Text="Tokens" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </RadioButton>
                                 </StackPanel>
                             </Border>
 
                             <!-- PROVIDER 1: AMAZON S3 -->
                             <StackPanel Visibility="{Binding IsAwsProviderSelected, Converter={StaticResource BoolToVis}}">
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
+                                    <Image Source="{StaticResource BrandDrawingAwsS3}" Width="22" Height="22" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                                    <TextBlock Text="Amazon S3 &amp; S3-Compatible Cloud Storage" FontWeight="Bold" FontSize="{StaticResource FontSizeRowTitle}" Foreground="{DynamicResource BrushInk}" VerticalAlignment="Center"/>
+                                </StackPanel>
+
                                 <Grid Margin="0,0,0,14">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
@@ -797,6 +784,11 @@
 
                             <!-- PROVIDER 2: GOOGLE DRIVE -->
                             <StackPanel Visibility="{Binding IsGDriveProviderSelected, Converter={StaticResource BoolToVis}}">
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
+                                    <Image Source="{StaticResource BrandDrawingGoogleDrive}" Width="22" Height="22" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                                    <TextBlock Text="Google Drive Cloud Storage (OAuth 2.0)" FontWeight="Bold" FontSize="{StaticResource FontSizeRowTitle}" Foreground="{DynamicResource BrushInk}" VerticalAlignment="Center"/>
+                                </StackPanel>
+
                                 <Grid Margin="0,0,0,16">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
@@ -817,6 +809,11 @@
 
                             <!-- PROVIDER 3: AZURE BLOB -->
                             <StackPanel Visibility="{Binding IsAzureProviderSelected, Converter={StaticResource BoolToVis}}">
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
+                                    <Path Data="{StaticResource IconCloud}" Fill="#0078D4" Width="20" Height="20" Stretch="Uniform" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                                    <TextBlock Text="Microsoft Azure Blob Storage" FontWeight="Bold" FontSize="{StaticResource FontSizeRowTitle}" Foreground="{DynamicResource BrushInk}" VerticalAlignment="Center"/>
+                                </StackPanel>
+
                                 <TextBlock Text="Azure Connection String / SAS URL" FontWeight="SemiBold" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
                                 <TextBox Text="{Binding Config.Azure.ConnectionString, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldInputMono}" Tag="DefaultEndpointsProtocol=https;..." Margin="0,4,0,14"/>
 
@@ -828,6 +825,11 @@
 
                             <!-- PROVIDER 4: LOCAL / UNC -->
                             <StackPanel Visibility="{Binding IsLocalProviderSelected, Converter={StaticResource BoolToVis}}">
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
+                                    <Path Data="{StaticResource IconFolder}" Fill="#D97706" Width="20" Height="20" Stretch="Uniform" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                                    <TextBlock Text="Local Storage &amp; Network UNC Repository" FontWeight="Bold" FontSize="{StaticResource FontSizeRowTitle}" Foreground="{DynamicResource BrushInk}" VerticalAlignment="Center"/>
+                                </StackPanel>
+
                                 <TextBlock Text="Local or Network UNC Base Directory" FontWeight="SemiBold" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
                                 <Grid Margin="0,4,0,18">
                                     <Grid.ColumnDefinitions>
@@ -845,6 +847,11 @@
 
                             <!-- PROVIDER 5: SFTP -->
                             <StackPanel Visibility="{Binding IsSftpProviderSelected, Converter={StaticResource BoolToVis}}">
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
+                                    <Path Data="{StaticResource IconServer}" Fill="#7C3AED" Width="18" Height="18" Stretch="Uniform" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                                    <TextBlock Text="Secure File Transfer Protocol (SSH / SFTP)" FontWeight="Bold" FontSize="{StaticResource FontSizeRowTitle}" Foreground="{DynamicResource BrushInk}" VerticalAlignment="Center"/>
+                                </StackPanel>
+
                                 <Grid Margin="0,0,0,14">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
@@ -885,6 +892,11 @@
 
                             <!-- PROVIDER 6: FTP -->
                             <StackPanel Visibility="{Binding IsFtpProviderSelected, Converter={StaticResource BoolToVis}}">
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
+                                    <Path Data="{StaticResource IconGlobe}" Fill="#0891B2" Width="18" Height="18" Stretch="Uniform" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                                    <TextBlock Text="File Transfer Protocol (FTP / FTPS Explicit TLS)" FontWeight="Bold" FontSize="{StaticResource FontSizeRowTitle}" Foreground="{DynamicResource BrushInk}" VerticalAlignment="Center"/>
+                                </StackPanel>
+
                                 <Grid Margin="0,0,0,14">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
@@ -925,6 +937,11 @@
 
                             <!-- PROVIDER 7: WEBDAV -->
                             <StackPanel Visibility="{Binding IsWebDavProviderSelected, Converter={StaticResource BoolToVis}}">
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
+                                    <Path Data="{StaticResource IconCloud}" Fill="#0D9488" Width="18" Height="18" Stretch="Uniform" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                                    <TextBlock Text="WebDAV Protocol (Nextcloud / ownCloud / Apache)" FontWeight="Bold" FontSize="{StaticResource FontSizeRowTitle}" Foreground="{DynamicResource BrushInk}" VerticalAlignment="Center"/>
+                                </StackPanel>
+
                                 <TextBlock Text="WebDAV Server URL" FontWeight="SemiBold" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
                                 <TextBox Text="{Binding Config.WebDav.ServerUrl, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldInputMono}" Tag="https://webdav.nextcloud.company.com/remote.php/webdav" Margin="0,4,0,14"/>
 
@@ -949,6 +966,11 @@
 
                             <!-- PROVIDER 8: CLOUD TOKENS -->
                             <StackPanel Visibility="{Binding IsTokensProviderSelected, Converter={StaticResource BoolToVis}}">
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
+                                    <Path Data="{StaticResource IconLock}" Fill="#E11D48" Width="18" Height="18" Stretch="Uniform" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                                    <TextBlock Text="Cloud Storage Access Tokens (Dropbox &amp; OneDrive)" FontWeight="Bold" FontSize="{StaticResource FontSizeRowTitle}" Foreground="{DynamicResource BrushInk}" VerticalAlignment="Center"/>
+                                </StackPanel>
+
                                 <TextBlock Text="Dropbox Access Token" FontWeight="SemiBold" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
                                 <TextBox Text="{Binding Config.Dropbox.AccessToken, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldInputMono}" Tag="sl.u.AF..." Margin="0,4,0,14"/>
 
