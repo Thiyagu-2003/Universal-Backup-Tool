@@ -11,8 +11,8 @@
         SnapsToDevicePixels="True"
         KeyDown="Window_KeyDown">
 
-    <!-- Scrim / Backdrop overlay -->
-    <Border Background="#7A0B1420" Padding="20">
+    <!-- Transparent container giving margin for drop shadow -->
+    <Border Background="Transparent" Padding="20">
         <!-- Dialog Container -->
         <Border x:Name="DialogCard"
                 Background="{DynamicResource BrushPanel}"
@@ -20,7 +20,11 @@
                 BorderThickness="1"
                 CornerRadius="{StaticResource RadiusDialog}"
                 Effect="{StaticResource Sh3}"
-                ClipToBounds="True">
+                ClipToBounds="True"
+                RenderTransformOrigin="0.5,0.5">
+            <Border.RenderTransform>
+                <ScaleTransform x:Name="DialogCardScale" ScaleX="1" ScaleY="1"/>
+            </Border.RenderTransform>
 
             <Grid>
                 <Grid.RowDefinitions>
@@ -30,8 +34,8 @@
                     <RowDefinition Height="Auto"/> <!-- Footer -->
                 </Grid.RowDefinitions>
 
-                <!-- 1. Header -->
-                <Border Grid.Row="0" BorderBrush="{DynamicResource BrushLine}" BorderThickness="0,0,0,1" Padding="24,18">
+                <!-- 1. Header (Draggable) -->
+                <Border Grid.Row="0" BorderBrush="{DynamicResource BrushLine}" BorderThickness="0,0,0,1" Padding="24,18" Background="Transparent" MouseLeftButtonDown="Header_MouseLeftButtonDown">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>

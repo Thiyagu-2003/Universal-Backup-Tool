@@ -114,6 +114,89 @@ public class UiStartupXamlTests
     }
 
     [Fact]
+    public void MainWindow_ModalBlur_TogglesEffectAndBackdropScrim()
+    {
+        RunInStaThread(() =>
+        {
+            if (Application.Current == null)
+            {
+                var app = new App();
+                app.InitializeComponent();
+            }
+
+            var window = new MainWindow();
+            var mainContent = window.FindName("MainContentRoot") as FrameworkElement;
+            var scrim = window.FindName("ModalBackdropScrim") as FrameworkElement;
+
+            Assert.NotNull(mainContent);
+            Assert.NotNull(scrim);
+            Assert.Null(mainContent.Effect);
+            Assert.Equal(Visibility.Collapsed, scrim.Visibility);
+
+            // Trigger modal blur
+            window.ShowModalBlur();
+            Assert.NotNull(mainContent.Effect);
+            Assert.IsType<System.Windows.Media.Effects.BlurEffect>(mainContent.Effect);
+            Assert.Equal(Visibility.Visible, scrim.Visibility);
+
+            // Close / Hide modal blur
+            window.HideModalBlur();
+            Assert.Null(mainContent.Effect);
+            Assert.Equal(Visibility.Collapsed, scrim.Visibility);
+        });
+    }
+
+    [Fact]
+    public void IisBulkBackupDialog_LoadedAndClosed_ControlsMainWindowBlur()
+    {
+        RunInStaThread(() =>
+        {
+            if (Application.Current == null)
+            {
+                var app = new App();
+                app.InitializeComponent();
+            }
+
+            var window = new MainWindow();
+            new System.Windows.Interop.WindowInteropHelper(window).EnsureHandle();
+            Application.Current!.MainWindow = window;
+
+            var crypto = new UniBackup.Infrastructure.Security.CredentialProtector();
+            var configService = new UniBackup.Engine.Services.ConfigurationService(crypto);
+            var archiveService = new UniBackup.Infrastructure.Compression.HighSpeedZipArchiveService();
+            var localStorage = new UniBackup.Infrastructure.Storage.LocalStorageProvider();
+            var emailService = new UniBackup.Infrastructure.Notifications.EmailNotificationService();
+            var webhookService = new UniBackup.Infrastructure.Notifications.WebhookNotificationService();
+            var sqlBackup = new UniBackup.Infrastructure.Sql.SqlServerBackupService(crypto);
+            var pipeline = new UniBackup.Engine.Pipeline.BackupPipeline(archiveService, [localStorage], emailService, webhookService, configService, sqlBackup);
+            var config = new AppConfig();
+            var sites = new List<IisSiteVm>
+            {
+                new IisSiteVm { Name = "TestSite", State = "Started", Path = "C:\\inetpub\\wwwroot", Available = true, IsSelected = true }
+            };
+
+            var vm = new IisBulkBackupViewModel(config, pipeline, configService, sites);
+            var dialog = new UniBackup.UI.Dialogs.IisBulkBackupDialog(vm)
+            {
+                Owner = window
+            };
+
+            var mainContent = window.FindName("MainContentRoot") as FrameworkElement;
+            var scrim = window.FindName("ModalBackdropScrim") as FrameworkElement;
+
+            // Trigger Loaded event directly
+            dialog.RaiseEvent(new RoutedEventArgs(FrameworkElement.LoadedEvent));
+            Assert.NotNull(mainContent!.Effect);
+            Assert.Equal(Visibility.Visible, scrim!.Visibility);
+
+            // Close dialog
+            dialog.Close();
+            Assert.Null(mainContent.Effect);
+            Assert.Equal(Visibility.Collapsed, scrim.Visibility);
+        });
+    }
+
+    [Fact]
     public void NewBackupDialog_CanBeInstantiated_WithoutXamlExceptions()
     {
         RunInStaThread(() =>

@@ -22,11 +22,13 @@
                             UseAeroCaptionButtons="False"/>
     </shell:WindowChrome.WindowChrome>
 
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="38"/> <!-- 1. Custom 38 px Title Bar -->
-            <RowDefinition Height="*"/>  <!-- 2. Shell Layout (Rail + Content) -->
-        </Grid.RowDefinitions>
+    <Grid x:Name="AppRootGrid">
+        <!-- Main Application Shell (blurred during modal dialogs) -->
+        <Grid x:Name="MainContentRoot">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="38"/> <!-- 1. Custom 38 px Title Bar -->
+                <RowDefinition Height="*"/>  <!-- 2. Shell Layout (Rail + Content) -->
+            </Grid.RowDefinitions>
 
         <!-- ===================================================================
              1. CUSTOM 38 PX TITLE BAR (§3.1)
@@ -562,5 +564,13 @@
                              Foreground="{DynamicResource BrushCobalt}" Background="{DynamicResource BrushSunken}"/>
             </Grid>
         </Border>
+        </Grid>
+
+        <!-- Modal Backdrop Scrim (fades in on top of blurred shell) -->
+        <Border x:Name="ModalBackdropScrim"
+                Background="#4D0B1420"
+                Visibility="Collapsed"
+                Opacity="0"
+                IsHitTestVisible="False"/>
     </Grid>
 </Window>

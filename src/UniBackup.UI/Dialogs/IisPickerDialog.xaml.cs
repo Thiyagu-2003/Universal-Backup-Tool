@@ -25,10 +25,13 @@ public partial class IisPickerDialog : Window
         SitesItemsControl.ItemsSource = _filteredSites;
         SublineTextBlock.Text = $"Read live from IIS on {Environment.MachineName}. Sites whose folder is missing cannot be selected.";
         Loaded += IisPickerDialog_Loaded;
+        Closed += (s, e) => (Owner as MainWindow ?? Application.Current?.MainWindow as MainWindow)?.HideModalBlur();
     }
 
     private async void IisPickerDialog_Loaded(object sender, RoutedEventArgs e)
     {
+        (Owner as MainWindow ?? Application.Current?.MainWindow as MainWindow)?.ShowModalBlur();
+
         if (SystemParameters.ClientAreaAnimation)
         {
             var anim = new DoubleAnimation(0.96, 1.0, new Duration(TimeSpan.FromMilliseconds(260)))
@@ -149,6 +152,14 @@ public partial class IisPickerDialog : Window
     {
         DialogResult = true;
         Close();
+    }
+
+    private void Header_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+    {
+        if (e.ButtonState == MouseButtonState.Pressed)
+        {
+            DragMove();
+        }
     }
 
     private void Cancel_Click(object sender, RoutedEventArgs e)

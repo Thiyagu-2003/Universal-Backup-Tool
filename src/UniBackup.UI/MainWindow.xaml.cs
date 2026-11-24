@@ -3,6 +3,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
+using System.Windows.Media.Effects;
 using UniBackup.Core.Interfaces;
 using UniBackup.Engine.Pipeline;
 using UniBackup.Engine.Services;
@@ -371,6 +372,119 @@ public partial class MainWindow : Window
         else
         {
             ToastNotificationCard.Visibility = Visibility.Collapsed;
+        }
+    }
+
+    // =========================================================================
+    // MODAL DIALOG BACKGROUND BLUR & BACKDROP DIMMER
+    // =========================================================================
+    private int _modalBlurCount;
+
+    public void ShowModalBlur()
+    {
+        if (!Dispatcher.CheckAccess())
+        {
+            Dispatcher.Invoke(ShowModalBlur);
+            return;
+        }
+
+        _modalBlurCount++;
+        if (_modalBlurCount > 1) return;
+
+        if (MainContentRoot == null) return;
+
+        var blur = new BlurEffect
+        {
+            Radius = 0,
+            RenderingBias = RenderingBias.Performance,
+            KernelType = KernelType.Gaussian
+        };
+        MainContentRoot.Effect = blur;
+
+        if (ModalBackdropScrim != null)
+        {
+            ModalBackdropScrim.Opacity = 0;
+            ModalBackdropScrim.Visibility = Visibility.Visible;
+        }
+
+        if (SystemParameters.ClientAreaAnimation)
+        {
+            var blurAnim = new DoubleAnimation(0, 16, new Duration(TimeSpan.FromMilliseconds(220)))
+            {
+                EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseOut }
+            };
+            blur.BeginAnimation(BlurEffect.RadiusProperty, blurAnim);
+
+            if (ModalBackdropScrim != null)
+            {
+                var fadeAnim = new DoubleAnimation(0, 1, new Duration(TimeSpan.FromMilliseconds(220)))
+                {
+                    EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseOut }
+                };
+                ModalBackdropScrim.BeginAnimation(UIElement.OpacityProperty, fadeAnim);
+            }
+        }
+        else
+        {
+            blur.Radius = 16;
+            if (ModalBackdropScrim != null)
+            {
+                ModalBackdropScrim.Opacity = 1;
+            }
+        }
+    }
+
+    public void HideModalBlur()
+    {
+        if (!Dispatcher.CheckAccess())
+        {
+            Dispatcher.Invoke(HideModalBlur);
+            return;
+        }
+
+        _modalBlurCount = Math.Max(0, _modalBlurCount - 1);
+        if (_modalBlurCount > 0) return;
+
+        if (MainContentRoot == null) return;
+
+        if (SystemParameters.ClientAreaAnimation && MainContentRoot.Effect is BlurEffect blur)
+        {
+            var blurAnim = new DoubleAnimation(blur.Radius, 0, new Duration(TimeSpan.FromMilliseconds(160)))
+            {
+                EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseIn }
+            };
+            blurAnim.Completed += (_, _) =>
+            {
+                if (_modalBlurCount == 0)
+                {
+                    MainContentRoot.Effect = null;
+                }
+            };
+            blur.BeginAnimation(BlurEffect.RadiusProperty, blurAnim);
+
+            if (ModalBackdropScrim != null)
+            {
+                var fadeAnim = new DoubleAnimation(ModalBackdropScrim.Opacity, 0, new Duration(TimeSpan.FromMilliseconds(160)))
+                {
+                    EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseIn }
+                };
+                fadeAnim.Completed += (_, _) =>
+                {
+                    if (_modalBlurCount == 0)
+                    {
+                        ModalBackdropScrim.Visibility = Visibility.Collapsed;
+                    }
+                };
+                ModalBackdropScrim.BeginAnimation(UIElement.OpacityProperty, fadeAnim);
+            }
+        }
+        else
+        {
+            MainContentRoot.Effect = null;
+            if (ModalBackdropScrim != null)
+            {
+                ModalBackdropScrim.Visibility = Visibility.Collapsed;
+            }
         }
     }
 }
