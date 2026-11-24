@@ -1,78 +1,44 @@
-using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls;
-using UniBackup.UI.Services;
 using UniBackup.UI.ViewModels;
 
 namespace UniBackup.UI.Views;
 
 public partial class IisSitesView : UserControl
 {
-    private readonly IisCatalog _catalog = new();
-    private List<IisSiteVm> _allSites = [];
-    private readonly ObservableCollection<IisSiteVm> _filteredSites = [];
-    private string _currentFilter = "All";
+    public IisSitesViewModel? ViewModel => DataContext as IisSitesViewModel;
 
     public IisSitesView()
     {
         InitializeComponent();
-        SitesItemsControl.ItemsSource = _filteredSites;
         HeaderSubline.Text = $"Inspect live web applications on {Environment.MachineName} and package for cloud backup";
+        DataContextChanged += IisSitesView_DataContextChanged;
         Loaded += IisSitesView_Loaded;
+    }
+
+    private void IisSitesView_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
+    {
+        if (e.NewValue is MainViewModel mvm)
+        {
+            DataContext = mvm.IisSitesVm;
+        }
     }
 
     private async void IisSitesView_Loaded(object sender, RoutedEventArgs e)
     {
-        if (_allSites.Count == 0)
+        if (DataContext is MainViewModel mvm)
         {
-            await LoadSitesAsync();
+            DataContext = mvm.IisSitesVm;
         }
-    }
-
-    private async Task LoadSitesAsync()
-    {
-        try
+        else if (DataContext == null)
         {
-            _allSites = await _catalog.DiscoverSitesAsync();
-            ApplyFilter();
-            _ = _catalog.ComputeSizesAsync(_allSites, null);
-        }
-        catch (Exception ex)
-        {
-            NotificationHub.ShowError($"Failed to read IIS sites: {ex.Message}", "IIS Discovery Failed");
-        }
-    }
-
-    private void ApplyFilter()
-    {
-        var query = SearchBox.Text.Trim();
-        var sites = _allSites.AsEnumerable();
-
-        if (!string.IsNullOrEmpty(query))
-        {
-            sites = sites.Where(s =>
-                s.Name.Contains(query, StringComparison.OrdinalIgnoreCase) ||
-                s.Path.Contains(query, StringComparison.OrdinalIgnoreCase) ||
-                s.Pool.Contains(query, StringComparison.OrdinalIgnoreCase));
+            DataContext = new IisSitesViewModel();
         }
 
-        if (_currentFilter == "Running")
+        if (ViewModel != null)
         {
-            sites = sites.Where(s => s.Available && s.IsRunning);
-        }
-        else if (_currentFilter == "Stopped")
-        {
-            sites = sites.Where(s => s.Available && s.IsStopped);
-        }
-        else if (_currentFilter == "Unavailable")
-        {
-            sites = sites.Where(s => !s.Available);
-        }
-
-        _filteredSites.Clear();
-        foreach (var s in sites)
-        {
-            _filteredSites.Add(s);
+            await ViewModel.InitializeAsync();
+            SyncFilterRadio();
         }
     }
 
@@ -80,46 +46,17 @@ public partial class IisSitesView : UserControl
     {
         if (sender is RadioButton rb && rb.Tag is string filter)
         {
-            _currentFilter = filter;
-            ApplyFilter();
+            ViewModel?.SetFilter(filter);
         }
     }
 
-    private void SearchBox_TextChanged(object sender, TextChangedEventArgs e)
+    private void SyncFilterRadio()
     {
-        ApplyFilter();
-    }
-
-    private async void Refresh_Click(object sender, RoutedEventArgs e)
-    {
-        await LoadSitesAsync();
-        NotificationHub.ShowSuccess($"Discovered {_allSites.Count} sites from IIS.", "IIS Refreshed");
-    }
-
-    private void BackupSelected_Click(object sender, RoutedEventArgs e)
-    {
-        var selected = _allSites.Where(s => s.Available && s.IsSelected).ToList();
-        if (selected.Count == 0)
-        {
-            NotificationHub.ShowWarning("Select at least one available IIS site to back up.", "No Sites Selected");
-            return;
-        }
-
-        if (DataContext is MainViewModel mvm)
-        {
-            mvm.OpenNewJob();
-            if (mvm.NewJob != null)
-            {
-                mvm.NewJob.IsIisSite = true;
-                mvm.NewJob.SelectedIisSites.Clear();
-                foreach (var s in selected)
-                {
-                    mvm.NewJob.SelectedIisSites.Add(s);
-                }
-                mvm.NewJob.JobName = selected.Count == 1 ? selected[0].Name : $"{selected.Count} IIS sites";
-                mvm.NewJob.SourceFolder = $"IIS:{string.Join(";", selected.Select(s => s.Name))}";
-            }
-            mvm.ActiveTab = "NewJob";
-        }
+        if (ViewModel == null) return;
+        var f = ViewModel.CurrentFilter;
+        if (f == "All" && FilterAllRadio != null) FilterAllRadio.IsChecked = true;
+        else if (f == "Running" && FilterRunningRadio != null) FilterRunningRadio.IsChecked = true;
+        else if (f == "Stopped" && FilterStoppedRadio != null) FilterStoppedRadio.IsChecked = true;
+        else if (f == "Unavailable" && FilterUnavailableRadio != null) FilterUnavailableRadio.IsChecked = true;
     }
 }

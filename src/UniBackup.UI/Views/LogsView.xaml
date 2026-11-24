@@ -1,84 +1,260 @@
 <UserControl x:Class="UniBackup.UI.Views.LogsView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:vm="clr-namespace:UniBackup.UI.ViewModels">
-    <Grid Margin="28,24">
+             xmlns:vm="clr-namespace:UniBackup.UI.ViewModels"
+             Focusable="True">
+    
+    <UserControl.InputBindings>
+        <KeyBinding Key="Up" Modifiers="Control" Command="{Binding Logs.PreviousErrorCommand}"/>
+        <KeyBinding Key="Down" Modifiers="Control" Command="{Binding Logs.NextErrorCommand}"/>
+    </UserControl.InputBindings>
+
+    <UserControl.Resources>
+        <!-- DataGrid Column Header Style -->
+        <Style x:Key="LogHeaderStyle" TargetType="{x:Type DataGridColumnHeader}">
+            <Setter Property="Background" Value="{DynamicResource BrushSunken}"/>
+            <Setter Property="Foreground" Value="{DynamicResource BrushInkMuted}"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontSize" Value="{StaticResource FontSizeBadge}"/>
+            <Setter Property="Padding" Value="10,8"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BrushLine}"/>
+            <Setter Property="BorderThickness" Value="0,0,0,1"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+
+        <!-- DataGrid Row Style -->
+        <Style x:Key="LogRowStyle" TargetType="{x:Type DataGridRow}">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="{DynamicResource BrushInk}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BrushLine}"/>
+            <Setter Property="BorderThickness" Value="0,0,0,1"/>
+            <Setter Property="Height" Value="34"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="{DynamicResource BrushSunken}"/>
+                </Trigger>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="{DynamicResource BrushCobaltSoft}"/>
+                </Trigger>
+                <DataTrigger Binding="{Binding Highlighted}" Value="True">
+                    <Setter Property="Background" Value="{DynamicResource BrushCobaltSoft}"/>
+                    <Setter Property="BorderBrush" Value="{DynamicResource BrushCobalt}"/>
+                    <Setter Property="BorderThickness" Value="2"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding IsError}" Value="True">
+                    <Setter Property="Background" Value="#0AFDE7EA"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding DataContext.Logs.IsCompactView, RelativeSource={RelativeSource AncestorType=UserControl}}" Value="True">
+                    <Setter Property="Height" Value="25"/>
+                    <Setter Property="FontSize" Value="{StaticResource FontSizeMono}"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- DataGrid Cell Style -->
+        <Style x:Key="LogCellStyle" TargetType="{x:Type DataGridCell}">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="10,0"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Style.Triggers>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="Transparent"/>
+                    <Setter Property="Foreground" Value="{DynamicResource BrushInk}"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid Margin="24,20" Background="{DynamicResource BrushCanvas}">
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/> <!-- Header and Toolbar -->
-            <RowDefinition Height="*"/>    <!-- Log List Viewer -->
+            <RowDefinition Height="Auto"/> <!-- 0. Page Header -->
+            <RowDefinition Height="Auto"/> <!-- 1. Filter & Navigation Toolbar -->
+            <RowDefinition Height="Auto"/> <!-- 2. Contextual Selection Toolbar -->
+            <RowDefinition Height="*"/>    <!-- 3. Body: Left Filter Panel + DataGrid + Right Details -->
+            <RowDefinition Height="Auto"/> <!-- 4. Compact Footer & Pagination -->
         </Grid.RowDefinitions>
 
-        <!-- 1. Header and Toolbar -->
-        <Border Grid.Row="0" Style="{StaticResource Card}" Padding="18,14" Margin="0,0,0,16">
+        <!-- ===================================================================
+             0. COMPACT PAGE HEADER
+             =================================================================== -->
+        <Grid Grid.Row="0" Margin="0,0,0,14">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Title & Subtitle -->
+            <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                <TextBlock Text="Application Logs"
+                           FontWeight="SemiBold"
+                           FontSize="{StaticResource FontSizePageTitle}"
+                           Foreground="{DynamicResource BrushInk}"/>
+                <TextBlock Text="Monitor, filter and investigate application events."
+                           FontSize="{StaticResource FontSizeBody}"
+                           Foreground="{DynamicResource BrushInkMuted}"
+                           Margin="0,3,0,0"/>
+            </StackPanel>
+
+            <!-- Header Actions: Refresh & Export -->
+            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                <!-- Refresh Button -->
+                <Button Command="{Binding Logs.RefreshLogsCommand}"
+                        Style="{StaticResource BtnQuiet}"
+                        Height="34" Padding="12,0" Margin="0,0,8,0"
+                        ToolTip="Refresh log files and scan latest events">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <Path Data="{StaticResource IconRefresh}"
+                              Fill="{DynamicResource BrushInkMuted}"
+                              Width="14" Height="14" Stretch="Uniform" Margin="0,0,6,0"/>
+                        <TextBlock Text="Refresh" FontSize="{StaticResource FontSizeBadge}"/>
+                    </StackPanel>
+                </Button>
+
+                <!-- Export Logs Dropdown Button -->
+                <Button Style="{StaticResource BtnQuiet}"
+                        Height="34" Padding="12,0"
+                        ToolTip="Export application logs"
+                        Click="ExportButton_Click">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <Path Data="{StaticResource IconExport}"
+                              Fill="{DynamicResource BrushInkMuted}"
+                              Width="14" Height="14" Stretch="Uniform" Margin="0,0,6,0"/>
+                        <TextBlock Text="Export Logs" FontSize="{StaticResource FontSizeBadge}"/>
+                        <Path Data="{StaticResource IconChevronDown}"
+                              Fill="{DynamicResource BrushInkFaint}"
+                              Width="10" Height="10" Stretch="Uniform" Margin="6,0,0,0"/>
+                    </StackPanel>
+                    <Button.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem Header="Export Filtered Logs"
+                                      Command="{Binding Logs.ExportFilteredLogsCommand}"/>
+                            <MenuItem Header="Export Selected Logs"
+                                      Command="{Binding Logs.ExportSelectedLogsCommand}"
+                                      IsEnabled="{Binding Logs.IsAnySelected}"/>
+                            <Separator/>
+                            <MenuItem Header="Export All Logs"
+                                      Command="{Binding Logs.ExportAllLogsCommand}"/>
+                        </ContextMenu>
+                    </Button.ContextMenu>
+                </Button>
+            </StackPanel>
+        </Grid>
+
+        <!-- ===================================================================
+             1. FILTER & NAVIGATION TOOLBAR
+             =================================================================== -->
+        <Border Grid.Row="1" Style="{StaticResource ModernCard}" Padding="14,10" Margin="0,0,0,10">
             <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/> <!-- Level toggle chips -->
-                    <ColumnDefinition Width="*"/>    <!-- Search -->
-                    <ColumnDefinition Width="Auto"/> <!-- Actions: Copy & Logs folder -->
+                    <ColumnDefinition Width="Auto"/> <!-- Severity Toggle Chips -->
+                    <ColumnDefinition Width="Auto"/> <!-- Date Range Dropdown -->
+                    <ColumnDefinition Width="*"/>    <!-- Search Box -->
+                    <ColumnDefinition Width="Auto"/> <!-- Error Navigation & View Toggle -->
                 </Grid.ColumnDefinitions>
 
-                <!-- Three Counting Toggle Chips (§4.6) -->
-                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                    <!-- Errors Chip (Coral) -->
-                    <ToggleButton IsChecked="{Binding Logs.ShowErrors, Mode=TwoWay}" Cursor="Hand" Margin="0,0,8,0">
+                <!-- Severity Toggle Chips -->
+                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,12,0">
+                    <!-- ALL CHIP -->
+                    <ToggleButton IsChecked="{Binding Logs.ShowAll, Mode=TwoWay}"
+                                  Cursor="Hand" Margin="0,0,6,0"
+                                  ToolTip="Show all log events">
                         <ToggleButton.Template>
                             <ControlTemplate TargetType="{x:Type ToggleButton}">
-                                <Border x:Name="bd" Height="28" CornerRadius="14" Padding="12,0"
-                                        Background="{DynamicResource BrushCoralSoft}" BorderBrush="{DynamicResource BrushCoral}" BorderThickness="1">
+                                <Border x:Name="bd" Height="28" CornerRadius="14" Padding="10,0"
+                                        Background="{DynamicResource BrushSunken}" BorderBrush="{DynamicResource BrushLineStrong}" BorderThickness="1">
                                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                        <Ellipse Width="8" Height="8" Stretch="Uniform" Fill="{DynamicResource BrushCoral}" Margin="0,0,6,0" VerticalAlignment="Center"/>
-                                        <TextBlock Text="{Binding Logs.ErrorCount, StringFormat={}{0} Errors}" FontWeight="Medium" FontSize="{StaticResource FontSizeStatus}" Foreground="{DynamicResource BrushCoral}" VerticalAlignment="Center"/>
+                                        <TextBlock Text="All" FontWeight="SemiBold" FontSize="{StaticResource FontSizeStatus}" Foreground="{DynamicResource BrushInk}"/>
+                                        <Border CornerRadius="8" Background="{DynamicResource BrushPanel}" Padding="6,1" Margin="6,0,0,0">
+                                            <TextBlock Text="{Binding Logs.CountAll}" FontWeight="Medium" FontSize="11" Foreground="{DynamicResource BrushInkMuted}"/>
+                                        </Border>
                                     </StackPanel>
                                 </Border>
                                 <ControlTemplate.Triggers>
-                                    <Trigger Property="IsChecked" Value="False">
-                                        <Setter TargetName="bd" Property="Opacity" Value="0.4"/>
-                                        <Setter TargetName="bd" Property="Background" Value="{DynamicResource BrushSunken}"/>
-                                        <Setter TargetName="bd" Property="BorderBrush" Value="{DynamicResource BrushLine}"/>
+                                    <Trigger Property="IsChecked" Value="True">
+                                        <Setter TargetName="bd" Property="Background" Value="{DynamicResource BrushCobaltSoft}"/>
+                                        <Setter TargetName="bd" Property="BorderBrush" Value="{DynamicResource BrushCobalt}"/>
                                     </Trigger>
                                 </ControlTemplate.Triggers>
                             </ControlTemplate>
                         </ToggleButton.Template>
                     </ToggleButton>
 
-                    <!-- Warnings Chip (Saffron) -->
-                    <ToggleButton IsChecked="{Binding Logs.ShowWarnings, Mode=TwoWay}" Cursor="Hand" Margin="0,0,8,0">
+                    <!-- ERRORS CHIP -->
+                    <ToggleButton IsChecked="{Binding Logs.FilterErrors, Mode=TwoWay}"
+                                  Cursor="Hand" Margin="0,0,6,0"
+                                  ToolTip="Toggle Error logs">
                         <ToggleButton.Template>
                             <ControlTemplate TargetType="{x:Type ToggleButton}">
-                                <Border x:Name="bd" Height="28" CornerRadius="14" Padding="12,0"
-                                        Background="{DynamicResource BrushSaffronSoft}" BorderBrush="{DynamicResource BrushSaffron}" BorderThickness="1">
+                                <Border x:Name="bd" Height="28" CornerRadius="14" Padding="10,0"
+                                        Background="{DynamicResource BrushSunken}" BorderBrush="{DynamicResource BrushLine}" BorderThickness="1">
                                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                        <Ellipse Width="8" Height="8" Stretch="Uniform" Fill="{DynamicResource BrushSaffron}" Margin="0,0,6,0" VerticalAlignment="Center"/>
-                                        <TextBlock Text="{Binding Logs.WarningCount, StringFormat={}{0} Warnings}" FontWeight="Medium" FontSize="{StaticResource FontSizeStatus}" Foreground="{DynamicResource BrushSaffron}" VerticalAlignment="Center"/>
+                                        <Ellipse Width="7" Height="7" Fill="{DynamicResource BrushCoral}" Margin="0,0,6,0"/>
+                                        <TextBlock Text="Errors" FontWeight="SemiBold" FontSize="{StaticResource FontSizeStatus}" Foreground="{DynamicResource BrushCoral}"/>
+                                        <Border CornerRadius="8" Background="{DynamicResource BrushCoralSoft}" Padding="6,1" Margin="6,0,0,0">
+                                            <TextBlock Text="{Binding Logs.CountErrors}" FontWeight="Medium" FontSize="11" Foreground="{DynamicResource BrushCoral}"/>
+                                        </Border>
                                     </StackPanel>
                                 </Border>
                                 <ControlTemplate.Triggers>
-                                    <Trigger Property="IsChecked" Value="False">
-                                        <Setter TargetName="bd" Property="Opacity" Value="0.4"/>
-                                        <Setter TargetName="bd" Property="Background" Value="{DynamicResource BrushSunken}"/>
-                                        <Setter TargetName="bd" Property="BorderBrush" Value="{DynamicResource BrushLine}"/>
+                                    <Trigger Property="IsChecked" Value="True">
+                                        <Setter TargetName="bd" Property="Background" Value="{DynamicResource BrushCoralSoft}"/>
+                                        <Setter TargetName="bd" Property="BorderBrush" Value="{DynamicResource BrushCoral}"/>
                                     </Trigger>
                                 </ControlTemplate.Triggers>
                             </ControlTemplate>
                         </ToggleButton.Template>
                     </ToggleButton>
 
-                    <!-- Info Chip (Cobalt) -->
-                    <ToggleButton IsChecked="{Binding Logs.ShowInfo, Mode=TwoWay}" Cursor="Hand">
+                    <!-- WARNINGS CHIP -->
+                    <ToggleButton IsChecked="{Binding Logs.FilterWarnings, Mode=TwoWay}"
+                                  Cursor="Hand" Margin="0,0,6,0"
+                                  ToolTip="Toggle Warning logs">
                         <ToggleButton.Template>
                             <ControlTemplate TargetType="{x:Type ToggleButton}">
-                                <Border x:Name="bd" Height="28" CornerRadius="14" Padding="12,0"
-                                        Background="{DynamicResource BrushCobaltSoft}" BorderBrush="{DynamicResource BrushCobalt}" BorderThickness="1">
+                                <Border x:Name="bd" Height="28" CornerRadius="14" Padding="10,0"
+                                        Background="{DynamicResource BrushSunken}" BorderBrush="{DynamicResource BrushLine}" BorderThickness="1">
                                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                        <Ellipse Width="8" Height="8" Stretch="Uniform" Fill="{DynamicResource BrushCobalt}" Margin="0,0,6,0" VerticalAlignment="Center"/>
-                                        <TextBlock Text="{Binding Logs.InfoCount, StringFormat={}{0} Info}" FontWeight="Medium" FontSize="{StaticResource FontSizeStatus}" Foreground="{DynamicResource BrushCobalt}" VerticalAlignment="Center"/>
+                                        <Ellipse Width="7" Height="7" Fill="{DynamicResource BrushSaffron}" Margin="0,0,6,0"/>
+                                        <TextBlock Text="Warnings" FontWeight="SemiBold" FontSize="{StaticResource FontSizeStatus}" Foreground="{DynamicResource BrushSaffron}"/>
+                                        <Border CornerRadius="8" Background="{DynamicResource BrushSaffronSoft}" Padding="6,1" Margin="6,0,0,0">
+                                            <TextBlock Text="{Binding Logs.CountWarnings}" FontWeight="Medium" FontSize="11" Foreground="{DynamicResource BrushSaffron}"/>
+                                        </Border>
                                     </StackPanel>
                                 </Border>
                                 <ControlTemplate.Triggers>
-                                    <Trigger Property="IsChecked" Value="False">
-                                        <Setter TargetName="bd" Property="Opacity" Value="0.4"/>
-                                        <Setter TargetName="bd" Property="Background" Value="{DynamicResource BrushSunken}"/>
-                                        <Setter TargetName="bd" Property="BorderBrush" Value="{DynamicResource BrushLine}"/>
+                                    <Trigger Property="IsChecked" Value="True">
+                                        <Setter TargetName="bd" Property="Background" Value="{DynamicResource BrushSaffronSoft}"/>
+                                        <Setter TargetName="bd" Property="BorderBrush" Value="{DynamicResource BrushSaffron}"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </ToggleButton.Template>
+                    </ToggleButton>
+
+                    <!-- INFORMATION CHIP -->
+                    <ToggleButton IsChecked="{Binding Logs.FilterInformation, Mode=TwoWay}"
+                                  Cursor="Hand"
+                                  ToolTip="Toggle Information logs">
+                        <ToggleButton.Template>
+                            <ControlTemplate TargetType="{x:Type ToggleButton}">
+                                <Border x:Name="bd" Height="28" CornerRadius="14" Padding="10,0"
+                                        Background="{DynamicResource BrushSunken}" BorderBrush="{DynamicResource BrushLine}" BorderThickness="1">
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                        <Ellipse Width="7" Height="7" Fill="{DynamicResource BrushCobalt}" Margin="0,0,6,0"/>
+                                        <TextBlock Text="Info" FontWeight="SemiBold" FontSize="{StaticResource FontSizeStatus}" Foreground="{DynamicResource BrushCobalt}"/>
+                                        <Border CornerRadius="8" Background="{DynamicResource BrushCobaltSoft}" Padding="6,1" Margin="6,0,0,0">
+                                            <TextBlock Text="{Binding Logs.CountInformation}" FontWeight="Medium" FontSize="11" Foreground="{DynamicResource BrushCobalt}"/>
+                                        </Border>
+                                    </StackPanel>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsChecked" Value="True">
+                                        <Setter TargetName="bd" Property="Background" Value="{DynamicResource BrushCobaltSoft}"/>
+                                        <Setter TargetName="bd" Property="BorderBrush" Value="{DynamicResource BrushCobalt}"/>
                                     </Trigger>
                                 </ControlTemplate.Triggers>
                             </ControlTemplate>
@@ -86,23 +262,46 @@
                     </ToggleButton>
                 </StackPanel>
 
-                <!-- Search Box with Watermark -->
-                <Border Grid.Column="1" Margin="16,0" Width="260" Height="32" HorizontalAlignment="Left"
+                <!-- Date Range Dropdown -->
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,12,0">
+                    <ComboBox ItemsSource="{Binding Logs.DateRangeOptions}"
+                              SelectedItem="{Binding Logs.SelectedDateRange, Mode=TwoWay}"
+                              Height="30" Width="120"
+                              Style="{StaticResource FieldComboBox}"
+                              VerticalContentAlignment="Center"
+                              ToolTip="Filter by date range"/>
+
+                    <!-- Custom Range DatePickers (Visible when Custom range selected) -->
+                    <StackPanel Orientation="Horizontal" Margin="8,0,0,0"
+                                Visibility="{Binding Logs.IsCustomDateRange, Converter={StaticResource BoolToVis}}">
+                        <DatePicker SelectedDate="{Binding Logs.CustomStartDate, Mode=TwoWay}"
+                                    Width="105" Height="28" Margin="0,0,4,0"/>
+                        <TextBlock Text="to" VerticalAlignment="Center" Foreground="{DynamicResource BrushInkMuted}" Margin="0,0,4,0"/>
+                        <DatePicker SelectedDate="{Binding Logs.CustomEndDate, Mode=TwoWay}"
+                                    Width="105" Height="28"/>
+                    </StackPanel>
+                </StackPanel>
+
+                <!-- Search Box -->
+                <Border Grid.Column="2" Height="30" MaxWidth="320" HorizontalAlignment="Left"
                         CornerRadius="{StaticResource RadiusControl}" Background="{DynamicResource BrushCanvas}"
-                        BorderBrush="{DynamicResource BrushLineStrong}" BorderThickness="1">
-                    <Grid>
-                        <Path Data="{StaticResource IconSearch}"
+                        BorderBrush="{DynamicResource BrushLineStrong}" BorderThickness="1"
+                        Padding="8,0">
+                    <Grid VerticalAlignment="Center">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Path Grid.Column="0" Data="{StaticResource IconSearch}"
                               Fill="{DynamicResource BrushInkFaint}"
-                              Width="17" Height="17"
-                              Stretch="Uniform"
-                              HorizontalAlignment="Left"
-                              Margin="10,0,0,0"
-                              IsHitTestVisible="False"/>
-                        <TextBlock Text="Filter log events..."
+                              Width="14" Height="14" Stretch="Uniform"
+                              VerticalAlignment="Center" Margin="0,0,6,0"/>
+
+                        <TextBlock Grid.Column="1" Text="Search message, exception, job..."
                                    Foreground="{DynamicResource BrushInkFaint}"
                                    FontSize="{StaticResource FontSizeBody}"
                                    VerticalAlignment="Center"
-                                   Margin="30,0,10,0"
                                    IsHitTestVisible="False">
                             <TextBlock.Style>
                                 <Style TargetType="{x:Type TextBlock}">
@@ -118,120 +317,593 @@
                                 </Style>
                             </TextBlock.Style>
                         </TextBlock>
-                        <TextBox x:Name="LogSearchBox"
-                                 Text="{Binding Logs.SearchFilter, UpdateSourceTrigger=PropertyChanged}"
-                                 Background="Transparent"
-                                 BorderThickness="0"
+
+                        <TextBox x:Name="LogSearchBox" Grid.Column="1"
+                                 Text="{Binding Logs.SearchText, UpdateSourceTrigger=PropertyChanged}"
+                                 Background="Transparent" BorderThickness="0"
                                  Foreground="{DynamicResource BrushInk}"
                                  CaretBrush="{DynamicResource BrushCobalt}"
                                  FontSize="{StaticResource FontSizeBody}"
-                                 VerticalContentAlignment="Center"
-                                 Padding="30,0,10,0"/>
+                                 VerticalContentAlignment="Center"/>
                     </Grid>
                 </Border>
 
-                <!-- Actions: Copy & Logs Folder -->
-                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
-                    <Button Command="{Binding Logs.CopyFilteredCommand}" Style="{StaticResource BtnQuiet}" Margin="0,0,8,0" Height="34" Padding="12,0">
+                <!-- Navigation Controls & View Toggle -->
+                <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center">
+                    <!-- Error Navigation Controls -->
+                    <Border Background="{DynamicResource BrushSunken}" CornerRadius="4" Padding="2" Margin="0,0,10,0">
                         <StackPanel Orientation="Horizontal">
-                            <Path Data="{StaticResource IconCopy}" Fill="{DynamicResource BrushInkMuted}" Width="16" Height="16" Stretch="Uniform" Margin="0,0,6,0"/>
-                            <TextBlock Text="Copy" FontSize="{StaticResource FontSizeBadge}"/>
+                            <Button Command="{Binding Logs.FirstErrorCommand}"
+                                    IsEnabled="{Binding Logs.CanGoFirstError}"
+                                    Style="{StaticResource BtnQuiet}" Height="26" Width="28" Padding="0"
+                                    ToolTip="First Error">
+                                <Path Data="{StaticResource IconDoubleChevronLeft}" Fill="{DynamicResource BrushCoral}" Width="10" Height="10" Stretch="Uniform"/>
+                            </Button>
+                            <Button Command="{Binding Logs.PreviousErrorCommand}"
+                                    IsEnabled="{Binding Logs.CanGoPreviousError}"
+                                    Style="{StaticResource BtnQuiet}" Height="26" Width="28" Padding="0"
+                                    ToolTip="Previous Error (Ctrl + Up)">
+                                <Path Data="{StaticResource IconChevronLeft}" Fill="{DynamicResource BrushCoral}" Width="10" Height="10" Stretch="Uniform"/>
+                            </Button>
+                            <TextBlock Text="Errors" FontWeight="SemiBold" FontSize="11" Foreground="{DynamicResource BrushCoral}" VerticalAlignment="Center" Margin="4,0"/>
+                            <Button Command="{Binding Logs.NextErrorCommand}"
+                                    IsEnabled="{Binding Logs.CanGoNextError}"
+                                    Style="{StaticResource BtnQuiet}" Height="26" Width="28" Padding="0"
+                                    ToolTip="Next Error (Ctrl + Down)">
+                                <Path Data="{StaticResource IconChevronRight}" Fill="{DynamicResource BrushCoral}" Width="10" Height="10" Stretch="Uniform"/>
+                            </Button>
+                            <Button Command="{Binding Logs.LatestErrorCommand}"
+                                    IsEnabled="{Binding Logs.CanGoLatestError}"
+                                    Style="{StaticResource BtnQuiet}" Height="26" Width="28" Padding="0"
+                                    ToolTip="Latest Error">
+                                <Path Data="{StaticResource IconDoubleChevronRight}" Fill="{DynamicResource BrushCoral}" Width="10" Height="10" Stretch="Uniform"/>
+                            </Button>
                         </StackPanel>
+                    </Border>
+
+                    <!-- Compact / Standard View Toggle -->
+                    <ToggleButton IsChecked="{Binding Logs.IsCompactView, Mode=TwoWay}"
+                                  Cursor="Hand"
+                                  Height="28"
+                                  ToolTip="Toggle Compact / Standard View">
+                        <ToggleButton.Template>
+                            <ControlTemplate TargetType="{x:Type ToggleButton}">
+                                <Border x:Name="bd" Height="28" CornerRadius="14" Padding="10,0"
+                                        Background="{DynamicResource BrushSunken}" BorderBrush="{DynamicResource BrushLine}" BorderThickness="1">
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                        <Path x:Name="ico" Data="{StaticResource IconDocumentText}" Fill="{DynamicResource BrushInkMuted}" Width="12" Height="12" Stretch="Uniform" Margin="0,0,4,0"/>
+                                        <TextBlock x:Name="txt" Text="Compact" FontWeight="Medium" FontSize="{StaticResource FontSizeBadge}" Foreground="{DynamicResource BrushInkMuted}"/>
+                                    </StackPanel>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsChecked" Value="True">
+                                        <Setter TargetName="bd" Property="Background" Value="{DynamicResource BrushCobaltSoft}"/>
+                                        <Setter TargetName="bd" Property="BorderBrush" Value="{DynamicResource BrushCobalt}"/>
+                                        <Setter TargetName="ico" Property="Fill" Value="{DynamicResource BrushCobalt}"/>
+                                        <Setter TargetName="txt" Property="Foreground" Value="{DynamicResource BrushCobalt}"/>
+                                        <Setter TargetName="txt" Property="FontWeight" Value="SemiBold"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </ToggleButton.Template>
+                    </ToggleButton>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- ===================================================================
+             2. CONTEXTUAL SELECTION TOOLBAR
+             =================================================================== -->
+        <Border Grid.Row="2" Background="{DynamicResource BrushCobaltSoft}"
+                BorderBrush="{DynamicResource BrushCobalt}" BorderThickness="1"
+                CornerRadius="{StaticResource RadiusControl}"
+                Padding="12,6" Margin="0,0,0,10"
+                Visibility="{Binding Logs.IsAnySelected, Converter={StaticResource BoolToVis}}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Path Data="{StaticResource IconCheckCircle}" Fill="{DynamicResource BrushCobalt}" Width="14" Height="14" Stretch="Uniform" Margin="0,0,8,0"/>
+                    <TextBlock Text="{Binding Logs.SelectedCountText}" FontWeight="SemiBold" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource BrushCobalt}"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                    <Button Command="{Binding Logs.SelectAllFilteredCommand}"
+                            Style="{StaticResource BtnQuiet}" Height="28" Padding="10,0" Margin="0,0,6,0">
+                        <TextBlock Text="{Binding Logs.TotalFilteredCount, StringFormat='Select All Filtered ({0})'}" FontSize="{StaticResource FontSizeBadge}"/>
                     </Button>
 
-                    <Button Command="{Binding Logs.OpenLogsFolderCommand}" Style="{StaticResource BtnQuiet}" Height="34" Padding="12,0">
-                        <StackPanel Orientation="Horizontal">
-                            <Path Data="{StaticResource IconFolder}" Fill="{DynamicResource BrushInkMuted}" Width="16" Height="16" Stretch="Uniform" Margin="0,0,6,0"/>
-                            <TextBlock Text="Logs folder" FontSize="{StaticResource FontSizeBadge}"/>
-                        </StackPanel>
+                    <Button Command="{Binding Logs.ClearSelectionCommand}"
+                            Style="{StaticResource BtnQuiet}" Height="28" Padding="10,0" Margin="0,0,6,0">
+                        <TextBlock Text="Clear Selection" FontSize="{StaticResource FontSizeBadge}"/>
+                    </Button>
+
+                    <Button Command="{Binding Logs.CopySelectedDetailsCommand}"
+                            Style="{StaticResource BtnQuiet}" Height="28" Padding="10,0" Margin="0,0,6,0">
+                        <TextBlock Text="Copy Selected Details" FontSize="{StaticResource FontSizeBadge}"/>
+                    </Button>
+
+                    <Button Command="{Binding Logs.ExportSelectedLogsCommand}"
+                            Style="{StaticResource BtnPrimary}" Height="28" Padding="12,0">
+                        <TextBlock Text="Export Selected" FontSize="{StaticResource FontSizeBadge}"/>
                     </Button>
                 </StackPanel>
             </Grid>
         </Border>
 
-        <!-- 2. Monospace Log Viewer Box (Named LogViewerList for tests and auto-scroll) -->
-        <Border Grid.Row="1" Style="{StaticResource Card}" Padding="0" ClipToBounds="True">
-            <Grid>
-                <ListView x:Name="LogViewerList"
-                          ItemsSource="{Binding Logs.VisibleLines}"
-                          Background="{DynamicResource BrushPanel}"
-                          BorderThickness="0"
-                          ScrollViewer.HorizontalScrollBarVisibility="Auto"
-                          ScrollViewer.VerticalScrollBarVisibility="Auto"
-                          VirtualizingPanel.IsVirtualizing="True"
-                          VirtualizingPanel.VirtualizationMode="Recycling"
-                          ScrollViewer.CanContentScroll="True">
-                    <ListView.ItemContainerStyle>
-                        <Style TargetType="{x:Type ListViewItem}">
-                            <Setter Property="Padding" Value="0"/>
-                            <Setter Property="Margin" Value="0"/>
-                            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-                            <Setter Property="Template">
-                                <Setter.Value>
-                                    <ControlTemplate TargetType="{x:Type ListViewItem}">
-                                        <Border SnapsToDevicePixels="True">
+        <!-- ===================================================================
+             3. MAIN BODY: LEFT FILTER PANEL + LOG TABLE + RIGHT DETAILS
+             =================================================================== -->
+        <Grid Grid.Row="3">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/> <!-- Left Filter Panel -->
+                <ColumnDefinition Width="*"/>    <!-- Main Log Table -->
+                <ColumnDefinition Width="Auto"/> <!-- Right Details Panel -->
+            </Grid.ColumnDefinitions>
+
+            <!-- Section A: Left Filter Panel (Collapsible) -->
+            <!-- EXPANDED STATE -->
+            <Border Grid.Column="0" Width="210" Margin="0,0,10,0"
+                    Style="{StaticResource ModernCard}" Padding="12"
+                    Visibility="{Binding Logs.IsFilterPanelCollapsed, Converter={StaticResource InverseBoolToVis}}">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                    <StackPanel>
+                        <!-- Panel Header -->
+                        <Grid Margin="0,0,0,10">
+                            <TextBlock Text="Filters" FontWeight="SemiBold" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource BrushInk}" VerticalAlignment="Center"/>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                <Button Command="{Binding Logs.ClearFiltersCommand}"
+                                        Style="{StaticResource BtnQuiet}" Height="22" Padding="6,0" Margin="0,0,4,0"
+                                        ToolTip="Reset all filters">
+                                    <TextBlock Text="Clear" FontSize="11" Foreground="{DynamicResource BrushCobalt}"/>
+                                </Button>
+                                <Button Command="{Binding Logs.ToggleFilterPanelCommand}"
+                                        Style="{StaticResource BtnQuiet}" Height="22" Width="22" Padding="0"
+                                        ToolTip="Collapse filter panel">
+                                    <Path Data="{StaticResource IconChevronLeft}" Fill="{DynamicResource BrushInkMuted}" Width="10" Height="10" Stretch="Uniform"/>
+                                </Button>
+                            </StackPanel>
+                        </Grid>
+
+                        <Separator Background="{DynamicResource BrushLine}" Margin="0,0,0,10"/>
+
+                        <!-- SEVERITY SECTION -->
+                        <TextBlock Text="SEVERITY" FontWeight="SemiBold" FontSize="11" Foreground="{DynamicResource BrushInkFaint}" Margin="0,0,0,6"/>
+                        <CheckBox IsChecked="{Binding Logs.FilterErrors, Mode=TwoWay}" Margin="0,0,0,6">
+                            <StackPanel Orientation="Horizontal">
+                                <Ellipse Width="6" Height="6" Fill="{DynamicResource BrushCoral}" Margin="0,0,6,0" VerticalAlignment="Center"/>
+                                <TextBlock Text="Errors" FontSize="{StaticResource FontSizeBody}"/>
+                                <TextBlock Text="{Binding Logs.CountErrors, StringFormat=' ({0})'}" Foreground="{DynamicResource BrushInkFaint}" FontSize="11"/>
+                            </StackPanel>
+                        </CheckBox>
+                        <CheckBox IsChecked="{Binding Logs.FilterWarnings, Mode=TwoWay}" Margin="0,0,0,6">
+                            <StackPanel Orientation="Horizontal">
+                                <Ellipse Width="6" Height="6" Fill="{DynamicResource BrushSaffron}" Margin="0,0,6,0" VerticalAlignment="Center"/>
+                                <TextBlock Text="Warnings" FontSize="{StaticResource FontSizeBody}"/>
+                                <TextBlock Text="{Binding Logs.CountWarnings, StringFormat=' ({0})'}" Foreground="{DynamicResource BrushInkFaint}" FontSize="11"/>
+                            </StackPanel>
+                        </CheckBox>
+                        <CheckBox IsChecked="{Binding Logs.FilterInformation, Mode=TwoWay}" Margin="0,0,0,12">
+                            <StackPanel Orientation="Horizontal">
+                                <Ellipse Width="6" Height="6" Fill="{DynamicResource BrushCobalt}" Margin="0,0,6,0" VerticalAlignment="Center"/>
+                                <TextBlock Text="Information" FontSize="{StaticResource FontSizeBody}"/>
+                                <TextBlock Text="{Binding Logs.CountInformation, StringFormat=' ({0})'}" Foreground="{DynamicResource BrushInkFaint}" FontSize="11"/>
+                            </StackPanel>
+                        </CheckBox>
+
+                        <Separator Background="{DynamicResource BrushLine}" Margin="0,0,0,10"/>
+
+                        <!-- SOURCES SECTION -->
+                        <TextBlock Text="SOURCES" FontWeight="SemiBold" FontSize="11" Foreground="{DynamicResource BrushInkFaint}" Margin="0,0,0,6"/>
+                        <CheckBox IsChecked="{Binding Logs.FilterBackupEngine, Mode=TwoWay}" Content="{Binding Logs.CountBackupEngine, StringFormat='Backup Engine ({0})'}" Margin="0,0,0,6" FontSize="{StaticResource FontSizeBody}"/>
+                        <CheckBox IsChecked="{Binding Logs.FilterScheduler, Mode=TwoWay}" Content="{Binding Logs.CountScheduler, StringFormat='Scheduler ({0})'}" Margin="0,0,0,6" FontSize="{StaticResource FontSizeBody}"/>
+                        <CheckBox IsChecked="{Binding Logs.FilterIisSites, Mode=TwoWay}" Content="{Binding Logs.CountIisSites, StringFormat='IIS Sites ({0})'}" Margin="0,0,0,6" FontSize="{StaticResource FontSizeBody}"/>
+                        <CheckBox IsChecked="{Binding Logs.FilterCloudRecovery, Mode=TwoWay}" Content="{Binding Logs.CountCloudRecovery, StringFormat='Cloud Recovery ({0})'}" Margin="0,0,0,6" FontSize="{StaticResource FontSizeBody}"/>
+                        <CheckBox IsChecked="{Binding Logs.FilterNotificationService, Mode=TwoWay}" Content="{Binding Logs.CountNotificationService, StringFormat='Notifications ({0})'}" Margin="0,0,0,6" FontSize="{StaticResource FontSizeBody}"/>
+                        <CheckBox IsChecked="{Binding Logs.FilterSystem, Mode=TwoWay}" Content="{Binding Logs.CountSystem, StringFormat='System ({0})'}" Margin="0,0,0,12" FontSize="{StaticResource FontSizeBody}"/>
+
+                        <Separator Background="{DynamicResource BrushLine}" Margin="0,0,0,10"/>
+
+                        <!-- LOG STREAMS / FILES SECTION -->
+                        <TextBlock Text="LOG FILES" FontWeight="SemiBold" FontSize="11" Foreground="{DynamicResource BrushInkFaint}" Margin="0,0,0,6"/>
+                        <ItemsControl ItemsSource="{Binding Logs.VisibleFiles}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <RadioButton GroupName="LogFilesGroup"
+                                                 IsChecked="{Binding IsSelected, Mode=TwoWay}"
+                                                 Command="{Binding DataContext.Logs.SelectedFileChangedCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                 Margin="0,0,0,6">
+                                        <TextBlock Text="{Binding DisplayTitle}" FontSize="{StaticResource FontSizeBody}" TextTrimming="CharacterEllipsis"/>
+                                    </RadioButton>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </ScrollViewer>
+            </Border>
+
+            <!-- COLLAPSED STATE (Slim vertical bar with expand button) -->
+            <Border Grid.Column="0" Width="36" Margin="0,0,10,0"
+                    Style="{StaticResource ModernCard}" Padding="4,8"
+                    Visibility="{Binding Logs.IsFilterPanelCollapsed, Converter={StaticResource BoolToVis}}">
+                <Button Command="{Binding Logs.ToggleFilterPanelCommand}"
+                        Style="{StaticResource BtnQuiet}" Width="28" Height="28" Padding="0"
+                        ToolTip="Expand filters panel">
+                    <Path Data="{StaticResource IconChevronRight}" Fill="{DynamicResource BrushInkMuted}" Width="12" Height="12" Stretch="Uniform"/>
+                </Button>
+            </Border>
+
+            <!-- Section B: Main Log Table (DataGrid named LogViewerList) -->
+            <Border Grid.Column="1" Style="{StaticResource ModernCard}" Padding="0" ClipToBounds="True">
+                <Grid>
+                    <DataGrid x:Name="LogViewerList"
+                              ItemsSource="{Binding Logs.PagedLogs}"
+                              SelectedItem="{Binding Logs.SelectedLog, Mode=TwoWay}"
+                              AutoGenerateColumns="False"
+                              CanUserAddRows="False"
+                              CanUserDeleteRows="False"
+                              CanUserResizeRows="False"
+                              CanUserSortColumns="True"
+                              GridLinesVisibility="None"
+                              HeadersVisibility="Column"
+                              RowHeaderWidth="0"
+                              SelectionMode="Single"
+                              Background="{DynamicResource BrushPanel}"
+                              BorderThickness="0"
+                              ColumnHeaderStyle="{StaticResource LogHeaderStyle}"
+                              RowStyle="{StaticResource LogRowStyle}"
+                              CellStyle="{StaticResource LogCellStyle}"
+                              VirtualizingPanel.IsVirtualizing="True"
+                              VirtualizingPanel.VirtualizationMode="Recycling"
+                              ScrollViewer.CanContentScroll="True">
+                        <DataGrid.Columns>
+                            <!-- 1. Selection Checkbox Column -->
+                            <DataGridTemplateColumn Width="40" CanUserSort="False">
+                                <DataGridTemplateColumn.Header>
+                                    <CheckBox IsChecked="{Binding DataContext.Logs.IsAllFilteredSelected, RelativeSource={RelativeSource AncestorType=UserControl}, Mode=TwoWay}"
+                                              Command="{Binding DataContext.Logs.ToggleSelectAllFilteredCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                              HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </DataGridTemplateColumn.Header>
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                  HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+
+                            <!-- 2. Severity Column -->
+                            <DataGridTemplateColumn Header="Severity" Width="95" SortMemberPath="Severity">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Border CornerRadius="10" Padding="8,2" HorizontalAlignment="Left">
                                             <Border.Style>
                                                 <Style TargetType="{x:Type Border}">
-                                                    <Setter Property="Background" Value="Transparent"/>
+                                                    <Setter Property="Background" Value="{DynamicResource BrushCobaltSoft}"/>
                                                     <Style.Triggers>
                                                         <DataTrigger Binding="{Binding IsError}" Value="True">
-                                                            <Setter Property="Background" Value="#0FE11D48"/>
+                                                            <Setter Property="Background" Value="{DynamicResource BrushCoralSoft}"/>
                                                         </DataTrigger>
                                                         <DataTrigger Binding="{Binding IsWarning}" Value="True">
-                                                            <Setter Property="Background" Value="#0FD97706"/>
+                                                            <Setter Property="Background" Value="{DynamicResource BrushSaffronSoft}"/>
                                                         </DataTrigger>
-                                                        <Trigger Property="IsMouseOver" Value="True">
-                                                            <Setter Property="Background" Value="{DynamicResource BrushSunken}"/>
-                                                        </Trigger>
                                                     </Style.Triggers>
                                                 </Style>
                                             </Border.Style>
-                                            <Grid>
-                                                <!-- Coloured Left Edge Indicator per Line (§4.6) -->
-                                                <Border Width="4" HorizontalAlignment="Left" CornerRadius="2">
-                                                    <Border.Style>
-                                                        <Style TargetType="{x:Type Border}">
-                                                            <Setter Property="Background" Value="Transparent"/>
+                                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                                <Ellipse Width="6" Height="6" Margin="0,0,5,0">
+                                                    <Ellipse.Style>
+                                                        <Style TargetType="{x:Type Ellipse}">
+                                                            <Setter Property="Fill" Value="{DynamicResource BrushCobalt}"/>
                                                             <Style.Triggers>
                                                                 <DataTrigger Binding="{Binding IsError}" Value="True">
-                                                                    <Setter Property="Background" Value="{DynamicResource BrushCoral}"/>
+                                                                    <Setter Property="Fill" Value="{DynamicResource BrushCoral}"/>
                                                                 </DataTrigger>
                                                                 <DataTrigger Binding="{Binding IsWarning}" Value="True">
-                                                                    <Setter Property="Background" Value="{DynamicResource BrushSaffron}"/>
-                                                                </DataTrigger>
-                                                                <DataTrigger Binding="{Binding IsSuccess}" Value="True">
-                                                                    <Setter Property="Background" Value="{DynamicResource BrushJade}"/>
+                                                                    <Setter Property="Fill" Value="{DynamicResource BrushSaffron}"/>
                                                                 </DataTrigger>
                                                             </Style.Triggers>
                                                         </Style>
-                                                    </Border.Style>
-                                                </Border>
-
-                                                <!-- Mono Line Content -->
-                                                <TextBlock Text="{Binding Raw}"
-                                                           FontFamily="{StaticResource FontFamilyMono}"
-                                                           FontSize="{StaticResource FontSizeMono}"
-                                                           Foreground="{DynamicResource BrushInk}"
-                                                           TextWrapping="NoWrap"
-                                                           LineHeight="21"
-                                                           Padding="16,4,16,4"/>
-                                            </Grid>
+                                                    </Ellipse.Style>
+                                                </Ellipse>
+                                                <TextBlock Text="{Binding Severity}" FontWeight="SemiBold" FontSize="11">
+                                                    <TextBlock.Style>
+                                                        <Style TargetType="{x:Type TextBlock}">
+                                                            <Setter Property="Foreground" Value="{DynamicResource BrushCobalt}"/>
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding IsError}" Value="True">
+                                                                    <Setter Property="Foreground" Value="{DynamicResource BrushCoral}"/>
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding IsWarning}" Value="True">
+                                                                    <Setter Property="Foreground" Value="{DynamicResource BrushSaffron}"/>
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </TextBlock.Style>
+                                                </TextBlock>
+                                            </StackPanel>
                                         </Border>
-                                    </ControlTemplate>
-                                </Setter.Value>
-                            </Setter>
-                        </Style>
-                    </ListView.ItemContainerStyle>
-                </ListView>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
 
-                <!-- Empty State Message when 0 lines match -->
-                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"
-                            Visibility="{Binding Logs.HasNoVisibleLines, Converter={StaticResource BoolToVis}}">
-                    <TextBlock Text="No log events match the current filter"
-                               FontWeight="Medium"
-                               FontSize="{StaticResource FontSizeBody}"
-                               Foreground="{DynamicResource BrushInkMuted}"
-                               HorizontalAlignment="Center"/>
+                            <!-- 3. Date & Time Column -->
+                            <DataGridTextColumn Header="Date &amp; Time" Width="145"
+                                                Binding="{Binding TimestampDisplay}"
+                                                SortMemberPath="Timestamp"
+                                                FontFamily="{StaticResource FontFamilyMono}"
+                                                FontSize="{StaticResource FontSizeMono}"/>
+
+                            <!-- 4. Source Column -->
+                            <DataGridTextColumn Header="Source" Width="120"
+                                                Binding="{Binding Source}"
+                                                SortMemberPath="Source"
+                                                FontWeight="Medium"/>
+
+                            <!-- 5. Job Name Column -->
+                            <DataGridTextColumn Header="Job Name" Width="110"
+                                                Binding="{Binding JobName}"
+                                                SortMemberPath="JobName"
+                                                Foreground="{DynamicResource BrushInkMuted}"/>
+
+                            <!-- 6. Message Column -->
+                            <DataGridTemplateColumn Header="Message" Width="*" SortMemberPath="Message">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Message}"
+                                                   TextTrimming="CharacterEllipsis"
+                                                   VerticalAlignment="Center"
+                                                   ToolTip="{Binding Message}"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+
+                            <!-- 7. Actions Column -->
+                            <DataGridTemplateColumn Width="60" CanUserSort="False">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Button Command="{Binding DataContext.Logs.ViewDetailsCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                CommandParameter="{Binding}"
+                                                Style="{StaticResource BtnQuiet}"
+                                                Height="24" Width="44" Padding="0"
+                                                ToolTip="View log details">
+                                            <TextBlock Text="View" FontSize="11" Foreground="{DynamicResource BrushCobalt}"/>
+                                        </Button>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <!-- Empty State Message when 0 records match -->
+                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"
+                                Visibility="{Binding Logs.HasNoVisibleLines, Converter={StaticResource BoolToVis}}">
+                        <Path Data="{StaticResource IconLogs}" Fill="{DynamicResource BrushLineStrong}" Width="40" Height="40" Stretch="Uniform" Margin="0,0,0,8"/>
+                        <TextBlock Text="No log events match the current filter"
+                                   FontWeight="SemiBold"
+                                   FontSize="{StaticResource FontSizeBody}"
+                                   Foreground="{DynamicResource BrushInkMuted}"
+                                   HorizontalAlignment="Center"/>
+                        <TextBlock Text="Try clearing search filters or broadening your date selection."
+                                   FontSize="{StaticResource FontSizeBadge}"
+                                   Foreground="{DynamicResource BrushInkFaint}"
+                                   HorizontalAlignment="Center" Margin="0,4,0,0"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- Section C: Right Log Details Panel (Expandable) -->
+            <Border Grid.Column="2" Width="380" Margin="10,0,0,0"
+                    Style="{StaticResource ModernCard}" Padding="16"
+                    Visibility="{Binding Logs.IsDetailsOpen, Converter={StaticResource BoolToVis}}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/> <!-- Title & Close -->
+                        <RowDefinition Height="Auto"/> <!-- Action Buttons -->
+                        <RowDefinition Height="*"/>    <!-- Scrollable Content -->
+                    </Grid.RowDefinitions>
+
+                    <!-- Header: Title & Close Button -->
+                    <Grid Grid.Row="0" Margin="0,0,0,12">
+                        <TextBlock Text="Log Details" FontWeight="SemiBold" FontSize="{StaticResource FontSizeCardHeader}" Foreground="{DynamicResource BrushInk}"/>
+                        <Button Command="{Binding Logs.CloseDetailsCommand}"
+                                Style="{StaticResource BtnQuiet}"
+                                HorizontalAlignment="Right" Height="24" Width="24" Padding="0"
+                                ToolTip="Close details panel">
+                            <Path Data="{StaticResource IconClose}" Fill="{DynamicResource BrushInkMuted}" Width="10" Height="10" Stretch="Uniform"/>
+                        </Button>
+                    </Grid>
+
+                    <!-- Quick Actions -->
+                    <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,14">
+                        <Button Command="{Binding Logs.CopyDetailsMessageCommand}"
+                                Style="{StaticResource BtnQuiet}" Height="28" Padding="10,0" Margin="0,0,6,0"
+                                ToolTip="Copy log message to clipboard">
+                            <StackPanel Orientation="Horizontal">
+                                <Path Data="{StaticResource IconCopy}" Fill="{DynamicResource BrushInkMuted}" Width="12" Height="12" Stretch="Uniform" Margin="0,0,4,0"/>
+                                <TextBlock Text="Copy Message" FontSize="{StaticResource FontSizeBadge}"/>
+                            </StackPanel>
+                        </Button>
+
+                        <Button Command="{Binding Logs.CopyDetailsFullCommand}"
+                                Style="{StaticResource BtnQuiet}" Height="28" Padding="10,0" Margin="0,0,6,0"
+                                ToolTip="Copy entire event details and stack trace">
+                            <TextBlock Text="Copy Full" FontSize="{StaticResource FontSizeBadge}"/>
+                        </Button>
+
+                        <Button Command="{Binding Logs.OpenLogFileLocationCommand}"
+                                Style="{StaticResource BtnQuiet}" Height="28" Padding="10,0"
+                                ToolTip="Open log file location in File Explorer">
+                            <Path Data="{StaticResource IconFolder}" Fill="{DynamicResource BrushInkMuted}" Width="12" Height="12" Stretch="Uniform"/>
+                        </Button>
+                    </StackPanel>
+
+                    <!-- Scrollable Details Content -->
+                    <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                        <StackPanel>
+                            <!-- Metadata Pills -->
+                            <WrapPanel Margin="0,0,0,12">
+                                <!-- Severity Badge -->
+                                <Border CornerRadius="10" Padding="8,3" Margin="0,0,6,6">
+                                    <Border.Style>
+                                        <Style TargetType="{x:Type Border}">
+                                            <Setter Property="Background" Value="{DynamicResource BrushCobaltSoft}"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding Logs.SelectedLog.IsError}" Value="True">
+                                                    <Setter Property="Background" Value="{DynamicResource BrushCoralSoft}"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding Logs.SelectedLog.IsWarning}" Value="True">
+                                                    <Setter Property="Background" Value="{DynamicResource BrushSaffronSoft}"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Border.Style>
+                                    <TextBlock Text="{Binding Logs.SelectedLog.Severity}" FontWeight="SemiBold" FontSize="11">
+                                        <TextBlock.Style>
+                                            <Style TargetType="{x:Type TextBlock}">
+                                                <Setter Property="Foreground" Value="{DynamicResource BrushCobalt}"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Logs.SelectedLog.IsError}" Value="True">
+                                                        <Setter Property="Foreground" Value="{DynamicResource BrushCoral}"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Logs.SelectedLog.IsWarning}" Value="True">
+                                                        <Setter Property="Foreground" Value="{DynamicResource BrushSaffron}"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </Border>
+
+                                <!-- Source Pill -->
+                                <Border Background="{DynamicResource BrushSunken}" CornerRadius="10" Padding="8,3" Margin="0,0,6,6">
+                                    <TextBlock Text="{Binding Logs.SelectedLog.Source}" FontWeight="Medium" FontSize="11" Foreground="{DynamicResource BrushInk}"/>
+                                </Border>
+
+                                <!-- Job Name Pill -->
+                                <Border Background="{DynamicResource BrushSunken}" CornerRadius="10" Padding="8,3" Margin="0,0,6,6">
+                                    <TextBlock Text="{Binding Logs.SelectedLog.JobName, StringFormat='Job: {0}'}" FontSize="11" Foreground="{DynamicResource BrushInkMuted}"/>
+                                </Border>
+                            </WrapPanel>
+
+                            <!-- Timestamp -->
+                            <TextBlock Text="TIMESTAMP" FontWeight="SemiBold" FontSize="11" Foreground="{DynamicResource BrushInkFaint}" Margin="0,0,0,3"/>
+                            <TextBlock Text="{Binding Logs.SelectedLog.TimestampDisplay}"
+                                       FontFamily="{StaticResource FontFamilyMono}" FontSize="{StaticResource FontSizeMono}"
+                                       Foreground="{DynamicResource BrushInk}" Margin="0,0,0,12"/>
+
+                            <!-- Exception Type (if present) -->
+                            <StackPanel Margin="0,0,0,12" Visibility="{Binding Logs.SelectedLog.HasException, Converter={StaticResource BoolToVis}}">
+                                <TextBlock Text="EXCEPTION TYPE" FontWeight="SemiBold" FontSize="11" Foreground="{DynamicResource BrushCoral}" Margin="0,0,0,3"/>
+                                <Border Background="{DynamicResource BrushCoralSoft}" CornerRadius="4" Padding="8,4">
+                                    <TextBlock Text="{Binding Logs.SelectedLog.ExceptionType}"
+                                               FontFamily="{StaticResource FontFamilyMono}" FontSize="{StaticResource FontSizeMono}"
+                                               Foreground="{DynamicResource BrushCoral}" TextWrapping="Wrap"/>
+                                </Border>
+                            </StackPanel>
+
+                            <!-- Full Message -->
+                            <TextBlock Text="MESSAGE" FontWeight="SemiBold" FontSize="11" Foreground="{DynamicResource BrushInkFaint}" Margin="0,0,0,3"/>
+                            <TextBox Text="{Binding Logs.SelectedLog.Message, Mode=OneWay}"
+                                     IsReadOnly="True" TextWrapping="Wrap"
+                                     Background="Transparent" BorderThickness="0"
+                                     Foreground="{DynamicResource BrushInk}"
+                                     FontSize="{StaticResource FontSizeBody}"
+                                     Margin="0,0,0,14"/>
+
+                            <!-- Stack Trace (if present, monospace independently scrollable) -->
+                            <StackPanel Visibility="{Binding Logs.SelectedLog.HasStackTrace, Converter={StaticResource BoolToVis}}">
+                                <TextBlock Text="STACK TRACE" FontWeight="SemiBold" FontSize="11" Foreground="{DynamicResource BrushInkFaint}" Margin="0,0,0,4"/>
+                                <Border Background="{DynamicResource BrushSunken}" CornerRadius="4" Padding="10" MaxHeight="260">
+                                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+                                        <TextBox Text="{Binding Logs.SelectedLog.StackTrace, Mode=OneWay}"
+                                                 IsReadOnly="True"
+                                                 FontFamily="{StaticResource FontFamilyMono}"
+                                                 FontSize="{StaticResource FontSizeMono}"
+                                                 Foreground="{DynamicResource BrushInk}"
+                                                 Background="Transparent" BorderThickness="0"/>
+                                    </ScrollViewer>
+                                </Border>
+                            </StackPanel>
+                        </StackPanel>
+                    </ScrollViewer>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- ===================================================================
+             4. COMPACT FOOTER & PAGINATION BAR
+             =================================================================== -->
+        <Border Grid.Row="4" Style="{StaticResource ModernCard}" Padding="14,8" Margin="0,10,0,0">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/> <!-- Record counts & status badges -->
+                    <ColumnDefinition Width="*"/>    <!-- Spacer -->
+                    <ColumnDefinition Width="Auto"/> <!-- Pagination Controls -->
+                </Grid.ColumnDefinitions>
+
+                <!-- Left: Status Counts -->
+                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding Logs.TotalFilteredCount, StringFormat='Total: {0} records'}"
+                               FontWeight="SemiBold" FontSize="{StaticResource FontSizeBadge}" Foreground="{DynamicResource BrushInk}" Margin="0,0,12,0"/>
+
+                    <Border CornerRadius="8" Background="{DynamicResource BrushCoralSoft}" Padding="6,2" Margin="0,0,6,0">
+                        <TextBlock Text="{Binding Logs.CountErrors, StringFormat='{}{0} Errors'}" FontWeight="Medium" FontSize="11" Foreground="{DynamicResource BrushCoral}"/>
+                    </Border>
+
+                    <Border CornerRadius="8" Background="{DynamicResource BrushSaffronSoft}" Padding="6,2" Margin="0,0,6,0">
+                        <TextBlock Text="{Binding Logs.CountWarnings, StringFormat='{}{0} Warnings'}" FontWeight="Medium" FontSize="11" Foreground="{DynamicResource BrushSaffron}"/>
+                    </Border>
+
+                    <Border CornerRadius="8" Background="{DynamicResource BrushCobaltSoft}" Padding="6,2">
+                        <TextBlock Text="{Binding Logs.CountInformation, StringFormat='{}{0} Info'}" FontWeight="Medium" FontSize="11" Foreground="{DynamicResource BrushCobalt}"/>
+                    </Border>
+                </StackPanel>
+
+                <!-- Right: Pagination -->
+                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="Page size:" FontSize="{StaticResource FontSizeBadge}" Foreground="{DynamicResource BrushInkMuted}" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                    <ComboBox ItemsSource="{Binding Logs.PageSizes}"
+                              SelectedItem="{Binding Logs.PageSize, Mode=TwoWay}"
+                              Height="26" Width="60"
+                              Style="{StaticResource FieldComboBox}"
+                              VerticalContentAlignment="Center"
+                              Margin="0,0,14,0"/>
+
+                    <Button Command="{Binding Logs.FirstPageCommand}"
+                            IsEnabled="{Binding Logs.CanGoFirstPage}"
+                            Style="{StaticResource BtnQuiet}" Height="26" Width="26" Padding="0" Margin="0,0,4,0"
+                            ToolTip="First Page">
+                        <Path Data="{StaticResource IconDoubleChevronLeft}" Fill="{DynamicResource BrushInkMuted}" Width="10" Height="10" Stretch="Uniform"/>
+                    </Button>
+
+                    <Button Command="{Binding Logs.PreviousPageCommand}"
+                            IsEnabled="{Binding Logs.CanGoPreviousPage}"
+                            Style="{StaticResource BtnQuiet}" Height="26" Width="26" Padding="0" Margin="0,0,8,0"
+                            ToolTip="Previous Page">
+                        <Path Data="{StaticResource IconChevronLeft}" Fill="{DynamicResource BrushInkMuted}" Width="10" Height="10" Stretch="Uniform"/>
+                    </Button>
+
+                    <TextBlock Text="{Binding Logs.PaginationText}"
+                               FontSize="{StaticResource FontSizeBadge}" FontWeight="Medium"
+                               Foreground="{DynamicResource BrushInk}" VerticalAlignment="Center" Margin="0,0,8,0"/>
+
+                    <Button Command="{Binding Logs.NextPageCommand}"
+                            IsEnabled="{Binding Logs.CanGoNextPage}"
+                            Style="{StaticResource BtnQuiet}" Height="26" Width="26" Padding="0" Margin="0,0,4,0"
+                            ToolTip="Next Page">
+                        <Path Data="{StaticResource IconChevronRight}" Fill="{DynamicResource BrushInkMuted}" Width="10" Height="10" Stretch="Uniform"/>
+                    </Button>
+
+                    <Button Command="{Binding Logs.LastPageCommand}"
+                            IsEnabled="{Binding Logs.CanGoLastPage}"
+                            Style="{StaticResource BtnQuiet}" Height="26" Width="26" Padding="0"
+                            ToolTip="Last Page">
+                        <Path Data="{StaticResource IconDoubleChevronRight}" Fill="{DynamicResource BrushInkMuted}" Width="10" Height="10" Stretch="Uniform"/>
+                    </Button>
                 </StackPanel>
             </Grid>
         </Border>

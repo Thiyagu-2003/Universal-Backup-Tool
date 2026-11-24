@@ -464,7 +464,7 @@
                     </Grid>
 
                     <!-- 4. IIS Sites Tab -->
-                    <Grid x:Name="IisSitesTabContent" Visibility="Collapsed">
+                    <Grid x:Name="IisSitesTabContent" Visibility="Collapsed" DataContext="{Binding IisSitesVm}">
                         <views:IisSitesView/>
                     </Grid>
 

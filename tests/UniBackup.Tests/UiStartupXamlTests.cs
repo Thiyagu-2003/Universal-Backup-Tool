@@ -99,6 +99,12 @@ public class UiStartupXamlTests
             Assert.Equal(Visibility.Visible, ((UIElement)window.FindName("NewJobTabContent")).Visibility);
             Assert.Equal(Visibility.Collapsed, ((UIElement)window.FindName("BackupsTabContent")).Visibility);
 
+            // Test navigating to the embedded IIS Sites screen
+            window.SwitchToTab("IisSites");
+            System.Windows.Threading.Dispatcher.CurrentDispatcher.Invoke(() => { }, System.Windows.Threading.DispatcherPriority.ApplicationIdle);
+            Assert.Equal(Visibility.Visible, ((UIElement)window.FindName("IisSitesTabContent")).Visibility);
+            Assert.Equal(Visibility.Collapsed, ((UIElement)window.FindName("BackupsTabContent")).Visibility);
+
             // Test navigating back to Backups screen
             window.SwitchToTab("Backups");
             System.Windows.Threading.Dispatcher.CurrentDispatcher.Invoke(() => { }, System.Windows.Threading.DispatcherPriority.ApplicationIdle);

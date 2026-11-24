@@ -43,6 +43,9 @@ public partial class MainViewModel : ObservableObject
     private LogsViewModel _logs = new();
 
     [ObservableProperty]
+    private IisSitesViewModel _iisSitesVm = null!;
+
+    [ObservableProperty]
     private string _searchQuery = "";
 
     partial void OnSearchQueryChanged(string value) => _ = RefreshJobsAsync();
@@ -419,6 +422,58 @@ public partial class MainViewModel : ObservableObject
         _restoreDrillService = restoreDrillService;
         UpdateFreeSpaceIndicators();
         InitNewJob();
+        InitIisSites();
+    }
+
+    private void InitIisSites()
+    {
+        IisSitesVm = new IisSitesViewModel(
+            _configService,
+            _pipeline,
+            _iisService,
+            _schedulerService,
+            getConfig: () => Config,
+            onEditSite: site =>
+            {
+                var matchingJob = Jobs.FirstOrDefault(c =>
+                    string.Equals(c.Name, site.Name, StringComparison.OrdinalIgnoreCase) ||
+                    string.Equals(c.Model.SourceFolder, site.Path, StringComparison.OrdinalIgnoreCase) ||
+                    (c.Model.SourceFolder?.StartsWith("IIS:", StringComparison.OrdinalIgnoreCase) == true &&
+                     c.Model.SourceFolder.Contains(site.Name, StringComparison.OrdinalIgnoreCase)));
+
+                if (matchingJob != null)
+                {
+                    EditJob(matchingJob);
+                    return;
+                }
+
+                OpenNewJob();
+                if (NewJob != null)
+                {
+                    NewJob.IsIisSite = true;
+                    NewJob.SelectedIisSites.Clear();
+                    NewJob.SelectedIisSites.Add(site);
+                    NewJob.JobName = site.Name;
+                    NewJob.SourceFolder = $"IIS:{site.Name}";
+                }
+                ActiveTab = "NewJob";
+            },
+            onOpenNewJobWithSites: sites =>
+            {
+                OpenNewJob();
+                if (NewJob != null)
+                {
+                    NewJob.IsIisSite = true;
+                    NewJob.SelectedIisSites.Clear();
+                    foreach (var s in sites)
+                    {
+                        NewJob.SelectedIisSites.Add(s);
+                    }
+                    NewJob.JobName = sites.Count == 1 ? sites[0].Name : $"{sites.Count} IIS sites";
+                    NewJob.SourceFolder = $"IIS:{string.Join(";", sites.Select(s => s.Name))}";
+                }
+                ActiveTab = "NewJob";
+            });
     }
 
     private void InitNewJob()
@@ -460,6 +515,7 @@ public partial class MainViewModel : ObservableObject
         await RefreshJobsAsync();
         await RefreshHistoryAsync();
         await Logs.InitializeAsync();
+        await IisSitesVm.InitializeAsync();
     }
 
     public void UpdateFreeSpaceIndicators()
