@@ -27,6 +27,18 @@ public class BackupSettings
 
     [JsonPropertyName("history_retention_days")]
     public int HistoryRetentionDays { get; set; } = 90;
+
+    [JsonPropertyName("max_parallelism")]
+    public int MaxDegreeOfParallelism { get; set; } = 4;
+
+    [JsonPropertyName("bandwidth_limit_kbps")]
+    public int BandwidthLimitKbps { get; set; } = 0;
+
+    [JsonPropertyName("compression_level")]
+    public string CompressionLevel { get; set; } = "Optimal";
+
+    [JsonPropertyName("clean_temp_after_backup")]
+    public bool CleanTempAfterBackup { get; set; } = true;
 }
 
 public class AwsSettings
@@ -295,6 +307,9 @@ public class EmailSettings
 
 public class ScheduleSettings
 {
+    [JsonPropertyName("engine")]
+    public string Engine { get; set; } = "Service"; // "Service" or "TaskScheduler"
+
     [JsonPropertyName("freq")]
     public string Freq { get; set; } = "daily";
 
@@ -439,6 +454,15 @@ public class AppConfig
 
     [JsonPropertyName("prometheus")]
     public PrometheusSettings Prometheus { get; set; } = new();
+
+    [JsonPropertyName("appearance")]
+    public AppearanceSettings Appearance { get; set; } = new();
+}
+
+public class AppearanceSettings
+{
+    [JsonPropertyName("theme")]
+    public string Theme { get; set; } = "Light"; // "System", "Light", "Dark"
 }
 
 public class SecuritySettings

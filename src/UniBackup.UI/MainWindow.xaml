@@ -491,7 +491,7 @@
                     </Grid>
 
                     <!-- 9. Settings & Engine Tab -->
-                    <Grid x:Name="SettingsTabContent" Visibility="Collapsed">
+                    <Grid x:Name="SettingsTabContent" Visibility="Collapsed" DataContext="{Binding SettingsVm}">
                         <views:SettingsView/>
                     </Grid>
                 </Grid>

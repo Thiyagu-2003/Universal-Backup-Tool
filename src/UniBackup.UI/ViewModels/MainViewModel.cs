@@ -53,6 +53,9 @@ public partial class MainViewModel : ObservableObject
     private AnalyticsViewModel _analyticsVm = null!;
 
     [ObservableProperty]
+    private SettingsViewModel _settingsVm = null!;
+
+    [ObservableProperty]
     private string _searchQuery = "";
 
     partial void OnActiveTabChanged(string value)
@@ -64,6 +67,13 @@ public partial class MainViewModel : ObservableObject
         else if (value == "Summary" && AnalyticsVm != null)
         {
             _ = AnalyticsVm.RefreshAsync();
+        }
+        else if (value == "Settings" && SettingsVm != null)
+        {
+            SettingsVm.SyncFromConfig();
+            SettingsVm.RefreshOverviewCards();
+            SettingsVm.RefreshEngineStatus();
+            SettingsVm.UpdateFreeSpaceIndicators();
         }
     }
 
@@ -444,6 +454,12 @@ public partial class MainViewModel : ObservableObject
         InitIisSites();
         InitRecovery();
         InitAnalytics();
+        InitSettings();
+    }
+
+    private void InitSettings()
+    {
+        SettingsVm = new SettingsViewModel(this);
     }
 
     private void InitAnalytics()
@@ -1325,6 +1341,15 @@ public partial class MainViewModel : ObservableObject
     public void SelectSettingsTab(string tab)
     {
         SelectedSettingsTab = tab;
+        var section = tab.ToLowerInvariant() switch
+        {
+            "service" => "Engine",
+            "connection" => "Credentials",
+            "notifications" => "Notifications",
+            "storage" => "Storage",
+            _ => tab
+        };
+        SettingsVm?.SelectSection(section);
     }
 
     [RelayCommand]
