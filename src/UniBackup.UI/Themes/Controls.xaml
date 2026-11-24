@@ -792,6 +792,7 @@
     <!-- Backward-compatibility styles for legacy views & tests -->
     <Style TargetType="Button" x:Key="PrimaryButton" BasedOn="{StaticResource BtnPrimary}"/>
     <Style TargetType="Button" x:Key="SecondaryButton" BasedOn="{StaticResource BtnQuiet}"/>
+    <Style TargetType="Button" x:Key="BtnSecondary" BasedOn="{StaticResource BtnQuiet}"/>
     <Style TargetType="Button" x:Key="SuccessButton" BasedOn="{StaticResource BtnGo}"/>
     <Style TargetType="Button" x:Key="DangerButton" BasedOn="{StaticResource BtnDanger}"/>
     <Style TargetType="Button" x:Key="CrispToolButton" BasedOn="{StaticResource IconBtn}"/>

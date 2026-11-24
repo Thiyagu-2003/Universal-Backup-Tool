@@ -10,6 +10,7 @@ using UniBackup.Engine.Pipeline;
 using UniBackup.Engine.Services;
 using UniBackup.Infrastructure.Logging;
 using UniBackup.Infrastructure.Notifications;
+using UniBackup.Infrastructure.Sql;
 using UniBackup.Infrastructure.Windows;
 using UniBackup.UI.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -46,7 +47,18 @@ public partial class MainViewModel : ObservableObject
     private IisSitesViewModel _iisSitesVm = null!;
 
     [ObservableProperty]
+    private RecoveryViewModel _recoveryVm = null!;
+
+    [ObservableProperty]
     private string _searchQuery = "";
+
+    partial void OnActiveTabChanged(string value)
+    {
+        if (value == "Recovery" && RecoveryVm != null)
+        {
+            _ = RecoveryVm.InitializeAsync();
+        }
+    }
 
     partial void OnSearchQueryChanged(string value) => _ = RefreshJobsAsync();
 
@@ -423,6 +435,24 @@ public partial class MainViewModel : ObservableObject
         UpdateFreeSpaceIndicators();
         InitNewJob();
         InitIisSites();
+        InitRecovery();
+    }
+
+    private void InitRecovery()
+    {
+        var sqlBackup = new SqlServerBackupService(_configService.Crypto);
+        var sqlRestore = new SqlServerRestoreService(_configService.Crypto);
+        RecoveryVm = new RecoveryViewModel(
+            getConfig: () => Config,
+            _configService,
+            _recoveryService,
+            _sqlRestoreOrchestrator,
+            sqlRestore,
+            sqlBackup,
+            _restoreDrillService,
+            _recoveryService.StorageProviders,
+            _configService.HistoryRepository,
+            _configService.Crypto);
     }
 
     private void InitIisSites()
@@ -516,6 +546,7 @@ public partial class MainViewModel : ObservableObject
         await RefreshHistoryAsync();
         await Logs.InitializeAsync();
         await IisSitesVm.InitializeAsync();
+        await RecoveryVm.InitializeAsync();
     }
 
     public void UpdateFreeSpaceIndicators()

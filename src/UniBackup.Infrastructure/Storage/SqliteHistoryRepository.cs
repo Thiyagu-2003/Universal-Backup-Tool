@@ -111,10 +111,28 @@ public class SqliteHistoryRepository
                 uploaded_bases_json TEXT
             );
 
+            CREATE TABLE IF NOT EXISTS recovery_operations (
+                operation_id TEXT PRIMARY KEY,
+                provider TEXT NOT NULL,
+                source_backup TEXT NOT NULL,
+                target_name TEXT NOT NULL,
+                recovery_type TEXT NOT NULL,
+                start_time TEXT NOT NULL,
+                end_time TEXT,
+                duration_seconds REAL NOT NULL,
+                status TEXT NOT NULL,
+                error_message TEXT,
+                log_details TEXT,
+                items_restored INTEGER NOT NULL DEFAULT 0,
+                bytes_restored INTEGER NOT NULL DEFAULT 0
+            );
+
             CREATE INDEX IF NOT EXISTS idx_runs_job_id ON runs(job_id);
             CREATE INDEX IF NOT EXISTS idx_runs_timestamp ON runs(timestamp);
             CREATE INDEX IF NOT EXISTS idx_sql_db_runs_run_id ON sql_database_runs(run_id);
             CREATE INDEX IF NOT EXISTS idx_dest_runs_run_id ON destination_runs(run_id);
+            CREATE INDEX IF NOT EXISTS idx_recovery_start_time ON recovery_operations(start_time);
+            CREATE INDEX IF NOT EXISTS idx_recovery_type ON recovery_operations(recovery_type);
         ";
 
         await using var cmd = new SqliteCommand(sql, conn);
@@ -466,5 +484,139 @@ public class SqliteHistoryRepository
         cmd.Parameters.AddWithValue("@cutoff", cutoff);
 
         return await cmd.ExecuteNonQueryAsync();
+    }
+
+    // =========================================================================
+    // RECOVERY OPERATIONS AUDIT TRAIL (§6)
+    // =========================================================================
+
+    public async Task RecordRecoveryOperationAsync(RecoveryOperationRecord record)
+    {
+        await EnsureInitializedAsync();
+        await using var conn = new SqliteConnection(_connectionString);
+        await conn.OpenAsync();
+
+        var sql = @"
+            INSERT OR REPLACE INTO recovery_operations (
+                operation_id, provider, source_backup, target_name, recovery_type,
+                start_time, end_time, duration_seconds, status, error_message, log_details,
+                items_restored, bytes_restored
+            ) VALUES (
+                @operation_id, @provider, @source_backup, @target_name, @recovery_type,
+                @start_time, @end_time, @duration_seconds, @status, @error_message, @log_details,
+                @items_restored, @bytes_restored
+            );
+        ";
+
+        await using var cmd = new SqliteCommand(sql, conn);
+        cmd.Parameters.AddWithValue("@operation_id", record.OperationId);
+        cmd.Parameters.AddWithValue("@provider", record.Provider);
+        cmd.Parameters.AddWithValue("@source_backup", record.SourceBackup);
+        cmd.Parameters.AddWithValue("@target_name", record.TargetName);
+        cmd.Parameters.AddWithValue("@recovery_type", record.RecoveryType);
+        cmd.Parameters.AddWithValue("@start_time", record.StartTime.ToString("o", CultureInfo.InvariantCulture));
+        cmd.Parameters.AddWithValue("@end_time", record.EndTime.HasValue ? record.EndTime.Value.ToString("o", CultureInfo.InvariantCulture) : DBNull.Value);
+        cmd.Parameters.AddWithValue("@duration_seconds", record.DurationSeconds);
+        cmd.Parameters.AddWithValue("@status", record.Status);
+        cmd.Parameters.AddWithValue("@error_message", (object?)record.ErrorMessage ?? DBNull.Value);
+        cmd.Parameters.AddWithValue("@log_details", (object?)record.LogDetails ?? DBNull.Value);
+        cmd.Parameters.AddWithValue("@items_restored", record.ItemsRestored);
+        cmd.Parameters.AddWithValue("@bytes_restored", record.BytesRestored);
+
+        await cmd.ExecuteNonQueryAsync();
+    }
+
+    public async Task UpdateRecoveryOperationAsync(
+        string operationId,
+        string status,
+        double durationSeconds,
+        string? errorMessage = null,
+        string? logDetails = null,
+        int itemsRestored = 0,
+        long bytesRestored = 0)
+    {
+        await EnsureInitializedAsync();
+        await using var conn = new SqliteConnection(_connectionString);
+        await conn.OpenAsync();
+
+        var sql = @"
+            UPDATE recovery_operations SET
+                status = @status,
+                end_time = @end_time,
+                duration_seconds = @duration_seconds,
+                error_message = @error_message,
+                log_details = @log_details,
+                items_restored = @items_restored,
+                bytes_restored = @bytes_restored
+            WHERE operation_id = @operation_id;
+        ";
+
+        await using var cmd = new SqliteCommand(sql, conn);
+        cmd.Parameters.AddWithValue("@operation_id", operationId);
+        cmd.Parameters.AddWithValue("@status", status);
+        cmd.Parameters.AddWithValue("@end_time", DateTime.UtcNow.ToString("o", CultureInfo.InvariantCulture));
+        cmd.Parameters.AddWithValue("@duration_seconds", durationSeconds);
+        cmd.Parameters.AddWithValue("@error_message", (object?)errorMessage ?? DBNull.Value);
+        cmd.Parameters.AddWithValue("@log_details", (object?)logDetails ?? DBNull.Value);
+        cmd.Parameters.AddWithValue("@items_restored", itemsRestored);
+        cmd.Parameters.AddWithValue("@bytes_restored", bytesRestored);
+
+        await cmd.ExecuteNonQueryAsync();
+    }
+
+    public async Task<List<RecoveryOperationRecord>> GetRecoveryHistoryAsync(int limit = 100, string? typeFilter = null)
+    {
+        await EnsureInitializedAsync();
+        await using var conn = new SqliteConnection(_connectionString);
+        await conn.OpenAsync();
+
+        var sql = "SELECT * FROM recovery_operations";
+        if (!string.IsNullOrWhiteSpace(typeFilter) && !typeFilter.Equals("All", StringComparison.OrdinalIgnoreCase))
+        {
+            sql += " WHERE recovery_type = @type";
+        }
+        sql += " ORDER BY start_time DESC LIMIT @limit;";
+
+        await using var cmd = new SqliteCommand(sql, conn);
+        cmd.Parameters.AddWithValue("@limit", limit);
+        if (!string.IsNullOrWhiteSpace(typeFilter) && !typeFilter.Equals("All", StringComparison.OrdinalIgnoreCase))
+        {
+            cmd.Parameters.AddWithValue("@type", typeFilter);
+        }
+
+        var results = new List<RecoveryOperationRecord>();
+        await using var reader = await cmd.ExecuteReaderAsync();
+        while (await reader.ReadAsync())
+        {
+            var r = new RecoveryOperationRecord
+            {
+                OperationId = reader.GetString(reader.GetOrdinal("operation_id")),
+                Provider = reader.GetString(reader.GetOrdinal("provider")),
+                SourceBackup = reader.GetString(reader.GetOrdinal("source_backup")),
+                TargetName = reader.GetString(reader.GetOrdinal("target_name")),
+                RecoveryType = reader.GetString(reader.GetOrdinal("recovery_type")),
+                StartTime = DateTime.Parse(reader.GetString(reader.GetOrdinal("start_time")), CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind),
+                DurationSeconds = reader.GetDouble(reader.GetOrdinal("duration_seconds")),
+                Status = reader.GetString(reader.GetOrdinal("status")),
+                ItemsRestored = reader.GetInt32(reader.GetOrdinal("items_restored")),
+                BytesRestored = reader.GetInt64(reader.GetOrdinal("bytes_restored"))
+            };
+
+            var endIdx = reader.GetOrdinal("end_time");
+            if (!reader.IsDBNull(endIdx))
+            {
+                r.EndTime = DateTime.Parse(reader.GetString(endIdx), CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind);
+            }
+
+            var errIdx = reader.GetOrdinal("error_message");
+            if (!reader.IsDBNull(errIdx)) r.ErrorMessage = reader.GetString(errIdx);
+
+            var logIdx = reader.GetOrdinal("log_details");
+            if (!reader.IsDBNull(logIdx)) r.LogDetails = reader.GetString(logIdx);
+
+            results.Add(r);
+        }
+
+        return results;
     }
 }

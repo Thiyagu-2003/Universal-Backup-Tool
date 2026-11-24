@@ -59,6 +59,7 @@
     <sys:Double x:Key="FontSizeCaption">11</sys:Double>
     <sys:Double x:Key="FontSizeBadge">11.5</sys:Double>
     <sys:Double x:Key="FontSizeKpi">28</sys:Double>
+    <sys:Double x:Key="FontSizeMetric">28</sys:Double>
     <sys:Double x:Key="FontSizeMono">12</sys:Double>
 
     <!-- Backward-compatibility size aliases mapped to typography hierarchy -->

@@ -20,6 +20,9 @@
             <!-- Converters -->
             <BooleanToVisibilityConverter x:Key="BoolToVis"/>
             <conv:InverseBooleanToVisibilityConverter x:Key="InverseBoolToVis"/>
+            <conv:InvertedBoolConverter x:Key="InvertedBoolConverter"/>
+            <conv:StringEqualsToBoolConverter x:Key="StringEqualsToBool"/>
+            <conv:InvertedZeroToVisibilityConverter x:Key="InvertedZeroToVis"/>
             <conv:BytesToStringConverter x:Key="BytesToStringConverter"/>
             <conv:RelativeTimeConverter x:Key="RelativeTimeConverter"/>
             <conv:DurationConverter x:Key="DurationConverter"/>

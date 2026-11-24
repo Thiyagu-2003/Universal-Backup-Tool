@@ -29,6 +29,7 @@ public class ConfigurationService
     public string DataDirectory => _dataDirectory ?? AppPaths.ResolveDataDirectory();
 
     public SqliteHistoryRepository HistoryRepository => _historyRepo.Value;
+    public ICredentialProtector Crypto => _crypto;
 
     private string DataFile(string name, string defaultPath) =>
         _dataDirectory is null ? defaultPath : Path.Combine(_dataDirectory, name);
