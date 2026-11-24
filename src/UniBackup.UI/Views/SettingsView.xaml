@@ -66,7 +66,7 @@
                     </Grid.ColumnDefinitions>
                     <StackPanel>
                         <TextBlock Text="Settings &amp; Engine" FontWeight="Bold" FontSize="{StaticResource FontSizePageTitle}" Foreground="{DynamicResource BrushInk}"/>
-                        <TextBlock Text="Configure execution engine, appearance, cloud credentials, security, storage and diagnostics"
+                        <TextBlock Text="Configure execution engine, appearance, cloud credentials, security, storage and advanced options"
                                    FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushInkMuted}" Margin="0,3,0,0"/>
                     </StackPanel>
 
@@ -79,60 +79,48 @@
                     </Border>
                 </Grid>
 
-                <!-- Floating Horizontal Submenu Container -->
+                <!-- Floating Horizontal Submenu Container (Clean, Fixed, No Slider) -->
                 <Border Background="{DynamicResource BrushSunken}" BorderBrush="{DynamicResource BrushLine}" BorderThickness="1"
                         CornerRadius="14" Padding="4" HorizontalAlignment="Left">
                     <Border.Effect>
                         <DropShadowEffect BlurRadius="10" Direction="270" RenderingBias="Performance" ShadowDepth="2" Opacity="0.06" Color="#000000"/>
                     </Border.Effect>
-                    <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
-                        <StackPanel Orientation="Horizontal">
-                            <!-- 1. Overview Tab -->
-                            <RadioButton Style="{StaticResource SubmenuNavTab}" Tag="{StaticResource IconOverview}" Content="Overview"
-                                         IsChecked="{Binding SelectedSection, Converter={StaticResource StringEqualsToBool}, ConverterParameter=Overview}"
-                                         Command="{Binding SelectSectionCommand}" CommandParameter="Overview"/>
+                    <StackPanel Orientation="Horizontal">
+                        <!-- 1. Overview Tab -->
+                        <RadioButton Style="{StaticResource SubmenuNavTab}" Tag="{StaticResource IconOverview}" Content="Overview"
+                                     IsChecked="{Binding SelectedSection, Converter={StaticResource StringEqualsToBool}, ConverterParameter=Overview}"
+                                     Command="{Binding SelectSectionCommand}" CommandParameter="Overview"/>
 
-                            <!-- 2. Appearance Tab -->
-                            <RadioButton Style="{StaticResource SubmenuNavTab}" Tag="{StaticResource IconPalette}" Content="Appearance"
-                                         IsChecked="{Binding SelectedSection, Converter={StaticResource StringEqualsToBool}, ConverterParameter=Appearance}"
-                                         Command="{Binding SelectSectionCommand}" CommandParameter="Appearance"/>
+                        <!-- 2. Appearance Tab -->
+                        <RadioButton Style="{StaticResource SubmenuNavTab}" Tag="{StaticResource IconPalette}" Content="Appearance"
+                                     IsChecked="{Binding SelectedSection, Converter={StaticResource StringEqualsToBool}, ConverterParameter=Appearance}"
+                                     Command="{Binding SelectSectionCommand}" CommandParameter="Appearance"/>
 
-                            <!-- 3. Security Tab -->
-                            <RadioButton Style="{StaticResource SubmenuNavTab}" Tag="{StaticResource IconShield}" Content="Security"
-                                         IsChecked="{Binding SelectedSection, Converter={StaticResource StringEqualsToBool}, ConverterParameter=Security}"
-                                         Command="{Binding SelectSectionCommand}" CommandParameter="Security"/>
+                        <!-- 3. Security Tab -->
+                        <RadioButton Style="{StaticResource SubmenuNavTab}" Tag="{StaticResource IconShield}" Content="Security"
+                                     IsChecked="{Binding SelectedSection, Converter={StaticResource StringEqualsToBool}, ConverterParameter=Security}"
+                                     Command="{Binding SelectSectionCommand}" CommandParameter="Security"/>
 
-                            <!-- 4. Execution Engine Tab -->
-                            <RadioButton Style="{StaticResource SubmenuNavTab}" Tag="{StaticResource IconServer}" Content="Execution Engine"
-                                         IsChecked="{Binding SelectedSection, Converter={StaticResource StringEqualsToBool}, ConverterParameter=Engine}"
-                                         Command="{Binding SelectSectionCommand}" CommandParameter="Engine"/>
+                        <!-- 4. Execution Engine Tab -->
+                        <RadioButton Style="{StaticResource SubmenuNavTab}" Tag="{StaticResource IconServer}" Content="Execution Engine"
+                                     IsChecked="{Binding SelectedSection, Converter={StaticResource StringEqualsToBool}, ConverterParameter=Engine}"
+                                     Command="{Binding SelectSectionCommand}" CommandParameter="Engine"/>
 
-                            <!-- 5. Cloud Credentials Tab -->
-                            <RadioButton Style="{StaticResource SubmenuNavTab}" Tag="{StaticResource IconCloudArrowDown}" Content="Cloud Credentials"
-                                         IsChecked="{Binding SelectedSection, Converter={StaticResource StringEqualsToBool}, ConverterParameter=Credentials}"
-                                         Command="{Binding SelectSectionCommand}" CommandParameter="Credentials"/>
+                        <!-- 5. Cloud Credentials Tab -->
+                        <RadioButton Style="{StaticResource SubmenuNavTab}" Tag="{StaticResource IconCloud}" Content="Cloud Credentials"
+                                     IsChecked="{Binding SelectedSection, Converter={StaticResource StringEqualsToBool}, ConverterParameter=Credentials}"
+                                     Command="{Binding SelectSectionCommand}" CommandParameter="Credentials"/>
 
-                            <!-- 6. Storage & Cache Tab -->
-                            <RadioButton Style="{StaticResource SubmenuNavTab}" Tag="{StaticResource IconHardDrive}" Content="Storage &amp; Cache"
-                                         IsChecked="{Binding SelectedSection, Converter={StaticResource StringEqualsToBool}, ConverterParameter=Storage}"
-                                         Command="{Binding SelectSectionCommand}" CommandParameter="Storage"/>
+                        <!-- 6. Storage & Cache Tab -->
+                        <RadioButton Style="{StaticResource SubmenuNavTab}" Tag="{StaticResource IconHardDrive}" Content="Storage &amp; Cache"
+                                     IsChecked="{Binding SelectedSection, Converter={StaticResource StringEqualsToBool}, ConverterParameter=Storage}"
+                                     Command="{Binding SelectSectionCommand}" CommandParameter="Storage"/>
 
-                            <!-- 7. Notifications Tab -->
-                            <RadioButton Style="{StaticResource SubmenuNavTab}" Tag="{StaticResource IconNotifications}" Content="Notifications"
-                                         IsChecked="{Binding SelectedSection, Converter={StaticResource StringEqualsToBool}, ConverterParameter=Notifications}"
-                                         Command="{Binding SelectSectionCommand}" CommandParameter="Notifications"/>
-
-                            <!-- 8. Diagnostics Tab -->
-                            <RadioButton Style="{StaticResource SubmenuNavTab}" Tag="{StaticResource IconActivity}" Content="Diagnostics"
-                                         IsChecked="{Binding SelectedSection, Converter={StaticResource StringEqualsToBool}, ConverterParameter=Diagnostics}"
-                                         Command="{Binding SelectSectionCommand}" CommandParameter="Diagnostics"/>
-
-                            <!-- 9. Advanced Tab -->
-                            <RadioButton Style="{StaticResource SubmenuNavTab}" Tag="{StaticResource IconSliders}" Content="Advanced"
-                                         IsChecked="{Binding SelectedSection, Converter={StaticResource StringEqualsToBool}, ConverterParameter=Advanced}"
-                                         Command="{Binding SelectSectionCommand}" CommandParameter="Advanced"/>
-                        </StackPanel>
-                    </ScrollViewer>
+                        <!-- 7. Advanced Tab -->
+                        <RadioButton Style="{StaticResource SubmenuNavTab}" Tag="{StaticResource IconSliders}" Content="Advanced"
+                                     IsChecked="{Binding SelectedSection, Converter={StaticResource StringEqualsToBool}, ConverterParameter=Advanced}"
+                                     Command="{Binding SelectSectionCommand}" CommandParameter="Advanced"/>
+                    </StackPanel>
                 </Border>
             </StackPanel>
         </Border>
@@ -155,18 +143,18 @@
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
                             <StackPanel>
-                                <TextBlock Text="Settings &amp; Engine Status" FontWeight="Bold" FontSize="{StaticResource FontSizeH2}" Foreground="{DynamicResource BrushInk}"/>
-                                <TextBlock Text="Comprehensive real-time health summary across all application subsystems. Jump directly to any section to adjust configurations."
+                                <TextBlock Text="Settings &amp; Engine Overview" FontWeight="Bold" FontSize="{StaticResource FontSizeH2}" Foreground="{DynamicResource BrushInk}"/>
+                                <TextBlock Text="Comprehensive real-time status across execution engine, security, storage and cloud integrations. Jump directly to any section to adjust configurations."
                                            FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushInkMuted}" Margin="0,4,0,0" TextWrapping="Wrap"/>
                             </StackPanel>
-                            <Button Grid.Column="1" Content="Run diagnostics" Command="{Binding RunDiagnosticsCommand}" Style="{StaticResource BtnPrimary}" VerticalAlignment="Center"/>
+                            <Button Grid.Column="1" Content="Save settings" Command="{Binding SaveSettingsCommand}" Style="{StaticResource BtnPrimary}" VerticalAlignment="Center"/>
                         </Grid>
                     </Border>
 
-                    <!-- Overview Cards Grid (4 Columns) -->
-                    <UniformGrid Columns="4" Margin="0,0,0,20">
+                    <!-- Overview Cards Grid (3 Columns x 2 Rows = 6 Cards) -->
+                    <UniformGrid Columns="3" Margin="0,0,-16,0">
                         <!-- 1. Appearance Card -->
-                        <Border Style="{StaticResource Card}" Padding="20" Margin="0,0,16,16">
+                        <Border Style="{StaticResource Card}" Padding="22" Margin="0,0,16,16">
                             <Grid>
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto"/>
@@ -174,20 +162,20 @@
                                     <RowDefinition Height="*"/>
                                     <RowDefinition Height="Auto"/>
                                 </Grid.RowDefinitions>
-                                <Border Width="40" Height="40" CornerRadius="10" Background="{DynamicResource BrushCobaltSoft}" HorizontalAlignment="Left">
-                                    <Path Data="{StaticResource IconPalette}" Fill="{DynamicResource BrushCobalt}" Width="18" Height="18" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                <Border Width="42" Height="42" CornerRadius="10" Background="{DynamicResource BrushCobaltSoft}" HorizontalAlignment="Left">
+                                    <Path Data="{StaticResource IconPalette}" Fill="{DynamicResource BrushCobalt}" Width="19" Height="19" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                 </Border>
-                                <TextBlock Grid.Row="1" Text="Appearance" FontWeight="Bold" FontSize="{StaticResource FontSizeRowTitle}" Foreground="{DynamicResource BrushInk}" Margin="0,12,0,4"/>
+                                <TextBlock Grid.Row="1" Text="Appearance" FontWeight="Bold" FontSize="{StaticResource FontSizeRowTitle}" Foreground="{DynamicResource BrushInk}" Margin="0,14,0,4"/>
                                 <StackPanel Grid.Row="2">
                                     <TextBlock Text="{Binding OverviewAppearanceStatus}" FontWeight="SemiBold" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource BrushCobalt}"/>
-                                    <TextBlock Text="Personalize interface theme and window styling" FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkMuted}" TextWrapping="Wrap" Margin="0,4,0,12"/>
+                                    <TextBlock Text="Personalize interface theme and window styling" FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkMuted}" TextWrapping="Wrap" Margin="0,4,0,14"/>
                                 </StackPanel>
-                                <Button Grid.Row="3" Content="Configure theme" Command="{Binding SelectSectionCommand}" CommandParameter="Appearance" Style="{StaticResource BtnQuiet}" HorizontalAlignment="Left" Height="32"/>
+                                <Button Grid.Row="3" Content="Configure theme" Command="{Binding SelectSectionCommand}" CommandParameter="Appearance" Style="{StaticResource BtnQuiet}" HorizontalAlignment="Left" Height="34"/>
                             </Grid>
                         </Border>
 
                         <!-- 2. Security Card -->
-                        <Border Style="{StaticResource Card}" Padding="20" Margin="0,0,16,16">
+                        <Border Style="{StaticResource Card}" Padding="22" Margin="0,0,16,16">
                             <Grid>
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto"/>
@@ -195,20 +183,20 @@
                                     <RowDefinition Height="*"/>
                                     <RowDefinition Height="Auto"/>
                                 </Grid.RowDefinitions>
-                                <Border Width="40" Height="40" CornerRadius="10" Background="{DynamicResource BrushJadeSoft}" HorizontalAlignment="Left">
-                                    <Path Data="{StaticResource IconShield}" Fill="{DynamicResource BrushJade}" Width="18" Height="18" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                <Border Width="42" Height="42" CornerRadius="10" Background="{DynamicResource BrushJadeSoft}" HorizontalAlignment="Left">
+                                    <Path Data="{StaticResource IconShield}" Fill="{DynamicResource BrushJade}" Width="19" Height="19" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                 </Border>
-                                <TextBlock Grid.Row="1" Text="Security" FontWeight="Bold" FontSize="{StaticResource FontSizeRowTitle}" Foreground="{DynamicResource BrushInk}" Margin="0,12,0,4"/>
+                                <TextBlock Grid.Row="1" Text="Security" FontWeight="Bold" FontSize="{StaticResource FontSizeRowTitle}" Foreground="{DynamicResource BrushInk}" Margin="0,14,0,4"/>
                                 <StackPanel Grid.Row="2">
                                     <TextBlock Text="{Binding OverviewSecurityStatus}" FontWeight="SemiBold" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource BrushInk}"/>
-                                    <TextBlock Text="Master password protection &amp; date-based formula" FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkMuted}" TextWrapping="Wrap" Margin="0,4,0,12"/>
+                                    <TextBlock Text="Master password protection &amp; date-based formula" FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkMuted}" TextWrapping="Wrap" Margin="0,4,0,14"/>
                                 </StackPanel>
-                                <Button Grid.Row="3" Content="Manage security" Command="{Binding SelectSectionCommand}" CommandParameter="Security" Style="{StaticResource BtnQuiet}" HorizontalAlignment="Left" Height="32"/>
+                                <Button Grid.Row="3" Content="Manage security" Command="{Binding SelectSectionCommand}" CommandParameter="Security" Style="{StaticResource BtnQuiet}" HorizontalAlignment="Left" Height="34"/>
                             </Grid>
                         </Border>
 
                         <!-- 3. Engine Card -->
-                        <Border Style="{StaticResource Card}" Padding="20" Margin="0,0,16,16">
+                        <Border Style="{StaticResource Card}" Padding="22" Margin="0,0,16,16">
                             <Grid>
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto"/>
@@ -216,20 +204,20 @@
                                     <RowDefinition Height="*"/>
                                     <RowDefinition Height="Auto"/>
                                 </Grid.RowDefinitions>
-                                <Border Width="40" Height="40" CornerRadius="10" Background="{DynamicResource BrushJadeSoft}" HorizontalAlignment="Left">
-                                    <Path Data="{StaticResource IconServer}" Fill="{DynamicResource BrushJade}" Width="18" Height="18" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                <Border Width="42" Height="42" CornerRadius="10" Background="{DynamicResource BrushJadeSoft}" HorizontalAlignment="Left">
+                                    <Path Data="{StaticResource IconServer}" Fill="{DynamicResource BrushJade}" Width="19" Height="19" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                 </Border>
-                                <TextBlock Grid.Row="1" Text="Execution Engine" FontWeight="Bold" FontSize="{StaticResource FontSizeRowTitle}" Foreground="{DynamicResource BrushInk}" Margin="0,12,0,4"/>
+                                <TextBlock Grid.Row="1" Text="Execution Engine" FontWeight="Bold" FontSize="{StaticResource FontSizeRowTitle}" Foreground="{DynamicResource BrushInk}" Margin="0,14,0,4"/>
                                 <StackPanel Grid.Row="2">
                                     <TextBlock Text="{Binding OverviewEngineStatus}" FontWeight="SemiBold" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource BrushInk}"/>
-                                    <TextBlock Text="Background service worker and task scheduler" FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkMuted}" TextWrapping="Wrap" Margin="0,4,0,12"/>
+                                    <TextBlock Text="Background service worker and task scheduler" FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkMuted}" TextWrapping="Wrap" Margin="0,4,0,14"/>
                                 </StackPanel>
-                                <Button Grid.Row="3" Content="Configure engine" Command="{Binding SelectSectionCommand}" CommandParameter="Engine" Style="{StaticResource BtnQuiet}" HorizontalAlignment="Left" Height="32"/>
+                                <Button Grid.Row="3" Content="Configure engine" Command="{Binding SelectSectionCommand}" CommandParameter="Engine" Style="{StaticResource BtnQuiet}" HorizontalAlignment="Left" Height="34"/>
                             </Grid>
                         </Border>
 
                         <!-- 4. Cloud Credentials Card -->
-                        <Border Style="{StaticResource Card}" Padding="20" Margin="0,0,0,16">
+                        <Border Style="{StaticResource Card}" Padding="22" Margin="0,0,16,16">
                             <Grid>
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto"/>
@@ -237,20 +225,20 @@
                                     <RowDefinition Height="*"/>
                                     <RowDefinition Height="Auto"/>
                                 </Grid.RowDefinitions>
-                                <Border Width="40" Height="40" CornerRadius="10" Background="{DynamicResource BrushCobaltSoft}" HorizontalAlignment="Left">
-                                    <Path Data="{StaticResource IconCloudArrowDown}" Fill="{DynamicResource BrushCobalt}" Width="18" Height="18" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                <Border Width="42" Height="42" CornerRadius="10" Background="{DynamicResource BrushCobaltSoft}" HorizontalAlignment="Left">
+                                    <Path Data="{StaticResource IconCloud}" Fill="{DynamicResource BrushCobalt}" Width="19" Height="19" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                 </Border>
-                                <TextBlock Grid.Row="1" Text="Cloud Credentials" FontWeight="Bold" FontSize="{StaticResource FontSizeRowTitle}" Foreground="{DynamicResource BrushInk}" Margin="0,12,0,4"/>
+                                <TextBlock Grid.Row="1" Text="Cloud Credentials" FontWeight="Bold" FontSize="{StaticResource FontSizeRowTitle}" Foreground="{DynamicResource BrushInk}" Margin="0,14,0,4"/>
                                 <StackPanel Grid.Row="2">
                                     <TextBlock Text="{Binding OverviewCloudStatus}" FontWeight="SemiBold" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource BrushInk}"/>
-                                    <TextBlock Text="AWS S3, Azure, Google Drive, and cloud tokens" FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkMuted}" TextWrapping="Wrap" Margin="0,4,0,12"/>
+                                    <TextBlock Text="AWS S3, Azure, Google Drive, and cloud tokens" FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkMuted}" TextWrapping="Wrap" Margin="0,4,0,14"/>
                                 </StackPanel>
-                                <Button Grid.Row="3" Content="Manage credentials" Command="{Binding SelectSectionCommand}" CommandParameter="Credentials" Style="{StaticResource BtnQuiet}" HorizontalAlignment="Left" Height="32"/>
+                                <Button Grid.Row="3" Content="Manage credentials" Command="{Binding SelectSectionCommand}" CommandParameter="Credentials" Style="{StaticResource BtnQuiet}" HorizontalAlignment="Left" Height="34"/>
                             </Grid>
                         </Border>
 
                         <!-- 5. Storage & Cache Card -->
-                        <Border Style="{StaticResource Card}" Padding="20" Margin="0,0,16,0">
+                        <Border Style="{StaticResource Card}" Padding="22" Margin="0,0,16,16">
                             <Grid>
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto"/>
@@ -258,20 +246,20 @@
                                     <RowDefinition Height="*"/>
                                     <RowDefinition Height="Auto"/>
                                 </Grid.RowDefinitions>
-                                <Border Width="40" Height="40" CornerRadius="10" Background="{DynamicResource BrushTealSoft}" HorizontalAlignment="Left">
-                                    <Path Data="{StaticResource IconHardDrive}" Fill="{DynamicResource BrushTeal}" Width="18" Height="18" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                <Border Width="42" Height="42" CornerRadius="10" Background="{DynamicResource BrushTealSoft}" HorizontalAlignment="Left">
+                                    <Path Data="{StaticResource IconHardDrive}" Fill="{DynamicResource BrushTeal}" Width="19" Height="19" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                 </Border>
-                                <TextBlock Grid.Row="1" Text="Storage &amp; Cache" FontWeight="Bold" FontSize="{StaticResource FontSizeRowTitle}" Foreground="{DynamicResource BrushInk}" Margin="0,12,0,4"/>
+                                <TextBlock Grid.Row="1" Text="Storage &amp; Cache" FontWeight="Bold" FontSize="{StaticResource FontSizeRowTitle}" Foreground="{DynamicResource BrushInk}" Margin="0,14,0,4"/>
                                 <StackPanel Grid.Row="2">
                                     <TextBlock Text="{Binding OverviewStorageStatus}" FontWeight="SemiBold" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource BrushInk}" TextTrimming="CharacterEllipsis"/>
-                                    <TextBlock Text="Staging partition, retention policy and cache clean" FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkMuted}" TextWrapping="Wrap" Margin="0,4,0,12"/>
+                                    <TextBlock Text="Staging partition, retention policy and cache clean" FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkMuted}" TextWrapping="Wrap" Margin="0,4,0,14"/>
                                 </StackPanel>
-                                <Button Grid.Row="3" Content="Storage settings" Command="{Binding SelectSectionCommand}" CommandParameter="Storage" Style="{StaticResource BtnQuiet}" HorizontalAlignment="Left" Height="32"/>
+                                <Button Grid.Row="3" Content="Storage settings" Command="{Binding SelectSectionCommand}" CommandParameter="Storage" Style="{StaticResource BtnQuiet}" HorizontalAlignment="Left" Height="34"/>
                             </Grid>
                         </Border>
 
-                        <!-- 6. Notifications Card -->
-                        <Border Style="{StaticResource Card}" Padding="20" Margin="0,0,16,0">
+                        <!-- 6. Advanced Card -->
+                        <Border Style="{StaticResource Card}" Padding="22" Margin="0,0,16,16">
                             <Grid>
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto"/>
@@ -279,57 +267,15 @@
                                     <RowDefinition Height="*"/>
                                     <RowDefinition Height="Auto"/>
                                 </Grid.RowDefinitions>
-                                <Border Width="40" Height="40" CornerRadius="10" Background="{DynamicResource BrushAmberSoft}" HorizontalAlignment="Left">
-                                    <Path Data="{StaticResource IconNotifications}" Fill="{DynamicResource BrushAmber}" Width="18" Height="18" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                <Border Width="42" Height="42" CornerRadius="10" Background="{DynamicResource BrushRaised}" HorizontalAlignment="Left">
+                                    <Path Data="{StaticResource IconSliders}" Fill="{DynamicResource BrushInk}" Width="19" Height="19" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                 </Border>
-                                <TextBlock Grid.Row="1" Text="Notifications" FontWeight="Bold" FontSize="{StaticResource FontSizeRowTitle}" Foreground="{DynamicResource BrushInk}" Margin="0,12,0,4"/>
-                                <StackPanel Grid.Row="2">
-                                    <TextBlock Text="{Binding OverviewNotificationStatus}" FontWeight="SemiBold" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource BrushInk}"/>
-                                    <TextBlock Text="SMTP email alerts and webhook integration" FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkMuted}" TextWrapping="Wrap" Margin="0,4,0,12"/>
-                                </StackPanel>
-                                <Button Grid.Row="3" Content="Notification rules" Command="{Binding SelectSectionCommand}" CommandParameter="Notifications" Style="{StaticResource BtnQuiet}" HorizontalAlignment="Left" Height="32"/>
-                            </Grid>
-                        </Border>
-
-                        <!-- 7. Diagnostics Card -->
-                        <Border Style="{StaticResource Card}" Padding="20" Margin="0,0,16,0">
-                            <Grid>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="*"/>
-                                    <RowDefinition Height="Auto"/>
-                                </Grid.RowDefinitions>
-                                <Border Width="40" Height="40" CornerRadius="10" Background="{DynamicResource BrushCobaltSoft}" HorizontalAlignment="Left">
-                                    <Path Data="{StaticResource IconActivity}" Fill="{DynamicResource BrushCobalt}" Width="18" Height="18" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                </Border>
-                                <TextBlock Grid.Row="1" Text="Diagnostics" FontWeight="Bold" FontSize="{StaticResource FontSizeRowTitle}" Foreground="{DynamicResource BrushInk}" Margin="0,12,0,4"/>
-                                <StackPanel Grid.Row="2">
-                                    <TextBlock Text="{Binding OverviewDiagnosticsStatus}" FontWeight="SemiBold" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource BrushInk}"/>
-                                    <TextBlock Text="System integrity, permissions and network checks" FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkMuted}" TextWrapping="Wrap" Margin="0,4,0,12"/>
-                                </StackPanel>
-                                <Button Grid.Row="3" Content="View diagnostics" Command="{Binding SelectSectionCommand}" CommandParameter="Diagnostics" Style="{StaticResource BtnQuiet}" HorizontalAlignment="Left" Height="32"/>
-                            </Grid>
-                        </Border>
-
-                        <!-- 8. Advanced Card -->
-                        <Border Style="{StaticResource Card}" Padding="20" Margin="0,0,0,0">
-                            <Grid>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="*"/>
-                                    <RowDefinition Height="Auto"/>
-                                </Grid.RowDefinitions>
-                                <Border Width="40" Height="40" CornerRadius="10" Background="{DynamicResource BrushRaised}" HorizontalAlignment="Left">
-                                    <Path Data="{StaticResource IconSliders}" Fill="{DynamicResource BrushInk}" Width="18" Height="18" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                </Border>
-                                <TextBlock Grid.Row="1" Text="Advanced" FontWeight="Bold" FontSize="{StaticResource FontSizeRowTitle}" Foreground="{DynamicResource BrushInk}" Margin="0,12,0,4"/>
+                                <TextBlock Grid.Row="1" Text="Advanced" FontWeight="Bold" FontSize="{StaticResource FontSizeRowTitle}" Foreground="{DynamicResource BrushInk}" Margin="0,14,0,4"/>
                                 <StackPanel Grid.Row="2">
                                     <TextBlock Text="{Binding OverviewAdvancedStatus}" FontWeight="SemiBold" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource BrushInk}"/>
-                                    <TextBlock Text="Concurrency streams, VSS and config export" FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkMuted}" TextWrapping="Wrap" Margin="0,4,0,12"/>
+                                    <TextBlock Text="Concurrency streams, VSS and config export" FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkMuted}" TextWrapping="Wrap" Margin="0,4,0,14"/>
                                 </StackPanel>
-                                <Button Grid.Row="3" Content="Advanced options" Command="{Binding SelectSectionCommand}" CommandParameter="Advanced" Style="{StaticResource BtnQuiet}" HorizontalAlignment="Left" Height="32"/>
+                                <Button Grid.Row="3" Content="Advanced options" Command="{Binding SelectSectionCommand}" CommandParameter="Advanced" Style="{StaticResource BtnQuiet}" HorizontalAlignment="Left" Height="34"/>
                             </Grid>
                         </Border>
                     </UniformGrid>
@@ -1096,295 +1042,10 @@
                     </Border>
                 </StackPanel>
 
-                <!-- ===============================================================
-                     SECTION 7: NOTIFICATIONS
-                     =============================================================== -->
-                <StackPanel Visibility="{Binding IsNotificationsSection, Converter={StaticResource BoolToVis}}">
-                    <Border Style="{StaticResource Card}" Padding="28" Margin="0,0,0,20">
-                        <StackPanel>
-                            <TextBlock Text="Notifications &amp; Integrations" FontWeight="Bold" FontSize="{StaticResource FontSizeH2}" Foreground="{DynamicResource BrushInk}"/>
-                            <TextBlock Text="Configure SMTP email delivery and multi-channel webhook dispatching for backup event reporting"
-                                       FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushInkMuted}" Margin="0,3,0,20"/>
 
-                            <!-- SMTP Configuration Group -->
-                            <TextBlock Text="SMTP Email Delivery" FontWeight="Bold" FontSize="{StaticResource FontSizeRowTitle}" Foreground="{DynamicResource BrushInk}" Margin="0,0,0,12"/>
-
-                            <Grid Margin="0,0,0,14">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="16"/>
-                                    <ColumnDefinition Width="120"/>
-                                    <ColumnDefinition Width="16"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
-                                <StackPanel Grid.Column="0">
-                                    <TextBlock Text="SMTP Server Host" FontWeight="SemiBold" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
-                                    <TextBox Text="{Binding Config.Email.SmtpHost, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldInputMono}" Tag="smtp.company.com" Margin="0,4,0,0"/>
-                                </StackPanel>
-                                <StackPanel Grid.Column="2">
-                                    <TextBlock Text="Port" FontWeight="SemiBold" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
-                                    <TextBox Text="{Binding Config.Email.SmtpPort, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldInputMono}" Tag="587" Margin="0,4,0,0"/>
-                                </StackPanel>
-                                <StackPanel Grid.Column="4" VerticalAlignment="Bottom" Margin="0,0,0,6">
-                                    <CheckBox Content="Enable SSL/TLS" IsChecked="{Binding Config.Email.UseTls, Mode=TwoWay}" FontWeight="SemiBold"/>
-                                </StackPanel>
-                            </Grid>
-
-                            <Grid Margin="0,0,0,14">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="16"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                <StackPanel Grid.Column="0">
-                                    <TextBlock Text="Username / From Address" FontWeight="SemiBold" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
-                                    <TextBox Text="{Binding Config.Email.FromAddress, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldInput}" Tag="backup-alerts@company.com" Margin="0,4,0,0"/>
-                                </StackPanel>
-                                <StackPanel Grid.Column="2">
-                                    <TextBlock Text="SMTP Password" FontWeight="SemiBold" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
-                                    <TextBox Text="{Binding Config.Email.Password, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldInput}" Tag="App password or secret" Margin="0,4,0,0"/>
-                                </StackPanel>
-                            </Grid>
-
-                            <TextBlock Text="Recipient Email Addresses (Comma-separated)" FontWeight="SemiBold" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
-                            <TextBox Text="{Binding EmailToAddressesText, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldInput}" Tag="admin@company.com, alerts@company.com" Margin="0,4,0,16"/>
-
-                            <Button Content="Send test email alert" Command="{Binding TestEmailNotificationCommand}" Style="{StaticResource BtnQuiet}" Height="36" Padding="18,0" HorizontalAlignment="Left" Margin="0,0,0,24"/>
-
-                            <Border Height="1" Background="{DynamicResource BrushLine}" Margin="0,0,0,24"/>
-
-                            <!-- Webhook Integrations Group -->
-                            <TextBlock Text="Webhook Integrations" FontWeight="Bold" FontSize="{StaticResource FontSizeRowTitle}" Foreground="{DynamicResource BrushInk}" Margin="0,0,0,12"/>
-
-                            <Border Style="{StaticResource SegmentedContainer}" HorizontalAlignment="Left" Margin="0,0,0,18">
-                                <StackPanel Orientation="Horizontal">
-                                    <RadioButton Content="Slack" Style="{StaticResource SegmentedItem}" Command="{Binding SelectWebhookServiceCommand}" CommandParameter="Slack"
-                                                 IsChecked="{Binding SelectedWebhookService, Converter={StaticResource StringEqualsToBool}, ConverterParameter=Slack}"/>
-                                    <RadioButton Content="Microsoft Teams" Style="{StaticResource SegmentedItem}" Command="{Binding SelectWebhookServiceCommand}" CommandParameter="Teams"
-                                                 IsChecked="{Binding SelectedWebhookService, Converter={StaticResource StringEqualsToBool}, ConverterParameter=Teams}"/>
-                                    <RadioButton Content="Discord" Style="{StaticResource SegmentedItem}" Command="{Binding SelectWebhookServiceCommand}" CommandParameter="Discord"
-                                                 IsChecked="{Binding SelectedWebhookService, Converter={StaticResource StringEqualsToBool}, ConverterParameter=Discord}"/>
-                                    <RadioButton Content="Telegram" Style="{StaticResource SegmentedItem}" Command="{Binding SelectWebhookServiceCommand}" CommandParameter="Telegram"
-                                                 IsChecked="{Binding SelectedWebhookService, Converter={StaticResource StringEqualsToBool}, ConverterParameter=Telegram}"/>
-                                    <RadioButton Content="Pushover" Style="{StaticResource SegmentedItem}" Command="{Binding SelectWebhookServiceCommand}" CommandParameter="Pushover"
-                                                 IsChecked="{Binding SelectedWebhookService, Converter={StaticResource StringEqualsToBool}, ConverterParameter=Pushover}"/>
-                                    <RadioButton Content="ntfy.sh" Style="{StaticResource SegmentedItem}" Command="{Binding SelectWebhookServiceCommand}" CommandParameter="ntfy"
-                                                 IsChecked="{Binding SelectedWebhookService, Converter={StaticResource StringEqualsToBool}, ConverterParameter=ntfy}"/>
-                                    <RadioButton Content="PagerDuty" Style="{StaticResource SegmentedItem}" Command="{Binding SelectWebhookServiceCommand}" CommandParameter="PagerDuty"
-                                                 IsChecked="{Binding SelectedWebhookService, Converter={StaticResource StringEqualsToBool}, ConverterParameter=PagerDuty}"/>
-                                    <RadioButton Content="Custom Webhook" Style="{StaticResource SegmentedItem}" Command="{Binding SelectWebhookServiceCommand}" CommandParameter="Custom"
-                                                 IsChecked="{Binding SelectedWebhookService, Converter={StaticResource StringEqualsToBool}, ConverterParameter=Custom}"/>
-                                </StackPanel>
-                            </Border>
-
-                            <!-- Webhook URL Inputs -->
-                            <StackPanel Visibility="{Binding IsSlackWebhookSelected, Converter={StaticResource BoolToVis}}">
-                                <TextBlock Text="Slack Incoming Webhook URL" FontWeight="SemiBold" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
-                                <TextBox Text="{Binding Config.Webhooks.SlackWebhookUrl, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldInputMono}" Tag="https://hooks.slack.com/services/..." Margin="0,4,0,14"/>
-                            </StackPanel>
-
-                            <StackPanel Visibility="{Binding IsTeamsWebhookSelected, Converter={StaticResource BoolToVis}}">
-                                <TextBlock Text="Microsoft Teams Power Automate / Workflow URL" FontWeight="SemiBold" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
-                                <TextBox Text="{Binding Config.Webhooks.TeamsWebhookUrl, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldInputMono}" Tag="https://prod-XX.westus.logic.azure.com/..." Margin="0,4,0,14"/>
-                            </StackPanel>
-
-                            <StackPanel Visibility="{Binding IsDiscordWebhookSelected, Converter={StaticResource BoolToVis}}">
-                                <TextBlock Text="Discord Webhook URL" FontWeight="SemiBold" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
-                                <TextBox Text="{Binding Config.Webhooks.DiscordWebhookUrl, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldInputMono}" Tag="https://discord.com/api/webhooks/..." Margin="0,4,0,14"/>
-                            </StackPanel>
-
-                            <StackPanel Visibility="{Binding IsTelegramWebhookSelected, Converter={StaticResource BoolToVis}}">
-                                <Grid Margin="0,0,0,14">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="16"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <StackPanel Grid.Column="0">
-                                        <TextBlock Text="Telegram Bot Token" FontWeight="SemiBold" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
-                                        <TextBox Text="{Binding Config.Webhooks.TelegramBotToken, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldInputMono}" Tag="123456:ABC-DEF..." Margin="0,4,0,0"/>
-                                    </StackPanel>
-                                    <StackPanel Grid.Column="2">
-                                        <TextBlock Text="Telegram Chat ID" FontWeight="SemiBold" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
-                                        <TextBox Text="{Binding Config.Webhooks.TelegramChatId, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldInputMono}" Tag="-100123456789" Margin="0,4,0,0"/>
-                                    </StackPanel>
-                                </Grid>
-                            </StackPanel>
-
-                            <StackPanel Visibility="{Binding IsPushoverWebhookSelected, Converter={StaticResource BoolToVis}}">
-                                <Grid Margin="0,0,0,14">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="16"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <StackPanel Grid.Column="0">
-                                        <TextBlock Text="Pushover User Key" FontWeight="SemiBold" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
-                                        <TextBox Text="{Binding Config.Webhooks.PushoverUserKey, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldInputMono}" Tag="u..." Margin="0,4,0,0"/>
-                                    </StackPanel>
-                                    <StackPanel Grid.Column="2">
-                                        <TextBlock Text="Pushover API Token" FontWeight="SemiBold" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
-                                        <TextBox Text="{Binding Config.Webhooks.PushoverApiToken, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldInputMono}" Tag="a..." Margin="0,4,0,0"/>
-                                    </StackPanel>
-                                </Grid>
-                            </StackPanel>
-
-                            <StackPanel Visibility="{Binding IsNtfyWebhookSelected, Converter={StaticResource BoolToVis}}">
-                                <Grid Margin="0,0,0,14">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="16"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <StackPanel Grid.Column="0">
-                                        <TextBlock Text="ntfy Server URL" FontWeight="SemiBold" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
-                                        <TextBox Text="{Binding Config.Webhooks.NtfyServerUrl, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldInputMono}" Tag="https://ntfy.sh" Margin="0,4,0,0"/>
-                                    </StackPanel>
-                                    <StackPanel Grid.Column="2">
-                                        <TextBlock Text="Topic" FontWeight="SemiBold" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
-                                        <TextBox Text="{Binding Config.Webhooks.NtfyTopic, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldInputMono}" Tag="company_backups" Margin="0,4,0,0"/>
-                                    </StackPanel>
-                                </Grid>
-                            </StackPanel>
-
-                            <StackPanel Visibility="{Binding IsPagerDutyWebhookSelected, Converter={StaticResource BoolToVis}}">
-                                <TextBlock Text="PagerDuty Routing / Integration Key" FontWeight="SemiBold" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
-                                <TextBox Text="{Binding Config.Webhooks.PagerDutyRoutingKey, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldInputMono}" Tag="pd_routing_key" Margin="0,4,0,14"/>
-                            </StackPanel>
-
-                            <StackPanel Visibility="{Binding IsCustomWebhookSelected, Converter={StaticResource BoolToVis}}">
-                                <TextBlock Text="Custom Webhook URL (POST)" FontWeight="SemiBold" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
-                                <TextBox Text="{Binding Config.Webhooks.CustomWebhookUrl, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldInputMono}" Tag="https://n8n.company.com/webhook/backup" Margin="0,4,0,14"/>
-
-                                <Grid Margin="0,0,0,14">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="16"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <StackPanel Grid.Column="0">
-                                        <TextBlock Text="Custom Header Name (e.g. X-API-Key)" FontWeight="SemiBold" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
-                                        <TextBox Text="{Binding Config.Webhooks.CustomWebhookHeaderName, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldInputMono}" Margin="0,4,0,0"/>
-                                    </StackPanel>
-                                    <StackPanel Grid.Column="2">
-                                        <TextBlock Text="Header Value" FontWeight="SemiBold" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
-                                        <TextBox Text="{Binding Config.Webhooks.CustomWebhookHeaderValue, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldInputMono}" Margin="0,4,0,0"/>
-                                    </StackPanel>
-                                </Grid>
-                            </StackPanel>
-
-                            <Button Content="Send test webhook payload" Command="{Binding TestWebhookNotificationCommand}" Style="{StaticResource BtnQuiet}" Height="36" Padding="18,0" HorizontalAlignment="Left"/>
-
-                            <!-- Feedback Banner -->
-                            <Border Background="{DynamicResource BrushSunken}" CornerRadius="8" Padding="14,10" Margin="0,18,0,0"
-                                    Visibility="{Binding HasNotificationTestFeedback, Converter={StaticResource BoolToVis}}">
-                                <TextBlock Text="{Binding NotificationTestFeedback}" FontWeight="SemiBold" FontSize="{StaticResource FontSizeHelp}"
-                                           Foreground="{Binding NotificationTestIsSuccess, Converter={StaticResource StatusToBrushConverter}}"/>
-                            </Border>
-                        </StackPanel>
-                    </Border>
-                </StackPanel>
 
                 <!-- ===============================================================
-                     SECTION 8: DIAGNOSTICS & SYSTEM HEALTH
-                     =============================================================== -->
-                <StackPanel Visibility="{Binding IsDiagnosticsSection, Converter={StaticResource BoolToVis}}">
-                    <Border Style="{StaticResource Card}" Padding="28" Margin="0,0,0,20">
-                        <StackPanel>
-                            <!-- Header with Action Buttons -->
-                            <Grid Margin="0,0,0,20">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
-                                <StackPanel>
-                                    <TextBlock Text="System Integrity &amp; Diagnostics" FontWeight="Bold" FontSize="{StaticResource FontSizeH2}" Foreground="{DynamicResource BrushInk}"/>
-                                    <TextBlock Text="Validate service runtime, temporary partitions, SQL Server instances, IIS metabase, and cloud connectivity"
-                                               FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushInkMuted}" Margin="0,3,0,0"/>
-                                </StackPanel>
-                                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                                    <Button Content="Run diagnostics" Command="{Binding RunDiagnosticsCommand}" Style="{StaticResource BtnPrimary}" Height="36" Padding="18,0" Margin="0,0,8,0"/>
-                                    <Button Content="Export report" Command="{Binding ExportDiagnosticsCommand}" Style="{StaticResource BtnQuiet}" Height="36" Padding="14,0"/>
-                                </StackPanel>
-                            </Grid>
-
-                            <!-- Summary Badges Bar -->
-                            <Border Background="{DynamicResource BrushRaised}" BorderBrush="{DynamicResource BrushLine}" BorderThickness="1" CornerRadius="10" Padding="18,14" Margin="0,0,0,20">
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                    </Grid.ColumnDefinitions>
-                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                        <Border Style="{StaticResource BadgePill}" Background="{DynamicResource BrushJadeSoft}" Margin="0,0,12,0" Padding="12,6">
-                                            <StackPanel Orientation="Horizontal">
-                                                <Path Data="{StaticResource IconCheck}" Fill="{DynamicResource BrushJade}" Width="12" Height="12" Stretch="Uniform" Margin="0,0,6,0" VerticalAlignment="Center"/>
-                                                <TextBlock Text="{Binding PassedCount, StringFormat={}{0} Passed}" FontWeight="Bold" FontSize="{StaticResource FontSizeBadge}" Foreground="{DynamicResource BrushJade}"/>
-                                            </StackPanel>
-                                        </Border>
-
-                                        <Border Style="{StaticResource BadgePill}" Background="{DynamicResource BrushAmberSoft}" Margin="0,0,12,0" Padding="12,6">
-                                            <StackPanel Orientation="Horizontal">
-                                                <Path Data="{StaticResource IconWarning}" Fill="{DynamicResource BrushAmber}" Width="12" Height="12" Stretch="Uniform" Margin="0,0,6,0" VerticalAlignment="Center"/>
-                                                <TextBlock Text="{Binding WarningCount, StringFormat={}{0} Warnings}" FontWeight="Bold" FontSize="{StaticResource FontSizeBadge}" Foreground="{DynamicResource BrushAmber}"/>
-                                            </StackPanel>
-                                        </Border>
-
-                                        <Border Style="{StaticResource BadgePill}" Background="{DynamicResource BrushRubySoft}" Padding="12,6">
-                                            <StackPanel Orientation="Horizontal">
-                                                <Path Data="{StaticResource IconClose}" Fill="{DynamicResource BrushRuby}" Width="12" Height="12" Stretch="Uniform" Margin="0,0,6,0" VerticalAlignment="Center"/>
-                                                <TextBlock Text="{Binding FailedCount, StringFormat={}{0} Failed}" FontWeight="Bold" FontSize="{StaticResource FontSizeBadge}" Foreground="{DynamicResource BrushRuby}"/>
-                                            </StackPanel>
-                                        </Border>
-                                    </StackPanel>
-
-                                    <TextBlock Grid.Column="1" Text="Live discovery diagnostics" FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkFaint}" VerticalAlignment="Center"/>
-                                </Grid>
-                            </Border>
-
-                            <!-- Diagnostic Items Table / List -->
-                            <ItemsControl ItemsSource="{Binding DiagnosticItems}">
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate>
-                                        <Border BorderBrush="{DynamicResource BrushLine}" BorderThickness="0,0,0,1" Padding="0,12">
-                                            <Grid>
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="Auto"/>
-                                                    <ColumnDefinition Width="140"/>
-                                                    <ColumnDefinition Width="220"/>
-                                                    <ColumnDefinition Width="*"/>
-                                                </Grid.ColumnDefinitions>
-
-                                                <!-- Status Tile -->
-                                                <Border Width="26" Height="26" CornerRadius="7"
-                                                        Background="{Binding Status, Converter={StaticResource StatusToBrushConverter}, ConverterParameter=soft}"
-                                                        Margin="0,0,14,0" VerticalAlignment="Center">
-                                                    <Path Data="{Binding Status, Converter={StaticResource StatusToGlyphConverter}}"
-                                                          Fill="{Binding Status, Converter={StaticResource StatusToBrushConverter}}"
-                                                          Width="12" Height="12" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                                </Border>
-
-                                                <!-- Category Badge -->
-                                                <Border Grid.Column="1" Style="{StaticResource BadgePill}" Background="{DynamicResource BrushSunken}" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,0,12,0">
-                                                    <TextBlock Text="{Binding Category}" FontWeight="SemiBold" FontSize="{StaticResource FontSizeBadge}" Foreground="{DynamicResource BrushInk}"/>
-                                                </Border>
-
-                                                <!-- Test Name -->
-                                                <TextBlock Grid.Column="2" Text="{Binding Name}" FontWeight="SemiBold" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource BrushInk}" VerticalAlignment="Center"/>
-
-                                                <!-- Details -->
-                                                <TextBlock Grid.Column="3" Text="{Binding Details}" FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkMuted}" VerticalAlignment="Center" TextWrapping="Wrap"/>
-                                            </Grid>
-                                        </Border>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-                        </StackPanel>
-                    </Border>
-                </StackPanel>
-
-                <!-- ===============================================================
-                     SECTION 9: ADVANCED
+                     SECTION 7: ADVANCED
                      =============================================================== -->
                 <StackPanel Visibility="{Binding IsAdvancedSection, Converter={StaticResource BoolToVis}}">
                     <Border Style="{StaticResource Card}" Padding="28" Margin="0,0,0,20">
@@ -1478,9 +1139,8 @@
 
                 <!-- Right: Action Buttons -->
                 <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                    <Button Content="Reset section" Command="{Binding ResetSectionCommand}" Style="{StaticResource BtnQuiet}" Height="38" Padding="16,0" Margin="0,0,10,0"/>
-                    <Button Content="Validate setup" Command="{Binding RunDiagnosticsCommand}" Style="{StaticResource BtnQuiet}" Height="38" Padding="16,0" Margin="0,0,12,0"/>
-                    <Button Content="Save settings" Command="{Binding SaveSettingsCommand}" Style="{StaticResource BtnPrimary}" Height="38" Padding="24,0"/>
+                    <Button Content="Reset section" Command="{Binding ResetSectionCommand}" Style="{StaticResource BtnQuiet}" Height="38" Padding="18,0" Margin="0,0,12,0"/>
+                    <Button Content="Save settings" Command="{Binding SaveSettingsCommand}" Style="{StaticResource BtnPrimary}" Height="38" Padding="26,0"/>
                 </StackPanel>
             </Grid>
         </Border>
