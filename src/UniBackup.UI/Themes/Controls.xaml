@@ -429,19 +429,61 @@
         </Setter>
     </Style>
 
-    <!-- ComboBox Style -->
+    <!-- Modern ComboBoxItem Style (Rounded Fluent Pill Selection) -->
+    <Style x:Key="ModernComboBoxItem" TargetType="{x:Type ComboBoxItem}">
+        <Setter Property="FontFamily" Value="{StaticResource FontFamilyPrimary}"/>
+        <Setter Property="FontSize" Value="{StaticResource FontSizeBody}"/>
+        <Setter Property="Foreground" Value="{DynamicResource BrushInk}"/>
+        <Setter Property="Padding" Value="10,7"/>
+        <Setter Property="Margin" Value="2,1"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="HorizontalContentAlignment" Value="Left"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type ComboBoxItem}">
+                    <Border x:Name="ItemBorder"
+                            Background="Transparent"
+                            CornerRadius="6"
+                            Padding="{TemplateBinding Padding}"
+                            SnapsToDevicePixels="True">
+                        <ContentPresenter x:Name="Content"
+                                          HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                          VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsHighlighted" Value="True">
+                            <Setter TargetName="ItemBorder" Property="Background" Value="{DynamicResource BrushRaised}"/>
+                        </Trigger>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter TargetName="ItemBorder" Property="Background" Value="{DynamicResource BrushCobaltSoft}"/>
+                            <Setter Property="Foreground" Value="{DynamicResource BrushCobalt}"/>
+                            <Setter Property="FontWeight" Value="SemiBold"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="ItemBorder" Property="Opacity" Value="0.45"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Modern Fluent ComboBox Style -->
     <Style x:Key="FieldComboBox" TargetType="{x:Type ComboBox}">
         <Setter Property="FontFamily" Value="{StaticResource FontFamilyPrimary}"/>
-        <Setter Property="FontSize" Value="{StaticResource FontSizeInput}"/>
-        <Setter Property="Height" Value="38"/>
-        <Setter Property="MinWidth" Value="160"/>
+        <Setter Property="FontSize" Value="{StaticResource FontSizeBody}"/>
+        <Setter Property="Height" Value="36"/>
         <Setter Property="HorizontalAlignment" Value="Stretch"/>
         <Setter Property="Padding" Value="12,0"/>
         <Setter Property="Background" Value="{DynamicResource BrushPanel}"/>
         <Setter Property="Foreground" Value="{DynamicResource BrushInk}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource BrushLineStrong}"/>
         <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Cursor" Value="Hand"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="ItemContainerStyle" Value="{StaticResource ModernComboBoxItem}"/>
+        <Setter Property="FocusVisualStyle" Value="{StaticResource UniBackupFocusVisual}"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type ComboBox}">
@@ -449,31 +491,44 @@
                         <ToggleButton x:Name="ToggleButton"
                                       Focusable="false"
                                       IsChecked="{Binding Path=IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
-                                      ClickMode="Press">
+                                      ClickMode="Press"
+                                      Cursor="Hand">
                             <ToggleButton.Template>
                                 <ControlTemplate TargetType="{x:Type ToggleButton}">
                                     <Border x:Name="Border"
                                             Background="{DynamicResource BrushPanel}"
                                             BorderBrush="{DynamicResource BrushLineStrong}"
                                             BorderThickness="1"
-                                            CornerRadius="{StaticResource RadiusControl}">
-                                        <Grid HorizontalAlignment="Right" Width="30">
-                                            <Path HorizontalAlignment="Center" VerticalAlignment="Center"
+                                            CornerRadius="{StaticResource RadiusControl}"
+                                            SnapsToDevicePixels="True">
+                                        <Grid HorizontalAlignment="Right" Width="32">
+                                            <Path x:Name="Chevron"
+                                                  HorizontalAlignment="Center"
+                                                  VerticalAlignment="Center"
+                                                  Width="11" Height="11"
+                                                  Stretch="Uniform"
                                                   Fill="{DynamicResource BrushInkMuted}"
                                                   Data="{StaticResource IconChevronDown}"/>
                                         </Grid>
                                     </Border>
                                     <ControlTemplate.Triggers>
                                         <Trigger Property="IsMouseOver" Value="True">
-                                            <Setter TargetName="Border" Property="BorderBrush" Value="{DynamicResource BrushInkMuted}"/>
+                                            <Setter TargetName="Border" Property="BorderBrush" Value="{DynamicResource BrushCobalt}"/>
+                                            <Setter TargetName="Border" Property="Background" Value="{DynamicResource BrushRaised}"/>
+                                            <Setter TargetName="Chevron" Property="Fill" Value="{DynamicResource BrushCobalt}"/>
                                         </Trigger>
                                         <Trigger Property="IsChecked" Value="True">
                                             <Setter TargetName="Border" Property="BorderBrush" Value="{DynamicResource BrushCobalt}"/>
+                                            <Setter TargetName="Chevron" Property="Fill" Value="{DynamicResource BrushCobalt}"/>
+                                        </Trigger>
+                                        <Trigger Property="IsEnabled" Value="False">
+                                            <Setter TargetName="Border" Property="Opacity" Value="0.5"/>
                                         </Trigger>
                                     </ControlTemplate.Triggers>
                                 </ControlTemplate>
                             </ToggleButton.Template>
                         </ToggleButton>
+
                         <ContentPresenter Name="ContentSite"
                                           IsHitTestVisible="False"
                                           Content="{TemplateBinding SelectionBoxItem}"
@@ -482,12 +537,13 @@
                                           Margin="12,0,32,0"
                                           VerticalAlignment="Center"
                                           HorizontalAlignment="Left"/>
+
                         <Popup Name="Popup"
                                Placement="Bottom"
                                IsOpen="{TemplateBinding IsDropDownOpen}"
                                AllowsTransparency="True"
                                Focusable="False"
-                               PopupAnimation="Slide">
+                               PopupAnimation="Fade">
                             <Grid Name="DropDown"
                                   SnapsToDevicePixels="True"
                                   MinWidth="{TemplateBinding ActualWidth}"
@@ -496,10 +552,10 @@
                                         Background="{DynamicResource BrushPanel}"
                                         BorderBrush="{DynamicResource BrushLine}"
                                         BorderThickness="1"
-                                        CornerRadius="{StaticResource RadiusControl}"
+                                        CornerRadius="10"
                                         Effect="{StaticResource Sh2}"
-                                        Margin="0,4,0,0">
-                                    <ScrollViewer Margin="4,6" SnapsToDevicePixels="True">
+                                        Margin="0,5,0,8">
+                                    <ScrollViewer Margin="4,5" SnapsToDevicePixels="True" VerticalScrollBarVisibility="Auto">
                                         <StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Cycle"/>
                                     </ScrollViewer>
                                 </Border>
@@ -510,6 +566,9 @@
             </Setter.Value>
         </Setter>
     </Style>
+
+    <!-- Apply Modern Fluent ComboBox globally across all pages -->
+    <Style TargetType="{x:Type ComboBox}" BasedOn="{StaticResource FieldComboBox}"/>
 
     <!-- Modern Switch (CheckBox Styled as iOS/Fluent Switch: 38x22) -->
     <Style x:Key="Switch" TargetType="{x:Type CheckBox}">
