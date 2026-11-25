@@ -160,6 +160,9 @@ public class LocalStorageSettings
     [JsonPropertyName("target_path")]
     public string TargetPath { get; set; } = @"C:\UniBackup\Backups";
 
+    [JsonPropertyName("additional_paths")]
+    public List<string> AdditionalPaths { get; set; } = [];
+
     [JsonPropertyName("retention_days")]
     public int RetentionDays { get; set; } = 30;
 }

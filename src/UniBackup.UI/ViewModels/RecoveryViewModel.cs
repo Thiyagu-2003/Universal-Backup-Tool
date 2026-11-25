@@ -28,6 +28,9 @@ public partial class CloudSourceVm : ObservableObject
     public string DisplayName { get; set; } = "";
     public string BucketOrPath { get; set; } = "";
     public string RegionOrEndpoint { get; set; } = "";
+    public string? CustomLocalPath { get; set; }
+    public bool IsAdditionalLocal { get; set; }
+    public bool IsAllSources => string.Equals(ProviderId, "all", StringComparison.OrdinalIgnoreCase);
 
     [ObservableProperty]
     private string _status = "Checking"; // Connected, Validated, Error, Disabled
@@ -345,9 +348,12 @@ public partial class RecoveryViewModel : ObservableObject
     private ArchiveInspectionResult? _archiveInspection;
 
     public ObservableCollection<ArchiveExplorerItemVm> ArchiveExplorerNodes { get; } = [];
+    public ObservableCollection<ArchiveExplorerItemVm> FilteredArchiveExplorerNodes { get; } = [];
 
     [ObservableProperty]
     private string _searchFilter = "";
+
+    partial void OnSearchFilterChanged(string value) => ApplyArchiveExplorerFilter();
 
     [ObservableProperty]
     private bool _isIisSite;
@@ -429,7 +435,18 @@ public partial class RecoveryViewModel : ObservableObject
     private RecoveryOperationRecord? _selectedHistoryRecord;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsHistoryFilterAll))]
+    [NotifyPropertyChangedFor(nameof(IsHistoryFilterSql))]
+    [NotifyPropertyChangedFor(nameof(IsHistoryFilterFiles))]
+    [NotifyPropertyChangedFor(nameof(IsHistoryFilterDrills))]
     private string _historyTypeFilter = "All";
+
+    public bool IsHistoryFilterAll => string.Equals(HistoryTypeFilter, "All", StringComparison.OrdinalIgnoreCase);
+    public bool IsHistoryFilterSql => string.Equals(HistoryTypeFilter, "SqlPointInTime", StringComparison.OrdinalIgnoreCase);
+    public bool IsHistoryFilterFiles => string.Equals(HistoryTypeFilter, "Files", StringComparison.OrdinalIgnoreCase);
+    public bool IsHistoryFilterDrills => string.Equals(HistoryTypeFilter, "RestoreDrill", StringComparison.OrdinalIgnoreCase);
+
+    public ObservableCollection<string> HistoryStatusFilterOptions { get; } = ["All", "SUCCESS", "FAILED", "CANCELLED"];
 
     [ObservableProperty]
     private string _historyStatusFilter = "All";
@@ -483,12 +500,29 @@ public partial class RecoveryViewModel : ObservableObject
         try
         {
             var config = _getConfig();
+            var prevSqlKey = (SelectedSqlSource?.ProviderId, SelectedSqlSource?.CustomLocalPath);
+            var prevFileKey = (SelectedFileSource?.ProviderId, SelectedFileSource?.CustomLocalPath);
+
             ConfiguredSources.Clear();
             SqlSources.Clear();
             FileSources.Clear();
 
-            // Discover all configured storage providers
+            // Discover all configured storage providers (including multi-local paths)
             var sources = DiscoverConfiguredSources(config);
+            if (sources.Count > 1)
+            {
+                var allSource = new CloudSourceVm
+                {
+                    ProviderId = "all",
+                    DisplayName = $"All Configured Sources ({sources.Count})",
+                    BucketOrPath = "Unified Multi-Provider View",
+                    RegionOrEndpoint = "All Active",
+                    Status = "Connected"
+                };
+                SqlSources.Add(allSource);
+                FileSources.Add(allSource);
+            }
+
             foreach (var s in sources)
             {
                 ConfiguredSources.Add(s);
@@ -496,27 +530,25 @@ public partial class RecoveryViewModel : ObservableObject
                 FileSources.Add(s);
             }
 
-            if (SelectedSqlSource == null && SqlSources.Count > 0)
-            {
-                SelectedSqlSource = SqlSources[0];
-            }
-            if (SelectedFileSource == null && FileSources.Count > 0)
-            {
-                SelectedFileSource = FileSources[0];
-            }
+            SelectedSqlSource = SqlSources.FirstOrDefault(s =>
+                s.ProviderId == prevSqlKey.ProviderId && s.CustomLocalPath == prevSqlKey.CustomLocalPath)
+                ?? SqlSources.FirstOrDefault();
 
-            // Test connection and count recovery points in background
-            int totalPoints = 0;
-            long totalBytes = 0;
-            DateTime? newest = null;
+            SelectedFileSource = FileSources.FirstOrDefault(s =>
+                s.ProviderId == prevFileKey.ProviderId && s.CustomLocalPath == prevFileKey.CustomLocalPath)
+                ?? FileSources.FirstOrDefault();
 
-            foreach (var source in ConfiguredSources)
+            // Validate and list all configured providers concurrently with per-provider fault isolation
+            var checkTasks = ConfiguredSources.Select(async source =>
             {
-                var provider = _storageProviders.FirstOrDefault(p => p.Name.Equals(source.ProviderId, StringComparison.OrdinalIgnoreCase));
-                if (provider != null)
+                try
                 {
+                    var scopedConfig = CreateScopedConfigForSource(config, source);
+                    var provider = _storageProviders.FirstOrDefault(p => p.Name.Equals(source.ProviderId, StringComparison.OrdinalIgnoreCase));
+                    if (provider == null) return;
+
                     var sw = Stopwatch.StartNew();
-                    var valRes = await provider.ValidateConnectionAsync(config);
+                    var valRes = await provider.ValidateConnectionAsync(scopedConfig);
                     sw.Stop();
 
                     if (valRes.IsSuccess)
@@ -525,22 +557,16 @@ public partial class RecoveryViewModel : ObservableObject
                         source.LatencyDisplay = $"{sw.ElapsedMilliseconds} ms";
                         source.StatusMessage = "Connection verified";
 
-                        var listRes = await provider.ListArchivesAsync(config);
+                        var listRes = await provider.ListArchivesAsync(scopedConfig);
                         if (listRes.IsSuccess)
                         {
                             source.BackupCount = listRes.Value.Count;
                             source.TotalDataBytes = listRes.Value.Sum(a => a.SizeBytes);
-                            totalPoints += source.BackupCount;
-                            totalBytes += source.TotalDataBytes;
 
                             var latest = listRes.Value.OrderByDescending(a => a.LastModified).FirstOrDefault();
                             if (latest?.LastModified != null)
                             {
                                 source.LastSyncDisplay = latest.LastModified.Value.ToLocalTime().ToString("yyyy-MM-dd HH:mm");
-                                if (newest == null || latest.LastModified > newest)
-                                {
-                                    newest = latest.LastModified;
-                                }
                             }
                         }
                     }
@@ -551,11 +577,28 @@ public partial class RecoveryViewModel : ObservableObject
                         source.LatencyDisplay = "-";
                     }
                 }
-            }
+                catch (Exception ex)
+                {
+                    source.Status = "Error";
+                    source.StatusMessage = ex.Message;
+                    source.LatencyDisplay = "-";
+                    Log.Warning(ex, "Provider {Provider} validation failed during dashboard refresh", source.DisplayName);
+                }
+            }).ToList();
+
+            await Task.WhenAll(checkTasks);
+
+            int totalPoints = ConfiguredSources.Sum(s => s.BackupCount);
+            long totalBytes = ConfiguredSources.Sum(s => s.TotalDataBytes);
 
             TotalRecoveryPoints = totalPoints;
             TotalRecoverableDataDisplay = FormatBytes(totalBytes);
-            LatestBackupDisplay = newest.HasValue ? newest.Value.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss") : "No backups found";
+            var latestSync = ConfiguredSources
+                .Where(s => s.LastSyncDisplay != "-")
+                .Select(s => s.LastSyncDisplay)
+                .OrderByDescending(s => s)
+                .FirstOrDefault();
+            LatestBackupDisplay = latestSync ?? "No backups found";
 
             RecoveryHealthStatus = ConfiguredSources.Any(s => s.Status == "Error") ? "Attention Needed"
                 : (totalPoints > 0 ? "Healthy" : "No Backups");
@@ -631,8 +674,31 @@ public partial class RecoveryViewModel : ObservableObject
                 ProviderId = "local",
                 DisplayName = "Local / Network Repository",
                 BucketOrPath = config.Local.TargetPath,
-                RegionOrEndpoint = Environment.MachineName
+                RegionOrEndpoint = Environment.MachineName,
+                CustomLocalPath = config.Local.TargetPath
             });
+        }
+
+        if (config.Local.AdditionalPaths != null)
+        {
+            foreach (var extraPath in config.Local.AdditionalPaths
+                .Where(p => !string.IsNullOrWhiteSpace(p))
+                .Distinct(StringComparer.OrdinalIgnoreCase))
+            {
+                if (config.Local.Enabled && string.Equals(extraPath, config.Local.TargetPath, StringComparison.OrdinalIgnoreCase))
+                    continue;
+
+                var folderName = Path.GetFileName(extraPath.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
+                list.Add(new CloudSourceVm
+                {
+                    ProviderId = "local",
+                    DisplayName = $"Local Folder ({(string.IsNullOrEmpty(folderName) ? extraPath : folderName)})",
+                    BucketOrPath = extraPath,
+                    RegionOrEndpoint = Environment.MachineName,
+                    CustomLocalPath = extraPath,
+                    IsAdditionalLocal = true
+                });
+            }
         }
 
         if (config.Ftp.Enabled && !string.IsNullOrWhiteSpace(config.Ftp.Host))
@@ -704,6 +770,93 @@ public partial class RecoveryViewModel : ObservableObject
         return list;
     }
 
+    public static AppConfig CreateScopedConfigForSource(AppConfig baseConfig, CloudSourceVm? source)
+    {
+        if (source == null || string.IsNullOrWhiteSpace(source.CustomLocalPath))
+            return baseConfig;
+
+        return new AppConfig
+        {
+            Backup = baseConfig.Backup,
+            Email = baseConfig.Email,
+            Schedule = baseConfig.Schedule,
+            Webhooks = baseConfig.Webhooks,
+            Aws = baseConfig.Aws,
+            Azure = baseConfig.Azure,
+            GDrive = baseConfig.GDrive,
+            Local = new LocalStorageSettings
+            {
+                Enabled = true,
+                TargetPath = source.CustomLocalPath,
+                AdditionalPaths = baseConfig.Local.AdditionalPaths,
+                RetentionDays = baseConfig.Local.RetentionDays
+            },
+            WebDav = baseConfig.WebDav,
+            Ftp = baseConfig.Ftp,
+            Sftp = baseConfig.Sftp,
+            Dropbox = baseConfig.Dropbox,
+            OneDrive = baseConfig.OneDrive,
+            Box = baseConfig.Box,
+            Security = baseConfig.Security,
+            NotificationMatrix = baseConfig.NotificationMatrix,
+            Heartbeat = baseConfig.Heartbeat,
+            Rpo = baseConfig.Rpo,
+            Prometheus = baseConfig.Prometheus
+        };
+    }
+
+    private AppConfig ResolveConfigForArchive(AppConfig baseConfig, CloudArchiveItem? archive, CloudSourceVm? fallbackSource)
+    {
+        if (fallbackSource != null && !fallbackSource.IsAllSources)
+            return CreateScopedConfigForSource(baseConfig, fallbackSource);
+
+        if (archive != null && !string.IsNullOrWhiteSpace(archive.Destination))
+        {
+            var matched = ConfiguredSources.FirstOrDefault(s =>
+                s.ProviderId.Equals(archive.Destination, StringComparison.OrdinalIgnoreCase) &&
+                (string.IsNullOrWhiteSpace(s.CustomLocalPath) || archive.KeyOrId.StartsWith(s.CustomLocalPath, StringComparison.OrdinalIgnoreCase)));
+            if (matched != null)
+                return CreateScopedConfigForSource(baseConfig, matched);
+        }
+
+        return baseConfig;
+    }
+
+    [RelayCommand]
+    public async Task AddLocalRecoveryPathAsync()
+    {
+        var dialog = new Microsoft.Win32.OpenFolderDialog
+        {
+            Title = "Select Local or Network Backup Repository Folder"
+        };
+
+        if (dialog.ShowDialog() != true || string.IsNullOrWhiteSpace(dialog.FolderName))
+            return;
+
+        var config = _getConfig();
+        if (!config.Local.AdditionalPaths.Contains(dialog.FolderName, StringComparer.OrdinalIgnoreCase) &&
+            !(config.Local.Enabled && string.Equals(config.Local.TargetPath, dialog.FolderName, StringComparison.OrdinalIgnoreCase)))
+        {
+            config.Local.AdditionalPaths.Add(dialog.FolderName);
+            await _configService.SaveConfigAsync(config);
+            await RefreshDashboardAsync();
+            NotificationHub.ShowSuccess($"Added local recovery repository: {dialog.FolderName}", "Repository Added");
+        }
+    }
+
+    [RelayCommand]
+    public async Task RemoveLocalRecoveryPathAsync(CloudSourceVm? source)
+    {
+        if (source == null || !source.IsAdditionalLocal || string.IsNullOrWhiteSpace(source.CustomLocalPath))
+            return;
+
+        var config = _getConfig();
+        config.Local.AdditionalPaths.RemoveAll(p => string.Equals(p, source.CustomLocalPath, StringComparison.OrdinalIgnoreCase));
+        await _configService.SaveConfigAsync(config);
+        await RefreshDashboardAsync();
+        NotificationHub.ShowInfo($"Removed local recovery repository: {source.CustomLocalPath}", "Repository Removed");
+    }
+
     [RelayCommand]
     public async Task ValidateSourceAsync(CloudSourceVm? source)
     {
@@ -713,7 +866,7 @@ public partial class RecoveryViewModel : ObservableObject
 
         try
         {
-            var config = _getConfig();
+            var config = CreateScopedConfigForSource(_getConfig(), source);
             var provider = _storageProviders.FirstOrDefault(p => p.Name.Equals(source.ProviderId, StringComparison.OrdinalIgnoreCase));
             if (provider == null) return;
 
@@ -745,8 +898,13 @@ public partial class RecoveryViewModel : ObservableObject
     public void BrowseSource(CloudSourceVm? source)
     {
         if (source == null) return;
+        bool alreadySelected = ReferenceEquals(SelectedFileSource, source);
         SelectedFileSource = source;
         SelectedTab = "FilesAndSites";
+        if (alreadySelected)
+        {
+            _ = LoadArchivesForFileSourceAsync(source);
+        }
     }
 
     [RelayCommand]
@@ -771,13 +929,37 @@ public partial class RecoveryViewModel : ObservableObject
         try
         {
             var config = _getConfig();
-            var provider = _storageProviders.FirstOrDefault(p => p.Name.Equals(source.ProviderId, StringComparison.OrdinalIgnoreCase));
-            if (provider == null) return;
+            var allArchives = new List<CloudArchiveItem>();
 
-            var listRes = await provider.ListArchivesAsync(config);
-            if (listRes.IsFailure) return;
+            var targetSources = source.IsAllSources
+                ? ConfiguredSources.ToList()
+                : [source];
 
-            var grouped = GroupSqlBackupsByDatabase(listRes.Value);
+            var tasks = targetSources.Select(async s =>
+            {
+                try
+                {
+                    var scopedConfig = CreateScopedConfigForSource(config, s);
+                    var provider = _storageProviders.FirstOrDefault(p => p.Name.Equals(s.ProviderId, StringComparison.OrdinalIgnoreCase));
+                    if (provider == null) return new List<CloudArchiveItem>();
+
+                    var listRes = await provider.ListArchivesAsync(scopedConfig);
+                    return listRes.IsSuccess ? listRes.Value : new List<CloudArchiveItem>();
+                }
+                catch (Exception ex)
+                {
+                    Log.Warning(ex, "SQL database discovery failed for {Source}", s.DisplayName);
+                    return new List<CloudArchiveItem>();
+                }
+            });
+
+            var results = await Task.WhenAll(tasks);
+            foreach (var items in results)
+            {
+                allArchives.AddRange(items);
+            }
+
+            var grouped = GroupSqlBackupsByDatabase(allArchives);
 
             DiscoveredDatabases.Clear();
             foreach (var db in grouped)
@@ -785,9 +967,13 @@ public partial class RecoveryViewModel : ObservableObject
                 DiscoveredDatabases.Add(db);
             }
 
-            if (SelectedDatabase == null && DiscoveredDatabases.Count > 0)
+            SelectedDatabase = DiscoveredDatabases.FirstOrDefault();
+            if (SelectedDatabase == null)
             {
-                SelectedDatabase = DiscoveredDatabases[0];
+                PlannedSequence.Clear();
+                TimelineBackups.Clear();
+                HasValidChain = false;
+                ChainValidationMessage = "No SQL Server backups found in the selected source.";
             }
         }
         catch (Exception ex)
@@ -1020,7 +1206,7 @@ public partial class RecoveryViewModel : ObservableObject
 
         try
         {
-            var config = _getConfig();
+            var config = ResolveConfigForArchive(_getConfig(), SelectedDatabase.AllBackups.FirstOrDefault(), SelectedSqlSource);
 
             // Match backup job for credentials
             var jobs = await _configService.LoadJobsAsync();
@@ -1141,21 +1327,49 @@ public partial class RecoveryViewModel : ObservableObject
         try
         {
             var config = _getConfig();
-            var provider = _storageProviders.FirstOrDefault(p => p.Name.Equals(source.ProviderId, StringComparison.OrdinalIgnoreCase));
-            if (provider == null) return;
+            var targetSources = source.IsAllSources
+                ? ConfiguredSources.ToList()
+                : [source];
 
-            var listRes = await provider.ListArchivesAsync(config);
-            if (listRes.IsFailure) return;
+            var tasks = targetSources.Select(async s =>
+            {
+                try
+                {
+                    var scopedConfig = CreateScopedConfigForSource(config, s);
+                    var provider = _storageProviders.FirstOrDefault(p => p.Name.Equals(s.ProviderId, StringComparison.OrdinalIgnoreCase));
+                    if (provider == null) return new List<CloudArchiveItem>();
+
+                    var listRes = await provider.ListArchivesAsync(scopedConfig);
+                    return listRes.IsSuccess ? listRes.Value : new List<CloudArchiveItem>();
+                }
+                catch (Exception ex)
+                {
+                    Log.Warning(ex, "Archive listing failed for {Source}", s.DisplayName);
+                    return new List<CloudArchiveItem>();
+                }
+            });
+
+            var results = await Task.WhenAll(tasks);
+            var combined = results
+                .SelectMany(x => x)
+                .Where(a => a.DisplayName.EndsWith(".zip", StringComparison.OrdinalIgnoreCase) ||
+                            a.DisplayName.Contains(".zip.ubenc", StringComparison.OrdinalIgnoreCase))
+                .OrderByDescending(a => a.LastModified ?? DateTime.MinValue)
+                .ToList();
 
             AvailableArchives.Clear();
-            foreach (var a in listRes.Value.Where(a => a.DisplayName.EndsWith(".zip", StringComparison.OrdinalIgnoreCase) || a.DisplayName.Contains(".zip.ubenc", StringComparison.OrdinalIgnoreCase)))
+            foreach (var a in combined)
             {
                 AvailableArchives.Add(a);
             }
 
-            if (SelectedArchive == null && AvailableArchives.Count > 0)
+            SelectedArchive = AvailableArchives.FirstOrDefault();
+            if (SelectedArchive == null)
             {
-                SelectedArchive = AvailableArchives[0];
+                ArchiveExplorerNodes.Clear();
+                FilteredArchiveExplorerNodes.Clear();
+                ArchiveInspection = null;
+                IsIisSite = false;
             }
         }
         catch (Exception ex)
@@ -1185,7 +1399,7 @@ public partial class RecoveryViewModel : ObservableObject
 
         try
         {
-            var config = _getConfig();
+            var config = ResolveConfigForArchive(_getConfig(), archive, SelectedFileSource);
             var progress = new Progress<(string phase, double percent, string message)>(p =>
             {
                 FileRestoreMessage = p.message;
@@ -1214,6 +1428,7 @@ public partial class RecoveryViewModel : ObservableObject
                         IsSelected = true // default to all selected
                     });
                 }
+                ApplyArchiveExplorerFilter();
             }
             else
             {
@@ -1223,6 +1438,21 @@ public partial class RecoveryViewModel : ObservableObject
         finally
         {
             IsInspectingArchive = false;
+        }
+    }
+
+    public void ApplyArchiveExplorerFilter()
+    {
+        FilteredArchiveExplorerNodes.Clear();
+        var q = SearchFilter?.Trim();
+        foreach (var node in ArchiveExplorerNodes)
+        {
+            if (string.IsNullOrEmpty(q) ||
+                node.Name.Contains(q, StringComparison.OrdinalIgnoreCase) ||
+                node.RelativePath.Contains(q, StringComparison.OrdinalIgnoreCase))
+            {
+                FilteredArchiveExplorerNodes.Add(node);
+            }
         }
     }
 
@@ -1323,7 +1553,7 @@ public partial class RecoveryViewModel : ObservableObject
 
         try
         {
-            var config = _getConfig();
+            var config = ResolveConfigForArchive(_getConfig(), SelectedArchive, SelectedFileSource);
             var progress = new Progress<(string phase, double percent, string message)>(p =>
             {
                 Application.Current?.Dispatcher.InvokeAsync(() =>

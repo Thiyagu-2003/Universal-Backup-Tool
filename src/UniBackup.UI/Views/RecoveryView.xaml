@@ -10,594 +10,674 @@
         <conv:StringEqualsToBoolConverter x:Key="StringEqualsToBool"/>
         <conv:InvertedZeroToVisibilityConverter x:Key="InvertedZeroToVis"/>
     </UserControl.Resources>
-    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="28,24">
-        <StackPanel MaxWidth="1280" HorizontalAlignment="Stretch">
 
-            <!-- ===================================================================
-                 1. HEADER & NAVIGATION SEGMENTED PILLS (§1, §2)
-                 =================================================================== -->
-            <Grid Margin="0,0,0,20">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
+    <Grid>
+        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="28,22">
+            <StackPanel MaxWidth="1320" HorizontalAlignment="Stretch">
 
-                <StackPanel>
-                    <TextBlock Text="Cloud Recovery" FontWeight="SemiBold" FontSize="{StaticResource FontSizePageTitle}" Foreground="{DynamicResource BrushInk}"/>
-                    <TextBlock Text="Discover, browse, verify and restore backup data from configured cloud storage destinations" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource BrushInkMuted}" Margin="0,3,0,0"/>
-                </StackPanel>
-
-                <!-- Five Tabs Pill Group -->
-                <Border Grid.Column="1" Style="{StaticResource SegmentedContainer}" VerticalAlignment="Center">
-                    <StackPanel Orientation="Horizontal">
-                        <RadioButton Content="Dashboard" Style="{StaticResource SegmentedItem}" IsChecked="{Binding IsDashboardTab, Mode=OneWay}" Click="Tab_Click" Tag="Dashboard"/>
-                        <RadioButton Content="SQL point in time" Style="{StaticResource SegmentedItem}" IsChecked="{Binding IsSqlServerTab, Mode=OneWay}" Click="Tab_Click" Tag="SqlServer"/>
-                        <RadioButton Content="Files and sites" Style="{StaticResource SegmentedItem}" IsChecked="{Binding IsFilesTab, Mode=OneWay}" Click="Tab_Click" Tag="FilesAndSites"/>
-                        <RadioButton Content="Restore drills" Style="{StaticResource SegmentedItem}" IsChecked="{Binding IsDrillsTab, Mode=OneWay}" Click="Tab_Click" Tag="Drills"/>
-                        <RadioButton Content="History" Style="{StaticResource SegmentedItem}" IsChecked="{Binding IsHistoryTab, Mode=OneWay}" Click="Tab_Click" Tag="History"/>
-                    </StackPanel>
-                </Border>
-            </Grid>
-
-            <!-- ===================================================================
-                 TAB 1: MAIN CLOUD RECOVERY DASHBOARD (§1)
-                 =================================================================== -->
-            <StackPanel Visibility="{Binding IsDashboardTab, Converter={StaticResource BoolToVis}}">
-                <!-- Top 4 Recovery Summary KPI Cards -->
+                <!-- ===================================================================
+                     1. HEADER & RESPONSIVE 5-TAB SEGMENTED BAR
+                     =================================================================== -->
                 <Grid Margin="0,0,0,20">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="16"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="16"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="16"/>
-                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
 
-                    <!-- KPI 1: Configured Cloud Sources -->
-                    <Border Grid.Column="0" Style="{StaticResource Card}" Padding="18,16">
-                        <StackPanel>
-                            <TextBlock Text="Configured Sources" FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushInkMuted}"/>
-                            <TextBlock Text="{Binding ConfiguredSources.Count}" FontWeight="SemiBold" FontSize="{StaticResource FontSizeKpi}" Foreground="{DynamicResource BrushInk}" Margin="0,4,0,2"/>
-                            <TextBlock Text="Active storage destinations" FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkFaint}"/>
-                        </StackPanel>
-                    </Border>
+                    <StackPanel VerticalAlignment="Center" Margin="0,0,16,0">
+                        <TextBlock Text="Cloud Recovery" FontWeight="SemiBold" FontSize="{StaticResource FontSizePageTitle}" Foreground="{DynamicResource BrushInk}"/>
+                        <TextBlock Text="Discover, browse, verify and restore backups across cloud and local repositories."
+                                   FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource BrushInkMuted}" Margin="0,3,0,0"/>
+                    </StackPanel>
 
-                    <!-- KPI 2: Total Recovery Points -->
-                    <Border Grid.Column="2" Style="{StaticResource Card}" Padding="18,16">
-                        <StackPanel>
-                            <TextBlock Text="Available Recovery Points" FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushInkMuted}"/>
-                            <TextBlock Text="{Binding TotalRecoveryPoints}" FontWeight="SemiBold" FontSize="{StaticResource FontSizeKpi}" Foreground="{DynamicResource BrushCobalt}" Margin="0,4,0,2"/>
-                            <TextBlock Text="Discovered in cloud repositories" FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkFaint}"/>
-                        </StackPanel>
-                    </Border>
-
-                    <!-- KPI 3: Total Recoverable Data -->
-                    <Border Grid.Column="4" Style="{StaticResource Card}" Padding="18,16">
-                        <StackPanel>
-                            <TextBlock Text="Total Recoverable Data" FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushInkMuted}"/>
-                            <TextBlock Text="{Binding TotalRecoverableDataDisplay}" FontWeight="SemiBold" FontSize="{StaticResource FontSizeKpi}" Foreground="{DynamicResource BrushJade}" Margin="0,4,0,2"/>
-                            <TextBlock Text="Available for immediate restore" FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkFaint}"/>
-                        </StackPanel>
-                    </Border>
-
-                    <!-- KPI 4: Recovery Health Status -->
-                    <Border Grid.Column="6" Style="{StaticResource Card}" Padding="18,16">
-                        <StackPanel>
-                            <TextBlock Text="Recovery Health" FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushInkMuted}"/>
-                            <TextBlock Text="{Binding RecoveryHealthStatus}" FontWeight="SemiBold" FontSize="{StaticResource FontSizeKpi}" Foreground="{DynamicResource BrushTeal}" Margin="0,4,0,2"/>
-                            <TextBlock Text="{Binding LatestBackupDisplay}" FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkFaint}" TextTrimming="CharacterEllipsis"/>
-                        </StackPanel>
+                    <Border Grid.Column="1" Style="{StaticResource SegmentedContainer}" VerticalAlignment="Center">
+                        <WrapPanel Orientation="Horizontal">
+                            <RadioButton Content="Dashboard" Style="{StaticResource SegmentedItem}" IsChecked="{Binding IsDashboardTab, Mode=OneWay}" Click="Tab_Click" Tag="Dashboard"/>
+                            <RadioButton Content="SQL point in time" Style="{StaticResource SegmentedItem}" IsChecked="{Binding IsSqlServerTab, Mode=OneWay}" Click="Tab_Click" Tag="SqlServer"/>
+                            <RadioButton Content="Files and sites" Style="{StaticResource SegmentedItem}" IsChecked="{Binding IsFilesTab, Mode=OneWay}" Click="Tab_Click" Tag="FilesAndSites"/>
+                            <RadioButton Content="Restore drills" Style="{StaticResource SegmentedItem}" IsChecked="{Binding IsDrillsTab, Mode=OneWay}" Click="Tab_Click" Tag="Drills"/>
+                            <RadioButton Content="History" Style="{StaticResource SegmentedItem}" IsChecked="{Binding IsHistoryTab, Mode=OneWay}" Click="Tab_Click" Tag="History"/>
+                        </WrapPanel>
                     </Border>
                 </Grid>
 
-                <!-- Cloud Storage Sources List -->
-                <Border Style="{StaticResource Card}" Padding="20">
-                    <StackPanel>
-                        <Grid Margin="0,0,0,16">
-                            <StackPanel>
-                                <TextBlock Text="Cloud Storage Destinations" FontWeight="SemiBold" FontSize="{StaticResource FontSizeSectionHeader}" Foreground="{DynamicResource BrushInk}"/>
-                                <TextBlock Text="Real configured repositories discovered from your configuration settings" FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushInkMuted}" Margin="0,2,0,0"/>
-                            </StackPanel>
-                            <Button HorizontalAlignment="Right" Command="{Binding RefreshDashboardCommand}" Style="{StaticResource BtnQuiet}" Height="34">
-                                <StackPanel Orientation="Horizontal">
-                                    <Path Data="{StaticResource IconRefresh}" Fill="{DynamicResource BrushCobalt}" Width="16" Height="16" Stretch="Uniform" Margin="0,0,6,0"/>
-                                    <TextBlock Text="Refresh sources"/>
-                                </StackPanel>
-                            </Button>
-                        </Grid>
-
-                        <!-- Sources Items -->
-                        <ItemsControl ItemsSource="{Binding ConfiguredSources}">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <Border BorderBrush="{DynamicResource BrushLine}" BorderThickness="1" CornerRadius="10" Background="{DynamicResource BrushRaised}" Padding="18,14" Margin="0,0,0,10">
-                                        <Grid>
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="Auto"/> <!-- Provider Icon Tile -->
-                                                <ColumnDefinition Width="*"/>    <!-- Source Name & Bucket -->
-                                                <ColumnDefinition Width="140"/>  <!-- Backups & Size -->
-                                                <ColumnDefinition Width="150"/>  <!-- Status & Latency -->
-                                                <ColumnDefinition Width="Auto"/> <!-- Actions -->
-                                            </Grid.ColumnDefinitions>
-
-                                            <!-- Provider Icon Tile -->
-                                            <Border Width="40" Height="40" CornerRadius="8" Background="{DynamicResource BrushCobaltSoft}" VerticalAlignment="Center" Margin="0,0,14,0">
-                                                <Path Data="{StaticResource IconCloudArrowDown}" Fill="{DynamicResource BrushCobalt}" Width="20" Height="20" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                            </Border>
-
-                                            <!-- Source Details -->
-                                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                                <TextBlock Text="{Binding DisplayName}" FontWeight="SemiBold" FontSize="{StaticResource FontSizeRowTitle}" Foreground="{DynamicResource BrushInk}"/>
-                                                <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
-                                                    <TextBlock Text="Repository: " FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushInkMuted}"/>
-                                                    <TextBlock Text="{Binding BucketOrPath}" FontFamily="{StaticResource FontFamilyMono}" FontSize="{StaticResource FontSizeMono}" Foreground="{DynamicResource BrushInkMuted}"/>
-                                                    <TextBlock Text="  •  Region: " FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushInkMuted}"/>
-                                                    <TextBlock Text="{Binding RegionOrEndpoint}" FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushInkFaint}"/>
-                                                </StackPanel>
-                                            </StackPanel>
-
-                                            <!-- Backups & Size -->
-                                            <StackPanel Grid.Column="2" VerticalAlignment="Center">
-                                                <TextBlock Text="{Binding TotalDataDisplay}" FontWeight="SemiBold" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource BrushInk}"/>
-                                                <TextBlock Text="{Binding BackupCount, StringFormat='{}{0} backups stored'}" FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushInkMuted}"/>
-                                            </StackPanel>
-
-                                            <!-- Status & Latency -->
-                                            <StackPanel Grid.Column="3" VerticalAlignment="Center">
-                                                <Border Style="{StaticResource BadgePill}" Background="{Binding StatusSoftBrush}" HorizontalAlignment="Left" Padding="8,2">
-                                                    <TextBlock Text="{Binding Status}" FontWeight="SemiBold" FontSize="{StaticResource FontSizeCaption}" Foreground="{Binding StatusBrush}"/>
-                                                </Border>
-                                                <TextBlock Text="{Binding LatencyDisplay, StringFormat='{}Latency: {0}'}" FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource BrushInkFaint}" Margin="0,3,0,0"/>
-                                            </StackPanel>
-
-                                            <!-- Actions -->
-                                            <StackPanel Grid.Column="4" Orientation="Horizontal" VerticalAlignment="Center">
-                                                <Button Content="Validate" Command="{Binding DataContext.ValidateSourceCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" Style="{StaticResource BtnQuiet}" Height="32" Margin="0,0,8,0"/>
-                                                <Button Content="Browse backups" Command="{Binding DataContext.BrowseSourceCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" Style="{StaticResource BtnQuiet}" Height="32"/>
-                                            </StackPanel>
-                                        </Grid>
-                                    </Border>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-
-                        <!-- Empty State if no sources configured -->
-                        <Border Visibility="{Binding ConfiguredSources.Count, Converter={StaticResource InvertedZeroToVis}}" Background="{DynamicResource BrushSunken}" CornerRadius="10" Padding="32" HorizontalAlignment="Stretch">
-                            <StackPanel HorizontalAlignment="Center">
-                                <TextBlock Text="No cloud storage destinations currently configured or enabled." FontWeight="SemiBold" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource BrushInkMuted}" HorizontalAlignment="Center"/>
-                                <TextBlock Text="Please configure AWS S3, Azure Blob, Google Drive, or Local Storage in Settings &amp; Engine." FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkFaint}" HorizontalAlignment="Center" Margin="0,4,0,0"/>
-                            </StackPanel>
-                        </Border>
-                    </StackPanel>
-                </Border>
-            </StackPanel>
-
-            <!-- ===================================================================
-                 TAB 2: SQL POINT IN TIME RECOVERY (§3)
-                 =================================================================== -->
-            <StackPanel Visibility="{Binding IsSqlServerTab, Converter={StaticResource BoolToVis}}">
-                <!-- Source & Database Discovery Row -->
-                <Border Style="{StaticResource Card}" Padding="20" Margin="0,0,0,16">
-                    <Grid>
+                <!-- ===================================================================
+                     TAB 1: MAIN CLOUD & MULTI-LOCAL RECOVERY DASHBOARD
+                     =================================================================== -->
+                <StackPanel Visibility="{Binding IsDashboardTab, Converter={StaticResource BoolToVis}}">
+                    <!-- Top 4 Recovery Summary KPI Cards -->
+                    <Grid Margin="0,0,0,20">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="260"/>
-                            <ColumnDefinition Width="16"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="14"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="14"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="14"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
 
-                        <!-- Cloud Source Selector -->
-                        <StackPanel Grid.Column="0">
-                            <TextBlock Text="Cloud Storage Source" FontWeight="SemiBold" FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushInkMuted}"/>
-                            <ComboBox ItemsSource="{Binding SqlSources}" SelectedItem="{Binding SelectedSqlSource, Mode=TwoWay}" DisplayMemberPath="DisplayName" Height="36" Margin="0,6,0,0"/>
-                        </StackPanel>
-
-                        <!-- Discovered Databases -->
-                        <StackPanel Grid.Column="2">
-                            <TextBlock Text="Discovered SQL Databases" FontWeight="SemiBold" FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushInkMuted}"/>
-                            <ListBox ItemsSource="{Binding DiscoveredDatabases}" SelectedItem="{Binding SelectedDatabase, Mode=TwoWay}" Height="78" Background="Transparent" BorderBrush="{DynamicResource BrushLine}" BorderThickness="1" Margin="0,6,0,0" ScrollViewer.HorizontalScrollBarVisibility="Auto">
-                                <ListBox.ItemsPanel>
-                                    <ItemsPanelTemplate>
-                                        <StackPanel Orientation="Horizontal"/>
-                                    </ItemsPanelTemplate>
-                                </ListBox.ItemsPanel>
-                                <ListBox.ItemTemplate>
-                                    <DataTemplate>
-                                        <Border BorderBrush="{DynamicResource BrushLine}" BorderThickness="1" CornerRadius="8" Background="{DynamicResource BrushPanel}" Padding="14,8" Margin="0,0,8,0" MinWidth="180">
-                                            <StackPanel>
-                                                <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource BrushInk}"/>
-                                                <TextBlock Text="{Binding TotalBackups, StringFormat='{}{0} backups in cloud'}" FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushCobalt}" Margin="0,2,0,0"/>
-                                                <TextBlock Text="{Binding RangeDisplay}" FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource BrushInkFaint}"/>
-                                            </StackPanel>
-                                        </Border>
-                                    </DataTemplate>
-                                </ListBox.ItemTemplate>
-                            </ListBox>
-                        </StackPanel>
-                    </Grid>
-                </Border>
-
-                <!-- Interactive Timeline Control -->
-                <Border Style="{StaticResource Card}" Padding="20" Margin="0,0,0,16">
-                    <StackPanel>
-                        <Grid Margin="0,0,0,10">
-                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                <TextBlock Text="Target recovery second: " FontWeight="SemiBold" FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushInkMuted}"/>
-                                <Border Background="{DynamicResource BrushCobaltSoft}" CornerRadius="6" Padding="10,3" Margin="8,0,0,0">
-                                    <TextBlock Text="{Binding SqlPointInTimeDisplay}" FontFamily="{StaticResource FontFamilyMono}" FontWeight="SemiBold" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource BrushCobalt}"/>
-                                </Border>
-                            </StackPanel>
-                            <Button HorizontalAlignment="Right" Command="{Binding SetLatestRecoveryPointCommand}" Style="{StaticResource BtnQuiet}" Height="32">
-                                <StackPanel Orientation="Horizontal">
-                                    <Path Data="{StaticResource IconClock}" Fill="{DynamicResource BrushCobalt}" Width="16" Height="16" Stretch="Uniform" Margin="0,0,6,0"/>
-                                    <TextBlock Text="Latest point"/>
+                        <Border Grid.Column="0" Style="{StaticResource Card}" Padding="18,16">
+                            <Grid>
+                                <StackPanel>
+                                    <TextBlock Text="Configured Sources" FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushInkMuted}"/>
+                                    <TextBlock Text="{Binding ConfiguredSources.Count}" FontWeight="SemiBold" FontSize="{StaticResource FontSizeKpi}" Foreground="{DynamicResource BrushInk}" Margin="0,4,0,2"/>
+                                    <TextBlock Text="Cloud &amp; local repositories" FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkFaint}"/>
                                 </StackPanel>
-                            </Button>
-                        </Grid>
-                        <!-- Interactive 3-Lane Scrubber -->
-                        <controls:TimelineLanes x:Name="TimelineControl" Height="110" Backups="{Binding TimelineBackups}" SelectedTime="{Binding SelectedRecoveryTime, Mode=TwoWay}"/>
-                    </StackPanel>
-                </Border>
+                                <Border Width="34" Height="34" CornerRadius="9" Background="{DynamicResource BrushCobaltSoft}" HorizontalAlignment="Right" VerticalAlignment="Top">
+                                    <Path Data="{StaticResource IconServer}" Fill="{DynamicResource BrushCobalt}" Width="16" Height="16" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                            </Grid>
+                        </Border>
 
-                <!-- Restore Chain Sequence & Target Parameters -->
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="20"/>
-                        <ColumnDefinition Width="400"/>
-                    </Grid.ColumnDefinitions>
+                        <Border Grid.Column="2" Style="{StaticResource Card}" Padding="18,16">
+                            <Grid>
+                                <StackPanel>
+                                    <TextBlock Text="Recovery Points" FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushInkMuted}"/>
+                                    <TextBlock Text="{Binding TotalRecoveryPoints}" FontWeight="SemiBold" FontSize="{StaticResource FontSizeKpi}" Foreground="{DynamicResource BrushCobalt}" Margin="0,4,0,2"/>
+                                    <TextBlock Text="Discovered backup archives" FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkFaint}"/>
+                                </StackPanel>
+                                <Border Width="34" Height="34" CornerRadius="9" Background="{DynamicResource BrushCobaltSoft}" HorizontalAlignment="Right" VerticalAlignment="Top">
+                                    <Path Data="{StaticResource IconCloudArrowDown}" Fill="{DynamicResource BrushCobalt}" Width="17" Height="17" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                            </Grid>
+                        </Border>
 
-                    <!-- Restore Chain Sequence Table -->
-                    <Border Grid.Column="0" Style="{StaticResource Card}" Padding="20">
+                        <Border Grid.Column="4" Style="{StaticResource Card}" Padding="18,16">
+                            <Grid>
+                                <StackPanel>
+                                    <TextBlock Text="Recoverable Data" FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushInkMuted}"/>
+                                    <TextBlock Text="{Binding TotalRecoverableDataDisplay}" FontWeight="SemiBold" FontSize="{StaticResource FontSizeKpi}" Foreground="{DynamicResource BrushJade}" Margin="0,4,0,2"/>
+                                    <TextBlock Text="Ready for immediate restore" FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkFaint}"/>
+                                </StackPanel>
+                                <Border Width="34" Height="34" CornerRadius="9" Background="{DynamicResource BrushJadeSoft}" HorizontalAlignment="Right" VerticalAlignment="Top">
+                                    <Path Data="{StaticResource IconCheckCircle}" Fill="{DynamicResource BrushJade}" Width="17" Height="17" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                            </Grid>
+                        </Border>
+
+                        <Border Grid.Column="6" Style="{StaticResource Card}" Padding="18,16">
+                            <Grid>
+                                <StackPanel>
+                                    <TextBlock Text="Recovery Health" FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushInkMuted}"/>
+                                    <TextBlock Text="{Binding RecoveryHealthStatus}" FontWeight="SemiBold" FontSize="{StaticResource FontSizeSectionHeader}" Foreground="{DynamicResource BrushTeal}" Margin="0,8,0,4" TextTrimming="CharacterEllipsis"/>
+                                    <TextBlock Text="{Binding LatestBackupDisplay}" FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkFaint}" TextTrimming="CharacterEllipsis"/>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                    </Grid>
+
+                    <!-- Cloud & Multi-Local Storage Sources List -->
+                    <Border Style="{StaticResource Card}" Padding="20">
                         <StackPanel>
-                            <TextBlock Text="Restore Chain Sequence" FontWeight="SemiBold" FontSize="{StaticResource FontSizeSectionHeader}" Foreground="{DynamicResource BrushInk}"/>
-                            <TextBlock Text="{Binding ChainValidationMessage}" FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushInkMuted}" Margin="0,2,0,14"/>
+                            <Grid Margin="0,0,0,14">
+                                <StackPanel>
+                                    <TextBlock Text="Cloud &amp; Local Recovery Repositories" FontWeight="SemiBold" FontSize="{StaticResource FontSizeSectionHeader}" Foreground="{DynamicResource BrushInk}"/>
+                                    <TextBlock Text="Configured cloud providers plus additional local/network drives mounted for multi-source retrieval" FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushInkMuted}" Margin="0,2,0,0"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                                    <Button Command="{Binding AddLocalRecoveryPathCommand}" Style="{StaticResource BtnQuiet}" Height="34" Padding="12,0" Margin="0,0,8,0"
+                                            ToolTip="Add an extra local drive, USB backup folder, or UNC network share for retrieval">
+                                        <StackPanel Orientation="Horizontal">
+                                            <Path Data="{StaticResource IconFolder}" Fill="{DynamicResource BrushCobalt}" Width="15" Height="15" Stretch="Uniform" Margin="0,0,6,0"/>
+                                            <TextBlock Text="+ Add Local Folder"/>
+                                        </StackPanel>
+                                    </Button>
+                                    <Button Command="{Binding RefreshDashboardCommand}" Style="{StaticResource BtnQuiet}" Height="34" Padding="12,0">
+                                        <StackPanel Orientation="Horizontal">
+                                            <Path Data="{StaticResource IconRefresh}" Fill="{DynamicResource BrushCobalt}" Width="15" Height="15" Stretch="Uniform" Margin="0,0,6,0"/>
+                                            <TextBlock Text="Refresh sources"/>
+                                        </StackPanel>
+                                    </Button>
+                                </StackPanel>
+                            </Grid>
 
-                            <!-- Sequence Items -->
-                            <ItemsControl ItemsSource="{Binding PlannedSequence}">
+                            <ProgressBar IsIndeterminate="True" Height="3" Margin="0,0,0,12"
+                                         Visibility="{Binding IsLoadingDashboard, Converter={StaticResource BoolToVis}}"/>
+
+                            <ItemsControl ItemsSource="{Binding ConfiguredSources}">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
-                                        <Border BorderBrush="{DynamicResource BrushLine}" BorderThickness="0,0,0,1" Padding="0,10">
+                                        <Border BorderBrush="{DynamicResource BrushLine}" BorderThickness="1" CornerRadius="10" Background="{DynamicResource BrushRaised}" Padding="18,14" Margin="0,0,0,10">
                                             <Grid>
                                                 <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="28"/>
+                                                    <ColumnDefinition Width="Auto"/>
                                                     <ColumnDefinition Width="*"/>
-                                                    <ColumnDefinition Width="80"/>
-                                                    <ColumnDefinition Width="85"/>
+                                                    <ColumnDefinition Width="150"/>
+                                                    <ColumnDefinition Width="165"/>
+                                                    <ColumnDefinition Width="Auto"/>
                                                 </Grid.ColumnDefinitions>
-                                                <TextBlock Text="{Binding StepNumber}" FontWeight="SemiBold" Foreground="{DynamicResource BrushInkMuted}" VerticalAlignment="Center"/>
-                                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                                    <TextBlock Text="{Binding FileName}" FontFamily="{StaticResource FontFamilyMono}" FontSize="{StaticResource FontSizeMono}" Foreground="{DynamicResource BrushInk}" TextTrimming="CharacterEllipsis"/>
-                                                    <TextBlock Text="{Binding Description}" FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource BrushInkMuted}"/>
-                                                </StackPanel>
-                                                <Border Grid.Column="2" Style="{StaticResource BadgePill}" Background="{Binding TypeSoftBrush}" HorizontalAlignment="Left" Padding="6,2">
-                                                    <TextBlock Text="{Binding Type}" FontWeight="SemiBold" FontSize="{StaticResource FontSizeCaption}" Foreground="{Binding TypeBrush}"/>
+
+                                                <Border Width="40" Height="40" CornerRadius="9" Background="{DynamicResource BrushCobaltSoft}" VerticalAlignment="Center" Margin="0,0,14,0">
+                                                    <Path Data="{StaticResource IconCloudArrowDown}" Fill="{DynamicResource BrushCobalt}" Width="20" Height="20" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                 </Border>
-                                                <TextBlock Grid.Column="3" Text="{Binding SizeDisplay}" FontFamily="{StaticResource FontFamilyMono}" FontSize="{StaticResource FontSizeMono}" Foreground="{DynamicResource BrushInkMuted}" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+
+                                                <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="0,0,12,0">
+                                                    <TextBlock Text="{Binding DisplayName}" FontWeight="SemiBold" FontSize="{StaticResource FontSizeRowTitle}" Foreground="{DynamicResource BrushInk}"/>
+                                                    <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
+                                                        <TextBlock Text="{Binding BucketOrPath}" FontFamily="{StaticResource FontFamilyMono}" FontSize="{StaticResource FontSizeMono}" Foreground="{DynamicResource BrushInkMuted}" TextTrimming="CharacterEllipsis" MaxWidth="360"/>
+                                                        <TextBlock Text="  ·  " FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushInkFaint}"/>
+                                                        <TextBlock Text="{Binding RegionOrEndpoint}" FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushInkFaint}"/>
+                                                    </StackPanel>
+                                                    <TextBlock Text="{Binding StatusMessage}" FontSize="11" Foreground="{DynamicResource BrushInkMuted}" TextTrimming="CharacterEllipsis" Margin="0,2,0,0"/>
+                                                </StackPanel>
+
+                                                <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                                                    <TextBlock Text="{Binding TotalDataDisplay}" FontWeight="SemiBold" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource BrushInk}"/>
+                                                    <TextBlock Text="{Binding BackupCount, StringFormat='{}{0} backups stored'}" FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushInkMuted}"/>
+                                                </StackPanel>
+
+                                                <StackPanel Grid.Column="3" VerticalAlignment="Center">
+                                                    <Border Style="{StaticResource BadgePill}" Background="{Binding StatusSoftBrush}" HorizontalAlignment="Left" Padding="8,2">
+                                                        <TextBlock Text="{Binding Status}" FontWeight="SemiBold" FontSize="{StaticResource FontSizeCaption}" Foreground="{Binding StatusBrush}"/>
+                                                    </Border>
+                                                    <TextBlock Text="{Binding LatencyDisplay, StringFormat='{}Latency: {0}'}" FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource BrushInkFaint}" Margin="0,3,0,0"/>
+                                                </StackPanel>
+
+                                                <StackPanel Grid.Column="4" Orientation="Horizontal" VerticalAlignment="Center">
+                                                    <Button Content="Remove"
+                                                            Visibility="{Binding IsAdditionalLocal, Converter={StaticResource BoolToVis}}"
+                                                            Command="{Binding DataContext.RemoveLocalRecoveryPathCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                            CommandParameter="{Binding}"
+                                                            Style="{StaticResource BtnQuiet}" Height="32" Margin="0,0,8,0"/>
+                                                    <Button Content="Validate"
+                                                            Command="{Binding DataContext.ValidateSourceCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                            CommandParameter="{Binding}"
+                                                            Style="{StaticResource BtnQuiet}" Height="32" Margin="0,0,8,0"/>
+                                                    <Button Content="Browse backups"
+                                                            Command="{Binding DataContext.BrowseSourceCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                            CommandParameter="{Binding}"
+                                                            Style="{StaticResource BtnPrimary}" Height="32" Padding="12,0"/>
+                                                </StackPanel>
                                             </Grid>
                                         </Border>
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
-                        </StackPanel>
-                    </Border>
 
-                    <!-- Target Database Parameters -->
-                    <Border Grid.Column="2" Style="{StaticResource Card}" Padding="20">
-                        <StackPanel>
-                            <TextBlock Text="Target Parameters" FontWeight="SemiBold" FontSize="{StaticResource FontSizeSectionHeader}" Foreground="{DynamicResource BrushInk}"/>
-                            <TextBlock Text="Configure destination SQL Server instance and database" FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushInkMuted}" Margin="0,2,0,14"/>
-
-                            <TextBlock Text="Target SQL Server instance" FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushInkMuted}"/>
-                            <TextBox Text="{Binding TargetServer, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldInputMono}" Margin="0,4,0,12"/>
-
-                            <TextBlock Text="Target database name" FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushInkMuted}"/>
-                            <TextBox Text="{Binding TargetDatabaseName, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldInputMono}" Margin="0,4,0,12"/>
-
-                            <!-- Overwrite Existing CheckBox with Alert -->
-                            <CheckBox IsChecked="{Binding IsOverwriteExisting, Mode=TwoWay}" Margin="0,4,0,14">
-                                <TextBlock Text="Overwrite existing database (REPLACE)" Foreground="{DynamicResource BrushCoral}" FontWeight="Medium"/>
-                            </CheckBox>
-
-                            <TextBlock Text="Decryption Passphrase (if encrypted)" FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushInkMuted}"/>
-                            <TextBox Text="{Binding SqlPassphrase, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldInput}" Margin="0,4,0,20"/>
-
-                            <!-- Execute Restore Button -->
-                            <Button Command="{Binding ExecuteSqlRestoreCommand}" IsEnabled="{Binding HasValidChain}" Style="{StaticResource BtnPrimary}" Height="40">
-                                <StackPanel Orientation="Horizontal">
-                                    <Path Data="{StaticResource IconCloudArrowDown}" Fill="#FFFFFF" Width="18" Height="18" Stretch="Uniform" Margin="0,0,8,0"/>
-                                    <TextBlock Text="Execute database restore" FontWeight="SemiBold"/>
-                                </StackPanel>
-                            </Button>
-
-                            <!-- Live Progress Box when active -->
-                            <Border Visibility="{Binding IsSqlRestoring, Converter={StaticResource BoolToVis}}" Background="{DynamicResource BrushRaised}" CornerRadius="8" Padding="14" Margin="0,16,0,0">
-                                <StackPanel>
-                                    <TextBlock Text="{Binding SqlRestorePhase}" FontWeight="SemiBold" FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushCobalt}"/>
-                                    <ProgressBar Value="{Binding SqlRestoreProgress}" Maximum="100" Height="8" Margin="0,8,0,6"/>
-                                    <TextBlock Text="{Binding SqlRestoreMessage}" FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource BrushInkMuted}" TextTrimming="CharacterEllipsis"/>
-                                    <Button Content="Cancel" Command="{Binding CancelSqlRestoreCommand}" Style="{StaticResource BtnQuiet}" Height="28" Margin="0,8,0,0" HorizontalAlignment="Right"/>
+                            <Border Visibility="{Binding ConfiguredSources.Count, Converter={StaticResource InvertedZeroToVis}}" Background="{DynamicResource BrushSunken}" CornerRadius="10" Padding="32" HorizontalAlignment="Stretch">
+                                <StackPanel HorizontalAlignment="Center">
+                                    <TextBlock Text="No recovery repositories configured" FontWeight="SemiBold" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource BrushInkMuted}" HorizontalAlignment="Center"/>
+                                    <TextBlock Text="Configure cloud storage in Settings &amp; Engine or click '+ Add Local Folder' above to browse local backups." FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkFaint}" HorizontalAlignment="Center" Margin="0,4,0,0"/>
                                 </StackPanel>
                             </Border>
                         </StackPanel>
                     </Border>
-                </Grid>
-            </StackPanel>
+                </StackPanel>
 
-            <!-- ===================================================================
-                 TAB 3: FILES AND IIS SITES RECOVERY (§4)
-                 =================================================================== -->
-            <StackPanel Visibility="{Binding IsFilesTab, Converter={StaticResource BoolToVis}}">
-                <!-- Archive Selection & IIS Detection Banner -->
-                <Border Style="{StaticResource Card}" Padding="20" Margin="0,0,0,16">
-                    <StackPanel>
-                        <Grid Margin="0,0,0,12">
+                <!-- ===================================================================
+                     TAB 2: SQL POINT IN TIME RECOVERY
+                     =================================================================== -->
+                <StackPanel Visibility="{Binding IsSqlServerTab, Converter={StaticResource BoolToVis}}">
+                    <Border Style="{StaticResource Card}" Padding="20" Margin="0,0,0,16">
+                        <Grid>
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="260"/>
+                                <ColumnDefinition Width="280"/>
                                 <ColumnDefinition Width="16"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
 
                             <StackPanel Grid.Column="0">
-                                <TextBlock Text="Cloud Storage Source" FontWeight="SemiBold" FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushInkMuted}"/>
-                                <ComboBox ItemsSource="{Binding FileSources}" SelectedItem="{Binding SelectedFileSource, Mode=TwoWay}" DisplayMemberPath="DisplayName" Height="36" Margin="0,6,0,0"/>
+                                <TextBlock Text="Recovery Source (Single or All)" FontWeight="SemiBold" FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushInkMuted}"/>
+                                <ComboBox ItemsSource="{Binding SqlSources}" SelectedItem="{Binding SelectedSqlSource, Mode=TwoWay}" DisplayMemberPath="DisplayName" Height="36" Margin="0,6,0,0"/>
                             </StackPanel>
 
                             <StackPanel Grid.Column="2">
-                                <TextBlock Text="Select Backup Archive" FontWeight="SemiBold" FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushInkMuted}"/>
-                                <ComboBox ItemsSource="{Binding AvailableArchives}" SelectedItem="{Binding SelectedArchive, Mode=TwoWay}" DisplayMemberPath="DisplayName" Height="36" Margin="0,6,0,0"/>
+                                <TextBlock Text="Discovered SQL Databases" FontWeight="SemiBold" FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushInkMuted}"/>
+                                <Grid Margin="0,6,0,0">
+                                    <ListBox ItemsSource="{Binding DiscoveredDatabases}" SelectedItem="{Binding SelectedDatabase, Mode=TwoWay}" Height="78" Background="Transparent" BorderBrush="{DynamicResource BrushLine}" BorderThickness="1" ScrollViewer.HorizontalScrollBarVisibility="Auto">
+                                        <ListBox.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <StackPanel Orientation="Horizontal"/>
+                                            </ItemsPanelTemplate>
+                                        </ListBox.ItemsPanel>
+                                        <ListBox.ItemTemplate>
+                                            <DataTemplate>
+                                                <Border BorderBrush="{DynamicResource BrushLine}" BorderThickness="1" CornerRadius="8" Background="{DynamicResource BrushPanel}" Padding="14,8" Margin="0,0,8,0" MinWidth="180">
+                                                    <StackPanel>
+                                                        <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource BrushInk}"/>
+                                                        <TextBlock Text="{Binding TotalBackups, StringFormat='{}{0} backups in repository'}" FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushCobalt}" Margin="0,2,0,0"/>
+                                                        <TextBlock Text="{Binding RangeDisplay}" FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource BrushInkFaint}"/>
+                                                    </StackPanel>
+                                                </Border>
+                                            </DataTemplate>
+                                        </ListBox.ItemTemplate>
+                                    </ListBox>
+                                    <TextBlock Text="No SQL backups found in this repository."
+                                               Visibility="{Binding DiscoveredDatabases.Count, Converter={StaticResource InvertedZeroToVis}}"
+                                               FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource BrushInkFaint}"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center" IsHitTestVisible="False"/>
+                                </Grid>
                             </StackPanel>
                         </Grid>
+                    </Border>
 
-                        <!-- IIS Site Detected Banner -->
-                        <Border Visibility="{Binding IsIisSite, Converter={StaticResource BoolToVis}}" Background="{DynamicResource BrushTealSoft}" BorderBrush="{DynamicResource BrushTeal}" BorderThickness="1" CornerRadius="8" Padding="14,10" Margin="0,6,0,0">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                <Path Data="{StaticResource IconCheckCircle}" Fill="{DynamicResource BrushTeal}" Width="20" Height="20" Stretch="Uniform" VerticalAlignment="Center" Margin="0,0,12,0"/>
-                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                    <TextBlock Text="IIS Website Backup Detected" FontWeight="SemiBold" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource BrushTeal}"/>
-                                    <TextBlock Text="{Binding IisDetectedName, StringFormat='{}Site Name: {0}'}" FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushInk}"/>
+                    <Border Style="{StaticResource Card}" Padding="20" Margin="0,0,0,16">
+                        <StackPanel>
+                            <Grid Margin="0,0,0,10">
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <TextBlock Text="Target recovery second: " FontWeight="SemiBold" FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushInkMuted}"/>
+                                    <Border Background="{DynamicResource BrushCobaltSoft}" CornerRadius="6" Padding="10,3" Margin="8,0,0,0">
+                                        <TextBlock Text="{Binding SqlPointInTimeDisplay}" FontFamily="{StaticResource FontFamilyMono}" FontWeight="SemiBold" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource BrushCobalt}"/>
+                                    </Border>
                                 </StackPanel>
+                                <Button HorizontalAlignment="Right" Command="{Binding SetLatestRecoveryPointCommand}" Style="{StaticResource BtnQuiet}" Height="32">
+                                    <StackPanel Orientation="Horizontal">
+                                        <Path Data="{StaticResource IconClock}" Fill="{DynamicResource BrushCobalt}" Width="16" Height="16" Stretch="Uniform" Margin="0,0,6,0"/>
+                                        <TextBlock Text="Latest point"/>
+                                    </StackPanel>
+                                </Button>
                             </Grid>
-                        </Border>
-                    </StackPanel>
-                </Border>
+                            <controls:TimelineLanes x:Name="TimelineControl" Height="110" Backups="{Binding TimelineBackups}" SelectedTime="{Binding SelectedRecoveryTime, Mode=TwoWay}"/>
+                        </StackPanel>
+                    </Border>
 
-                <!-- In-Archive File Explorer -->
-                <Border Style="{StaticResource Card}" Padding="20" Margin="0,0,0,16">
-                    <StackPanel>
-                        <!-- Explorer Toolbar -->
-                        <Grid Margin="0,0,0,12">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                <TextBlock Text="Archive Contents Explorer" FontWeight="SemiBold" FontSize="{StaticResource FontSizeSectionHeader}" Foreground="{DynamicResource BrushInk}"/>
-                                <TextBlock Text="{Binding ArchiveExplorerNodes.Count, StringFormat='{} ({0} files)'}" FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushInkMuted}" VerticalAlignment="Center"/>
-                            </StackPanel>
-                            <StackPanel Grid.Column="1" Orientation="Horizontal">
-                                <Button Content="Select all" Command="{Binding SelectAllArchiveFilesCommand}" Style="{StaticResource BtnQuiet}" Height="30" Margin="0,0,6,0"/>
-                                <Button Content="Clear selection" Command="{Binding ClearSelectedArchiveFilesCommand}" Style="{StaticResource BtnQuiet}" Height="30"/>
-                            </StackPanel>
-                        </Grid>
-
-                        <!-- File Explorer Items List -->
-                        <DataGrid ItemsSource="{Binding ArchiveExplorerNodes}" AutoGenerateColumns="False" CanUserAddRows="False" HeadersVisibility="Column" Height="260" Background="Transparent" BorderBrush="{DynamicResource BrushLine}" BorderThickness="1" RowHeight="32">
-                            <DataGrid.Columns>
-                                <DataGridCheckBoxColumn Binding="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" Width="40"/>
-                                <DataGridTextColumn Header="File / Folder Name" Binding="{Binding Name}" Width="280"/>
-                                <DataGridTextColumn Header="Relative Path" Binding="{Binding RelativePath}" Width="*"/>
-                                <DataGridTextColumn Header="Size" Binding="{Binding SizeDisplay}" Width="100"/>
-                                <DataGridTextColumn Header="Date Modified" Binding="{Binding DateDisplay}" Width="140"/>
-                                <DataGridTemplateColumn Header="Action" Width="80">
-                                    <DataGridTemplateColumn.CellTemplate>
-                                        <DataTemplate>
-                                            <Button Content="Preview" Command="{Binding DataContext.PreviewSelectedFileCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" Style="{StaticResource BtnQuiet}" Height="24" Padding="6,0"/>
-                                        </DataTemplate>
-                                    </DataGridTemplateColumn.CellTemplate>
-                                </DataGridTemplateColumn>
-                            </DataGrid.Columns>
-                        </DataGrid>
-                    </StackPanel>
-                </Border>
-
-                <!-- Destination & Restore Safety Options -->
-                <Border Style="{StaticResource Card}" Padding="20">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="20"/>
-                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="400"/>
                         </Grid.ColumnDefinitions>
 
-                        <!-- Left: Destination Directory & Conflict Mode -->
-                        <StackPanel Grid.Column="0">
-                            <TextBlock Text="Extraction Destination" FontWeight="SemiBold" FontSize="{StaticResource FontSizeSectionHeader}" Foreground="{DynamicResource BrushInk}"/>
-                            <Grid Margin="0,8,0,12">
+                        <Border Grid.Column="0" Style="{StaticResource Card}" Padding="20">
+                            <StackPanel>
+                                <TextBlock Text="Restore Chain Sequence" FontWeight="SemiBold" FontSize="{StaticResource FontSizeSectionHeader}" Foreground="{DynamicResource BrushInk}"/>
+                                <TextBlock Text="{Binding ChainValidationMessage}" FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushInkMuted}" Margin="0,2,0,14"/>
+
+                                <ItemsControl ItemsSource="{Binding PlannedSequence}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border BorderBrush="{DynamicResource BrushLine}" BorderThickness="0,0,0,1" Padding="0,10">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="28"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="80"/>
+                                                        <ColumnDefinition Width="85"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <TextBlock Text="{Binding StepNumber}" FontWeight="SemiBold" Foreground="{DynamicResource BrushInkMuted}" VerticalAlignment="Center"/>
+                                                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                        <TextBlock Text="{Binding FileName}" FontFamily="{StaticResource FontFamilyMono}" FontSize="{StaticResource FontSizeMono}" Foreground="{DynamicResource BrushInk}" TextTrimming="CharacterEllipsis"/>
+                                                        <TextBlock Text="{Binding Description}" FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource BrushInkMuted}"/>
+                                                    </StackPanel>
+                                                    <Border Grid.Column="2" Style="{StaticResource BadgePill}" Background="{Binding TypeSoftBrush}" HorizontalAlignment="Left" Padding="6,2">
+                                                        <TextBlock Text="{Binding Type}" FontWeight="SemiBold" FontSize="{StaticResource FontSizeCaption}" Foreground="{Binding TypeBrush}"/>
+                                                    </Border>
+                                                    <TextBlock Grid.Column="3" Text="{Binding SizeDisplay}" FontFamily="{StaticResource FontFamilyMono}" FontSize="{StaticResource FontSizeMono}" Foreground="{DynamicResource BrushInkMuted}" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+
+                                <TextBlock Text="Select a SQL database above to compute its restore chain."
+                                           Visibility="{Binding PlannedSequence.Count, Converter={StaticResource InvertedZeroToVis}}"
+                                           FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource BrushInkFaint}"
+                                           HorizontalAlignment="Center" Margin="0,16"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Grid.Column="2" Style="{StaticResource Card}" Padding="20">
+                            <StackPanel>
+                                <TextBlock Text="Target Parameters" FontWeight="SemiBold" FontSize="{StaticResource FontSizeSectionHeader}" Foreground="{DynamicResource BrushInk}"/>
+                                <TextBlock Text="Configure destination SQL Server instance and database" FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushInkMuted}" Margin="0,2,0,14"/>
+
+                                <TextBlock Text="Target SQL Server instance" FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushInkMuted}"/>
+                                <TextBox Text="{Binding TargetServer, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldInputMono}" Margin="0,4,0,12"/>
+
+                                <TextBlock Text="Target database name" FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushInkMuted}"/>
+                                <TextBox Text="{Binding TargetDatabaseName, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldInputMono}" Margin="0,4,0,12"/>
+
+                                <CheckBox IsChecked="{Binding IsOverwriteExisting, Mode=TwoWay}" Margin="0,4,0,14">
+                                    <TextBlock Text="Overwrite existing database (REPLACE)" Foreground="{DynamicResource BrushCoral}" FontWeight="Medium"/>
+                                </CheckBox>
+
+                                <TextBlock Text="Decryption Passphrase (if encrypted)" FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushInkMuted}"/>
+                                <TextBox Text="{Binding SqlPassphrase, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldInput}" Margin="0,4,0,18"/>
+
+                                <Button Command="{Binding ExecuteSqlRestoreCommand}" IsEnabled="{Binding HasValidChain}" Style="{StaticResource BtnPrimary}" Height="40">
+                                    <StackPanel Orientation="Horizontal">
+                                        <Path Data="{StaticResource IconCloudArrowDown}" Fill="#FFFFFF" Width="18" Height="18" Stretch="Uniform" Margin="0,0,8,0"/>
+                                        <TextBlock Text="Execute database restore" FontWeight="SemiBold"/>
+                                    </StackPanel>
+                                </Button>
+
+                                <Border Visibility="{Binding IsSqlRestoring, Converter={StaticResource BoolToVis}}" Background="{DynamicResource BrushRaised}" CornerRadius="8" Padding="14" Margin="0,14,0,0">
+                                    <StackPanel>
+                                        <TextBlock Text="{Binding SqlRestorePhase}" FontWeight="SemiBold" FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushCobalt}"/>
+                                        <ProgressBar Value="{Binding SqlRestoreProgress}" Maximum="100" Height="8" Margin="0,8,0,6"/>
+                                        <TextBlock Text="{Binding SqlRestoreMessage}" FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource BrushInkMuted}" TextTrimming="CharacterEllipsis"/>
+                                        <Button Content="Cancel" Command="{Binding CancelSqlRestoreCommand}" Style="{StaticResource BtnQuiet}" Height="28" Margin="0,8,0,0" HorizontalAlignment="Right"/>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+                </StackPanel>
+
+                <!-- ===================================================================
+                     TAB 3: FILES AND IIS SITES RECOVERY
+                     =================================================================== -->
+                <StackPanel Visibility="{Binding IsFilesTab, Converter={StaticResource BoolToVis}}">
+                    <Border Style="{StaticResource Card}" Padding="20" Margin="0,0,0,16">
+                        <StackPanel>
+                            <Grid Margin="0,0,0,10">
                                 <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="280"/>
+                                    <ColumnDefinition Width="16"/>
                                     <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="10"/>
-                                    <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBox Text="{Binding CustomDestinationPath, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldInputMono}"/>
-                                <Button Grid.Column="2" Content="Browse..." Command="{Binding BrowseRestoreDestinationCommand}" Style="{StaticResource BtnQuiet}" Height="36" Padding="14,0"/>
+
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="Recovery Source (Single or All)" FontWeight="SemiBold" FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushInkMuted}"/>
+                                    <ComboBox ItemsSource="{Binding FileSources}" SelectedItem="{Binding SelectedFileSource, Mode=TwoWay}" DisplayMemberPath="DisplayName" Height="36" Margin="0,6,0,0"/>
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="2">
+                                    <TextBlock Text="Select Backup Archive" FontWeight="SemiBold" FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushInkMuted}"/>
+                                    <ComboBox ItemsSource="{Binding AvailableArchives}" SelectedItem="{Binding SelectedArchive, Mode=TwoWay}" DisplayMemberPath="DisplayName" Height="36" Margin="0,6,0,0"/>
+                                </StackPanel>
                             </Grid>
 
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="Conflict Policy: " FontWeight="Medium" FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushInkMuted}" VerticalAlignment="Center"/>
-                                <RadioButton Content="Safe (Restore_timestamp)" IsChecked="{Binding WriteMode, Converter={StaticResource StringEqualsToBool}, ConverterParameter=safe}" Margin="12,0,12,0" VerticalAlignment="Center"/>
-                                <RadioButton Content="Overwrite existing" IsChecked="{Binding WriteMode, Converter={StaticResource StringEqualsToBool}, ConverterParameter=overwrite}" Margin="0,0,12,0" VerticalAlignment="Center"/>
-                                <RadioButton Content="Skip existing" IsChecked="{Binding WriteMode, Converter={StaticResource StringEqualsToBool}, ConverterParameter=skip}" VerticalAlignment="Center"/>
-                            </StackPanel>
-                        </StackPanel>
+                            <ProgressBar IsIndeterminate="True" Height="3" Margin="0,4,0,0"
+                                         Visibility="{Binding IsInspectingArchive, Converter={StaticResource BoolToVis}}"/>
 
-                        <!-- Right: Action Button & Progress -->
-                        <StackPanel Grid.Column="2" VerticalAlignment="Bottom" MinWidth="220">
-                            <Button Command="{Binding ExecuteFileRestoreCommand}" Style="{StaticResource BtnPrimary}" Height="40">
-                                <StackPanel Orientation="Horizontal">
-                                    <Path Data="{StaticResource IconCloudArrowDown}" Fill="#FFFFFF" Width="18" Height="18" Stretch="Uniform" Margin="0,0,8,0"/>
-                                    <TextBlock Text="Extract selected files" FontWeight="SemiBold"/>
-                                </StackPanel>
-                            </Button>
-
-                            <!-- Live Progress Box -->
-                            <Border Visibility="{Binding IsFileRestoring, Converter={StaticResource BoolToVis}}" Background="{DynamicResource BrushRaised}" CornerRadius="8" Padding="10" Margin="0,10,0,0">
-                                <StackPanel>
-                                    <ProgressBar Value="{Binding FileRestoreProgress}" Maximum="100" Height="6"/>
-                                    <TextBlock Text="{Binding FileRestoreMessage}" FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource BrushInkMuted}" TextTrimming="CharacterEllipsis" Margin="0,4,0,0"/>
-                                </StackPanel>
+                            <Border Visibility="{Binding IsIisSite, Converter={StaticResource BoolToVis}}" Background="{DynamicResource BrushTealSoft}" BorderBrush="{DynamicResource BrushTeal}" BorderThickness="1" CornerRadius="8" Padding="14,10" Margin="0,10,0,0">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Path Data="{StaticResource IconCheckCircle}" Fill="{DynamicResource BrushTeal}" Width="20" Height="20" Stretch="Uniform" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                        <TextBlock Text="IIS Website Backup Detected" FontWeight="SemiBold" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource BrushTeal}"/>
+                                        <TextBlock Text="{Binding IisDetectedName, StringFormat='{}Site Name: {0}'}" FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushInk}"/>
+                                    </StackPanel>
+                                </Grid>
                             </Border>
                         </StackPanel>
-                    </Grid>
-                </Border>
-            </StackPanel>
+                    </Border>
 
-            <!-- ===================================================================
-                 TAB 4: RESTORE DRILLS (§5)
-                 =================================================================== -->
-            <StackPanel Visibility="{Binding IsDrillsTab, Converter={StaticResource BoolToVis}}">
-                <!-- Drill KPI Outcome Row -->
-                <Grid Margin="0,0,0,20">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="16"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="16"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-
-                    <!-- Recovery Time (RTO) -->
-                    <Border Grid.Column="0" Style="{StaticResource Card}" Padding="20">
+                    <!-- In-Archive File Explorer -->
+                    <Border Style="{StaticResource Card}" Padding="20" Margin="0,0,0,16">
                         <StackPanel>
-                            <TextBlock Text="Measured Recovery Time (RTO)" FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushInkMuted}"/>
-                            <TextBlock Text="{Binding DrillLastRtoDisplay}" FontWeight="SemiBold" FontSize="{StaticResource FontSizeKpi}" Foreground="{DynamicResource BrushJade}" Margin="0,6,0,2"/>
-                            <TextBlock Text="Automated download and restore time" FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkFaint}"/>
+                            <Grid Margin="0,0,0,12">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <TextBlock Text="Archive Contents Explorer" FontWeight="SemiBold" FontSize="{StaticResource FontSizeSectionHeader}" Foreground="{DynamicResource BrushInk}"/>
+                                    <TextBlock Text="{Binding FilteredArchiveExplorerNodes.Count, StringFormat='{} ({0} files)'}" FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushInkMuted}" VerticalAlignment="Center"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                                    <TextBox Text="{Binding SearchFilter, UpdateSourceTrigger=PropertyChanged}" Tag="Filter files in archive..." Style="{StaticResource FieldInput}" Width="210" Height="30" Margin="0,0,8,0"/>
+                                    <Button Content="Select all" Command="{Binding SelectAllArchiveFilesCommand}" Style="{StaticResource BtnQuiet}" Height="30" Margin="0,0,6,0"/>
+                                    <Button Content="Clear selection" Command="{Binding ClearSelectedArchiveFilesCommand}" Style="{StaticResource BtnQuiet}" Height="30"/>
+                                </StackPanel>
+                            </Grid>
+
+                            <DataGrid ItemsSource="{Binding FilteredArchiveExplorerNodes}" AutoGenerateColumns="False" CanUserAddRows="False" HeadersVisibility="Column" Height="250" Background="Transparent" BorderBrush="{DynamicResource BrushLine}" BorderThickness="1" RowHeight="32">
+                                <DataGrid.Columns>
+                                    <DataGridCheckBoxColumn Binding="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" Width="40"/>
+                                    <DataGridTextColumn Header="File / Folder Name" Binding="{Binding Name}" Width="260"/>
+                                    <DataGridTextColumn Header="Relative Path" Binding="{Binding RelativePath}" Width="*"/>
+                                    <DataGridTextColumn Header="Size" Binding="{Binding SizeDisplay}" Width="100"/>
+                                    <DataGridTextColumn Header="Date Modified" Binding="{Binding DateDisplay}" Width="140"/>
+                                    <DataGridTemplateColumn Header="Action" Width="80">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <Button Content="Preview" Command="{Binding DataContext.PreviewSelectedFileCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" Style="{StaticResource BtnQuiet}" Height="24" Padding="6,0"/>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                </DataGrid.Columns>
+                            </DataGrid>
+
+                            <TextBlock Text="Select a backup archive above to inspect its contents."
+                                       Visibility="{Binding ArchiveExplorerNodes.Count, Converter={StaticResource InvertedZeroToVis}}"
+                                       FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource BrushInkFaint}"
+                                       HorizontalAlignment="Center" Margin="0,10,0,0"/>
                         </StackPanel>
                     </Border>
 
-                    <!-- Consistency (DBCC CHECKDB) -->
-                    <Border Grid.Column="2" Style="{StaticResource Card}" Padding="20">
-                        <StackPanel>
-                            <TextBlock Text="Database Consistency" FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushInkMuted}"/>
-                            <TextBlock Text="{Binding DrillLastOutcomeDisplay}" FontWeight="SemiBold" FontSize="{StaticResource FontSizeSectionHeader}" Foreground="{DynamicResource BrushTeal}" Margin="0,6,0,2" TextTrimming="CharacterEllipsis"/>
-                            <TextBlock Text="Verified with DBCC CHECKDB in sandbox" FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkFaint}"/>
-                        </StackPanel>
-                    </Border>
-
-                    <!-- Scratch Database -->
-                    <Border Grid.Column="4" Style="{StaticResource Card}" Padding="20">
-                        <StackPanel>
-                            <TextBlock Text="Isolated Scratch Database" FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushInkMuted}"/>
-                            <TextBlock Text="{Binding ScratchDatabaseName}" FontFamily="{StaticResource FontFamilyMono}" FontWeight="SemiBold" FontSize="{StaticResource FontSizeRowTitle}" Foreground="{DynamicResource BrushInk}" Margin="0,8,0,2"/>
-                            <TextBlock Text="Safely dropped immediately after drill" FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkFaint}"/>
-                        </StackPanel>
-                    </Border>
-                </Grid>
-
-                <!-- Drill Execution Controls -->
-                <Border Style="{StaticResource Card}" Padding="20" Margin="0,0,0,20">
-                    <StackPanel>
-                        <TextBlock Text="Run Automated Restore Drill" FontWeight="SemiBold" FontSize="{StaticResource FontSizeSectionHeader}" Foreground="{DynamicResource BrushInk}"/>
-                        <TextBlock Text="Restores the latest backup chain into an isolated scratch database to verify backup integrity without impacting production" FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushInkMuted}" Margin="0,2,0,16"/>
-
-                        <Grid Margin="0,0,0,16">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="300"/>
-                                <ColumnDefinition Width="16"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-
-                            <StackPanel Grid.Column="0">
-                                <TextBlock Text="Select Source SQL Job" FontWeight="Medium" FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushInkMuted}"/>
-                                <ComboBox ItemsSource="{Binding AvailableDrillJobs}" SelectedItem="{Binding SelectedDrillJob, Mode=TwoWay}" DisplayMemberPath="Name" Height="36" Margin="0,6,0,0"/>
-                            </StackPanel>
-
-                            <StackPanel Grid.Column="2">
-                                <TextBlock Text="Source Database" FontWeight="Medium" FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushInkMuted}"/>
-                                <TextBox Text="{Binding DrillDatabaseName, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldInputMono}" Height="36" Margin="0,6,0,0"/>
-                            </StackPanel>
-                        </Grid>
-
-                        <Button Command="{Binding ExecuteRestoreDrillCommand}" IsEnabled="{Binding IsRunningDrill, Converter={StaticResource InvertedBoolConverter}}" Style="{StaticResource BtnPrimary}" HorizontalAlignment="Left" Height="38" Padding="20,0">
-                            <StackPanel Orientation="Horizontal">
-                                <Path Data="{StaticResource IconPlay}" Fill="#FFFFFF" Width="16" Height="16" Stretch="Uniform" Margin="0,0,8,0"/>
-                                <TextBlock Text="Run automated drill now" FontWeight="SemiBold"/>
-                            </StackPanel>
-                        </Button>
-
-                        <Border Visibility="{Binding IsRunningDrill, Converter={StaticResource BoolToVis}}" Background="{DynamicResource BrushRaised}" CornerRadius="8" Padding="14" Margin="0,16,0,0">
-                            <TextBlock Text="{Binding DrillProgressMessage}" FontWeight="Medium" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource BrushCobalt}"/>
-                        </Border>
-                    </StackPanel>
-                </Border>
-
-                <!-- Past Drill History -->
-                <Border Style="{StaticResource Card}" Padding="20">
-                    <StackPanel>
-                        <TextBlock Text="Previous Drill Results" FontWeight="SemiBold" FontSize="{StaticResource FontSizeSectionHeader}" Foreground="{DynamicResource BrushInk}"/>
-                        <DataGrid ItemsSource="{Binding DrillHistory}" AutoGenerateColumns="False" CanUserAddRows="False" HeadersVisibility="Column" Height="180" Background="Transparent" BorderBrush="{DynamicResource BrushLine}" BorderThickness="1" Margin="0,12,0,0">
-                            <DataGrid.Columns>
-                                <DataGridTextColumn Header="Timestamp" Binding="{Binding TimestampDisplay}" Width="160"/>
-                                <DataGridTextColumn Header="Database" Binding="{Binding Database}" Width="180"/>
-                                <DataGridTextColumn Header="Scratch Database" Binding="{Binding ScratchDatabaseName}" Width="200"/>
-                                <DataGridTextColumn Header="Recovery Time (RTO)" Binding="{Binding RtoDisplay}" Width="140"/>
-                                <DataGridCheckBoxColumn Header="CHECKDB Passed" Binding="{Binding CheckDbPassed}" Width="120"/>
-                                <DataGridTextColumn Header="Error / Details" Binding="{Binding ErrorMessage}" Width="*"/>
-                            </DataGrid.Columns>
-                        </DataGrid>
-                    </StackPanel>
-                </Border>
-            </StackPanel>
-
-            <!-- ===================================================================
-                 TAB 5: RECOVERY AUDIT HISTORY (§6)
-                 =================================================================== -->
-            <StackPanel Visibility="{Binding IsHistoryTab, Converter={StaticResource BoolToVis}}">
-                <Border Style="{StaticResource Card}" Padding="20">
-                    <StackPanel>
-                        <Grid Margin="0,0,0,16">
+                    <!-- Destination & Restore Safety Options -->
+                    <Border Style="{StaticResource Card}" Padding="20">
+                        <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="20"/>
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
 
-                            <StackPanel>
-                                <TextBlock Text="Recovery Audit Trail" FontWeight="SemiBold" FontSize="{StaticResource FontSizeSectionHeader}" Foreground="{DynamicResource BrushInk}"/>
-                                <TextBlock Text="Complete log of all database, file, and drill recovery operations" FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushInkMuted}" Margin="0,2,0,0"/>
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="Extraction Destination" FontWeight="SemiBold" FontSize="{StaticResource FontSizeSectionHeader}" Foreground="{DynamicResource BrushInk}"/>
+
+                                <StackPanel Orientation="Horizontal" Margin="0,8,0,6" Visibility="{Binding IsIisSite, Converter={StaticResource BoolToVis}}">
+                                    <RadioButton Content="Original IIS path" IsChecked="{Binding DestinationMode, Converter={StaticResource StringEqualsToBool}, ConverterParameter=Original}" Margin="0,0,16,0"/>
+                                    <RadioButton Content="Custom directory" IsChecked="{Binding DestinationMode, Converter={StaticResource StringEqualsToBool}, ConverterParameter=Custom}"/>
+                                </StackPanel>
+
+                                <Grid Margin="0,6,0,12">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="10"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBox Text="{Binding CustomDestinationPath, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldInputMono}"/>
+                                    <Button Grid.Column="2" Content="Browse..." Command="{Binding BrowseRestoreDestinationCommand}" Style="{StaticResource BtnQuiet}" Height="36" Padding="14,0"/>
+                                </Grid>
+
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Conflict Policy: " FontWeight="Medium" FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushInkMuted}" VerticalAlignment="Center"/>
+                                    <RadioButton Content="Safe (Restore_timestamp)" IsChecked="{Binding WriteMode, Converter={StaticResource StringEqualsToBool}, ConverterParameter=safe}" Margin="12,0,12,0" VerticalAlignment="Center"/>
+                                    <RadioButton Content="Overwrite existing" IsChecked="{Binding WriteMode, Converter={StaticResource StringEqualsToBool}, ConverterParameter=overwrite}" Margin="0,0,12,0" VerticalAlignment="Center"/>
+                                    <RadioButton Content="Skip existing" IsChecked="{Binding WriteMode, Converter={StaticResource StringEqualsToBool}, ConverterParameter=skip}" VerticalAlignment="Center"/>
+                                </StackPanel>
                             </StackPanel>
 
-                            <!-- Filter Pills & Search -->
-                            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                                <TextBox Text="{Binding HistorySearchQuery, UpdateSourceTrigger=PropertyChanged}" Tag="Search operations..." Style="{StaticResource FieldInput}" Width="220" Margin="0,0,12,0"/>
-                                <Button Content="All" Command="{Binding FilterHistoryCommand}" CommandParameter="All" Style="{StaticResource BtnQuiet}" Height="30" Margin="0,0,4,0"/>
-                                <Button Content="SQL" Command="{Binding FilterHistoryCommand}" CommandParameter="SqlPointInTime" Style="{StaticResource BtnQuiet}" Height="30" Margin="0,0,4,0"/>
-                                <Button Content="Files" Command="{Binding FilterHistoryCommand}" CommandParameter="Files" Style="{StaticResource BtnQuiet}" Height="30" Margin="0,0,4,0"/>
-                                <Button Content="Drills" Command="{Binding FilterHistoryCommand}" CommandParameter="RestoreDrill" Style="{StaticResource BtnQuiet}" Height="30"/>
+                            <StackPanel Grid.Column="2" VerticalAlignment="Bottom" MinWidth="240">
+                                <Button Command="{Binding ExecuteFileRestoreCommand}" Style="{StaticResource BtnPrimary}" Height="40">
+                                    <StackPanel Orientation="Horizontal">
+                                        <Path Data="{StaticResource IconCloudArrowDown}" Fill="#FFFFFF" Width="18" Height="18" Stretch="Uniform" Margin="0,0,8,0"/>
+                                        <TextBlock Text="Extract selected files" FontWeight="SemiBold"/>
+                                    </StackPanel>
+                                </Button>
+
+                                <Border Visibility="{Binding IsFileRestoring, Converter={StaticResource BoolToVis}}" Background="{DynamicResource BrushRaised}" CornerRadius="8" Padding="10" Margin="0,10,0,0">
+                                    <StackPanel>
+                                        <ProgressBar Value="{Binding FileRestoreProgress}" Maximum="100" Height="6"/>
+                                        <TextBlock Text="{Binding FileRestoreMessage}" FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource BrushInkMuted}" TextTrimming="CharacterEllipsis" Margin="0,4,0,6"/>
+                                        <Button Content="Cancel" Command="{Binding CancelFileRestoreCommand}" Style="{StaticResource BtnQuiet}" Height="26" Padding="10,0" HorizontalAlignment="Right"/>
+                                    </StackPanel>
+                                </Border>
                             </StackPanel>
                         </Grid>
+                    </Border>
+                </StackPanel>
 
-                        <!-- History DataGrid -->
-                        <DataGrid ItemsSource="{Binding FilteredHistoryRecords}" SelectedItem="{Binding SelectedHistoryRecord, Mode=TwoWay}" AutoGenerateColumns="False" CanUserAddRows="False" HeadersVisibility="Column" Height="360" Background="Transparent" BorderBrush="{DynamicResource BrushLine}" BorderThickness="1">
-                            <DataGrid.Columns>
-                                <DataGridTextColumn Header="Operation ID" Binding="{Binding OperationId}" Width="150"/>
-                                <DataGridTextColumn Header="Type" Binding="{Binding RecoveryType}" Width="130"/>
-                                <DataGridTextColumn Header="Source" Binding="{Binding SourceBackup}" Width="200"/>
-                                <DataGridTextColumn Header="Target" Binding="{Binding TargetName}" Width="200"/>
-                                <DataGridTextColumn Header="Start Time" Binding="{Binding StartTimeDisplay}" Width="160"/>
-                                <DataGridTextColumn Header="Duration" Binding="{Binding DurationDisplay}" Width="90"/>
-                                <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="90"/>
-                                <DataGridTextColumn Header="Error / Summary" Binding="{Binding ErrorMessage}" Width="*"/>
-                            </DataGrid.Columns>
-                        </DataGrid>
-                    </StackPanel>
-                </Border>
+                <!-- ===================================================================
+                     TAB 4: RESTORE DRILLS
+                     =================================================================== -->
+                <StackPanel Visibility="{Binding IsDrillsTab, Converter={StaticResource BoolToVis}}">
+                    <Grid Margin="0,0,0,20">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="16"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="16"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Border Grid.Column="0" Style="{StaticResource Card}" Padding="20">
+                            <StackPanel>
+                                <TextBlock Text="Measured Recovery Time (RTO)" FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushInkMuted}"/>
+                                <TextBlock Text="{Binding DrillLastRtoDisplay}" FontWeight="SemiBold" FontSize="{StaticResource FontSizeKpi}" Foreground="{DynamicResource BrushJade}" Margin="0,6,0,2"/>
+                                <TextBlock Text="Automated download and restore time" FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkFaint}"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Grid.Column="2" Style="{StaticResource Card}" Padding="20">
+                            <StackPanel>
+                                <TextBlock Text="Database Consistency" FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushInkMuted}"/>
+                                <TextBlock Text="{Binding DrillLastOutcomeDisplay}" FontWeight="SemiBold" FontSize="{StaticResource FontSizeSectionHeader}" Foreground="{DynamicResource BrushTeal}" Margin="0,6,0,2" TextTrimming="CharacterEllipsis"/>
+                                <TextBlock Text="Verified with DBCC CHECKDB in sandbox" FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkFaint}"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Grid.Column="4" Style="{StaticResource Card}" Padding="20">
+                            <StackPanel>
+                                <TextBlock Text="Isolated Scratch Database" FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushInkMuted}"/>
+                                <TextBlock Text="{Binding ScratchDatabaseName}" FontFamily="{StaticResource FontFamilyMono}" FontWeight="SemiBold" FontSize="{StaticResource FontSizeRowTitle}" Foreground="{DynamicResource BrushInk}" Margin="0,8,0,2"/>
+                                <TextBlock Text="Safely dropped immediately after drill" FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkFaint}"/>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+
+                    <Border Style="{StaticResource Card}" Padding="20" Margin="0,0,0,20">
+                        <StackPanel>
+                            <TextBlock Text="Run Automated Restore Drill" FontWeight="SemiBold" FontSize="{StaticResource FontSizeSectionHeader}" Foreground="{DynamicResource BrushInk}"/>
+                            <TextBlock Text="Restores the latest backup chain into an isolated scratch database to verify backup integrity without impacting production" FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushInkMuted}" Margin="0,2,0,16"/>
+
+                            <Grid Margin="0,0,0,16">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="300"/>
+                                    <ColumnDefinition Width="16"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="Select Source SQL Job" FontWeight="Medium" FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushInkMuted}"/>
+                                    <ComboBox ItemsSource="{Binding AvailableDrillJobs}" SelectedItem="{Binding SelectedDrillJob, Mode=TwoWay}" DisplayMemberPath="Name" Height="36" Margin="0,6,0,0"/>
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="2">
+                                    <TextBlock Text="Source Database" FontWeight="Medium" FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushInkMuted}"/>
+                                    <TextBox Text="{Binding DrillDatabaseName, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldInputMono}" Height="36" Margin="0,6,0,0"/>
+                                </StackPanel>
+                            </Grid>
+
+                            <Button Command="{Binding ExecuteRestoreDrillCommand}" IsEnabled="{Binding IsRunningDrill, Converter={StaticResource InvertedBoolConverter}}" Style="{StaticResource BtnPrimary}" HorizontalAlignment="Left" Height="38" Padding="20,0">
+                                <StackPanel Orientation="Horizontal">
+                                    <Path Data="{StaticResource IconPlay}" Fill="#FFFFFF" Width="16" Height="16" Stretch="Uniform" Margin="0,0,8,0"/>
+                                    <TextBlock Text="Run automated drill now" FontWeight="SemiBold"/>
+                                </StackPanel>
+                            </Button>
+
+                            <Border Visibility="{Binding IsRunningDrill, Converter={StaticResource BoolToVis}}" Background="{DynamicResource BrushRaised}" CornerRadius="8" Padding="14" Margin="0,16,0,0">
+                                <Grid>
+                                    <TextBlock Text="{Binding DrillProgressMessage}" FontWeight="Medium" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource BrushCobalt}" VerticalAlignment="Center"/>
+                                    <Button Content="Cancel" Command="{Binding CancelRestoreDrillCommand}" Style="{StaticResource BtnQuiet}" Height="28" Padding="12,0" HorizontalAlignment="Right"/>
+                                </Grid>
+                            </Border>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Style="{StaticResource Card}" Padding="20">
+                        <StackPanel>
+                            <TextBlock Text="Previous Drill Results" FontWeight="SemiBold" FontSize="{StaticResource FontSizeSectionHeader}" Foreground="{DynamicResource BrushInk}"/>
+                            <DataGrid ItemsSource="{Binding DrillHistory}" AutoGenerateColumns="False" CanUserAddRows="False" HeadersVisibility="Column" Height="180" Background="Transparent" BorderBrush="{DynamicResource BrushLine}" BorderThickness="1" Margin="0,12,0,0">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Timestamp" Binding="{Binding TimestampDisplay}" Width="160"/>
+                                    <DataGridTextColumn Header="Database" Binding="{Binding Database}" Width="180"/>
+                                    <DataGridTextColumn Header="Scratch Database" Binding="{Binding ScratchDatabaseName}" Width="200"/>
+                                    <DataGridTextColumn Header="Recovery Time (RTO)" Binding="{Binding RtoDisplay}" Width="140"/>
+                                    <DataGridCheckBoxColumn Header="CHECKDB Passed" Binding="{Binding CheckDbPassed}" Width="120"/>
+                                    <DataGridTextColumn Header="Error / Details" Binding="{Binding ErrorMessage}" Width="*"/>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                            <TextBlock Text="No automated restore drills have been run yet."
+                                       Visibility="{Binding DrillHistory.Count, Converter={StaticResource InvertedZeroToVis}}"
+                                       FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource BrushInkFaint}"
+                                       HorizontalAlignment="Center" Margin="0,10,0,0"/>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+
+                <!-- ===================================================================
+                     TAB 5: RECOVERY AUDIT HISTORY
+                     =================================================================== -->
+                <StackPanel Visibility="{Binding IsHistoryTab, Converter={StaticResource BoolToVis}}">
+                    <Border Style="{StaticResource Card}" Padding="20">
+                        <StackPanel>
+                            <Grid Margin="0,0,0,16">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <StackPanel>
+                                    <TextBlock Text="Recovery Audit Trail" FontWeight="SemiBold" FontSize="{StaticResource FontSizeSectionHeader}" Foreground="{DynamicResource BrushInk}"/>
+                                    <TextBlock Text="Complete log of all database, file, and drill recovery operations" FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushInkMuted}" Margin="0,2,0,0"/>
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                                    <TextBox Text="{Binding HistorySearchQuery, UpdateSourceTrigger=PropertyChanged}" Tag="Search operations..." Style="{StaticResource FieldInput}" Width="200" Height="32" Margin="0,0,8,0"/>
+                                    <ComboBox ItemsSource="{Binding HistoryStatusFilterOptions}" SelectedItem="{Binding HistoryStatusFilter}" Width="105" Height="32" Margin="0,0,8,0"/>
+                                    <Border Style="{StaticResource SegmentedContainer}">
+                                        <StackPanel Orientation="Horizontal">
+                                            <RadioButton Content="All" Style="{StaticResource SegmentedItem}" IsChecked="{Binding IsHistoryFilterAll, Mode=OneWay}" Command="{Binding FilterHistoryCommand}" CommandParameter="All"/>
+                                            <RadioButton Content="SQL" Style="{StaticResource SegmentedItem}" IsChecked="{Binding IsHistoryFilterSql, Mode=OneWay}" Command="{Binding FilterHistoryCommand}" CommandParameter="SqlPointInTime"/>
+                                            <RadioButton Content="Files" Style="{StaticResource SegmentedItem}" IsChecked="{Binding IsHistoryFilterFiles, Mode=OneWay}" Command="{Binding FilterHistoryCommand}" CommandParameter="Files"/>
+                                            <RadioButton Content="Drills" Style="{StaticResource SegmentedItem}" IsChecked="{Binding IsHistoryFilterDrills, Mode=OneWay}" Command="{Binding FilterHistoryCommand}" CommandParameter="RestoreDrill"/>
+                                        </StackPanel>
+                                    </Border>
+                                </StackPanel>
+                            </Grid>
+
+                            <DataGrid ItemsSource="{Binding FilteredHistoryRecords}" SelectedItem="{Binding SelectedHistoryRecord, Mode=TwoWay}" AutoGenerateColumns="False" CanUserAddRows="False" HeadersVisibility="Column" Height="340" Background="Transparent" BorderBrush="{DynamicResource BrushLine}" BorderThickness="1">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Operation ID" Binding="{Binding OperationId}" Width="140"/>
+                                    <DataGridTextColumn Header="Type" Binding="{Binding RecoveryType}" Width="120"/>
+                                    <DataGridTextColumn Header="Source" Binding="{Binding SourceBackup}" Width="190"/>
+                                    <DataGridTextColumn Header="Target" Binding="{Binding TargetName}" Width="190"/>
+                                    <DataGridTextColumn Header="Start Time" Binding="{Binding StartTimeDisplay}" Width="155"/>
+                                    <DataGridTextColumn Header="Duration" Binding="{Binding DurationDisplay}" Width="90"/>
+                                    <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="90"/>
+                                    <DataGridTextColumn Header="Error / Summary" Binding="{Binding ErrorMessage}" Width="*"/>
+                                </DataGrid.Columns>
+                            </DataGrid>
+
+                            <TextBlock Text="No recovery operations match the active filters."
+                                       Visibility="{Binding FilteredHistoryRecords.Count, Converter={StaticResource InvertedZeroToVis}}"
+                                       FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource BrushInkFaint}"
+                                       HorizontalAlignment="Center" Margin="0,12,0,0"/>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
             </StackPanel>
+        </ScrollViewer>
 
-        </StackPanel>
-    </ScrollViewer>
+        <!-- ===================================================================
+             FILE PREVIEW MODAL OVERLAY
+             =================================================================== -->
+        <Grid Visibility="{Binding IsPreviewOpen, Converter={StaticResource BoolToVis}}"
+              Background="#660B1420">
+            <Border MaxWidth="720" MaxHeight="560" VerticalAlignment="Center" HorizontalAlignment="Center"
+                    Style="{StaticResource Card}" Padding="24" Effect="{StaticResource Sh2}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <Grid Grid.Row="0" Margin="0,0,0,12">
+                        <TextBlock Text="{Binding PreviewFileName, StringFormat='Preview: {0}'}" FontWeight="SemiBold" FontSize="{StaticResource FontSizeSectionHeader}" Foreground="{DynamicResource BrushInk}"/>
+                        <Button Command="{Binding ClosePreviewCommand}" Style="{StaticResource IconBtn}" Width="30" Height="30" HorizontalAlignment="Right">
+                            <Path Data="{StaticResource IconClose}" Fill="{DynamicResource BrushInkMuted}" Width="14" Height="14" Stretch="Uniform"/>
+                        </Button>
+                    </Grid>
+
+                    <Border Grid.Row="1" Background="{DynamicResource BrushSunken}" BorderBrush="{DynamicResource BrushLine}" BorderThickness="1" CornerRadius="8" Padding="12" Margin="0,0,0,14">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+                            <TextBlock Text="{Binding PreviewContent}" FontFamily="{StaticResource FontFamilyMono}" FontSize="{StaticResource FontSizeMono}" Foreground="{DynamicResource BrushInk}" TextWrapping="NoWrap"/>
+                        </ScrollViewer>
+                    </Border>
+
+                    <Button Grid.Row="2" Content="Close" Command="{Binding ClosePreviewCommand}" Style="{StaticResource BtnPrimary}" HorizontalAlignment="Right" Height="32" Padding="16,0"/>
+                </Grid>
+            </Border>
+        </Grid>
+    </Grid>
 </UserControl>

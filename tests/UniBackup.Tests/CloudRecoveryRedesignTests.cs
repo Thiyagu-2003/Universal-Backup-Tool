@@ -392,4 +392,96 @@ public class CloudRecoveryRedesignTests : IDisposable
         Assert.Single(vm.FilteredHistoryRecords);
         Assert.Equal("REC-102", vm.FilteredHistoryRecords[0].OperationId);
     }
+
+    private class FailingStorageProvider : IStorageProvider
+    {
+        public string Name => "s3";
+        public bool IsEnabled(AppConfig config) => true;
+        public Task<Result<DestinationRunResult>> UploadAsync(AppConfig config, BackupJob job, string localFilePath, string? targetFolderOverride = null, IProgress<(long uploadedBytes, long totalBytes)>? progress = null, CancellationToken ct = default) => Task.FromResult(Result<DestinationRunResult>.Failure("Offline"));
+        public Task<Result<List<CloudArchiveItem>>> ListArchivesAsync(AppConfig config, string? folderPrefix = null, CancellationToken ct = default) => Task.FromResult(Result<List<CloudArchiveItem>>.Failure("S3 unreachable"));
+        public Task<Result> DownloadAsync(AppConfig config, string keyOrId, string destinationFilePath, IProgress<(long downloadedBytes, long totalBytes)>? progress = null, CancellationToken ct = default) => Task.FromResult(Result.Failure("Offline"));
+        public Task<Result> DeleteAsync(AppConfig config, string keyOrId, CancellationToken ct = default) => Task.FromResult(Result.Failure("Offline"));
+        public Task<Result<int>> CleanupRetentionAsync(AppConfig config, string targetFolder, int retentionDays, CancellationToken ct = default) => Task.FromResult(Result<int>.Failure("Offline"));
+        public Task<Result> ValidateConnectionAsync(AppConfig config, CancellationToken ct = default) => throw new TimeoutException("Simulated S3 timeout");
+    }
+
+    [Fact]
+    public void MultiLocalDiscovery_IncludesAdditionalPaths_AndScopesConfigWithoutMutatingBase()
+    {
+        var config = new AppConfig();
+        config.Aws.Enabled = false;
+        config.Local.Enabled = true;
+        config.Local.TargetPath = @"C:\Backups\Primary";
+        config.Local.AdditionalPaths = [@"D:\USB_Backups", @"\\NAS\Archives", @"C:\Backups\Primary"];
+
+        var sources = RecoveryViewModel.GetConfiguredSources(config);
+
+        Assert.Equal(3, sources.Count);
+        Assert.Equal(1, sources.Count(s => s.CustomLocalPath == @"C:\Backups\Primary" && !s.IsAdditionalLocal));
+        Assert.Contains(sources, s => s.CustomLocalPath == @"D:\USB_Backups" && s.IsAdditionalLocal);
+        Assert.Contains(sources, s => s.CustomLocalPath == @"\\NAS\Archives" && s.IsAdditionalLocal);
+
+        var secondary = sources.First(s => s.CustomLocalPath == @"D:\USB_Backups");
+        var scoped = RecoveryViewModel.CreateScopedConfigForSource(config, secondary);
+        Assert.Equal(@"D:\USB_Backups", scoped.Local.TargetPath);
+        Assert.Equal(@"C:\Backups\Primary", config.Local.TargetPath);
+    }
+
+    [Fact]
+    public async Task RefreshDashboard_IsolatesFailingProvider_AndAggregatesAllSources()
+    {
+        var config = new AppConfig();
+        config.Aws.Enabled = true;
+        config.Aws.BucketName = "offline-bucket";
+        config.Local.Enabled = true;
+        config.Local.TargetPath = _tempDir;
+
+        var mockLocal = new MockStorageProvider();
+        mockLocal.Items.Add(new CloudArchiveItem { KeyOrId = "Site_2026.zip", DisplayName = "Site_2026.zip", SizeBytes = 1024, Destination = "local" });
+
+        var vm = new RecoveryViewModel(
+            () => config,
+            _configService,
+            new RecoveryService([mockLocal], _archiveService),
+            null,
+            new SqlServerRestoreService(_crypto),
+            new SqlServerBackupService(_crypto),
+            null,
+            [new FailingStorageProvider(), mockLocal],
+            _repo,
+            _crypto);
+
+        await vm.RefreshDashboardAsync();
+
+        Assert.Equal(2, vm.ConfiguredSources.Count);
+        Assert.Equal("Error", vm.ConfiguredSources.First(s => s.ProviderId == "s3").Status);
+        Assert.Equal("Connected", vm.ConfiguredSources.First(s => s.ProviderId == "local").Status);
+        Assert.Contains(vm.FileSources, s => s.IsAllSources);
+        Assert.Single(vm.AvailableArchives);
+    }
+
+    [Fact]
+    public void ArchiveExplorer_SearchFilter_FiltersNodesInRealTime()
+    {
+        var vm = new RecoveryViewModel(
+            () => new AppConfig(),
+            _configService,
+            new RecoveryService([], _archiveService),
+            null,
+            new SqlServerRestoreService(_crypto),
+            new SqlServerBackupService(_crypto),
+            null,
+            [],
+            _repo,
+            _crypto);
+
+        vm.ArchiveExplorerNodes.Add(new ArchiveExplorerItemVm { Name = "web.config", RelativePath = "site/web.config" });
+        vm.ArchiveExplorerNodes.Add(new ArchiveExplorerItemVm { Name = "appsettings.json", RelativePath = "site/appsettings.json" });
+        vm.ApplyArchiveExplorerFilter();
+
+        Assert.Equal(2, vm.FilteredArchiveExplorerNodes.Count);
+        vm.SearchFilter = "web.config";
+        Assert.Single(vm.FilteredArchiveExplorerNodes);
+        Assert.Equal("web.config", vm.FilteredArchiveExplorerNodes[0].Name);
+    }
 }
