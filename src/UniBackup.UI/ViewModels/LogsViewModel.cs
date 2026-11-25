@@ -88,6 +88,9 @@ public sealed partial class LogLine : ObservableObject
     public bool IsSuccess { get; set; }
     public bool IsInformation => !IsError && !IsWarning;
 
+    public string StreamOrigin { get; set; } = "Manual";
+    public bool IsServiceStream => string.Equals(StreamOrigin, "Service", StringComparison.OrdinalIgnoreCase);
+
     public bool HasTime => !string.IsNullOrWhiteSpace(Time);
     public bool HasLevel => !string.IsNullOrWhiteSpace(Level);
 
@@ -289,11 +292,12 @@ public sealed partial class LogLine : ObservableObject
         return "System";
     }
 
-    public static LogLine FromMultiLine(string firstLine, List<string> continuationLines, int number, string? filePath = null)
+    public static LogLine FromMultiLine(string firstLine, List<string> continuationLines, int number, string? filePath = null, string? streamOrigin = null)
     {
         var item = new LogLine(firstLine, number)
         {
-            FilePath = filePath
+            FilePath = filePath,
+            StreamOrigin = streamOrigin ?? (filePath != null && filePath.Contains("service", StringComparison.OrdinalIgnoreCase) ? "Service" : "Manual")
         };
 
         if (continuationLines.Count > 0)
@@ -614,6 +618,44 @@ public sealed partial class LogsViewModel : ObservableObject
     private string _statusMessage = "Loading logs...";
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsStreamAll))]
+    [NotifyPropertyChangedFor(nameof(IsStreamManual))]
+    [NotifyPropertyChangedFor(nameof(IsStreamService))]
+    private string _streamFilter = "All";
+
+    [ObservableProperty]
+    private bool _isCombinedMode = true;
+
+    public bool IsStreamAll => string.Equals(StreamFilter, "All", StringComparison.OrdinalIgnoreCase);
+    public bool IsStreamManual => string.Equals(StreamFilter, "Manual", StringComparison.OrdinalIgnoreCase);
+    public bool IsStreamService => string.Equals(StreamFilter, "Service", StringComparison.OrdinalIgnoreCase);
+
+    [RelayCommand]
+    public async Task SetStreamFilterAsync(string stream)
+    {
+        StreamFilter = string.IsNullOrWhiteSpace(stream) ? "All" : stream;
+        if (StreamFilter == "All" && !IsCombinedMode)
+        {
+            IsCombinedMode = true;
+            await LoadCombinedLogsAsync();
+        }
+        else
+        {
+            CurrentPage = 1;
+            ApplyFiltersAndPagination();
+        }
+    }
+
+    [RelayCommand]
+    public async Task SelectCombinedStreamAsync()
+    {
+        IsCombinedMode = true;
+        StreamFilter = "All";
+        SelectedFile = null;
+        await LoadCombinedLogsAsync();
+    }
+
+    [ObservableProperty]
     private bool _autoScroll = true;
 
     public ObservableCollection<LogFileRow> Files { get; } = [];
@@ -739,6 +781,7 @@ public sealed partial class LogsViewModel : ObservableObject
     {
         if (value != null)
         {
+            IsCombinedMode = false;
             _ = LoadFileContentAsync(value);
         }
     }
@@ -851,8 +894,35 @@ public sealed partial class LogsViewModel : ObservableObject
 
         FilterFiles();
 
-        SelectedFile = Files.FirstOrDefault(f => f.Path == previousPath) ?? Files.FirstOrDefault();
-        if (SelectedFile == null)
+        if (IsCombinedMode)
+        {
+            await LoadCombinedLogsAsync();
+        }
+        else
+        {
+            SelectedFile = Files.FirstOrDefault(f => f.Path == previousPath) ?? Files.FirstOrDefault();
+            if (SelectedFile == null)
+            {
+                _parsedLines.Clear();
+                _filteredRecords.Clear();
+                PagedLogs.Clear();
+                VisibleLines.Clear();
+                HasNoVisibleLines = true;
+                StatusMessage = "No log files found in " + AppPaths.DefaultLogsDirectory;
+                UpdateCounts();
+            }
+        }
+    }
+
+    public async Task LoadCombinedLogsAsync()
+    {
+        var filesToRead = Files.Where(f => f.Kind is "Manual" or "Service").ToList();
+        if (filesToRead.Count == 0)
+        {
+            filesToRead = Files.ToList();
+        }
+
+        if (filesToRead.Count == 0)
         {
             _parsedLines.Clear();
             _filteredRecords.Clear();
@@ -861,6 +931,85 @@ public sealed partial class LogsViewModel : ObservableObject
             HasNoVisibleLines = true;
             StatusMessage = "No log files found in " + AppPaths.DefaultLogsDirectory;
             UpdateCounts();
+            return;
+        }
+
+        StatusMessage = "Loading combined log streams...";
+        try
+        {
+            var merged = await Task.Run(() =>
+            {
+                var allEvents = new List<LogLine>();
+                var serilogHeaderRegex = new Regex(@"^(?:\d{4}-\d{2}-\d{2}|\d{2}-\d{2}-\d{4})[ T]\d{2}:\d{2}:\d{2}", RegexOptions.Compiled);
+
+                foreach (var file in filesToRead)
+                {
+                    if (!File.Exists(file.Path)) continue;
+                    using var stream = new FileStream(file.Path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete);
+                    using var reader = new StreamReader(stream);
+
+                    var lines = new List<string>();
+                    while (reader.ReadLine() is { } line) lines.Add(line);
+
+                    var tail = lines.Count > MaxLines ? lines.Skip(lines.Count - MaxLines).ToList() : lines;
+                    var startNumber = lines.Count - tail.Count + 1;
+
+                    string? currentHeader = null;
+                    var continuation = new List<string>();
+                    var currentNumber = startNumber;
+
+                    for (int i = 0; i < tail.Count; i++)
+                    {
+                        var line = tail[i];
+                        if (serilogHeaderRegex.IsMatch(line) || line.Contains("| ERROR |") || line.Contains("| INFO |") || line.Contains("| WARNING |"))
+                        {
+                            if (currentHeader != null)
+                            {
+                                allEvents.Add(LogLine.FromMultiLine(currentHeader, continuation, currentNumber, file.Path, file.Kind));
+                                continuation.Clear();
+                            }
+                            currentHeader = line;
+                            currentNumber = startNumber + i;
+                        }
+                        else
+                        {
+                            if (currentHeader != null) continuation.Add(line);
+                            else
+                            {
+                                currentHeader = line;
+                                currentNumber = startNumber + i;
+                            }
+                        }
+                    }
+
+                    if (currentHeader != null)
+                    {
+                        allEvents.Add(LogLine.FromMultiLine(currentHeader, continuation, currentNumber, file.Path, file.Kind));
+                    }
+                }
+
+                return allEvents.OrderByDescending(e => e.Timestamp).ThenByDescending(e => e.Number).ToList();
+            });
+
+            _parsedLines = merged;
+            foreach (var r in _parsedLines)
+            {
+                r.PropertyChanged += (s, e) =>
+                {
+                    if (e.PropertyName == nameof(LogLine.IsSelected))
+                    {
+                        UpdateSelectionState();
+                    }
+                };
+            }
+
+            CurrentPage = 1;
+            ApplyFiltersAndPagination();
+            StatusMessage = $"Combined: {_parsedLines.Count} events across {filesToRead.Count} streams";
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = $"Error loading combined logs: {ex.Message}";
         }
     }
 
@@ -988,6 +1137,16 @@ public sealed partial class LogsViewModel : ObservableObject
     public void ApplyFiltersAndPagination()
     {
         var query = _parsedLines.AsEnumerable();
+
+        // 0. Stream filter (All / Manual / Service)
+        if (string.Equals(StreamFilter, "Manual", StringComparison.OrdinalIgnoreCase))
+        {
+            query = query.Where(r => string.Equals(r.StreamOrigin, "Manual", StringComparison.OrdinalIgnoreCase));
+        }
+        else if (string.Equals(StreamFilter, "Service", StringComparison.OrdinalIgnoreCase))
+        {
+            query = query.Where(r => string.Equals(r.StreamOrigin, "Service", StringComparison.OrdinalIgnoreCase));
+        }
 
         // 1. Severity filters (multi-selection)
         bool allSeveritiesSelected = FilterErrors && FilterWarnings && FilterInformation;

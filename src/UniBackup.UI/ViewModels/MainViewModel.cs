@@ -455,6 +455,8 @@ public partial class MainViewModel : ObservableObject
         InitRecovery();
         InitAnalytics();
         InitSettings();
+        InitOverview();
+        InitJobsPage();
     }
 
     private void InitSettings()
@@ -616,6 +618,7 @@ public partial class MainViewModel : ObservableObject
     public void ApplyJobFilter(string filter)
     {
         _currentFilterCategory = filter;
+        JobsStatusFilter = string.IsNullOrWhiteSpace(filter) ? "All" : filter;
         _ = RefreshJobsAsync();
     }
 
@@ -666,6 +669,7 @@ public partial class MainViewModel : ObservableObject
     public async Task RefreshJobsAsync()
     {
         var loadedJobs = await _configService.LoadJobsAsync();
+        SetAllJobsCache(loadedJobs);
         Jobs.Clear();
 
         var filtered = loadedJobs.AsEnumerable();
@@ -720,6 +724,8 @@ public partial class MainViewModel : ObservableObject
         HasUpcomingJobs = UpcomingJobs.Count > 0;
 
         ComputeStaleJobs();
+        UpdateOverviewData();
+        UpdateJobsPageData();
         _ = AnalyticsVm?.RefreshAsync();
     }
 
@@ -746,6 +752,8 @@ public partial class MainViewModel : ObservableObject
         OnPropertyChanged(nameof(RunsTodaySubText));
 
         ComputeStaleJobs();
+        UpdateOverviewData();
+        UpdateJobsPageData();
         _ = AnalyticsVm?.RefreshAsync();
     }
 

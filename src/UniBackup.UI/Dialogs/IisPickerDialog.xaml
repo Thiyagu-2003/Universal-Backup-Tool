@@ -302,37 +302,59 @@
                     </ItemsControl>
                 </ScrollViewer>
 
-                <!-- 4. Export Configuration Option -->
-                <Border Grid.Row="3" Background="{DynamicResource BrushRaised}" BorderBrush="{DynamicResource BrushLine}" BorderThickness="0,1,0,1" Padding="24,12">
-                    <CheckBox x:Name="ExportConfigCheckBox" IsChecked="True">
-                        <StackPanel Margin="6,0,0,0">
-                            <TextBlock Text="Also export site configuration" FontWeight="SemiBold" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource BrushInk}"/>
-                            <TextBlock Text="Writes the applicationHost section, bindings and app pool settings next to the archive, so a site can be rebuilt on a new server."
-                                       FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkMuted}" Margin="0,2,0,0"/>
-                        </StackPanel>
-                    </CheckBox>
+                <!-- 4. Export Configuration Option (Inset Modern Card) -->
+                <Border Grid.Row="3" Background="Transparent" Padding="24,10,24,8">
+                    <Border Background="{DynamicResource BrushRaised}"
+                            BorderBrush="{DynamicResource BrushLine}"
+                            BorderThickness="1"
+                            CornerRadius="10"
+                            Padding="14,10">
+                        <CheckBox x:Name="ExportConfigCheckBox" IsChecked="True" VerticalContentAlignment="Center">
+                            <StackPanel Margin="6,0,0,0">
+                                <TextBlock Text="Also export site configuration" FontWeight="SemiBold" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource BrushInk}"/>
+                                <TextBlock Text="Writes the applicationHost section, bindings and app pool settings next to the archive, so a site can be rebuilt on a new server."
+                                           FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkMuted}" Margin="0,2,0,0" TextWrapping="Wrap"/>
+                            </StackPanel>
+                        </CheckBox>
+                    </Border>
                 </Border>
 
-                <!-- 5. Footer (Live Total + Actions) -->
-                <Border Grid.Row="4" Background="{DynamicResource BrushPanel}" Padding="24,16">
+                <!-- 5. Footer (Curved Bottom Corners + Summary Pill + Actions) -->
+                <Border Grid.Row="4"
+                        Background="{DynamicResource BrushRaised}"
+                        BorderBrush="{DynamicResource BrushLine}"
+                        BorderThickness="0,1,0,0"
+                        CornerRadius="0,0,17,17"
+                        Padding="24,14">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
 
-                        <!-- Live Selection Summary -->
-                        <TextBlock x:Name="FooterSummaryText"
-                                   VerticalAlignment="Center"
-                                   FontSize="{StaticResource FontSizeBody}"
-                                   Foreground="{DynamicResource BrushInkMuted}">
-                            <Bold Foreground="{DynamicResource BrushInk}"><Run x:Name="SelectedCountRun" Text="0"/></Bold> of <Run x:Name="AvailableCountRun" Text="0"/> available sites · <Bold Foreground="{DynamicResource BrushInk}"><Run x:Name="SelectedSizeRun" Text="0 B"/></Bold> to archive
-                        </TextBlock>
+                        <!-- Live Selection Summary Pill -->
+                        <Border HorizontalAlignment="Left"
+                                VerticalAlignment="Center"
+                                Background="{DynamicResource BrushPanel}"
+                                BorderBrush="{DynamicResource BrushLine}"
+                                BorderThickness="1"
+                                CornerRadius="{StaticResource RadiusPill}"
+                                Padding="12,5">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <Ellipse Width="7" Height="7" Fill="{DynamicResource BrushTeal}" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                <TextBlock x:Name="FooterSummaryText"
+                                           VerticalAlignment="Center"
+                                           FontSize="{StaticResource FontSizeSecondary}"
+                                           Foreground="{DynamicResource BrushInkMuted}">
+                                    <Bold Foreground="{DynamicResource BrushInk}"><Run x:Name="SelectedCountRun" Text="0"/></Bold> of <Run x:Name="AvailableCountRun" Text="0"/> available sites · <Bold Foreground="{DynamicResource BrushInk}"><Run x:Name="SelectedSizeRun" Text="0 B"/></Bold> to archive
+                                </TextBlock>
+                            </StackPanel>
+                        </Border>
 
                         <!-- Cancel and Submit -->
-                        <StackPanel Grid.Column="1" Orientation="Horizontal">
-                            <Button Content="Cancel" Click="Cancel_Click" Style="{StaticResource BtnQuiet}" Margin="0,0,10,0"/>
-                            <Button x:Name="SubmitButton" Content="Add sites" Click="Submit_Click" Style="{StaticResource BtnPrimary}"/>
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                            <Button Content="Cancel" Click="Cancel_Click" Style="{StaticResource BtnQuiet}" Height="34" Padding="14,0" Margin="0,0,10,0"/>
+                            <Button x:Name="SubmitButton" Content="Add sites" Click="Submit_Click" Style="{StaticResource BtnPrimary}" Height="34" Padding="16,0"/>
                         </StackPanel>
                     </Grid>
                 </Border>

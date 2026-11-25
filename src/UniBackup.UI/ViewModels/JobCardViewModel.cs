@@ -212,6 +212,34 @@ public partial class JobCardViewModel : ObservableObject
         }
     }
 
+    public DateTime LastRunSortKey => Model.LastRunTime ?? DateTime.MinValue;
+
+    public DateTime NextRunSortKey
+    {
+        get
+        {
+            if (!Model.Enabled || string.Equals(Model.Schedule.Freq, "manual", StringComparison.OrdinalIgnoreCase))
+                return DateTime.MaxValue;
+            if (!TimeSpan.TryParse(Model.Schedule.Time, out var timeOfDay))
+                return DateTime.MaxValue.AddDays(-1);
+            var now = DateTime.Now;
+            var todayRun = now.Date + timeOfDay;
+            return now < todayRun ? todayRun : todayRun.AddDays(1);
+        }
+    }
+
+    public int StatusSortOrder => IsRunning ? 0 :
+        (!Model.Enabled ? 4 :
+        (Model.LastRunStatus?.ToUpperInvariant() switch
+        {
+            "FAILED" => 1,
+            "PARTIAL" => 2,
+            "SUCCESS" => 3,
+            _ => 5
+        }));
+
+    public bool IsDisabled => !Model.Enabled;
+
     public string LastRunDisplay
     {
         get

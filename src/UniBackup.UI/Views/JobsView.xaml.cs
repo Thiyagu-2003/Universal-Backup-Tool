@@ -18,15 +18,30 @@ public partial class JobsView : UserControl
     {
         if (e.OriginalSource is DependencyObject dep)
         {
-            // Do not toggle expand if clicking buttons or checkboxes
             var btn = FindParent<Button>(dep);
             var chk = FindParent<CheckBox>(dep);
             if (btn != null || chk != null) return;
         }
 
-        if (sender is FrameworkElement fe && fe.DataContext is JobCardViewModel vm)
+        if (sender is FrameworkElement fe && fe.DataContext is JobCardViewModel vm && DataContext is MainViewModel mvm)
         {
-            vm.IsExpanded = !vm.IsExpanded;
+            mvm.OpenJobDetails(vm);
+        }
+    }
+
+    private void StatusFilter_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is RadioButton rb && rb.Tag is string filter && DataContext is MainViewModel mvm)
+        {
+            mvm.SetJobsStatusFilter(filter);
+        }
+    }
+
+    private void DatePreset_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is RadioButton rb && rb.Tag is string preset && DataContext is MainViewModel mvm)
+        {
+            mvm.SelectJobsPreset(preset);
         }
     }
 
@@ -49,6 +64,15 @@ public partial class JobsView : UserControl
                 ?? ((mi.Parent as ContextMenu)?.PlacementTarget as FrameworkElement)?.DataContext as JobCardViewModel;
         }
         return null;
+    }
+
+    private void ViewDetails_Click(object sender, RoutedEventArgs e)
+    {
+        var vm = GetCardVm(sender);
+        if (vm != null && DataContext is MainViewModel mvm)
+        {
+            mvm.OpenJobDetails(vm);
+        }
     }
 
     private void RunFull_Click(object sender, RoutedEventArgs e)
@@ -119,14 +143,6 @@ public partial class JobsView : UserControl
         if (vm != null)
         {
             vm.IsDeletingInline = true;
-        }
-    }
-
-    private void Filter_Checked(object sender, RoutedEventArgs e)
-    {
-        if (sender is RadioButton rb && rb.Tag is string filter && DataContext is MainViewModel mvm)
-        {
-            mvm.ApplyJobFilter(filter);
         }
     }
 

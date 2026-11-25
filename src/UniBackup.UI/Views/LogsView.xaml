@@ -498,17 +498,53 @@
 
                         <!-- SOURCES SECTION -->
                         <TextBlock Text="SOURCES" FontWeight="SemiBold" FontSize="11" Foreground="{DynamicResource BrushInkFaint}" Margin="0,0,0,6"/>
-                        <CheckBox IsChecked="{Binding Logs.FilterBackupEngine, Mode=TwoWay}" Content="{Binding Logs.CountBackupEngine, StringFormat='Backup Engine ({0})'}" Margin="0,0,0,6" FontSize="{StaticResource FontSizeBody}"/>
-                        <CheckBox IsChecked="{Binding Logs.FilterScheduler, Mode=TwoWay}" Content="{Binding Logs.CountScheduler, StringFormat='Scheduler ({0})'}" Margin="0,0,0,6" FontSize="{StaticResource FontSizeBody}"/>
-                        <CheckBox IsChecked="{Binding Logs.FilterIisSites, Mode=TwoWay}" Content="{Binding Logs.CountIisSites, StringFormat='IIS Sites ({0})'}" Margin="0,0,0,6" FontSize="{StaticResource FontSizeBody}"/>
-                        <CheckBox IsChecked="{Binding Logs.FilterCloudRecovery, Mode=TwoWay}" Content="{Binding Logs.CountCloudRecovery, StringFormat='Cloud Recovery ({0})'}" Margin="0,0,0,6" FontSize="{StaticResource FontSizeBody}"/>
-                        <CheckBox IsChecked="{Binding Logs.FilterNotificationService, Mode=TwoWay}" Content="{Binding Logs.CountNotificationService, StringFormat='Notifications ({0})'}" Margin="0,0,0,6" FontSize="{StaticResource FontSizeBody}"/>
-                        <CheckBox IsChecked="{Binding Logs.FilterSystem, Mode=TwoWay}" Content="{Binding Logs.CountSystem, StringFormat='System ({0})'}" Margin="0,0,0,12" FontSize="{StaticResource FontSizeBody}"/>
+                        <CheckBox IsChecked="{Binding Logs.FilterBackupEngine, Mode=TwoWay}" Margin="0,0,0,6">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Backup Engine" FontSize="{StaticResource FontSizeBody}"/>
+                                <TextBlock Text="{Binding Logs.CountBackupEngine, StringFormat=' ({0})'}" Foreground="{DynamicResource BrushInkFaint}" FontSize="11" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </CheckBox>
+                        <CheckBox IsChecked="{Binding Logs.FilterScheduler, Mode=TwoWay}" Margin="0,0,0,6">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Scheduler" FontSize="{StaticResource FontSizeBody}"/>
+                                <TextBlock Text="{Binding Logs.CountScheduler, StringFormat=' ({0})'}" Foreground="{DynamicResource BrushInkFaint}" FontSize="11" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </CheckBox>
+                        <CheckBox IsChecked="{Binding Logs.FilterIisSites, Mode=TwoWay}" Margin="0,0,0,6">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="IIS Sites" FontSize="{StaticResource FontSizeBody}"/>
+                                <TextBlock Text="{Binding Logs.CountIisSites, StringFormat=' ({0})'}" Foreground="{DynamicResource BrushInkFaint}" FontSize="11" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </CheckBox>
+                        <CheckBox IsChecked="{Binding Logs.FilterCloudRecovery, Mode=TwoWay}" Margin="0,0,0,6">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Cloud Recovery" FontSize="{StaticResource FontSizeBody}"/>
+                                <TextBlock Text="{Binding Logs.CountCloudRecovery, StringFormat=' ({0})'}" Foreground="{DynamicResource BrushInkFaint}" FontSize="11" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </CheckBox>
+                        <CheckBox IsChecked="{Binding Logs.FilterNotificationService, Mode=TwoWay}" Margin="0,0,0,6">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Notifications" FontSize="{StaticResource FontSizeBody}"/>
+                                <TextBlock Text="{Binding Logs.CountNotificationService, StringFormat=' ({0})'}" Foreground="{DynamicResource BrushInkFaint}" FontSize="11" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </CheckBox>
+                        <CheckBox IsChecked="{Binding Logs.FilterSystem, Mode=TwoWay}" Margin="0,0,0,12">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="System" FontSize="{StaticResource FontSizeBody}"/>
+                                <TextBlock Text="{Binding Logs.CountSystem, StringFormat=' ({0})'}" Foreground="{DynamicResource BrushInkFaint}" FontSize="11" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </CheckBox>
 
                         <Separator Background="{DynamicResource BrushLine}" Margin="0,0,0,10"/>
 
                         <!-- LOG STREAMS / FILES SECTION -->
-                        <TextBlock Text="LOG FILES" FontWeight="SemiBold" FontSize="11" Foreground="{DynamicResource BrushInkFaint}" Margin="0,0,0,6"/>
+                        <TextBlock Text="LOG STREAMS" FontWeight="SemiBold" FontSize="11" Foreground="{DynamicResource BrushInkFaint}" Margin="0,0,0,6"/>
+                        <RadioButton GroupName="LogFilesGroup"
+                                     IsChecked="{Binding Logs.IsCombinedMode, Mode=OneWay}"
+                                     Command="{Binding Logs.SelectCombinedStreamCommand}"
+                                     Margin="0,0,0,6">
+                            <TextBlock Text="All Combined" FontWeight="SemiBold" FontSize="{StaticResource FontSizeBody}"/>
+                        </RadioButton>
                         <ItemsControl ItemsSource="{Binding Logs.VisibleFiles}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
@@ -636,6 +672,30 @@
                                                 SortMemberPath="Timestamp"
                                                 FontFamily="{StaticResource FontFamilyMono}"
                                                 FontSize="{StaticResource FontSizeMono}"/>
+
+                            <!-- 3b. Stream Origin Column -->
+                            <DataGridTemplateColumn Header="Stream" Width="82" SortMemberPath="StreamOrigin">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Border CornerRadius="6" Padding="7,2" HorizontalAlignment="Left"
+                                                Background="{DynamicResource BrushSunken}"
+                                                BorderBrush="{DynamicResource BrushLine}" BorderThickness="1">
+                                            <TextBlock Text="{Binding StreamOrigin}" FontSize="11" FontWeight="Medium">
+                                                <TextBlock.Style>
+                                                    <Style TargetType="{x:Type TextBlock}">
+                                                        <Setter Property="Foreground" Value="{DynamicResource BrushInkMuted}"/>
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding IsServiceStream}" Value="True">
+                                                                <Setter Property="Foreground" Value="{DynamicResource BrushCobalt}"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </TextBlock.Style>
+                                            </TextBlock>
+                                        </Border>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
 
                             <!-- 4. Source Column -->
                             <DataGridTextColumn Header="Source" Width="120"
