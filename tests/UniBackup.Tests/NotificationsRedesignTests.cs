@@ -118,6 +118,22 @@ public class NotificationsRedesignTests : IDisposable
     }
 
     [Fact]
+    public void SelectAll_DeselectAll_AndReset_UpdateAllNineRules()
+    {
+        _vm.InitNotifications();
+
+        _vm.SelectAllNotificationRules();
+        Assert.Equal(9, _vm.ActiveNotificationRulesCount);
+        Assert.True(_vm.HasUnsavedNotificationChanges);
+
+        _vm.DeselectAllNotificationRules();
+        Assert.Equal(0, _vm.ActiveNotificationRulesCount);
+
+        _vm.ResetNotificationRules();
+        Assert.True(_vm.ActiveNotificationRulesCount > 0);
+    }
+
+    [Fact]
     public void NotificationActivity_RecordsFiltersAndPaginates()
     {
         _vm.RecordNotificationDispatch("Email", "Test Dispatch", true, null, "SQL Prod");

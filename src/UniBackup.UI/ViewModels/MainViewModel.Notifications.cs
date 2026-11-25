@@ -127,7 +127,73 @@ public partial class MainViewModel
     private void NotifyMatrixChanged()
     {
         OnPropertyChanged(nameof(Config));
+        OnPropertyChanged(nameof(ActiveNotificationRulesCount));
         MarkNotificationsDirty();
+    }
+
+    public int ActiveNotificationRulesCount
+    {
+        get
+        {
+            var m = Config?.NotificationMatrix;
+            if (m == null) return 0;
+            bool[] rules =
+            [
+                m.FullSuccess, m.FullWarning, m.FullFailure,
+                m.DiffSuccess, m.DiffWarning, m.DiffFailure,
+                m.LogSuccess, m.LogWarning, m.LogFailure
+            ];
+            return rules.Count(r => r);
+        }
+    }
+
+    [RelayCommand]
+    public void SelectAllNotificationRules()
+    {
+        var m = Config.NotificationMatrix;
+        m.FullSuccess = m.FullWarning = m.FullFailure = true;
+        m.DiffSuccess = m.DiffWarning = m.DiffFailure = true;
+        m.LogSuccess = m.LogWarning = m.LogFailure = true;
+        NotifyMatrixChanged();
+    }
+
+    [RelayCommand]
+    public void DeselectAllNotificationRules()
+    {
+        var m = Config.NotificationMatrix;
+        m.FullSuccess = m.FullWarning = m.FullFailure = false;
+        m.DiffSuccess = m.DiffWarning = m.DiffFailure = false;
+        m.LogSuccess = m.LogWarning = m.LogFailure = false;
+        NotifyMatrixChanged();
+    }
+
+    [RelayCommand]
+    public void ResetNotificationRules()
+    {
+        if (!string.IsNullOrEmpty(_notificationsSnapshotJson))
+        {
+            try
+            {
+                using var doc = JsonDocument.Parse(_notificationsSnapshotJson);
+                if (doc.RootElement.TryGetProperty("NotificationMatrix", out var nm))
+                {
+                    Config.NotificationMatrix = JsonSerializer.Deserialize<NotificationTriggerMatrix>(nm.GetRawText()) ?? new NotificationTriggerMatrix();
+                    OnPropertyChanged(nameof(Config));
+                    OnPropertyChanged(nameof(ActiveNotificationRulesCount));
+                    RefreshNotificationSummary();
+                    NotificationHub.ShowInfo("Notification rules restored to saved configuration.", "Rules Reset");
+                    return;
+                }
+            }
+            catch (Exception ex)
+            {
+                Serilog.Log.Warning(ex, "Failed to restore notification matrix snapshot");
+            }
+        }
+
+        Config.NotificationMatrix = new NotificationTriggerMatrix();
+        NotifyMatrixChanged();
+        NotificationHub.ShowInfo("Notification rules reset to defaults.", "Rules Reset");
     }
 
     // =========================================================================
@@ -142,6 +208,7 @@ public partial class MainViewModel
     public void MarkNotificationsDirty()
     {
         HasUnsavedNotificationChanges = true;
+        OnPropertyChanged(nameof(ActiveNotificationRulesCount));
         RefreshNotificationSummary();
     }
 
