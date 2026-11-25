@@ -98,7 +98,15 @@ public partial class MainWindow : Window
 
     private async void MainWindow_Loaded(object sender, RoutedEventArgs e)
     {
-        await _viewModel.InitializeAsync();
+        try
+        {
+            await _viewModel.InitializeAsync();
+        }
+        catch (Exception ex)
+        {
+            Serilog.Log.Error(ex, "Failed to initialize main window");
+            NotificationHub.ShowError($"Startup initialization failed: {ex.Message}", "Initialization Error");
+        }
     }
 
     // Titlebar Caption Buttons

@@ -99,7 +99,7 @@ public class IisCatalog
 
                 if (!site.Available || string.IsNullOrEmpty(site.Path) || !Directory.Exists(site.Path))
                 {
-                    System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
+                    System.Windows.Application.Current?.Dispatcher.InvokeAsync(() =>
                     {
                         site.IsSizeComputing = false;
                         site.SizeBytes = 0;
@@ -117,7 +117,7 @@ public class IisCatalog
 
                 if (_sizeCache.TryGetValue(site.Path, out var cached) && cached.lastWrite == lastWrite)
                 {
-                    System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
+                    System.Windows.Application.Current?.Dispatcher.InvokeAsync(() =>
                     {
                         site.SizeBytes = cached.size;
                         site.FileCount = cached.files;
@@ -173,7 +173,7 @@ public class IisCatalog
                 var finalFiles = totalFiles;
                 if (finalBytes > maxSize) maxSize = finalBytes;
 
-                System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
+                System.Windows.Application.Current?.Dispatcher.InvokeAsync(() =>
                 {
                     site.SizeBytes = finalBytes;
                     site.FileCount = finalFiles;
@@ -186,7 +186,7 @@ public class IisCatalog
             // Update ratios
             if (maxSize > 0)
             {
-                System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
+                System.Windows.Application.Current?.Dispatcher.InvokeAsync(() =>
                 {
                     foreach (var s in sites)
                     {

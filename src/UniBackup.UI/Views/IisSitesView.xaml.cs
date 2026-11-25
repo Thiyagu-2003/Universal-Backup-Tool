@@ -37,8 +37,15 @@ public partial class IisSitesView : UserControl
 
         if (ViewModel != null)
         {
-            await ViewModel.InitializeAsync();
-            SyncFilterRadio();
+            try
+            {
+                await ViewModel.InitializeAsync();
+                SyncFilterRadio();
+            }
+            catch (Exception ex)
+            {
+                Serilog.Log.Error(ex, "Failed to initialize IIS Sites view");
+            }
         }
     }
 

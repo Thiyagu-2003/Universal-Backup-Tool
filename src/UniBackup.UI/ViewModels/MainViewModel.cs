@@ -344,9 +344,6 @@ public partial class MainViewModel : ObservableObject
 
     public string ConfigFileLocation => AppPaths.DefaultConfigFile;
 
-    [ObservableProperty]
-    private bool _selectAllJobs;
-
     // =========================================================================
     // SECURITY & ACCESS CONTROL
     // =========================================================================

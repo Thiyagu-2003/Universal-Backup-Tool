@@ -124,8 +124,15 @@ public partial class LoginWindow : Window
     private async void SignIn_Click(object sender, RoutedEventArgs e)
     {
         if (_isClosing) return;
-        _viewModel.Password = _isPasswordVisible ? PasswordVisibleInput.Text : PasswordInput.Password;
-        await _viewModel.SignInCommand.ExecuteAsync(null);
+        try
+        {
+            _viewModel.Password = _isPasswordVisible ? PasswordVisibleInput.Text : PasswordInput.Password;
+            await _viewModel.SignInCommand.ExecuteAsync(null);
+        }
+        catch (Exception ex)
+        {
+            Serilog.Log.Error(ex, "Sign-in failed");
+        }
     }
 
     private void PasswordKeyDown(object sender, KeyEventArgs e)

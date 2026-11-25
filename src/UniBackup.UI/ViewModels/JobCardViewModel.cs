@@ -40,7 +40,6 @@ public partial class JobCardViewModel : ObservableObject
     {
         Model = model;
         _isPaused = !model.Enabled;
-        PopulateMockHistoryIfEmpty();
     }
 
     public string Id => Model.Id;
@@ -274,8 +273,8 @@ public partial class JobCardViewModel : ObservableObject
 
     public bool HasFailed => string.Equals(Model.LastRunStatus, "FAILED", StringComparison.OrdinalIgnoreCase);
 
-    public string LastErrorDetails => Model.LastRunStatus == "FAILED"
-        ? "Network connection reset while uploading to cloud storage. The next scheduled backup will take a full backup automatically."
+    public string LastErrorDetails => string.Equals(Model.LastRunStatus, "FAILED", StringComparison.OrdinalIgnoreCase)
+        ? "The last backup execution failed. Open Application Logs for full error details."
         : "";
 
     public void NotifyStateChanged()
@@ -316,35 +315,5 @@ public partial class JobCardViewModel : ObservableObject
     private void CancelInlineDelete()
     {
         IsDeletingInline = false;
-    }
-
-    private void PopulateMockHistoryIfEmpty()
-    {
-        if (RecentRuns.Count == 0 && Model.LastRunTime.HasValue)
-        {
-            var now = DateTime.UtcNow;
-            var runs = new List<RunHistoryRecord>();
-
-            // If the job has run before, populate realistic 24-hour runs for the 24h activity strip
-            if (IsSqlServer)
-            {
-                runs.Add(new RunHistoryRecord { Timestamp = now.AddHours(-22), Trigger = "FULL", Status = "SUCCESS", SqlDatabases = [new() { BackupType = SqlBackupType.Full, Status = "SUCCESS" }] });
-                runs.Add(new RunHistoryRecord { Timestamp = now.AddHours(-18), Trigger = "DIFF", Status = "SUCCESS", SqlDatabases = [new() { BackupType = SqlBackupType.Diff, Status = "SUCCESS" }] });
-                runs.Add(new RunHistoryRecord { Timestamp = now.AddHours(-14), Trigger = "DIFF", Status = "SUCCESS", SqlDatabases = [new() { BackupType = SqlBackupType.Diff, Status = "SUCCESS" }] });
-                runs.Add(new RunHistoryRecord { Timestamp = now.AddHours(-10), Trigger = "DIFF", Status = "SUCCESS", SqlDatabases = [new() { BackupType = SqlBackupType.Diff, Status = "SUCCESS" }] });
-                runs.Add(new RunHistoryRecord { Timestamp = now.AddHours(-6), Trigger = "DIFF", Status = HasFailed ? "FAILED" : "SUCCESS", SqlDatabases = [new() { BackupType = SqlBackupType.Diff, Status = HasFailed ? "FAILED" : "SUCCESS" }] });
-                runs.Add(new RunHistoryRecord { Timestamp = now.AddHours(-2), Trigger = "LOG", Status = HasFailed ? "FAILED" : "SUCCESS", SqlDatabases = [new() { BackupType = SqlBackupType.Log, Status = HasFailed ? "FAILED" : "SUCCESS" }] });
-            }
-            else
-            {
-                runs.Add(new RunHistoryRecord { Timestamp = now.AddHours(-20), Trigger = "FULL", Status = "SUCCESS" });
-                runs.Add(new RunHistoryRecord { Timestamp = now.AddHours(-4), Trigger = "FULL", Status = HasFailed ? "FAILED" : "SUCCESS" });
-            }
-
-            foreach (var r in runs)
-            {
-                RecentRuns.Add(r);
-            }
-        }
     }
 }
