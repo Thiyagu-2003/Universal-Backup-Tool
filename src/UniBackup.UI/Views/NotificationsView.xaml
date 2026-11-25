@@ -2,510 +2,797 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="clr-namespace:UniBackup.UI.ViewModels">
-    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="28,24">
-        <StackPanel MaxWidth="1280" HorizontalAlignment="Stretch">
 
-            <!-- 1. Header -->
-            <StackPanel Margin="0,0,0,20">
-                <TextBlock Text="Notifications" FontWeight="SemiBold" FontSize="{StaticResource FontSizePageTitle}" Foreground="{DynamicResource BrushInk}"/>
-                <TextBlock Text="Alert dispatch channels, secret tokens, and notification trigger matrix" FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushInkMuted}" Margin="0,3,0,0"/>
-            </StackPanel>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
 
-            <!-- 2. Master-Detail Channel Config -->
-            <Grid Margin="0,0,0,24">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="272"/> <!-- Master Channel List -->
-                    <ColumnDefinition Width="20"/>
-                    <ColumnDefinition Width="*"/>   <!-- Detail Credentials Form -->
-                </Grid.ColumnDefinitions>
+        <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="28,20">
+            <StackPanel MaxWidth="1320" HorizontalAlignment="Stretch">
 
-                <!-- Master Channel List (272 px) -->
-                <Border Grid.Column="0" Style="{StaticResource Card}" Padding="8">
+                <!-- ===================================================================
+                     1. HEADER & COMPACT SUMMARY CARDS (§2)
+                     =================================================================== -->
+                <StackPanel Margin="0,0,0,16">
+                    <TextBlock Text="Notifications"
+                               FontWeight="SemiBold"
+                               FontSize="{StaticResource FontSizePageTitle}"
+                               Foreground="{DynamicResource BrushInk}"/>
+                    <TextBlock Text="Configure notification channels and choose when UniBackup Pro should send backup alerts."
+                               FontSize="{StaticResource FontSizeBody}"
+                               Foreground="{DynamicResource BrushInkMuted}"
+                               Margin="0,3,0,0"/>
+                </StackPanel>
+
+                <!-- 4 Compact Summary Cards -->
+                <Grid Margin="0,0,0,20">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="12"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="12"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="12"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Border Grid.Column="0" Style="{StaticResource Card}" Padding="14,12">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <Border Width="34" Height="34" CornerRadius="9" Background="{DynamicResource BrushCobaltSoft}" Margin="0,0,12,0">
+                                <Path Data="{StaticResource IconNotifications}" Fill="{DynamicResource BrushCobalt}" Width="17" Height="17" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock Text="Configured channels" FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource BrushInkMuted}"/>
+                                <TextBlock Text="{Binding ConfiguredChannelsCount}" FontWeight="SemiBold" FontSize="{StaticResource FontSizeSectionHeader}" Foreground="{DynamicResource BrushInk}"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Grid.Column="2" Style="{StaticResource Card}" Padding="14,12">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <Border Width="34" Height="34" CornerRadius="9" Background="{DynamicResource BrushJadeSoft}" Margin="0,0,12,0">
+                                <Path Data="{StaticResource IconCheckCircle}" Fill="{DynamicResource BrushJade}" Width="17" Height="17" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock Text="Active channels" FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource BrushInkMuted}"/>
+                                <TextBlock Text="{Binding ActiveChannelsCount}" FontWeight="SemiBold" FontSize="{StaticResource FontSizeSectionHeader}" Foreground="{DynamicResource BrushJade}"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Grid.Column="4" Style="{StaticResource Card}" Padding="14,12">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <Border Width="34" Height="34" CornerRadius="9" Background="{DynamicResource BrushCoralSoft}" Margin="0,0,12,0">
+                                <Path Data="{StaticResource IconWarningCircle}" Fill="{DynamicResource BrushCoral}" Width="17" Height="17" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock Text="Failed notifications" FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource BrushInkMuted}"/>
+                                <TextBlock Text="{Binding FailedTestNotificationsCount}" FontWeight="SemiBold" FontSize="{StaticResource FontSizeSectionHeader}" Foreground="{DynamicResource BrushCoral}"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Grid.Column="6" Style="{StaticResource Card}" Padding="14,12">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <Border Width="34" Height="34" CornerRadius="9" Background="{DynamicResource BrushSunken}" Margin="0,0,12,0">
+                                <Path Data="{StaticResource IconClock}" Fill="{DynamicResource BrushInkMuted}" Width="17" Height="17" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock Text="Last activity" FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource BrushInkMuted}"/>
+                                <TextBlock Text="{Binding LastNotificationActivityDisplay}" FontWeight="SemiBold" FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushInk}" TextTrimming="CharacterEllipsis"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+
+                <!-- ===================================================================
+                     2. FLOATING PROVIDER SUBMENU + CONFIGURATION PANEL (§3 & §4)
+                     =================================================================== -->
+                <Grid Margin="0,0,0,20">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="264"/>
+                        <ColumnDefinition Width="18"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Left: Floating Provider Navigation Submenu -->
+                    <Border Grid.Column="0" Style="{StaticResource Card}" Padding="10" VerticalAlignment="Top" Effect="{StaticResource Sh1}">
+                        <StackPanel>
+                            <TextBlock Text="PROVIDERS" FontWeight="SemiBold" FontSize="11" Foreground="{DynamicResource BrushInkFaint}" Margin="8,4,0,8"/>
+
+                            <!-- 1. Email -->
+                            <RadioButton GroupName="ProviderNav" Style="{StaticResource ChannelListItem}" IsChecked="{Binding IsProviderEmail, Mode=OneWay}"
+                                         Command="{Binding SelectNotificationProviderCommand}" CommandParameter="Email" Margin="0,0,0,3">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="32"/>
+                                        <ColumnDefinition Width="10"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Border Width="32" Height="32" CornerRadius="8" Background="{DynamicResource BrushCobaltSoft}">
+                                        <Path Data="{StaticResource IconEmail}" Fill="{DynamicResource BrushCobalt}" Width="18" Height="18" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                    <TextBlock Grid.Column="2" Text="Email (SMTP)" FontWeight="Medium" FontSize="{StaticResource FontSizeNavLabel}" VerticalAlignment="Center"/>
+                                    <Ellipse Grid.Column="3" Width="7" Height="7" VerticalAlignment="Center"
+                                             Fill="{DynamicResource BrushJade}"
+                                             Visibility="{Binding IsEmailConfigured, Converter={StaticResource BoolToVis}}"/>
+                                </Grid>
+                            </RadioButton>
+
+                            <!-- 2. Slack -->
+                            <RadioButton GroupName="ProviderNav" Style="{StaticResource ChannelListItem}" IsChecked="{Binding IsProviderSlack, Mode=OneWay}"
+                                         Command="{Binding SelectNotificationProviderCommand}" CommandParameter="Slack" Margin="0,0,0,3">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="32"/>
+                                        <ColumnDefinition Width="10"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Border Width="32" Height="32" CornerRadius="8" Background="#15E01E5A">
+                                        <Image Source="{StaticResource BrandDrawingSlack}" Width="20" Height="20" Stretch="Uniform"/>
+                                    </Border>
+                                    <TextBlock Grid.Column="2" Text="Slack" FontWeight="Medium" FontSize="{StaticResource FontSizeNavLabel}" VerticalAlignment="Center"/>
+                                    <Ellipse Grid.Column="3" Width="7" Height="7" Fill="{DynamicResource BrushJade}" VerticalAlignment="Center" Visibility="{Binding IsSlackConfigured, Converter={StaticResource BoolToVis}}"/>
+                                </Grid>
+                            </RadioButton>
+
+                            <!-- 3. Microsoft Teams -->
+                            <RadioButton GroupName="ProviderNav" Style="{StaticResource ChannelListItem}" IsChecked="{Binding IsProviderTeams, Mode=OneWay}"
+                                         Command="{Binding SelectNotificationProviderCommand}" CommandParameter="Teams" Margin="0,0,0,3">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="32"/>
+                                        <ColumnDefinition Width="10"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Border Width="32" Height="32" CornerRadius="8" Background="#155059C9">
+                                        <Image Source="{StaticResource BrandDrawingTeams}" Width="20" Height="20" Stretch="Uniform"/>
+                                    </Border>
+                                    <TextBlock Grid.Column="2" Text="Microsoft Teams" FontWeight="Medium" FontSize="{StaticResource FontSizeNavLabel}" VerticalAlignment="Center"/>
+                                    <Ellipse Grid.Column="3" Width="7" Height="7" Fill="{DynamicResource BrushJade}" VerticalAlignment="Center" Visibility="{Binding IsTeamsConfigured, Converter={StaticResource BoolToVis}}"/>
+                                </Grid>
+                            </RadioButton>
+
+                            <!-- 4. Discord -->
+                            <RadioButton GroupName="ProviderNav" Style="{StaticResource ChannelListItem}" IsChecked="{Binding IsProviderDiscord, Mode=OneWay}"
+                                         Command="{Binding SelectNotificationProviderCommand}" CommandParameter="Discord" Margin="0,0,0,3">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="32"/>
+                                        <ColumnDefinition Width="10"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Border Width="32" Height="32" CornerRadius="8" Background="#155865F2">
+                                        <Image Source="{StaticResource BrandDrawingDiscord}" Width="20" Height="20" Stretch="Uniform"/>
+                                    </Border>
+                                    <TextBlock Grid.Column="2" Text="Discord" FontWeight="Medium" FontSize="{StaticResource FontSizeNavLabel}" VerticalAlignment="Center"/>
+                                    <Ellipse Grid.Column="3" Width="7" Height="7" Fill="{DynamicResource BrushJade}" VerticalAlignment="Center" Visibility="{Binding IsDiscordConfigured, Converter={StaticResource BoolToVis}}"/>
+                                </Grid>
+                            </RadioButton>
+
+                            <!-- 5. Telegram -->
+                            <RadioButton GroupName="ProviderNav" Style="{StaticResource ChannelListItem}" IsChecked="{Binding IsProviderTelegram, Mode=OneWay}"
+                                         Command="{Binding SelectNotificationProviderCommand}" CommandParameter="Telegram" Margin="0,0,0,3">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="32"/>
+                                        <ColumnDefinition Width="10"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Border Width="32" Height="32" CornerRadius="8" Background="#1524A1DE">
+                                        <Image Source="{StaticResource BrandDrawingTelegram}" Width="20" Height="20" Stretch="Uniform"/>
+                                    </Border>
+                                    <TextBlock Grid.Column="2" Text="Telegram" FontWeight="Medium" FontSize="{StaticResource FontSizeNavLabel}" VerticalAlignment="Center"/>
+                                    <Ellipse Grid.Column="3" Width="7" Height="7" Fill="{DynamicResource BrushJade}" VerticalAlignment="Center" Visibility="{Binding IsTelegramConfigured, Converter={StaticResource BoolToVis}}"/>
+                                </Grid>
+                            </RadioButton>
+
+                            <!-- 6. Pushover -->
+                            <RadioButton GroupName="ProviderNav" Style="{StaticResource ChannelListItem}" IsChecked="{Binding IsProviderPushover, Mode=OneWay}"
+                                         Command="{Binding SelectNotificationProviderCommand}" CommandParameter="Pushover" Margin="0,0,0,3">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="32"/>
+                                        <ColumnDefinition Width="10"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Border Width="32" Height="32" CornerRadius="8" Background="#15249DF1">
+                                        <Image Source="{StaticResource BrandDrawingPushover}" Width="20" Height="20" Stretch="Uniform"/>
+                                    </Border>
+                                    <TextBlock Grid.Column="2" Text="Pushover" FontWeight="Medium" FontSize="{StaticResource FontSizeNavLabel}" VerticalAlignment="Center"/>
+                                    <Ellipse Grid.Column="3" Width="7" Height="7" Fill="{DynamicResource BrushJade}" VerticalAlignment="Center" Visibility="{Binding IsPushoverConfigured, Converter={StaticResource BoolToVis}}"/>
+                                </Grid>
+                            </RadioButton>
+
+                            <!-- 7. ntfy -->
+                            <RadioButton GroupName="ProviderNav" Style="{StaticResource ChannelListItem}" IsChecked="{Binding IsProviderNtfy, Mode=OneWay}"
+                                         Command="{Binding SelectNotificationProviderCommand}" CommandParameter="Ntfy" Margin="0,0,0,3">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="32"/>
+                                        <ColumnDefinition Width="10"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Border Width="32" Height="32" CornerRadius="8" Background="#15317F6F">
+                                        <Image Source="{StaticResource BrandDrawingNtfy}" Width="20" Height="20" Stretch="Uniform"/>
+                                    </Border>
+                                    <TextBlock Grid.Column="2" Text="ntfy" FontWeight="Medium" FontSize="{StaticResource FontSizeNavLabel}" VerticalAlignment="Center"/>
+                                    <Ellipse Grid.Column="3" Width="7" Height="7" Fill="{DynamicResource BrushJade}" VerticalAlignment="Center" Visibility="{Binding IsNtfyConfigured, Converter={StaticResource BoolToVis}}"/>
+                                </Grid>
+                            </RadioButton>
+
+                            <!-- 8. PagerDuty -->
+                            <RadioButton GroupName="ProviderNav" Style="{StaticResource ChannelListItem}" IsChecked="{Binding IsProviderPagerDuty, Mode=OneWay}"
+                                         Command="{Binding SelectNotificationProviderCommand}" CommandParameter="PagerDuty" Margin="0,0,0,3">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="32"/>
+                                        <ColumnDefinition Width="10"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Border Width="32" Height="32" CornerRadius="8" Background="#1506AC38">
+                                        <Image Source="{StaticResource BrandDrawingPagerDuty}" Width="20" Height="20" Stretch="Uniform"/>
+                                    </Border>
+                                    <TextBlock Grid.Column="2" Text="PagerDuty" FontWeight="Medium" FontSize="{StaticResource FontSizeNavLabel}" VerticalAlignment="Center"/>
+                                    <Ellipse Grid.Column="3" Width="7" Height="7" Fill="{DynamicResource BrushJade}" VerticalAlignment="Center" Visibility="{Binding IsPagerDutyConfigured, Converter={StaticResource BoolToVis}}"/>
+                                </Grid>
+                            </RadioButton>
+
+                            <!-- 9. Custom Webhook -->
+                            <RadioButton GroupName="ProviderNav" Style="{StaticResource ChannelListItem}" IsChecked="{Binding IsProviderCustomWebhook, Mode=OneWay}"
+                                         Command="{Binding SelectNotificationProviderCommand}" CommandParameter="CustomWebhook" Margin="0,0,0,3">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="32"/>
+                                        <ColumnDefinition Width="10"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Border Width="32" Height="32" CornerRadius="8" Background="{DynamicResource BrushSunken}">
+                                        <Path Data="{StaticResource IconCustomWebhook}" Fill="{DynamicResource BrushInkMuted}" Width="18" Height="18" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                    <TextBlock Grid.Column="2" Text="Custom webhook" FontWeight="Medium" FontSize="{StaticResource FontSizeNavLabel}" VerticalAlignment="Center"/>
+                                    <Ellipse Grid.Column="3" Width="7" Height="7" Fill="{DynamicResource BrushJade}" VerticalAlignment="Center" Visibility="{Binding IsCustomWebhookConfigured, Converter={StaticResource BoolToVis}}"/>
+                                </Grid>
+                            </RadioButton>
+
+                            <!-- 10. Heartbeat Monitor -->
+                            <RadioButton GroupName="ProviderNav" Style="{StaticResource ChannelListItem}" IsChecked="{Binding IsProviderHeartbeat, Mode=OneWay}"
+                                         Command="{Binding SelectNotificationProviderCommand}" CommandParameter="Heartbeat">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="32"/>
+                                        <ColumnDefinition Width="10"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Border Width="32" Height="32" CornerRadius="8" Background="{DynamicResource BrushJadeSoft}">
+                                        <Path Data="{StaticResource IconHeartbeat}" Fill="{DynamicResource BrushJade}" Width="18" Height="18" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                    <TextBlock Grid.Column="2" Text="Heartbeat monitor" FontWeight="Medium" FontSize="{StaticResource FontSizeNavLabel}" VerticalAlignment="Center"/>
+                                    <Ellipse Grid.Column="3" Width="7" Height="7" Fill="{DynamicResource BrushJade}" VerticalAlignment="Center" Visibility="{Binding IsHeartbeatConfigured, Converter={StaticResource BoolToVis}}"/>
+                                </Grid>
+                            </RadioButton>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Right: Selected Provider Configuration Card -->
+                    <Border Grid.Column="2" Style="{StaticResource Card}" Padding="24">
+                        <Grid>
+                            <!-- 1. Email Settings -->
+                            <StackPanel Visibility="{Binding IsProviderEmail, Converter={StaticResource BoolToVis}}">
+                                <Grid Margin="0,0,0,18">
+                                    <StackPanel>
+                                        <TextBlock Text="Email (SMTP) settings" FontWeight="SemiBold" FontSize="{StaticResource FontSizeH2}" Foreground="{DynamicResource BrushInk}"/>
+                                        <TextBlock Text="Configure SMTP server, TLS encryption, sender identity, and recipients" FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkMuted}" Margin="0,2,0,0"/>
+                                    </StackPanel>
+                                    <CheckBox Content="Enable Email" IsChecked="{Binding Config.Email.Enabled, Mode=TwoWay}" Click="Input_Dirty" HorizontalAlignment="Right" VerticalAlignment="Center" FontWeight="SemiBold"/>
+                                </Grid>
+
+                                <Grid Margin="0,0,0,14">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="14"/>
+                                        <ColumnDefinition Width="110"/>
+                                        <ColumnDefinition Width="14"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock Text="SMTP server" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
+                                        <TextBox Text="{Binding Config.Email.SmtpHost, UpdateSourceTrigger=PropertyChanged}" TextChanged="TextBox_Dirty" Tag="smtp.example.com" Style="{StaticResource FieldInputMono}" Margin="0,4,0,0"/>
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="2">
+                                        <TextBlock Text="SMTP port" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
+                                        <TextBox Text="{Binding Config.Email.SmtpPort, UpdateSourceTrigger=PropertyChanged}" TextChanged="TextBox_Dirty" Tag="587" Style="{StaticResource FieldInputMono}" Margin="0,4,0,0"/>
+                                    </StackPanel>
+                                    <CheckBox Grid.Column="4" Content="Use SSL / TLS" IsChecked="{Binding Config.Email.UseTls, Mode=TwoWay}" Click="Input_Dirty" VerticalAlignment="Bottom" Margin="0,0,0,8"/>
+                                </Grid>
+
+                                <Grid Margin="0,0,0,14">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="14"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock Text="Username" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
+                                        <TextBox Text="{Binding Config.Email.Username, UpdateSourceTrigger=PropertyChanged}" TextChanged="TextBox_Dirty" Tag="user@example.com" Style="{StaticResource FieldInput}" Margin="0,4,0,0"/>
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="2">
+                                        <TextBlock Text="Password" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
+                                        <TextBox Text="{Binding Config.Email.Password, UpdateSourceTrigger=PropertyChanged}" TextChanged="TextBox_Dirty" Tag="SMTP password" Style="{StaticResource FieldInput}" Margin="0,4,0,0"/>
+                                    </StackPanel>
+                                </Grid>
+
+                                <Grid Margin="0,0,0,18">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="14"/>
+                                        <ColumnDefinition Width="1.4*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock Text="Sender email" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
+                                        <TextBox Text="{Binding Config.Email.FromAddress, UpdateSourceTrigger=PropertyChanged}" TextChanged="TextBox_Dirty" Tag="alerts@example.com" Style="{StaticResource FieldInput}" Margin="0,4,0,0"/>
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="2">
+                                        <TextBlock Text="Recipients (comma-separated)" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
+                                        <TextBox Text="{Binding EmailRecipientsText, UpdateSourceTrigger=PropertyChanged}" TextChanged="TextBox_Dirty" Tag="admin@example.com, ops@example.com" Style="{StaticResource FieldInput}" Margin="0,4,0,0"/>
+                                    </StackPanel>
+                                </Grid>
+
+                                <StackPanel Orientation="Horizontal">
+                                    <Button Content="Send test email" Command="{Binding TestEmailCommand}" Style="{StaticResource BtnQuiet}" Height="34" Padding="14,0" Margin="0,0,10,0"/>
+                                    <Button Content="Save email settings" Command="{Binding SaveNotificationsPageCommand}" Style="{StaticResource BtnPrimary}" Height="34" Padding="16,0"/>
+                                </StackPanel>
+                            </StackPanel>
+
+                            <!-- 2. Slack -->
+                            <StackPanel Visibility="{Binding IsProviderSlack, Converter={StaticResource BoolToVis}}">
+                                <TextBlock Text="Slack settings" FontWeight="SemiBold" FontSize="{StaticResource FontSizeH2}" Foreground="{DynamicResource BrushInk}"/>
+                                <TextBlock Text="Dispatch backup status alerts directly to a designated Slack channel" FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkMuted}" Margin="0,2,0,18"/>
+
+                                <TextBlock Text="Slack incoming webhook URL" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
+                                <TextBox Text="{Binding Config.Webhooks.SlackWebhookUrl, UpdateSourceTrigger=PropertyChanged}" TextChanged="TextBox_Dirty" Tag="https://hooks.slack.com/services/..." Style="{StaticResource FieldInputMono}" Margin="0,4,0,6"/>
+                                <TextBlock Text="Create an Incoming Webhook in your Slack Workspace App configuration portal." FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkFaint}" Margin="0,0,0,18"/>
+
+                                <StackPanel Orientation="Horizontal">
+                                    <Button Content="Send test Slack message" Command="{Binding TestSlackCommand}" Style="{StaticResource BtnQuiet}" Height="34" Padding="14,0" Margin="0,0,10,0"/>
+                                    <Button Content="Save settings" Command="{Binding SaveNotificationsPageCommand}" Style="{StaticResource BtnPrimary}" Height="34" Padding="16,0"/>
+                                </StackPanel>
+                            </StackPanel>
+
+                            <!-- 3. Microsoft Teams -->
+                            <StackPanel Visibility="{Binding IsProviderTeams, Converter={StaticResource BoolToVis}}">
+                                <TextBlock Text="Microsoft Teams settings" FontWeight="SemiBold" FontSize="{StaticResource FontSizeH2}" Foreground="{DynamicResource BrushInk}"/>
+                                <TextBlock Text="Deliver structured adaptive cards to your Microsoft Teams channel" FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkMuted}" Margin="0,2,0,18"/>
+
+                                <TextBlock Text="Teams webhook URL" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
+                                <TextBox Text="{Binding Config.Webhooks.TeamsWebhookUrl, UpdateSourceTrigger=PropertyChanged}" TextChanged="TextBox_Dirty" Tag="https://outlook.office.com/webhook/..." Style="{StaticResource FieldInputMono}" Margin="0,4,0,6"/>
+                                <TextBlock Text="Incoming webhook URL created via Microsoft Teams Workflows or connectors." FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkFaint}" Margin="0,0,0,18"/>
+
+                                <StackPanel Orientation="Horizontal">
+                                    <Button Content="Send test Teams message" Command="{Binding TestTeamsCommand}" Style="{StaticResource BtnQuiet}" Height="34" Padding="14,0" Margin="0,0,10,0"/>
+                                    <Button Content="Save settings" Command="{Binding SaveNotificationsPageCommand}" Style="{StaticResource BtnPrimary}" Height="34" Padding="16,0"/>
+                                </StackPanel>
+                            </StackPanel>
+
+                            <!-- 4. Discord -->
+                            <StackPanel Visibility="{Binding IsProviderDiscord, Converter={StaticResource BoolToVis}}">
+                                <TextBlock Text="Discord settings" FontWeight="SemiBold" FontSize="{StaticResource FontSizeH2}" Foreground="{DynamicResource BrushInk}"/>
+                                <TextBlock Text="Send rich embedded alert cards to a Discord server channel" FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkMuted}" Margin="0,2,0,18"/>
+
+                                <TextBlock Text="Discord webhook URL" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
+                                <TextBox Text="{Binding Config.Webhooks.DiscordWebhookUrl, UpdateSourceTrigger=PropertyChanged}" TextChanged="TextBox_Dirty" Tag="https://discord.com/api/webhooks/..." Style="{StaticResource FieldInputMono}" Margin="0,4,0,6"/>
+                                <TextBlock Text="Created in Discord under Channel Settings > Integrations > Webhooks." FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkFaint}" Margin="0,0,0,18"/>
+
+                                <StackPanel Orientation="Horizontal">
+                                    <Button Content="Send test Discord message" Command="{Binding TestDiscordCommand}" Style="{StaticResource BtnQuiet}" Height="34" Padding="14,0" Margin="0,0,10,0"/>
+                                    <Button Content="Save settings" Command="{Binding SaveNotificationsPageCommand}" Style="{StaticResource BtnPrimary}" Height="34" Padding="16,0"/>
+                                </StackPanel>
+                            </StackPanel>
+
+                            <!-- 5. Telegram -->
+                            <StackPanel Visibility="{Binding IsProviderTelegram, Converter={StaticResource BoolToVis}}">
+                                <TextBlock Text="Telegram settings" FontWeight="SemiBold" FontSize="{StaticResource FontSizeH2}" Foreground="{DynamicResource BrushInk}"/>
+                                <TextBlock Text="Send notifications through a Telegram Bot to your chat or channel" FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkMuted}" Margin="0,2,0,18"/>
+
+                                <Grid Margin="0,0,0,14">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="14"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock Text="Bot token" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
+                                        <TextBox Text="{Binding Config.Webhooks.TelegramBotToken, UpdateSourceTrigger=PropertyChanged}" TextChanged="TextBox_Dirty" Tag="123456789:ABCdefGhI..." Style="{StaticResource FieldInputMono}" Margin="0,4,0,0"/>
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="2">
+                                        <TextBlock Text="Chat ID" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
+                                        <TextBox Text="{Binding Config.Webhooks.TelegramChatId, UpdateSourceTrigger=PropertyChanged}" TextChanged="TextBox_Dirty" Tag="@mychannel or -100123456789" Style="{StaticResource FieldInputMono}" Margin="0,4,0,0"/>
+                                    </StackPanel>
+                                </Grid>
+                                <TextBlock Text="Create a bot via @BotFather to receive your bot token and chat ID." FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkFaint}" Margin="0,0,0,18"/>
+
+                                <StackPanel Orientation="Horizontal">
+                                    <Button Content="Send test Telegram message" Command="{Binding TestTelegramCommand}" Style="{StaticResource BtnQuiet}" Height="34" Padding="14,0" Margin="0,0,10,0"/>
+                                    <Button Content="Save settings" Command="{Binding SaveNotificationsPageCommand}" Style="{StaticResource BtnPrimary}" Height="34" Padding="16,0"/>
+                                </StackPanel>
+                            </StackPanel>
+
+                            <!-- 6. Pushover -->
+                            <StackPanel Visibility="{Binding IsProviderPushover, Converter={StaticResource BoolToVis}}">
+                                <TextBlock Text="Pushover settings" FontWeight="SemiBold" FontSize="{StaticResource FontSizeH2}" Foreground="{DynamicResource BrushInk}"/>
+                                <TextBlock Text="Deliver real-time mobile push notifications to iOS and Android" FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkMuted}" Margin="0,2,0,18"/>
+
+                                <Grid Margin="0,0,0,18">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="14"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock Text="User key" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
+                                        <TextBox Text="{Binding Config.Webhooks.PushoverUserKey, UpdateSourceTrigger=PropertyChanged}" TextChanged="TextBox_Dirty" Tag="30-character user key" Style="{StaticResource FieldInputMono}" Margin="0,4,0,0"/>
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="2">
+                                        <TextBlock Text="Application API token" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
+                                        <TextBox Text="{Binding Config.Webhooks.PushoverApiToken, UpdateSourceTrigger=PropertyChanged}" TextChanged="TextBox_Dirty" Tag="30-character app token" Style="{StaticResource FieldInputMono}" Margin="0,4,0,0"/>
+                                    </StackPanel>
+                                </Grid>
+
+                                <StackPanel Orientation="Horizontal">
+                                    <Button Content="Send test Pushover notification" Command="{Binding TestPushoverCommand}" Style="{StaticResource BtnQuiet}" Height="34" Padding="14,0" Margin="0,0,10,0"/>
+                                    <Button Content="Save settings" Command="{Binding SaveNotificationsPageCommand}" Style="{StaticResource BtnPrimary}" Height="34" Padding="16,0"/>
+                                </StackPanel>
+                            </StackPanel>
+
+                            <!-- 7. ntfy -->
+                            <StackPanel Visibility="{Binding IsProviderNtfy, Converter={StaticResource BoolToVis}}">
+                                <TextBlock Text="ntfy settings" FontWeight="SemiBold" FontSize="{StaticResource FontSizeH2}" Foreground="{DynamicResource BrushInk}"/>
+                                <TextBlock Text="HTTP-based pub-sub push notifications to phones and desktop subscribers" FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkMuted}" Margin="0,2,0,18"/>
+
+                                <Grid Margin="0,0,0,14">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="14"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock Text="ntfy server URL" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
+                                        <TextBox Text="{Binding Config.Webhooks.NtfyServerUrl, UpdateSourceTrigger=PropertyChanged}" TextChanged="TextBox_Dirty" Tag="https://ntfy.sh" Style="{StaticResource FieldInputMono}" Margin="0,4,0,0"/>
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="2">
+                                        <TextBlock Text="Topic name" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
+                                        <TextBox Text="{Binding Config.Webhooks.NtfyTopic, UpdateSourceTrigger=PropertyChanged}" TextChanged="TextBox_Dirty" Tag="backup-alerts" Style="{StaticResource FieldInput}" Margin="0,4,0,0"/>
+                                    </StackPanel>
+                                </Grid>
+
+                                <TextBlock Text="Authentication token (optional)" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
+                                <TextBox Text="{Binding Config.Webhooks.NtfyToken, UpdateSourceTrigger=PropertyChanged}" TextChanged="TextBox_Dirty" Tag="tk_..." Style="{StaticResource FieldInputMono}" Margin="0,4,0,18"/>
+
+                                <StackPanel Orientation="Horizontal">
+                                    <Button Content="Send test ntfy notification" Command="{Binding TestNtfyCommand}" Style="{StaticResource BtnQuiet}" Height="34" Padding="14,0" Margin="0,0,10,0"/>
+                                    <Button Content="Save settings" Command="{Binding SaveNotificationsPageCommand}" Style="{StaticResource BtnPrimary}" Height="34" Padding="16,0"/>
+                                </StackPanel>
+                            </StackPanel>
+
+                            <!-- 8. PagerDuty -->
+                            <StackPanel Visibility="{Binding IsProviderPagerDuty, Converter={StaticResource BoolToVis}}">
+                                <TextBlock Text="PagerDuty settings" FontWeight="SemiBold" FontSize="{StaticResource FontSizeH2}" Foreground="{DynamicResource BrushInk}"/>
+                                <TextBlock Text="Trigger and auto-resolve incident tickets through PagerDuty Events API v2" FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkMuted}" Margin="0,2,0,18"/>
+
+                                <TextBlock Text="Integration / routing key" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
+                                <TextBox Text="{Binding Config.Webhooks.PagerDutyRoutingKey, UpdateSourceTrigger=PropertyChanged}" TextChanged="TextBox_Dirty" Tag="32-character PagerDuty routing key" Style="{StaticResource FieldInputMono}" Margin="0,4,0,6"/>
+                                <TextBlock Text="Find your 32-character routing key in PagerDuty under Service > Integrations." FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkFaint}" Margin="0,0,0,18"/>
+
+                                <StackPanel Orientation="Horizontal">
+                                    <Button Content="Send test PagerDuty incident" Command="{Binding TestPagerDutyCommand}" Style="{StaticResource BtnQuiet}" Height="34" Padding="14,0" Margin="0,0,10,0"/>
+                                    <Button Content="Save settings" Command="{Binding SaveNotificationsPageCommand}" Style="{StaticResource BtnPrimary}" Height="34" Padding="16,0"/>
+                                </StackPanel>
+                            </StackPanel>
+
+                            <!-- 9. Custom Webhook -->
+                            <StackPanel Visibility="{Binding IsProviderCustomWebhook, Converter={StaticResource BoolToVis}}">
+                                <TextBlock Text="Custom webhook settings" FontWeight="SemiBold" FontSize="{StaticResource FontSizeH2}" Foreground="{DynamicResource BrushInk}"/>
+                                <TextBlock Text="Post structured JSON payloads to any HTTP endpoint (n8n, Zapier, Make, Home Assistant)" FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkMuted}" Margin="0,2,0,18"/>
+
+                                <TextBlock Text="Webhook URL" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
+                                <TextBox Text="{Binding Config.Webhooks.CustomWebhookUrl, UpdateSourceTrigger=PropertyChanged}" TextChanged="TextBox_Dirty" Tag="https://api.example.com/webhook/backup" Style="{StaticResource FieldInputMono}" Margin="0,4,0,14"/>
+
+                                <Grid Margin="0,0,0,18">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="14"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock Text="Custom header name (optional)" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
+                                        <TextBox Text="{Binding Config.Webhooks.CustomWebhookHeaderName, UpdateSourceTrigger=PropertyChanged}" TextChanged="TextBox_Dirty" Tag="X-Auth-Token" Style="{StaticResource FieldInput}" Margin="0,4,0,0"/>
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="2">
+                                        <TextBlock Text="Custom header value (optional)" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
+                                        <TextBox Text="{Binding Config.Webhooks.CustomWebhookHeaderValue, UpdateSourceTrigger=PropertyChanged}" TextChanged="TextBox_Dirty" Tag="secret-key" Style="{StaticResource FieldInput}" Margin="0,4,0,0"/>
+                                    </StackPanel>
+                                </Grid>
+
+                                <StackPanel Orientation="Horizontal">
+                                    <Button Content="Send test webhook" Command="{Binding TestCustomWebhookCommand}" Style="{StaticResource BtnQuiet}" Height="34" Padding="14,0" Margin="0,0,10,0"/>
+                                    <Button Content="Save settings" Command="{Binding SaveNotificationsPageCommand}" Style="{StaticResource BtnPrimary}" Height="34" Padding="16,0"/>
+                                </StackPanel>
+                            </StackPanel>
+
+                            <!-- 10. Heartbeat Monitor -->
+                            <StackPanel Visibility="{Binding IsProviderHeartbeat, Converter={StaticResource BoolToVis}}">
+                                <Grid Margin="0,0,0,18">
+                                    <StackPanel>
+                                        <TextBlock Text="Heartbeat monitor settings" FontWeight="SemiBold" FontSize="{StaticResource FontSizeH2}" Foreground="{DynamicResource BrushInk}"/>
+                                        <TextBlock Text="Ping external healthcheck services (BetterUptime, Healthchecks.io, Cronitor)" FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkMuted}" Margin="0,2,0,0"/>
+                                    </StackPanel>
+                                    <CheckBox Content="Enable Monitoring" IsChecked="{Binding Config.Heartbeat.Enabled, Mode=TwoWay}" Click="Input_Dirty" HorizontalAlignment="Right" VerticalAlignment="Center" FontWeight="SemiBold"/>
+                                </Grid>
+
+                                <TextBlock Text="Healthcheck ping URL" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
+                                <TextBox Text="{Binding Config.Heartbeat.Url, UpdateSourceTrigger=PropertyChanged}" TextChanged="TextBox_Dirty" Tag="https://hc-ping.com/your-uuid" Style="{StaticResource FieldInputMono}" Margin="0,4,0,14"/>
+
+                                <TextBlock Text="Failure ping URL (optional)" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
+                                <TextBox Text="{Binding Config.Heartbeat.FailUrl, UpdateSourceTrigger=PropertyChanged}" TextChanged="TextBox_Dirty" Tag="Leave blank to append /fail automatically" Style="{StaticResource FieldInputMono}" Margin="0,4,0,10"/>
+
+                                <CheckBox Content="Append /fail path on backup failure when Failure URL is blank"
+                                          IsChecked="{Binding Config.Heartbeat.AppendFailPath, Mode=TwoWay}" Click="Input_Dirty" Margin="0,0,0,18"/>
+
+                                <StackPanel Orientation="Horizontal">
+                                    <Button Content="Test connection" Command="{Binding TestHeartbeatCommand}" Style="{StaticResource BtnQuiet}" Height="34" Padding="14,0" Margin="0,0,10,0"/>
+                                    <Button Content="Save settings" Command="{Binding SaveNotificationsPageCommand}" Style="{StaticResource BtnPrimary}" Height="34" Padding="16,0"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                </Grid>
+
+                <!-- ===================================================================
+                     3. NOTIFICATION RULES – WHEN TO NOTIFY (§5)
+                     =================================================================== -->
+                <Border Style="{StaticResource Card}" Padding="22" Margin="0,0,0,20">
                     <StackPanel>
-                        <!-- Email -->
-                        <RadioButton IsChecked="True" GroupName="ChannelGroup" Style="{StaticResource ChannelListItem}" Checked="ChannelRadio_Checked" Tag="Email" Margin="0,0,0,4">
-                            <Grid HorizontalAlignment="Stretch">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="36"/>
-                                    <ColumnDefinition Width="12"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                <Border Grid.Column="0" Width="36" Height="36" CornerRadius="8" Background="{DynamicResource BrushCobaltSoft}" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                    <Path Data="{StaticResource IconEmail}" Fill="{DynamicResource BrushCobalt}" Width="26" Height="26" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                </Border>
-                                <TextBlock Grid.Column="2" Text="Email (SMTP)" FontWeight="Medium" FontSize="{StaticResource FontSizeNavLabel}" VerticalAlignment="Center"/>
-                            </Grid>
-                        </RadioButton>
+                        <TextBlock Text="When to notify" FontWeight="SemiBold" FontSize="{StaticResource FontSizeH2}" Foreground="{DynamicResource BrushInk}"/>
+                        <TextBlock Text="Select which backup execution events trigger alert dispatch across enabled providers." FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkMuted}" Margin="0,2,0,14"/>
 
-                        <!-- Slack -->
-                        <RadioButton GroupName="ChannelGroup" Style="{StaticResource ChannelListItem}" Checked="ChannelRadio_Checked" Tag="Slack" Margin="0,0,0,4">
-                            <Grid HorizontalAlignment="Stretch">
+                        <Border Background="{DynamicResource BrushRaised}" BorderBrush="{DynamicResource BrushLine}" BorderThickness="1" CornerRadius="10" Padding="18,14">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="36"/>
-                                    <ColumnDefinition Width="12"/>
+                                    <ColumnDefinition Width="180"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <Border Grid.Column="0" Width="36" Height="36" CornerRadius="8" Background="#15E01E5A" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                    <Image Source="{StaticResource BrandDrawingSlack}" Width="26" Height="26" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                </Border>
-                                <TextBlock Grid.Column="2" Text="Slack" FontWeight="Medium" FontSize="{StaticResource FontSizeNavLabel}" VerticalAlignment="Center"/>
-                            </Grid>
-                        </RadioButton>
 
-                        <!-- Microsoft Teams -->
-                        <RadioButton GroupName="ChannelGroup" Style="{StaticResource ChannelListItem}" Checked="ChannelRadio_Checked" Tag="Teams" Margin="0,0,0,4">
-                            <Grid HorizontalAlignment="Stretch">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="36"/>
-                                    <ColumnDefinition Width="12"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                <Border Grid.Column="0" Width="36" Height="36" CornerRadius="8" Background="#155059C9" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                    <Image Source="{StaticResource BrandDrawingTeams}" Width="26" Height="26" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                </Border>
-                                <TextBlock Grid.Column="2" Text="Microsoft Teams" FontWeight="Medium" FontSize="{StaticResource FontSizeNavLabel}" VerticalAlignment="Center"/>
-                            </Grid>
-                        </RadioButton>
+                                <!-- Headers with Global Column Toggle Buttons -->
+                                <TextBlock Grid.Row="0" Grid.Column="0" Text="BACKUP TYPE" FontWeight="SemiBold" FontSize="11" Foreground="{DynamicResource BrushInkFaint}" VerticalAlignment="Center"/>
 
-                        <!-- Discord -->
-                        <RadioButton GroupName="ChannelGroup" Style="{StaticResource ChannelListItem}" Checked="ChannelRadio_Checked" Tag="Discord" Margin="0,0,0,4">
-                            <Grid HorizontalAlignment="Stretch">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="36"/>
-                                    <ColumnDefinition Width="12"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                <Border Grid.Column="0" Width="36" Height="36" CornerRadius="8" Background="#155865F2" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                    <Image Source="{StaticResource BrandDrawingDiscord}" Width="26" Height="26" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                </Border>
-                                <TextBlock Grid.Column="2" Text="Discord" FontWeight="Medium" FontSize="{StaticResource FontSizeNavLabel}" VerticalAlignment="Center"/>
-                            </Grid>
-                        </RadioButton>
+                                <Button Grid.Row="0" Grid.Column="1" Command="{Binding ToggleAllSuccessNotificationsCommand}" Background="Transparent" BorderThickness="0" Cursor="Hand" ToolTip="Toggle all Succeeded rules">
+                                    <TextBlock Text="Succeeded ↕" FontWeight="SemiBold" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushJade}"/>
+                                </Button>
 
-                        <!-- Telegram -->
-                        <RadioButton GroupName="ChannelGroup" Style="{StaticResource ChannelListItem}" Checked="ChannelRadio_Checked" Tag="Telegram" Margin="0,0,0,4">
-                            <Grid HorizontalAlignment="Stretch">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="36"/>
-                                    <ColumnDefinition Width="12"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                <Border Grid.Column="0" Width="36" Height="36" CornerRadius="8" Background="#1524A1DE" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                    <Image Source="{StaticResource BrandDrawingTelegram}" Width="26" Height="26" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                </Border>
-                                <TextBlock Grid.Column="2" Text="Telegram" FontWeight="Medium" FontSize="{StaticResource FontSizeNavLabel}" VerticalAlignment="Center"/>
-                            </Grid>
-                        </RadioButton>
+                                <Button Grid.Row="0" Grid.Column="2" Command="{Binding ToggleAllWarningNotificationsCommand}" Background="Transparent" BorderThickness="0" Cursor="Hand" ToolTip="Toggle all Partial rules">
+                                    <TextBlock Text="Partial ↕" FontWeight="SemiBold" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushSaffron}"/>
+                                </Button>
 
-                        <!-- Pushover -->
-                        <RadioButton GroupName="ChannelGroup" Style="{StaticResource ChannelListItem}" Checked="ChannelRadio_Checked" Tag="Pushover" Margin="0,0,0,4">
-                            <Grid HorizontalAlignment="Stretch">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="36"/>
-                                    <ColumnDefinition Width="12"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                <Border Grid.Column="0" Width="36" Height="36" CornerRadius="8" Background="#15249DF1" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                    <Image Source="{StaticResource BrandDrawingPushover}" Width="26" Height="26" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                </Border>
-                                <TextBlock Grid.Column="2" Text="Pushover" FontWeight="Medium" FontSize="{StaticResource FontSizeNavLabel}" VerticalAlignment="Center"/>
-                            </Grid>
-                        </RadioButton>
+                                <Button Grid.Row="0" Grid.Column="3" Command="{Binding ToggleAllFailureNotificationsCommand}" Background="Transparent" BorderThickness="0" Cursor="Hand" ToolTip="Toggle all Failed rules">
+                                    <TextBlock Text="Failed ↕" FontWeight="SemiBold" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushCoral}"/>
+                                </Button>
 
-                        <!-- ntfy -->
-                        <RadioButton GroupName="ChannelGroup" Style="{StaticResource ChannelListItem}" Checked="ChannelRadio_Checked" Tag="Ntfy" Margin="0,0,0,4">
-                            <Grid HorizontalAlignment="Stretch">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="36"/>
-                                    <ColumnDefinition Width="12"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                <Border Grid.Column="0" Width="36" Height="36" CornerRadius="8" Background="#15317F6F" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                    <Image Source="{StaticResource BrandDrawingNtfy}" Width="26" Height="26" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                </Border>
-                                <TextBlock Grid.Column="2" Text="ntfy" FontWeight="Medium" FontSize="{StaticResource FontSizeNavLabel}" VerticalAlignment="Center"/>
-                            </Grid>
-                        </RadioButton>
+                                <!-- Row 1: Full Backup -->
+                                <TextBlock Grid.Row="1" Grid.Column="0" Text="Full backup" FontWeight="Medium" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource BrushInk}" VerticalAlignment="Center" Margin="0,12,0,0"/>
+                                <CheckBox Grid.Row="1" Grid.Column="1" IsChecked="{Binding Config.NotificationMatrix.FullSuccess, Mode=TwoWay}" Click="Input_Dirty" HorizontalAlignment="Center" Margin="0,12,0,0"/>
+                                <CheckBox Grid.Row="1" Grid.Column="2" IsChecked="{Binding Config.NotificationMatrix.FullWarning, Mode=TwoWay}" Click="Input_Dirty" HorizontalAlignment="Center" Margin="0,12,0,0"/>
+                                <CheckBox Grid.Row="1" Grid.Column="3" IsChecked="{Binding Config.NotificationMatrix.FullFailure, Mode=TwoWay}" Click="Input_Dirty" HorizontalAlignment="Center" Margin="0,12,0,0"/>
 
-                        <!-- PagerDuty -->
-                        <RadioButton GroupName="ChannelGroup" Style="{StaticResource ChannelListItem}" Checked="ChannelRadio_Checked" Tag="PagerDuty" Margin="0,0,0,4">
-                            <Grid HorizontalAlignment="Stretch">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="36"/>
-                                    <ColumnDefinition Width="12"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                <Border Grid.Column="0" Width="36" Height="36" CornerRadius="8" Background="#1506AC38" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                    <Image Source="{StaticResource BrandDrawingPagerDuty}" Width="26" Height="26" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                </Border>
-                                <TextBlock Grid.Column="2" Text="PagerDuty" FontWeight="Medium" FontSize="{StaticResource FontSizeNavLabel}" VerticalAlignment="Center"/>
-                            </Grid>
-                        </RadioButton>
+                                <!-- Row 2: Differential Backup -->
+                                <TextBlock Grid.Row="2" Grid.Column="0" Text="Differential backup" FontWeight="Medium" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource BrushInk}" VerticalAlignment="Center" Margin="0,12,0,0"/>
+                                <CheckBox Grid.Row="2" Grid.Column="1" IsChecked="{Binding Config.NotificationMatrix.DiffSuccess, Mode=TwoWay}" Click="Input_Dirty" HorizontalAlignment="Center" Margin="0,12,0,0"/>
+                                <CheckBox Grid.Row="2" Grid.Column="2" IsChecked="{Binding Config.NotificationMatrix.DiffWarning, Mode=TwoWay}" Click="Input_Dirty" HorizontalAlignment="Center" Margin="0,12,0,0"/>
+                                <CheckBox Grid.Row="2" Grid.Column="3" IsChecked="{Binding Config.NotificationMatrix.DiffFailure, Mode=TwoWay}" Click="Input_Dirty" HorizontalAlignment="Center" Margin="0,12,0,0"/>
 
-                        <!-- Custom Webhook -->
-                        <RadioButton GroupName="ChannelGroup" Style="{StaticResource ChannelListItem}" Checked="ChannelRadio_Checked" Tag="CustomWebhook" Margin="0,0,0,4">
-                            <Grid HorizontalAlignment="Stretch">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="36"/>
-                                    <ColumnDefinition Width="12"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                <Border Grid.Column="0" Width="36" Height="36" CornerRadius="8" Background="{DynamicResource BrushSunken}" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                    <Path Data="{StaticResource IconCustomWebhook}" Fill="{DynamicResource BrushInkMuted}" Width="26" Height="26" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                </Border>
-                                <TextBlock Grid.Column="2" Text="Custom webhook" FontWeight="Medium" FontSize="{StaticResource FontSizeNavLabel}" VerticalAlignment="Center"/>
+                                <!-- Row 3: Transaction Log -->
+                                <TextBlock Grid.Row="3" Grid.Column="0" Text="Transaction log" FontWeight="Medium" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource BrushInk}" VerticalAlignment="Center" Margin="0,12,0,0"/>
+                                <CheckBox Grid.Row="3" Grid.Column="1" IsChecked="{Binding Config.NotificationMatrix.LogSuccess, Mode=TwoWay}" Click="Input_Dirty" HorizontalAlignment="Center" Margin="0,12,0,0"/>
+                                <CheckBox Grid.Row="3" Grid.Column="2" IsChecked="{Binding Config.NotificationMatrix.LogWarning, Mode=TwoWay}" Click="Input_Dirty" HorizontalAlignment="Center" Margin="0,12,0,0"/>
+                                <CheckBox Grid.Row="3" Grid.Column="3" IsChecked="{Binding Config.NotificationMatrix.LogFailure, Mode=TwoWay}" Click="Input_Dirty" HorizontalAlignment="Center" Margin="0,12,0,0"/>
                             </Grid>
-                        </RadioButton>
-
-                        <!-- Heartbeat Monitor -->
-                        <RadioButton GroupName="ChannelGroup" Style="{StaticResource ChannelListItem}" Checked="ChannelRadio_Checked" Tag="Heartbeat">
-                            <Grid HorizontalAlignment="Stretch">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="36"/>
-                                    <ColumnDefinition Width="12"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                <Border Grid.Column="0" Width="36" Height="36" CornerRadius="8" Background="{DynamicResource BrushJadeSoft}" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                    <Path Data="{StaticResource IconHeartbeat}" Fill="{DynamicResource BrushJade}" Width="26" Height="26" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                </Border>
-                                <TextBlock Grid.Column="2" Text="Heartbeat monitor" FontWeight="Medium" FontSize="{StaticResource FontSizeNavLabel}" VerticalAlignment="Center"/>
-                            </Grid>
-                        </RadioButton>
+                        </Border>
                     </StackPanel>
                 </Border>
 
-                <!-- Detail Credentials Form Container -->
-                <Border Grid.Column="2" Style="{StaticResource Card}" Padding="24">
-                    <Grid>
-                        <!-- 1. Email Channel Form -->
-                        <StackPanel x:Name="EmailChannelPanel" Visibility="Visible">
-                            <TextBlock Text="Email settings" FontWeight="SemiBold" FontSize="{StaticResource FontSizeH2}" Foreground="{DynamicResource BrushInk}"/>
-                            <TextBlock Text="Configure SMTP host, authentication, and alert recipients" FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkMuted}" Margin="0,2,0,20"/>
-
-                            <Grid Margin="0,0,0,16">
+                <!-- ===================================================================
+                     4. RECENT NOTIFICATION ACTIVITY (§7)
+                     =================================================================== -->
+                <Border Style="{StaticResource Card}" Padding="0">
+                    <StackPanel>
+                        <Border BorderBrush="{DynamicResource BrushLine}" BorderThickness="0,0,0,1" Padding="20,14">
+                            <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="16"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <StackPanel>
+                                    <TextBlock Text="Notification activity" FontWeight="SemiBold" FontSize="{StaticResource FontSizeH2}" Foreground="{DynamicResource BrushInk}"/>
+                                    <TextBlock Text="Recent test dispatches and backup alert deliveries" FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkMuted}" Margin="0,2,0,0"/>
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                                    <TextBox Text="{Binding NotificationSearchQuery, UpdateSourceTrigger=PropertyChanged}"
+                                             Tag="Search provider, job..." Style="{StaticResource FieldInput}" Width="180" Height="30" Margin="0,0,8,0"/>
+                                    <ComboBox ItemsSource="{Binding NotificationProviderFilterOptions}" SelectedItem="{Binding NotificationProviderFilter}" Width="125" Height="30" Margin="0,0,8,0"/>
+                                    <ComboBox ItemsSource="{Binding NotificationStatusFilterOptions}" SelectedItem="{Binding NotificationStatusFilter}" Width="110" Height="30" Margin="0,0,8,0"/>
+                                    <ComboBox ItemsSource="{Binding NotificationDateFilterOptions}" SelectedItem="{Binding NotificationDateFilter}" Width="110" Height="30" Margin="0,0,8,0"/>
+                                    <Button Content="Refresh" Command="{Binding RefreshNotificationActivityCommand}" Style="{StaticResource BtnQuiet}" Height="30" Padding="12,0"/>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+
+                        <!-- Column Header -->
+                        <Border Background="{DynamicResource BrushRaised}" BorderBrush="{DynamicResource BrushLine}" BorderThickness="0,0,0,1" Padding="20,9">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="145"/>
                                     <ColumnDefinition Width="120"/>
+                                    <ColumnDefinition Width="140"/>
+                                    <ColumnDefinition Width="110"/>
+                                    <ColumnDefinition Width="90"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="70"/>
                                 </Grid.ColumnDefinitions>
-                                <StackPanel Grid.Column="0">
-                                    <TextBlock Text="SMTP host" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
-                                    <TextBox Text="{Binding Config.Email.SmtpHost, UpdateSourceTrigger=PropertyChanged}"
-                                             Tag="e.g. smtp.example.com"
-                                             Style="{StaticResource FieldInputMono}" Margin="0,4,0,0"/>
-                                </StackPanel>
-                                <StackPanel Grid.Column="2">
-                                    <TextBlock Text="Port" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
-                                    <TextBox Text="{Binding Config.Email.SmtpPort, UpdateSourceTrigger=PropertyChanged}"
-                                             Tag="587"
-                                             Style="{StaticResource FieldInputMono}" Margin="0,4,0,0"/>
+                                <TextBlock Grid.Column="0" Text="DATE &amp; TIME" FontWeight="SemiBold" FontSize="11" Foreground="{DynamicResource BrushInkFaint}"/>
+                                <TextBlock Grid.Column="1" Text="PROVIDER" FontWeight="SemiBold" FontSize="11" Foreground="{DynamicResource BrushInkFaint}"/>
+                                <TextBlock Grid.Column="2" Text="BACKUP JOB" FontWeight="SemiBold" FontSize="11" Foreground="{DynamicResource BrushInkFaint}"/>
+                                <TextBlock Grid.Column="3" Text="EVENT" FontWeight="SemiBold" FontSize="11" Foreground="{DynamicResource BrushInkFaint}"/>
+                                <TextBlock Grid.Column="4" Text="RESULT" FontWeight="SemiBold" FontSize="11" Foreground="{DynamicResource BrushInkFaint}"/>
+                                <TextBlock Grid.Column="5" Text="ERROR DETAILS" FontWeight="SemiBold" FontSize="11" Foreground="{DynamicResource BrushInkFaint}"/>
+                                <TextBlock Grid.Column="6" Text="ACTION" FontWeight="SemiBold" FontSize="11" Foreground="{DynamicResource BrushInkFaint}" HorizontalAlignment="Right"/>
+                            </Grid>
+                        </Border>
+
+                        <!-- Empty State -->
+                        <StackPanel Visibility="{Binding HasNotificationActivity, Converter={StaticResource InverseBoolToVis}}" Margin="24,28" HorizontalAlignment="Center">
+                            <TextBlock Text="No notification activity recorded" FontWeight="SemiBold" FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushInkMuted}" HorizontalAlignment="Center"/>
+                            <TextBlock Text="Test a channel or run a backup job to see delivery logs here." FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource BrushInkFaint}" HorizontalAlignment="Center" Margin="0,2,0,0"/>
+                        </StackPanel>
+
+                        <!-- Activity Rows -->
+                        <ItemsControl ItemsSource="{Binding NotificationActivityPaged}" Visibility="{Binding HasNotificationActivity, Converter={StaticResource BoolToVis}}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border BorderBrush="{DynamicResource BrushLine}" BorderThickness="0,0,0,1" Padding="20,10">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="145"/>
+                                                <ColumnDefinition Width="120"/>
+                                                <ColumnDefinition Width="140"/>
+                                                <ColumnDefinition Width="110"/>
+                                                <ColumnDefinition Width="90"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="70"/>
+                                            </Grid.ColumnDefinitions>
+
+                                            <TextBlock Grid.Column="0" Text="{Binding TimestampDisplay}" FontFamily="{StaticResource FontFamilyMono}" FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource BrushInkMuted}" VerticalAlignment="Center"/>
+                                            <TextBlock Grid.Column="1" Text="{Binding Provider}" FontWeight="SemiBold" FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource BrushInk}" VerticalAlignment="Center"/>
+                                            <TextBlock Grid.Column="2" Text="{Binding RelatedJob}" FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource BrushInkMuted}" TextTrimming="CharacterEllipsis" VerticalAlignment="Center"/>
+                                            <TextBlock Grid.Column="3" Text="{Binding EventType}" FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource BrushInk}" VerticalAlignment="Center"/>
+                                            <Border Grid.Column="4" Style="{StaticResource BadgePill}" Background="{DynamicResource BrushSunken}" HorizontalAlignment="Left" VerticalAlignment="Center" Padding="8,2">
+                                                <TextBlock Text="{Binding Result}" FontWeight="SemiBold" FontSize="11" Foreground="{DynamicResource BrushInk}"/>
+                                            </Border>
+                                            <TextBlock Grid.Column="5" Text="{Binding ErrorDetails}" FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource BrushCoral}" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                            <Button Grid.Column="6" Content="View"
+                                                    Command="{Binding DataContext.ViewNotificationActivityDetailsCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
+                                                    CommandParameter="{Binding}"
+                                                    Style="{StaticResource BtnQuiet}" Height="26" Padding="10,0" FontSize="11" HorizontalAlignment="Right"/>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+                        <!-- Pagination Footer -->
+                        <Border Padding="20,10" Background="{DynamicResource BrushRaised}">
+                            <Grid>
+                                <TextBlock Text="{Binding NotificationActivitySummary}" FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource BrushInkMuted}" VerticalAlignment="Center"/>
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                    <Button Content="‹ Prev" Command="{Binding NotificationPrevPageCommand}" IsEnabled="{Binding CanNotificationPrevPage}" Style="{StaticResource BtnQuiet}" Height="26" Padding="10,0" FontSize="11" Margin="0,0,6,0"/>
+                                    <TextBlock VerticalAlignment="Center" FontSize="11" Foreground="{DynamicResource BrushInk}" Margin="0,0,6,0">
+                                        <Run Text="Page"/>
+                                        <Run Text="{Binding NotificationActivityCurrentPage, Mode=OneWay}" FontWeight="SemiBold"/>
+                                        <Run Text="of"/>
+                                        <Run Text="{Binding NotificationActivityTotalPages, Mode=OneWay}" FontWeight="SemiBold"/>
+                                    </TextBlock>
+                                    <Button Content="Next ›" Command="{Binding NotificationNextPageCommand}" IsEnabled="{Binding CanNotificationNextPage}" Style="{StaticResource BtnQuiet}" Height="26" Padding="10,0" FontSize="11"/>
                                 </StackPanel>
                             </Grid>
-
-                            <Grid Margin="0,0,0,16">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="16"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                <StackPanel Grid.Column="0">
-                                    <TextBlock Text="Username" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
-                                    <TextBox Text="{Binding Config.Email.Username, UpdateSourceTrigger=PropertyChanged}"
-                                             Tag="user@example.com"
-                                             Style="{StaticResource FieldInput}" Margin="0,4,0,0"/>
-                                </StackPanel>
-                                <StackPanel Grid.Column="2">
-                                    <TextBlock Text="Password" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
-                                    <TextBox Text="{Binding Config.Email.Password, UpdateSourceTrigger=PropertyChanged}"
-                                             Tag="SMTP password"
-                                             Style="{StaticResource FieldInput}" Margin="0,4,0,0"/>
-                                </StackPanel>
-                            </Grid>
-
-                            <TextBlock Text="Recipients (comma separated)" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
-                            <TextBox Text="{Binding EmailRecipientsText, UpdateSourceTrigger=PropertyChanged}"
-                                     Tag="e.g. admin@example.com, alerts@example.com"
-                                     Style="{StaticResource FieldInput}" Margin="0,4,0,20"/>
-
-                            <StackPanel Orientation="Horizontal">
-                                <Button Content="Send test message" Command="{Binding TestEmailCommand}" Style="{StaticResource BtnQuiet}" Height="36" Padding="16,0" Margin="0,0,12,0"/>
-                                <Button Content="Save email settings" Command="{Binding SaveSettingsCommand}" Style="{StaticResource BtnPrimary}" Height="36" Padding="18,0"/>
-                            </StackPanel>
-                        </StackPanel>
-
-                        <!-- 2. Slack Channel Form -->
-                        <StackPanel x:Name="SlackChannelPanel" Visibility="Collapsed">
-                            <TextBlock Text="Slack settings" FontWeight="SemiBold" FontSize="{StaticResource FontSizeH2}" Foreground="{DynamicResource BrushInk}"/>
-                            <TextBlock Text="Dispatch backup status alerts directly to a designated Slack channel" FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkMuted}" Margin="0,2,0,20"/>
-
-                            <TextBlock Text="Slack incoming webhook URL" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
-                            <TextBox Text="{Binding Config.Webhooks.SlackWebhookUrl, UpdateSourceTrigger=PropertyChanged}"
-                                     Tag="https://hooks.slack.com/services/..."
-                                     Style="{StaticResource FieldInputMono}" Margin="0,4,0,6"/>
-                            <TextBlock Text="Create an Incoming Webhook in your Slack Workspace App configuration portal." FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkFaint}" Margin="0,0,0,20"/>
-
-                            <StackPanel Orientation="Horizontal">
-                                <Button Content="Send test Slack message" Command="{Binding TestSlackCommand}" Style="{StaticResource BtnQuiet}" Height="36" Padding="16,0" Margin="0,0,12,0"/>
-                                <Button Content="Save settings" Command="{Binding SaveSettingsCommand}" Style="{StaticResource BtnPrimary}" Height="36" Padding="18,0"/>
-                            </StackPanel>
-                        </StackPanel>
-
-                        <!-- 3. Microsoft Teams Channel Form -->
-                        <StackPanel x:Name="TeamsChannelPanel" Visibility="Collapsed">
-                            <TextBlock Text="Microsoft Teams settings" FontWeight="SemiBold" FontSize="{StaticResource FontSizeH2}" Foreground="{DynamicResource BrushInk}"/>
-                            <TextBlock Text="Deliver structured adaptive cards to your Microsoft Teams channel" FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkMuted}" Margin="0,2,0,20"/>
-
-                            <TextBlock Text="Teams webhook URL" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
-                            <TextBox Text="{Binding Config.Webhooks.TeamsWebhookUrl, UpdateSourceTrigger=PropertyChanged}"
-                                     Tag="https://outlook.office.com/webhook/..."
-                                     Style="{StaticResource FieldInputMono}" Margin="0,4,0,6"/>
-                            <TextBlock Text="Incoming webhook URL created via Microsoft Teams Workflows or connectors." FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkFaint}" Margin="0,0,0,20"/>
-
-                            <StackPanel Orientation="Horizontal">
-                                <Button Content="Send test Teams message" Command="{Binding TestTeamsCommand}" Style="{StaticResource BtnQuiet}" Height="36" Padding="16,0" Margin="0,0,12,0"/>
-                                <Button Content="Save settings" Command="{Binding SaveSettingsCommand}" Style="{StaticResource BtnPrimary}" Height="36" Padding="18,0"/>
-                            </StackPanel>
-                        </StackPanel>
-
-                        <!-- 4. Discord Channel Form -->
-                        <StackPanel x:Name="DiscordChannelPanel" Visibility="Collapsed">
-                            <TextBlock Text="Discord settings" FontWeight="SemiBold" FontSize="{StaticResource FontSizeH2}" Foreground="{DynamicResource BrushInk}"/>
-                            <TextBlock Text="Send rich embedded alert cards to a Discord server channel" FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkMuted}" Margin="0,2,0,20"/>
-
-                            <TextBlock Text="Discord webhook URL" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
-                            <TextBox Text="{Binding Config.Webhooks.DiscordWebhookUrl, UpdateSourceTrigger=PropertyChanged}"
-                                     Tag="https://discord.com/api/webhooks/..."
-                                     Style="{StaticResource FieldInputMono}" Margin="0,4,0,6"/>
-                            <TextBlock Text="Created in Discord under Channel Settings > Integrations > Webhooks." FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkFaint}" Margin="0,0,0,20"/>
-
-                            <StackPanel Orientation="Horizontal">
-                                <Button Content="Send test Discord message" Command="{Binding TestDiscordCommand}" Style="{StaticResource BtnQuiet}" Height="36" Padding="16,0" Margin="0,0,12,0"/>
-                                <Button Content="Save settings" Command="{Binding SaveSettingsCommand}" Style="{StaticResource BtnPrimary}" Height="36" Padding="18,0"/>
-                            </StackPanel>
-                        </StackPanel>
-
-                        <!-- 5. Telegram Channel Form -->
-                        <StackPanel x:Name="TelegramChannelPanel" Visibility="Collapsed">
-                            <TextBlock Text="Telegram settings" FontWeight="SemiBold" FontSize="{StaticResource FontSizeH2}" Foreground="{DynamicResource BrushInk}"/>
-                            <TextBlock Text="Send notifications through a Telegram Bot to your chat or channel" FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkMuted}" Margin="0,2,0,20"/>
-
-                            <Grid Margin="0,0,0,16">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="16"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                <StackPanel Grid.Column="0">
-                                    <TextBlock Text="Bot token" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
-                                    <TextBox Text="{Binding Config.Webhooks.TelegramBotToken, UpdateSourceTrigger=PropertyChanged}"
-                                             Tag="e.g. 123456789:ABCdefGhI..."
-                                             Style="{StaticResource FieldInputMono}" Margin="0,4,0,0"/>
-                                </StackPanel>
-                                <StackPanel Grid.Column="2">
-                                    <TextBlock Text="Chat ID" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
-                                    <TextBox Text="{Binding Config.Webhooks.TelegramChatId, UpdateSourceTrigger=PropertyChanged}"
-                                             Tag="e.g. @mychannel or -100123456789"
-                                             Style="{StaticResource FieldInputMono}" Margin="0,4,0,0"/>
-                                </StackPanel>
-                            </Grid>
-                            <TextBlock Text="Create a bot via @BotFather to receive your bot token and chat ID." FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkFaint}" Margin="0,0,0,20"/>
-
-                            <StackPanel Orientation="Horizontal">
-                                <Button Content="Send test Telegram message" Command="{Binding TestTelegramCommand}" Style="{StaticResource BtnQuiet}" Height="36" Padding="16,0" Margin="0,0,12,0"/>
-                                <Button Content="Save settings" Command="{Binding SaveSettingsCommand}" Style="{StaticResource BtnPrimary}" Height="36" Padding="18,0"/>
-                            </StackPanel>
-                        </StackPanel>
-
-                        <!-- 6. Pushover Channel Form -->
-                        <StackPanel x:Name="PushoverChannelPanel" Visibility="Collapsed">
-                            <TextBlock Text="Pushover settings" FontWeight="SemiBold" FontSize="{StaticResource FontSizeH2}" Foreground="{DynamicResource BrushInk}"/>
-                            <TextBlock Text="Deliver real-time mobile push notifications to iOS and Android" FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkMuted}" Margin="0,2,0,20"/>
-
-                            <Grid Margin="0,0,0,16">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="16"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                <StackPanel Grid.Column="0">
-                                    <TextBlock Text="User key" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
-                                    <TextBox Text="{Binding Config.Webhooks.PushoverUserKey, UpdateSourceTrigger=PropertyChanged}"
-                                             Tag="30-character user key"
-                                             Style="{StaticResource FieldInputMono}" Margin="0,4,0,0"/>
-                                </StackPanel>
-                                <StackPanel Grid.Column="2">
-                                    <TextBlock Text="Application API token" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
-                                    <TextBox Text="{Binding Config.Webhooks.PushoverApiToken, UpdateSourceTrigger=PropertyChanged}"
-                                             Tag="30-character app token"
-                                             Style="{StaticResource FieldInputMono}" Margin="0,4,0,0"/>
-                                </StackPanel>
-                            </Grid>
-
-                            <StackPanel Orientation="Horizontal">
-                                <Button Content="Send test Pushover notification" Command="{Binding TestPushoverCommand}" Style="{StaticResource BtnQuiet}" Height="36" Padding="16,0" Margin="0,0,12,0"/>
-                                <Button Content="Save settings" Command="{Binding SaveSettingsCommand}" Style="{StaticResource BtnPrimary}" Height="36" Padding="18,0"/>
-                            </StackPanel>
-                        </StackPanel>
-
-                        <!-- 7. ntfy Channel Form -->
-                        <StackPanel x:Name="NtfyChannelPanel" Visibility="Collapsed">
-                            <TextBlock Text="ntfy settings" FontWeight="SemiBold" FontSize="{StaticResource FontSizeH2}" Foreground="{DynamicResource BrushInk}"/>
-                            <TextBlock Text="HTTP-based pub-sub push notifications to phones and desktop subscribers" FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkMuted}" Margin="0,2,0,20"/>
-
-                            <Grid Margin="0,0,0,16">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="16"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                <StackPanel Grid.Column="0">
-                                    <TextBlock Text="ntfy server URL" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
-                                    <TextBox Text="{Binding Config.Webhooks.NtfyServerUrl, UpdateSourceTrigger=PropertyChanged}"
-                                             Tag="https://ntfy.sh"
-                                             Style="{StaticResource FieldInputMono}" Margin="0,4,0,0"/>
-                                </StackPanel>
-                                <StackPanel Grid.Column="2">
-                                    <TextBlock Text="Topic name" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
-                                    <TextBox Text="{Binding Config.Webhooks.NtfyTopic, UpdateSourceTrigger=PropertyChanged}"
-                                             Tag="e.g. backup-alerts"
-                                             Style="{StaticResource FieldInput}" Margin="0,4,0,0"/>
-                                </StackPanel>
-                            </Grid>
-
-                            <TextBlock Text="Authentication token (optional for protected topics)" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
-                            <TextBox Text="{Binding Config.Webhooks.NtfyToken, UpdateSourceTrigger=PropertyChanged}"
-                                     Tag="tk_..."
-                                     Style="{StaticResource FieldInputMono}" Margin="0,4,0,20"/>
-
-                            <StackPanel Orientation="Horizontal">
-                                <Button Content="Send test ntfy notification" Command="{Binding TestNtfyCommand}" Style="{StaticResource BtnQuiet}" Height="36" Padding="16,0" Margin="0,0,12,0"/>
-                                <Button Content="Save settings" Command="{Binding SaveSettingsCommand}" Style="{StaticResource BtnPrimary}" Height="36" Padding="18,0"/>
-                            </StackPanel>
-                        </StackPanel>
-
-                        <!-- 8. PagerDuty Channel Form -->
-                        <StackPanel x:Name="PagerDutyChannelPanel" Visibility="Collapsed">
-                            <TextBlock Text="PagerDuty settings" FontWeight="SemiBold" FontSize="{StaticResource FontSizeH2}" Foreground="{DynamicResource BrushInk}"/>
-                            <TextBlock Text="Trigger and auto-resolve incident tickets through PagerDuty Events API v2" FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkMuted}" Margin="0,2,0,20"/>
-
-                            <TextBlock Text="Integration / routing key" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
-                            <TextBox Text="{Binding Config.Webhooks.PagerDutyRoutingKey, UpdateSourceTrigger=PropertyChanged}"
-                                     Tag="32-character PagerDuty integration routing key"
-                                     Style="{StaticResource FieldInputMono}" Margin="0,4,0,6"/>
-                            <TextBlock Text="Find your 32-character routing key in PagerDuty under Service > Integrations." FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkFaint}" Margin="0,0,0,20"/>
-
-                            <StackPanel Orientation="Horizontal">
-                                <Button Content="Send test PagerDuty incident" Command="{Binding TestPagerDutyCommand}" Style="{StaticResource BtnQuiet}" Height="36" Padding="16,0" Margin="0,0,12,0"/>
-                                <Button Content="Save settings" Command="{Binding SaveSettingsCommand}" Style="{StaticResource BtnPrimary}" Height="36" Padding="18,0"/>
-                            </StackPanel>
-                        </StackPanel>
-
-                        <!-- 9. Custom Webhook Channel Form -->
-                        <StackPanel x:Name="CustomWebhookChannelPanel" Visibility="Collapsed">
-                            <TextBlock Text="Custom webhook settings" FontWeight="SemiBold" FontSize="{StaticResource FontSizeH2}" Foreground="{DynamicResource BrushInk}"/>
-                            <TextBlock Text="Post structured JSON payloads to any HTTP endpoint (n8n, Zapier, Make, Home Assistant)" FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkMuted}" Margin="0,2,0,20"/>
-
-                            <TextBlock Text="Webhook URL" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
-                            <TextBox Text="{Binding Config.Webhooks.CustomWebhookUrl, UpdateSourceTrigger=PropertyChanged}"
-                                     Tag="https://api.example.com/webhook/backup"
-                                     Style="{StaticResource FieldInputMono}" Margin="0,4,0,16"/>
-
-                            <Grid Margin="0,0,0,20">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="16"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                <StackPanel Grid.Column="0">
-                                    <TextBlock Text="Custom header name (optional)" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
-                                    <TextBox Text="{Binding Config.Webhooks.CustomWebhookHeaderName, UpdateSourceTrigger=PropertyChanged}"
-                                             Tag="X-Auth-Token"
-                                             Style="{StaticResource FieldInput}" Margin="0,4,0,0"/>
-                                </StackPanel>
-                                <StackPanel Grid.Column="2">
-                                    <TextBlock Text="Custom header value (optional)" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
-                                    <TextBox Text="{Binding Config.Webhooks.CustomWebhookHeaderValue, UpdateSourceTrigger=PropertyChanged}"
-                                             Tag="secret-key"
-                                             Style="{StaticResource FieldInput}" Margin="0,4,0,0"/>
-                                </StackPanel>
-                            </Grid>
-
-                            <StackPanel Orientation="Horizontal">
-                                <Button Content="Send test webhook" Command="{Binding TestCustomWebhookCommand}" Style="{StaticResource BtnQuiet}" Height="36" Padding="16,0" Margin="0,0,12,0"/>
-                                <Button Content="Save settings" Command="{Binding SaveSettingsCommand}" Style="{StaticResource BtnPrimary}" Height="36" Padding="18,0"/>
-                            </StackPanel>
-                        </StackPanel>
-
-                        <!-- 10. Heartbeat Monitor Form -->
-                        <StackPanel x:Name="HeartbeatChannelPanel" Visibility="Collapsed">
-                            <TextBlock Text="Heartbeat monitor settings" FontWeight="SemiBold" FontSize="{StaticResource FontSizeH2}" Foreground="{DynamicResource BrushInk}"/>
-                            <TextBlock Text="Ping external healthcheck services (BetterUptime, Healthchecks.io, Cronitor) on successful backup" FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkMuted}" Margin="0,2,0,20"/>
-
-                            <TextBlock Text="Healthcheck ping URL" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
-                            <TextBox Text="{Binding Config.Heartbeat.Url, UpdateSourceTrigger=PropertyChanged}"
-                                     Tag="https://hc-ping.com/your-uuid"
-                                     Style="{StaticResource FieldInputMono}" Margin="0,4,0,6"/>
-                            <TextBlock Text="An HTTP GET request will be dispatched to this endpoint every time a backup succeeds." FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkFaint}" Margin="0,0,0,20"/>
-
-                            <StackPanel Orientation="Horizontal">
-                                <Button Content="Send test heartbeat ping" Command="{Binding TestHeartbeatCommand}" Style="{StaticResource BtnQuiet}" Height="36" Padding="16,0" Margin="0,0,12,0"/>
-                                <Button Content="Save settings" Command="{Binding SaveSettingsCommand}" Style="{StaticResource BtnPrimary}" Height="36" Padding="18,0"/>
-                            </StackPanel>
-                        </StackPanel>
-                    </Grid>
+                        </Border>
+                    </StackPanel>
                 </Border>
-            </Grid>
+            </StackPanel>
+        </ScrollViewer>
 
-            <!-- 3. When To Notify Matrix (§4.7) -->
-            <Border Style="{StaticResource Card}" Padding="24">
-                <StackPanel>
-                    <TextBlock Text="When to notify" FontWeight="SemiBold" FontSize="{StaticResource FontSizeH2}" Foreground="{DynamicResource BrushInk}"/>
-                    <TextBlock Text="Select which backup execution events trigger alert dispatch" FontSize="{StaticResource FontSizeHelp}" Foreground="{DynamicResource BrushInkMuted}" Margin="0,2,0,16"/>
+        <!-- ===================================================================
+             5. STICKY BOTTOM ACTION BAR (§8)
+             =================================================================== -->
+        <Border Grid.Row="1"
+                Background="{DynamicResource BrushPanel}"
+                BorderBrush="{DynamicResource BrushLine}"
+                BorderThickness="0,1,0,0"
+                Padding="28,12">
+            <Grid MaxWidth="1320">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
 
-                    <!-- Matrix Table: Rows (Full, Diff, Log), Columns (Succeeded, Partial, Failed) -->
-                    <Border Background="{DynamicResource BrushRaised}" BorderBrush="{DynamicResource BrushLine}" BorderThickness="1" CornerRadius="8" Padding="16">
-                        <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/> <!-- Header -->
-                                <RowDefinition Height="Auto"/> <!-- Full Row -->
-                                <RowDefinition Height="Auto"/> <!-- Diff Row -->
-                                <RowDefinition Height="Auto"/> <!-- Log Row -->
-                            </Grid.RowDefinitions>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="160"/> <!-- Type -->
-                                <ColumnDefinition Width="*"/>   <!-- Succeeded -->
-                                <ColumnDefinition Width="*"/>   <!-- Partial -->
-                                <ColumnDefinition Width="*"/>   <!-- Failed -->
-                            </Grid.ColumnDefinitions>
-
-                            <!-- Column Headers -->
-                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Backup type" FontWeight="SemiBold" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushInkMuted}"/>
-                            <TextBlock Grid.Row="0" Grid.Column="1" Text="Succeeded" FontWeight="SemiBold" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushJade}" HorizontalAlignment="Center"/>
-                            <TextBlock Grid.Row="0" Grid.Column="2" Text="Partial" FontWeight="SemiBold" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushSaffron}" HorizontalAlignment="Center"/>
-                            <TextBlock Grid.Row="0" Grid.Column="3" Text="Failed" FontWeight="SemiBold" FontSize="{StaticResource FontSizeFieldLabel}" Foreground="{DynamicResource BrushCoral}" HorizontalAlignment="Center"/>
-
-                            <!-- Row 1: Full -->
-                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Full backup" FontWeight="Medium" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource BrushInk}" VerticalAlignment="Center" Margin="0,12,0,0"/>
-                            <CheckBox Grid.Row="1" Grid.Column="1" IsChecked="{Binding Config.NotificationMatrix.FullSuccess, Mode=TwoWay}" HorizontalAlignment="Center" Margin="0,12,0,0"/>
-                            <CheckBox Grid.Row="1" Grid.Column="2" IsChecked="{Binding Config.NotificationMatrix.FullWarning, Mode=TwoWay}" HorizontalAlignment="Center" Margin="0,12,0,0"/>
-                            <CheckBox Grid.Row="1" Grid.Column="3" IsChecked="{Binding Config.NotificationMatrix.FullFailure, Mode=TwoWay}" HorizontalAlignment="Center" Margin="0,12,0,0"/>
-
-                            <!-- Row 2: Differential -->
-                            <TextBlock Grid.Row="2" Grid.Column="0" Text="Differential backup" FontWeight="Medium" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource BrushInk}" VerticalAlignment="Center" Margin="0,12,0,0"/>
-                            <CheckBox Grid.Row="2" Grid.Column="1" IsChecked="{Binding Config.NotificationMatrix.DiffSuccess, Mode=TwoWay}" HorizontalAlignment="Center" Margin="0,12,0,0"/>
-                            <CheckBox Grid.Row="2" Grid.Column="2" IsChecked="{Binding Config.NotificationMatrix.DiffWarning, Mode=TwoWay}" HorizontalAlignment="Center" Margin="0,12,0,0"/>
-                            <CheckBox Grid.Row="2" Grid.Column="3" IsChecked="{Binding Config.NotificationMatrix.DiffFailure, Mode=TwoWay}" HorizontalAlignment="Center" Margin="0,12,0,0"/>
-
-                            <!-- Row 3: Transaction Log -->
-                            <TextBlock Grid.Row="3" Grid.Column="0" Text="Transaction log" FontWeight="Medium" FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource BrushInk}" VerticalAlignment="Center" Margin="0,12,0,0"/>
-                            <CheckBox Grid.Row="3" Grid.Column="1" IsChecked="{Binding Config.NotificationMatrix.LogSuccess, Mode=TwoWay}" HorizontalAlignment="Center" Margin="0,12,0,0"/>
-                            <CheckBox Grid.Row="3" Grid.Column="2" IsChecked="{Binding Config.NotificationMatrix.LogWarning, Mode=TwoWay}" HorizontalAlignment="Center" Margin="0,12,0,0"/>
-                            <CheckBox Grid.Row="3" Grid.Column="3" IsChecked="{Binding Config.NotificationMatrix.LogFailure, Mode=TwoWay}" HorizontalAlignment="Center" Margin="0,12,0,0"/>
-                        </Grid>
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <Border Visibility="{Binding HasUnsavedNotificationChanges, Converter={StaticResource BoolToVis}}"
+                            Background="{DynamicResource BrushSaffronSoft}"
+                            CornerRadius="{StaticResource RadiusPill}"
+                            Padding="10,4" Margin="0,0,10,0">
+                        <StackPanel Orientation="Horizontal">
+                            <Ellipse Width="7" Height="7" Fill="{DynamicResource BrushSaffron}" Margin="0,0,6,0" VerticalAlignment="Center"/>
+                            <TextBlock Text="Unsaved changes" FontWeight="SemiBold" FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource BrushSaffron}"/>
+                        </StackPanel>
                     </Border>
+                    <TextBlock Visibility="{Binding HasUnsavedNotificationChanges, Converter={StaticResource InverseBoolToVis}}"
+                               Text="All notification settings are saved"
+                               FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource BrushInkFaint}" VerticalAlignment="Center"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                    <Button Content="Reset changes" Command="{Binding ResetNotificationsCommand}" Style="{StaticResource BtnQuiet}" Height="34" Padding="14,0" Margin="0,0,8,0"/>
+                    <Button Content="Validate configuration" Command="{Binding ValidateNotificationsConfigCommand}" Style="{StaticResource BtnQuiet}" Height="34" Padding="14,0" Margin="0,0,8,0"/>
+                    <Button Content="Test selected provider" Command="{Binding TestSelectedNotificationProviderCommand}" Style="{StaticResource BtnQuiet}" Height="34" Padding="14,0" Margin="0,0,8,0"/>
+                    <Button Content="Save changes" Command="{Binding SaveNotificationsPageCommand}" Style="{StaticResource BtnPrimary}" Height="34" Padding="18,0"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- ===================================================================
+             6. ACTIVITY DETAILS FLYOUT OVERLAY
+             =================================================================== -->
+        <Grid Grid.Row="0" Grid.RowSpan="2"
+              Visibility="{Binding IsNotificationActivityDetailsOpen, Converter={StaticResource BoolToVis}}"
+              Background="#660B1420">
+            <Border MaxWidth="540" VerticalAlignment="Center" HorizontalAlignment="Center"
+                    Style="{StaticResource Card}" Padding="24" Effect="{StaticResource Sh2}">
+                <StackPanel>
+                    <Grid Margin="0,0,0,12">
+                        <TextBlock Text="Notification Delivery Details" FontWeight="SemiBold" FontSize="{StaticResource FontSizeSectionHeader}" Foreground="{DynamicResource BrushInk}"/>
+                        <Button Command="{Binding CloseNotificationActivityDetailsCommand}" Style="{StaticResource IconBtn}" Width="30" Height="30" HorizontalAlignment="Right">
+                            <Path Data="{StaticResource IconClose}" Fill="{DynamicResource BrushInkMuted}" Width="14" Height="14" Stretch="Uniform"/>
+                        </Button>
+                    </Grid>
+                    <TextBlock Text="{Binding SelectedNotificationActivity.TimestampDisplay, StringFormat='Timestamp: {0}'}" FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushInkMuted}" Margin="0,0,0,4"/>
+                    <TextBlock Text="{Binding SelectedNotificationActivity.Provider, StringFormat='Provider: {0}'}" FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushInk}" Margin="0,0,0,4"/>
+                    <TextBlock Text="{Binding SelectedNotificationActivity.RelatedJob, StringFormat='Backup Job: {0}'}" FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushInk}" Margin="0,0,0,4"/>
+                    <TextBlock Text="{Binding SelectedNotificationActivity.Result, StringFormat='Result: {0}'}" FontWeight="SemiBold" FontSize="{StaticResource FontSizeSecondary}" Foreground="{DynamicResource BrushInk}" Margin="0,0,0,12"/>
+                    <Border Background="{DynamicResource BrushSunken}" CornerRadius="8" Padding="12" Visibility="{Binding SelectedNotificationActivity.HasError, Converter={StaticResource BoolToVis}}" Margin="0,0,0,14">
+                        <TextBlock Text="{Binding SelectedNotificationActivity.ErrorDetails}" FontFamily="{StaticResource FontFamilyMono}" FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource BrushCoral}" TextWrapping="Wrap"/>
+                    </Border>
+                    <Button Content="Close" Command="{Binding CloseNotificationActivityDetailsCommand}" Style="{StaticResource BtnPrimary}" HorizontalAlignment="Right" Height="32" Padding="16,0"/>
                 </StackPanel>
             </Border>
-
-        </StackPanel>
-    </ScrollViewer>
+        </Grid>
+    </Grid>
 </UserControl>

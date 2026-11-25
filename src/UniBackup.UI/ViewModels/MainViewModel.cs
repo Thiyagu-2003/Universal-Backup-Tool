@@ -454,6 +454,7 @@ public partial class MainViewModel : ObservableObject
         InitSettings();
         InitOverview();
         InitJobsPage();
+        InitNotifications();
     }
 
     private void InitSettings()
@@ -591,6 +592,8 @@ public partial class MainViewModel : ObservableObject
         await IisSitesVm.InitializeAsync();
         await RecoveryVm.InitializeAsync();
         await AnalyticsVm.RefreshAsync();
+        InitNotifications();
+        _ = RefreshNotificationActivityAsync();
     }
 
     public void UpdateFreeSpaceIndicators()
@@ -1983,6 +1986,7 @@ public partial class MainViewModel : ObservableObject
             }
 
             var res = await _notificationService.SendTestNotificationAsync(Config);
+            RecordNotificationDispatch("Email", "Test Dispatch", res.IsSuccess, res.Error);
             if (res.IsSuccess)
             {
                 NotificationHub.ShowSuccess("Test email delivered successfully!", "Email Dispatched");
@@ -2013,6 +2017,7 @@ public partial class MainViewModel : ObservableObject
         try
         {
             var res = await _webhookService.SendTestSlackAsync(Config.Webhooks.SlackWebhookUrl);
+            RecordNotificationDispatch("Slack", "Test Dispatch", res.IsSuccess, res.Error);
             if (res.IsSuccess) NotificationHub.ShowSuccess("Slack test alert delivered successfully!", "Slack Dispatched");
             else NotificationHub.ShowError($"Slack test failed: {res.Error}", "Slack Failed");
         }
@@ -2034,6 +2039,7 @@ public partial class MainViewModel : ObservableObject
         try
         {
             var res = await _webhookService.SendTestDiscordAsync(Config.Webhooks.DiscordWebhookUrl);
+            RecordNotificationDispatch("Discord", "Test Dispatch", res.IsSuccess, res.Error);
             if (res.IsSuccess) NotificationHub.ShowSuccess("Discord test alert delivered successfully!", "Discord Dispatched");
             else NotificationHub.ShowError($"Discord test failed: {res.Error}", "Discord Failed");
         }
@@ -2055,6 +2061,7 @@ public partial class MainViewModel : ObservableObject
         try
         {
             var res = await _webhookService.SendTestTeamsAsync(Config.Webhooks.TeamsWebhookUrl);
+            RecordNotificationDispatch("Teams", "Test Dispatch", res.IsSuccess, res.Error);
             if (res.IsSuccess) NotificationHub.ShowSuccess("Teams test alert delivered successfully!", "Teams Dispatched");
             else NotificationHub.ShowError($"Teams test failed: {res.Error}", "Teams Failed");
         }
@@ -2076,6 +2083,7 @@ public partial class MainViewModel : ObservableObject
         try
         {
             var res = await _webhookService.SendTestTelegramAsync(Config.Webhooks.TelegramBotToken, Config.Webhooks.TelegramChatId);
+            RecordNotificationDispatch("Telegram", "Test Dispatch", res.IsSuccess, res.Error);
             if (res.IsSuccess) NotificationHub.ShowSuccess("Telegram test alert delivered successfully!", "Telegram Dispatched");
             else NotificationHub.ShowError($"Telegram test failed: {res.Error}", "Telegram Failed");
         }
@@ -2097,6 +2105,7 @@ public partial class MainViewModel : ObservableObject
         try
         {
             var res = await _webhookService.SendTestPushoverAsync(Config.Webhooks.PushoverUserKey, Config.Webhooks.PushoverApiToken);
+            RecordNotificationDispatch("Pushover", "Test Dispatch", res.IsSuccess, res.Error);
             if (res.IsSuccess) NotificationHub.ShowSuccess("Pushover test alert dispatched successfully!", "Pushover Dispatched");
             else NotificationHub.ShowError($"Pushover test failed: {res.Error}", "Pushover Failed");
         }
@@ -2118,6 +2127,7 @@ public partial class MainViewModel : ObservableObject
         try
         {
             var res = await _webhookService.SendTestNtfyAsync(Config.Webhooks.NtfyServerUrl, Config.Webhooks.NtfyTopic, Config.Webhooks.NtfyToken);
+            RecordNotificationDispatch("ntfy", "Test Dispatch", res.IsSuccess, res.Error);
             if (res.IsSuccess) NotificationHub.ShowSuccess("ntfy test alert dispatched successfully!", "ntfy Dispatched");
             else NotificationHub.ShowError($"ntfy test failed: {res.Error}", "ntfy Failed");
         }
@@ -2139,6 +2149,7 @@ public partial class MainViewModel : ObservableObject
         try
         {
             var res = await _webhookService.SendTestPagerDutyAsync(Config.Webhooks.PagerDutyRoutingKey);
+            RecordNotificationDispatch("PagerDuty", "Test Dispatch", res.IsSuccess, res.Error);
             if (res.IsSuccess) NotificationHub.ShowSuccess("PagerDuty test incident triggered successfully!", "PagerDuty Dispatched");
             else NotificationHub.ShowError($"PagerDuty test failed: {res.Error}", "PagerDuty Failed");
         }
@@ -2163,6 +2174,7 @@ public partial class MainViewModel : ObservableObject
                 Config.Webhooks.CustomWebhookUrl,
                 Config.Webhooks.CustomWebhookHeaderName,
                 Config.Webhooks.CustomWebhookHeaderValue);
+            RecordNotificationDispatch("Custom Webhook", "Test Dispatch", res.IsSuccess, res.Error);
             if (res.IsSuccess) NotificationHub.ShowSuccess("Custom Webhook test payload delivered successfully!", "Webhook Dispatched");
             else NotificationHub.ShowError($"Custom Webhook test failed: {res.Error}", "Webhook Failed");
         }
@@ -2184,6 +2196,7 @@ public partial class MainViewModel : ObservableObject
         try
         {
             var res = await _heartbeatService.PingAsync(Config.Heartbeat, success: true);
+            RecordNotificationDispatch("Heartbeat", "Test Dispatch", res.IsSuccess, res.Error);
             if (res.IsSuccess) NotificationHub.ShowSuccess("Heartbeat ping sent successfully!", "Heartbeat OK");
             else NotificationHub.ShowError($"Heartbeat ping failed: {res.Error}", "Heartbeat Failed");
         }
